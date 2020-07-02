@@ -1335,9 +1335,11 @@ void amf_n1::ul_nas_transport_handle(uint32_t ran_ue_ngap_id, long amf_ue_ngap_i
   uint8_t payload_type = ulNas->getPayloadContainerType();
   uint8_t pdu_session_id = ulNas->getPduSessionId();
   uint8_t request_type = ulNas->getRequestType();
-  bstring dnn;
+  bstring dnn = bfromcstr("default");
   bstring sm_msg;
   if(ulNas->getDnn(dnn)){
+  } else {
+    dnn = bfromcstr("default");
   }
   switch(payload_type){
     case N1_SM_INFORMATION:{

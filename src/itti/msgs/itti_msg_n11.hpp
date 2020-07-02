@@ -3,6 +3,7 @@
 
 #include "bstrlib.h"
 #include "itti_msg.hpp"
+#include <string>
 
 class itti_msg_n11 : public itti_msg{
 public:
