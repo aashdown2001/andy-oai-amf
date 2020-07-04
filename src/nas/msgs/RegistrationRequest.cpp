@@ -5,7 +5,6 @@
 using namespace nas;
 
 RegistrationRequest::RegistrationRequest(){
-  Logger::nas_mm().debug("initiating class RegistrationRequest");
   plain_header = NULL;
   ie_5gsregistrationtype = NULL;
   ie_ngKSI = NULL;

@@ -8,6 +8,7 @@
 #include "itti_msg_n1.hpp"
 #include "bstrlib.h"
 #include "3gpp_ts24501.hpp"
+#include "amf_statistics.hpp"
 
 #include <pthread.h>
 #include <stdlib.h>
@@ -48,6 +49,7 @@ public: // nas message decode
 
 public:
   std::map<long, std::shared_ptr<nas_context>> amfueid2nas_context; // amf ue ngap id
+  std::map<string, std::shared_ptr<nas_context>> imsi2nas_context;
   std::map<std::string, long> supi2amfId;
   std::map<std::string, uint32_t> supi2ranId;
 
@@ -111,6 +113,8 @@ public:
   void annex_a_4_33501(uint8_t ck[16], uint8_t ik[16], uint8_t *input, uint8_t rand[16], std::string serving_network, uint8_t *output);
 public:
   void send_itti_to_smf_services_consumer(uint32_t ran_ue_ngap_id, long amf_ue_ngap_id, uint8_t request_type, uint8_t pdu_session_id, bstring dnn, bstring sm_msg);
+public:
+  void update_ue_information_statics(ue_infos &ueItem, const string connStatus, const string registerStatus, uint32_t ranid, uint32_t amfid, string imsi, string guti, string mcc, string mnc, uint32_t cellId);
 };
 }
 
