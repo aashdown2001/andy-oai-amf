@@ -434,23 +434,16 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request &itti_msg){
     item.s_nssai.sst = "01";
     item.s_nssai.sd = "";
     item.pduSessionNAS_PDU = NULL;
-    Logger::amf_n2().debug("Encoding parameters for service request, testing point 0");
     bstring n2sm = itti_msg.n2sm;
-    //Logger::amf_n2().debug("Encoding parameters for service request, testing point 0.1 n2sm_size(%d)", blength(itti_msg.n2sm));
-    Logger::amf_n2().debug("Encoding parameters for service request, testing point 1");
     if(blength(itti_msg.n2sm) != 0){
       item.pduSessionResourceSetupRequestTransfer.buf = (uint8_t*)bdata(itti_msg.n2sm);
-      Logger::amf_n2().debug("Encoding parameters for service request, testing point 1.1");
       item.pduSessionResourceSetupRequestTransfer.size = blength(itti_msg.n2sm);
     }else{
       Logger::amf_n2().error("n2sm empty!");
     }
     list.push_back(item);
-    Logger::amf_n2().debug("Encoding parameters for service request, testing point 2");
     msg->setPduSessionResourceSetupRequestList(list);
-    Logger::amf_n2().debug("Encoding parameters for service request, testing point 3");
     msg->setUEAggregateMaxBitRate(0x08a7d8c0, 0x20989680);
-    Logger::amf_n2().debug("Encoding parameters for service request, testing point 4");
   }
 
   uint8_t buffer[10000];
@@ -499,30 +492,19 @@ void amf_n2::handle_itti_message(itti_pdu_session_resource_setup_request &itti_m
 }
 
 void amf_n2::handle_itti_message(itti_ue_context_release_request &itti_msg){
-  Logger::amf_n2().debug("handle_itti_message ...");
+  Logger::amf_n2().debug("handling ue context release request ...");
   unsigned long amf_ue_ngap_id = itti_msg.ueCtxRel->getAmfUeNgapId();
-  Logger::amf_n2().debug("handle_itti_message ... test point 0");
   uint32_t ran_ue_ngap_id = itti_msg.ueCtxRel->getRanUeNgapId();
-  Logger::amf_n2().debug("handle_itti_message ... test point 1");
   e_Ngap_CauseRadioNetwork cause;
-  Logger::amf_n2().debug("handle_itti_message ... test point 2");
   itti_msg.ueCtxRel->getCauseRadioNetwork(cause);
-  Logger::amf_n2().debug("handle_itti_message ... test point 3");
   UEContextReleaseCommandMsg * ueCtxRelCmd = new UEContextReleaseCommandMsg();
-  Logger::amf_n2().debug("handle_itti_message ... test point 4");
   ueCtxRelCmd->setMessageType();
-  Logger::amf_n2().debug("handle_itti_message ... test point 5");
   ueCtxRelCmd->setUeNgapIdPair(amf_ue_ngap_id, ran_ue_ngap_id);
-  Logger::amf_n2().debug("handle_itti_message ... test point 6");
   ueCtxRelCmd->setCauseRadioNetwork(cause);
-  Logger::amf_n2().debug("handle_itti_message ... test point 7");
   uint8_t buffer[200];
   int encoded_size = ueCtxRelCmd->encode2buffer(buffer, 200);
-  Logger::amf_n2().debug("handle_itti_message ... test point 8");
   bstring b = blk2bstr(buffer, encoded_size);
-  Logger::amf_n2().debug("handle_itti_message ... test point 9");
   sctp_s_38412.sctp_send_msg(itti_msg.assoc_id, itti_msg.stream, &b);
-  Logger::amf_n2().debug("handle_itti_message ... test point 10");
 }
 
 void amf_n2::handle_itti_message(itti_ue_radio_capability_indication &itti_msg){

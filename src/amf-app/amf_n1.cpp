@@ -1403,6 +1403,7 @@ void amf_n1::ul_nas_transport_handle(uint32_t ran_ue_ngap_id, long amf_ue_ngap_i
   } else {
     dnn = bfromcstr("default");
   }
+  print_buffer("amf_n1", "decoded dnn bitstring out", (uint8_t*)bdata(dnn), blength(dnn));
   switch(payload_type){
     case N1_SM_INFORMATION:{
       if(!ulNas->getPayloadContainer(sm_msg)){

@@ -191,7 +191,7 @@ void amf_n11::handle_pdu_session_initial_request(string supi, std::shared_ptr<pd
   pdu_session_establishment_request["supi"] = supi.c_str();
   pdu_session_establishment_request["pei"] = "imei-200000000000001";
   pdu_session_establishment_request["gpsi"] = "msisdn-200000000001";
-  pdu_session_establishment_request["dnn"] = "internet";
+  pdu_session_establishment_request["dnn"] = dnn.c_str();
   pdu_session_establishment_request["sNssai"]["sst"] = 1;
   pdu_session_establishment_request["sNssai"]["sd"] = "0";
   pdu_session_establishment_request["pduSessionId"] = psc.get()->pdu_session_id;
@@ -293,10 +293,8 @@ void amf_n11::curl_http_client(string remoteUri, string jsonData, string n1SmMsg
       //curl_mime_name (part, "n1SmMsg");
     }
 
-    Logger::amf_n11().debug("is there ok?");
 
     if(n2SmMsg != ""){
-      Logger::amf_n11().debug("is there ok? n2");
       unsigned char *n2_msg_hex  = format_string_as_hex(n2SmMsg);
       part = curl_mime_addpart(mime);
       curl_mime_data(part, reinterpret_cast<const char*>(n2_msg_hex), n2SmMsg.length()/2);
@@ -304,25 +302,20 @@ void amf_n11::curl_http_client(string remoteUri, string jsonData, string n1SmMsg
       //curl_mime_name (part, "n2SmMsg");
     }
     
-    Logger::amf_n11().debug("is there ok?1");
     curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
     //res = curl_easy_perform(curl);
 
-    Logger::amf_n11().debug("is there ok?2");
     // Response information.
     long httpCode(0);
     std::unique_ptr<std::string> httpData(new std::string());
 
-    Logger::amf_n11().debug("is there ok?3");
     // Hook up data handling function.
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &callback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, httpData.get());
 
-    Logger::amf_n11().debug("is there ok?4");
     res = curl_easy_perform(curl);
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
 
-    Logger::amf_n11().debug("is there ok?5");
     //get cause from the response
     string response = *httpData.get();
     string jsonData = "";

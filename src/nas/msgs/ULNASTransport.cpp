@@ -93,9 +93,9 @@ void ULNASTransport::setDNN(bstring dnn) {
 bool ULNASTransport::getDnn(bstring &dnn) {
 			if (ie_dnn) {
 				ie_dnn->getValue(dnn);
-				return 0;
+				return true;
 			}
-			else { return -1; }
+			else { return false; }
 		}
 void ULNASTransport::setAdditional_Information(uint8_t _length, uint8_t value) {
 	ie_additional_information = new Additional_Information(0x24,_length, value);
