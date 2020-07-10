@@ -340,6 +340,12 @@ void amf_n1::service_request_handle(bool isNasSig, std::shared_ptr<nas_context> 
   bstring kgnb_bs = blk2bstr(kgnb, 32);
 
   string supi = "imsi-" + nc.get()->imsi;
+
+  /*        by liuyu */
+  supi2amfId[supi] = amf_ue_ngap_id;
+  Logger::amf_n1().debug("amf_ue_ngap_id-----------------------------------liuyu(%d)", amf_ue_ngap_id);
+  supi2ranId[supi] = ran_ue_ngap_id;
+  Logger::amf_n1().debug("ran_ue_ngap_id-----------------------------------liuyu(%d)",ran_ue_ngap_id);
   Logger::amf_n1().debug("Key for pdu session context: supi(%s)", supi.c_str());
   std::shared_ptr<pdu_session_context> psc;
   if(amf_n11_inst->is_supi_to_pdu_ctx(supi)){
