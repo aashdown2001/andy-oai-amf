@@ -799,7 +799,8 @@ SET_OF_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
 	const asn_anonymous_set_ *list = _A_CSET_FROM_VOID(sptr);
 	int ret;
 	int i;
-
+        if(!sptr) printf("test1130 set_of_printf sptr null\n");
+        else printf("test1130 set_of_printf OK\n");
 	if(!sptr) return (cb("<absent>", 8, app_key) < 0) ? -1 : 0;
 
 	/* Dump preamble */

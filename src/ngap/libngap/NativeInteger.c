@@ -332,7 +332,7 @@ NativeInteger_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 
 	(void)opt_codec_ctx;
 	ASN_DEBUG("Decoding NativeInteger %s (APER)", td->name);
-        //printf("test0515 Decoding NativeInteger %s (APER)\n", td->name);
+        printf("test0515 Decoding NativeInteger %s (APER)\n", td->name);
 
 	if(!native) {
 		native = (long *)(*sptr = CALLOC(1, sizeof(*native)));

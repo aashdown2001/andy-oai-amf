@@ -221,7 +221,7 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind &nas_data_ind) {
     else {
       Logger::amf_n1().error("No existing nas_context with GUTI %s",
                              nas_data_ind.guti.c_str());
-      return;
+      //return;
     }
   } else {
     if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
@@ -368,7 +368,8 @@ void amf_n1::nas_signalling_establishment_request_handle(
       break;
     case SERVICE_REQUEST: {
       Logger::amf_n1().debug("Received service request message, handling...");
-      nc.get()->security_ctx->ul_count.seq_num = ulCount;
+      if(nc.get())
+          nc.get()->security_ctx->ul_count.seq_num = ulCount;
       service_request_handle(true, nc, ran_ue_ngap_id, amf_ue_ngap_id,
                              plain_msg);
     }
@@ -2256,7 +2257,8 @@ void amf_n1::ue_authentication_simulator(uint8_t *rand, uint8_t *autn) {
       0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
   uint8_t key[16] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
       0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff };
-  string serving_network = "5G:mnc011.mcc460.3gppnetwork.org";
+  //string serving_network = "5G:mnc011.mcc460.3gppnetwork.org";
+  string serving_network = "5G:mnc011.mcc110.3gppnetwork.org";
   print_buffer("amf_n1", "[ue] local opc", opc, 16);
   print_buffer("amf_n1", "[ue] local key", key, 16);
   uint8_t res[8], resStar[16];

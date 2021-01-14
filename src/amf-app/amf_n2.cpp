@@ -306,6 +306,8 @@ void amf_n2::handle_itti_message(itti_ng_setup_request &itti_msg) {
     }
   }
 
+  set_gnb_id_2_gnb_context(gnb_id, gc);
+  
   //store Paging DRX in gNB context
   Logger::amf_n2().debug("Encoding NG_SETUP_RESPONSE ...");
   //encode NG SETUP RESPONSE message with information stored in configuration file and send_msg

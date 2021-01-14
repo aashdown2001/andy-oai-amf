@@ -1050,7 +1050,7 @@ CHOICE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 		if(value < 0) ASN__DECODE_STARVED;
 		ASN_DEBUG("CHOICE %s got index %d in range %d",
 		          td->name, value, ct->range_bits);
-                //printf("test0515 CHOICE %s got index %d in range %d\n", td->name, value, ct->range_bits);
+                printf("test0515 CHOICE %s got index %d in range %d\n", td->name, value, ct->range_bits);
 		if(value > ct->upper_bound)
 			ASN__DECODE_FAILED;
 	} else {
@@ -1069,7 +1069,7 @@ CHOICE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 
 	/* Set presence to be able to free it later */
 	_set_present_idx(st, specs->pres_offset, specs->pres_size, value + 1);
-
+        printf("test1130 decoding td->name %s set present %d\n", td->name, value+1);
 	elm = &td->elements[value];
 	if(elm->flags & ATF_POINTER) {
 		/* Member is a pointer to another structure */
@@ -1079,7 +1079,7 @@ CHOICE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 		memb_ptr2 = &memb_ptr;
 	}
 	ASN_DEBUG("Discovered CHOICE %s encodes %s", td->name, elm->name);
-        //printf("test0515 Discovered CHOICE %s encodes %s\n", td->name, elm->name);
+        printf("test1130 decoding element(%s) in td->name(%s), pointer(%p)\n", elm->name, td->name, memb_ptr2);
 
 	if(ct && ct->range_bits >= 0) {
 		rv = elm->type->op->aper_decoder(opt_codec_ctx, elm->type,
@@ -1092,7 +1092,7 @@ CHOICE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 	if(rv.code != RC_OK){
 		ASN_DEBUG("Failed to decode %s in %s (CHOICE) %d",
 		          elm->name, td->name, rv.code);
-                //printf("test0515 Failed to decode %s in %s (CHOICE) %d\n", elm->name, td->name, rv.code);
+                printf("test0515 Failed to decode %s in %s (CHOICE) %d\n", elm->name, td->name, rv.code);
         }
 	return rv;
 }
@@ -1186,26 +1186,30 @@ CHOICE_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
              asn_app_consume_bytes_f *cb, void *app_key) {
     const asn_CHOICE_specifics_t *specs = (const asn_CHOICE_specifics_t *)td->specifics;
 	unsigned present;
-
+        if(!sptr) printf("test1130 sptr null\n");
+        else printf("test1130 OK\n");
 	if(!sptr) return (cb("<absent>", 8, app_key) < 0) ? -1 : 0;
 
 	/*
 	 * Figure out which CHOICE element is encoded.
 	 */
 	present = _fetch_present_idx(sptr, specs->pres_offset,specs->pres_size);
-
+        printf("test1130 present %d, td->elements %d\n", present, td->elements_count);
 	/*
 	 * Print that element.
 	 */
 	if(present > 0 && present <= td->elements_count) {
 		asn_TYPE_member_t *elm = &td->elements[present-1];
+                printf("test1130 td_name %s, element_name %s\n", td->name, elm->name);
 		const void *memb_ptr;
 
 		if(elm->flags & ATF_POINTER) {
 			memb_ptr = *(const void * const *)((const char *)sptr + elm->memb_offset);
+                        printf("test1130 memb_ptr1 (%p)\n", memb_ptr);
 			if(!memb_ptr) return (cb("<absent>", 8, app_key) < 0) ? -1 : 0;
 		} else {
 			memb_ptr = (const void *)((const char *)sptr + elm->memb_offset);
+                        printf("test1130 memb_ptr2 (%p)\n", memb_ptr);
 		}
 
 		/* Print member's name and stuff */
@@ -1218,6 +1222,7 @@ CHOICE_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
 		return elm->type->op->print_struct(elm->type, memb_ptr, ilevel,
 			cb, app_key);
 	} else {
+                printf("test1130 casued by present = %d\n", present);
 		return (cb("<absent>", 8, app_key) < 0) ? -1 : 0;
 	}
 }

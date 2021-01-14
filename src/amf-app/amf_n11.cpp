@@ -182,7 +182,8 @@ void amf_n11::handle_itti_message(
   }
 
   std::string smf_ip_addr, remote_uri;
-
+  std::shared_ptr<pdu_session_context> context;
+  context = supi_to_pdu_ctx(supi);
   //remove http port from the URI if existed
   std::size_t found_port = smf_addr.find(":");
   if (found_port != std::string::npos)
@@ -192,16 +193,16 @@ void amf_n11::handle_itti_message(
 
   std::size_t found = psc.get()->smf_context_location.find(smf_ip_addr);
   if (found != std::string::npos)
-    remote_uri = psc.get()->smf_context_location + "/modify";
+    remote_uri = context.get()->smf_context_location + "/modify";
   else
-    remote_uri = smf_addr + psc.get()->smf_context_location + "/modify";
+    remote_uri = smf_addr + context.get()->smf_context_location + "/modify";
 
   Logger::amf_n11().debug("SMF URI: %s", remote_uri.c_str());
 
   nlohmann::json pdu_session_update_request = { };
   //if (itti_msg.is_n2sm_set){
   pdu_session_update_request["n2SmInfoType"] = itti_msg.n2sm_info_type;
-  pdu_session_update_request["n2SmInfo"]["contentId"] = "n2msg";
+  pdu_session_update_request["n2SmInfo"]["contentId"] = "n2SmMsg";
   std::string json_part = pdu_session_update_request.dump();
   std::string n2SmMsg;
   octet_stream_2_hex_stream((uint8_t*) bdata(itti_msg.n2sm),
@@ -358,15 +359,19 @@ void amf_n11::handle_pdu_session_initial_request(
   pdu_session_establishment_request["pei"] = "imei-200000000000001";
   pdu_session_establishment_request["gpsi"] = "msisdn-200000000001";
   pdu_session_establishment_request["dnn"] = dnn.c_str();
-  pdu_session_establishment_request["sNssai"]["sst"] = psc.get()->snssai.sST;
-  pdu_session_establishment_request["sNssai"]["sd"] = psc.get()->snssai.sD;
+  //pdu_session_establishment_request["sNssai"]["sst"] = psc.get()->snssai.sST;
+  pdu_session_establishment_request["sNssai"]["sst"] = 1;
+  pdu_session_establishment_request["sNssai"]["sd"] = "0";
+  //pdu_session_establishment_request["sNssai"]["sd"] = psc.get()->snssai.sD;
   pdu_session_establishment_request["pduSessionId"] = psc.get()->pdu_session_id;
   pdu_session_establishment_request["requestType"] = "INITIAL_REQUEST";  //TODO: from SM_MSG
   pdu_session_establishment_request["servingNfId"] = "servingNfId";
-  pdu_session_establishment_request["servingNetwork"]["mcc"] = psc.get()->plmn
-      .mcc;
-  pdu_session_establishment_request["servingNetwork"]["mnc"] = psc.get()->plmn
-      .mnc;
+  //pdu_session_establishment_request["servingNetwork"]["mcc"] = psc.get()->plmn
+  //    .mcc;
+  //pdu_session_establishment_request["servingNetwork"]["mnc"] = psc.get()->plmn
+  //    .mnc;
+  pdu_session_establishment_request["servingNetwork"]["mcc"] = "110";
+  pdu_session_establishment_request["servingNetwork"]["mnc"] = "011";
   pdu_session_establishment_request["anType"] = "3GPP_ACCESS";  //TODO
   pdu_session_establishment_request["smContextStatusUri"] =
       "smContextStatusUri";
@@ -628,7 +633,7 @@ void amf_n11::curl_http_client(std::string remoteUri, std::string jsonData,
       }
 
       //Transfer N1/N2 to gNB/UE if available
-      if (number_parts > 1) {
+      /*if (number_parts > 1) {
         try {
           response_data = nlohmann::json::parse(json_data_response);
         } catch (nlohmann::json::exception &e) {
@@ -648,7 +653,7 @@ void amf_n11::curl_http_client(std::string remoteUri, std::string jsonData,
           itti_msg->is_n1sm_set = true;
 
         }
-        if (n2sm.size() > 0) {
+         if (n2sm.size() > 0) {
           msg_str_2_msg_hex(n2sm, n2sm_hex);
           print_buffer("amf_n11", "Get response n2sm:",
                        (uint8_t*) bdata(n2sm_hex), blength(n2sm_hex));
@@ -667,7 +672,7 @@ void amf_n11::curl_http_client(std::string remoteUri, std::string jsonData,
               "Could not send ITTI message %s to task TASK_AMF_APP",
               i->get_msg_name());
         }
-      }
+      }*/
     }
 
     curl_slist_free_all(headers);
