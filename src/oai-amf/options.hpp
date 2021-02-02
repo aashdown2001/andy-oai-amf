@@ -38,14 +38,8 @@ class Options {
     return m_log_stdout;
   }
 
-<<<<<<< HEAD
-   static const std::string &getlibconfigConfig() { return m_libconfigcfg; }
-   static const bool &getlogRotFilelog()          { return m_log_rot_file_log; }
-   static const bool &getlogStdout()              { return m_log_stdout; }
    static const bool &isNausf()              { return m_is_Nausf; }
-=======
  private:
->>>>>>> prepare_merge_handover
 
   enum OptionsSelected {
     libconfigcfg = 0x01,
@@ -57,18 +51,11 @@ class Options {
 
   static int options;
 
-<<<<<<< HEAD
-   static int options;
 
    static bool m_log_rot_file_log;
    static bool m_log_stdout;
    static bool m_is_Nausf;
    static std::string m_libconfigcfg;
-=======
-  static bool m_log_rot_file_log;
-  static bool m_log_stdout;
-  static std::string m_libconfigcfg;
->>>>>>> prepare_merge_handover
 };
 
 #endif // #define __OPTIONS_H

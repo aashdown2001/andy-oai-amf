@@ -30,19 +30,8 @@ bool Options::m_is_Nausf = true;
 
 //------------------------------------------------------------------------------
 void Options::help() {
-<<<<<<< HEAD
   std::cout << std::endl << "Usage:  AMF  [OPTIONS]..." << std::endl << "  -h, --help                   Print help and exit" << std::endl << "  -c, --libconfigcfg filename  Read the application configuration from this file." << std::endl
       << "  -o, --stdoutlog              Send the application logs to STDOUT fd." << std::endl << "  -r, --rotatelog              Send the application logs to local file (in  current working directory)." << std::endl<< "      --no-ausf               Do not connect ausf." << std::endl;
-=======
-  std::cout << std::endl << "Usage:  AMF  [OPTIONS]..." << std::endl
-      << "  -h, --help                   Print help and exit" << std::endl
-      << "  -c, --libconfigcfg filename  Read the application configuration from this file."
-      << std::endl
-      << "  -o, --stdoutlog              Send the application logs to STDOUT fd."
-      << std::endl
-      << "  -r, --rotatelog              Send the application logs to local file (in  current working directory)."
-      << std::endl;
->>>>>>> prepare_merge_handover
 }
 
 //------------------------------------------------------------------------------
@@ -70,14 +59,7 @@ bool Options::parseInputOptions(int argc, char **argv) {
   int option_index = 0;
   bool result = true;
 
-<<<<<<< HEAD
   struct option long_options[] = { { "help", no_argument, NULL, 'h' }, { "libconfigcfg", required_argument, NULL, 'f' }, { "stdoutlog", no_argument, NULL, 'o' }, { "rotatelog", no_argument, NULL, 'r' }, { "no-ausf", no_argument, &lopt, OPTIONS_NAUSF_VAL }, { NULL, 0, NULL, 0 } };
-=======
-  struct option long_options[] = { { "help", no_argument, NULL, 'h' }, {
-      "libconfigcfg", required_argument, NULL, 'f' }, { "stdoutlog",
-      no_argument, NULL, 'o' }, { "rotatelog", no_argument, NULL, 'r' }, { NULL,
-      0, NULL, 0 } };
->>>>>>> prepare_merge_handover
 
   // Loop on arguments
   while (1) {

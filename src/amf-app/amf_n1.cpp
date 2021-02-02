@@ -55,7 +55,6 @@
 #include "String2Value.hpp"
 #include "sha256.hpp"
 
-<<<<<<< HEAD
 #include "AuthenticationInfo.h"
 #include "UEAuthenticationCtx.h"
 #include "ConfirmationData.h"
@@ -65,9 +64,6 @@
 
 extern "C"
 {
-=======
-extern "C" {
->>>>>>> prepare_merge_handover
 #include "dynamic_memory_check.h"
 #include "bstrlib.h"
 }
@@ -86,14 +82,12 @@ extern amf_config amf_cfg;
 extern amf_app* amf_app_inst;
 extern amf_n2* amf_n2_inst;
 extern statistics stacs;
-<<<<<<< HEAD
 extern void convert_string_2_hex(std::string &input, std::string &output);
 extern unsigned char * format_string_as_hex(std::string str);
 
 
-=======
+
 extern int ncc;
->>>>>>> prepare_merge_handover
 Sha256 ctx;
 random_state_t random_state;
 static uint8_t no_random_delta = 0;
@@ -881,7 +875,6 @@ void amf_n1::registration_request_handle(
       delete regReq;
       return;
     }
-<<<<<<< HEAD
   }else{
     Logger::amf_n1().debug("existing nas_context(%p)  --> Update", nc.get());
     //nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
@@ -892,14 +885,6 @@ void amf_n1::registration_request_handle(
   //}
   nc.get()->ran_ue_ngap_id = ran_ue_ngap_id;
   nc.get()->amf_ue_ngap_id = amf_ue_ngap_id;
-=======
-  } else {
-    Logger::amf_n1().debug("Existing nas_context --> Update");
-    // nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
-  }
-  nc.get()->ran_ue_ngap_id  = ran_ue_ngap_id;
-  nc.get()->amf_ue_ngap_id  = amf_ue_ngap_id;
->>>>>>> prepare_merge_handover
   nc.get()->serving_network = snn;
 
   // Check 5GS_Registration_type IE (Mandatory IE)
@@ -916,11 +901,7 @@ void amf_n1::registration_request_handle(
   nc.get()->registration_type         = reg_type;
   nc.get()->follow_on_req_pending_ind = is_follow_on_req_pending;
 
-<<<<<<< HEAD
-  //2.3 check ie ngKSI(Mondantary IE)
-=======
   // Check ngKSI (Mandatory IE)
->>>>>>> prepare_merge_handover
   uint8_t ngKSI = regReq->getngKSI();
   if (ngKSI == -1) {
     Logger::amf_n1().error("Missing Mandatory IE ngKSI...");
@@ -1102,17 +1083,11 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context>& nc) {
         }
         nc.get()->ngKsi = ngksi;
         handle_auth_vector_successful_result(nc);
-<<<<<<< HEAD
-      }else{
-        Logger::amf_n1().error("request authentication vectors failure");
-        response_registration_reject_msg(_5GMM_CAUSE_ILLEGAL_UE, nc.get()->ran_ue_ngap_id, nc.get()->amf_ue_ngap_id);//cause?
-=======
       } else {
         Logger::amf_n1().error("Request authentication vectors failure");
         response_registration_reject_msg(
             _5GMM_CAUSE_ILLEGAL_UE, nc.get()->ran_ue_ngap_id,
             nc.get()->amf_ue_ngap_id);  // cause?
->>>>>>> prepare_merge_handover
       }
     } else {
       Logger::amf_n1().debug(
@@ -1161,7 +1136,6 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context>& nc) {
 bool amf_n1::auth_vectors_generator(std::shared_ptr<nas_context>& nc) {
   Logger::amf_n1().debug("Start to generate authentication vectors");
   authentication_vectors_generator_in_udm(nc);
-<<<<<<< HEAD
   if(amf_cfg.is_Nausf)
   {
     if(!authentication_vectors_from_ausf(nc))
@@ -1175,14 +1149,6 @@ bool amf_n1::auth_vectors_generator(std::shared_ptr<nas_context>& nc) {
     {
         Authentication_5gaka::derive_kamf(nc.get()->imsi, nc.get()->_5g_av[i].kseaf, nc.get()->kamf[i], 0x0000); //second parameter: abba
     }
-=======
-  authentication_vectors_generator_in_ausf(nc);
-  Logger::amf_n1().debug("Deriving kamf");
-  for (int i = 0; i < MAX_5GS_AUTH_VECTORS; i++) {
-    Authentication_5gaka::derive_kamf(
-        nc.get()->imsi, nc.get()->_5g_av[i].kseaf, nc.get()->kamf[i],
-        0x0000);  // second parameter: abba
->>>>>>> prepare_merge_handover
   }
   return true;
 }
@@ -1777,48 +1743,7 @@ void amf_n1::authentication_response_handle(
       nullptr, (uint8_t*) bdata(plain_msg), blength(plain_msg));
   bstring resStar;
   bool isAuthOk = true;
-<<<<<<< HEAD
   //Get response RES*
-  if (!auth->getAuthenticationResponseParameter(resStar))
-  {
-    Logger::amf_n1().warn("Cannot receive AuthenticationResponseParameter (RES*)");
-  }
-  else
-  {
-    if(amf_cfg.is_Nausf)
-    {
-        std::string data = bdata(resStar);
-        if(!_5g_aka_confirmation_from_ausf(nc,data))
-            isAuthOk = false;
-    }
-    else
-    {
-        //Get stored XRES*
-        int secu_index = nc.get()->security_ctx->vector_pointer;
-        uint8_t *hxresStar = nc.get()->_5g_av[secu_index].hxresStar;
-        //Calculate HRES* from received RES*, then compare with XRES stored in nas_context
-        uint8_t inputstring[32];
-        uint8_t *res = (uint8_t *)bdata(resStar);
-        Logger::amf_n1().debug("Start to calculate HRES* from received RES*");
-        memcpy(&inputstring[0], nc.get()->_5g_av[secu_index].rand, 16);
-        memcpy(&inputstring[16], res, blength(resStar));
-        unsigned char sha256Out[Sha256::DIGEST_SIZE];
-        sha256((unsigned char *)inputstring, 16 + blength(resStar), sha256Out);
-        uint8_t hres[16];
-        for (int i = 0; i < 16; i++)
-          hres[i] = (uint8_t)sha256Out[i];
-        print_buffer("amf_n1", "Received RES* From Authentication-Response", res, 16);
-        print_buffer("amf_n1", "Stored XRES* in 5G HE AV", nc.get()->_5g_he_av[secu_index].xresStar, 16);
-        print_buffer("amf_n1", "Stored XRES in 5G HE AV", nc.get()->_5g_he_av[secu_index].xres, 8);
-        print_buffer("amf_n1", "Computed HRES* from RES*", hres, 16);
-        print_buffer("amf_n1", "Computed HXRES* from XRES*", hxresStar, 16);
-        for (int i = 0; i < 16; i++)
-        {
-          if (hxresStar[i] != hres[i])
-            isAuthOk = false;
-        }
-=======
-  // Get response RES*
   if (!auth->getAuthenticationResponseParameter(resStar)) {
     Logger::amf_n1().warn(
         "Cannot receive AuthenticationResponseParameter (RES*)");
@@ -1849,7 +1774,6 @@ void amf_n1::authentication_response_handle(
     print_buffer("amf_n1", "Computed HXRES* from XRES*", hxresStar, 16);
     for (int i = 0; i < 16; i++) {
       if (hxresStar[i] != hres[i]) isAuthOk = false;
->>>>>>> prepare_merge_handover
     }
 
   }
@@ -2107,26 +2031,6 @@ void amf_n1::security_mode_complete_handle(
     // encoding InitialContextSetupRequest(NGAP message) back
     std::shared_ptr<nas_context> nc;
     nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
-<<<<<<< HEAD
-    Logger::amf_n1().info("UE (IMSI %s, GUTI %s, current RAN ID %d, current AMF ID %d) has been registered to the network", nc.get()->imsi.c_str(), guti.c_str(), ran_ue_ngap_id, amf_ue_ngap_id);
-    //nc.get()->is_stacs_available = true;
-    if (nc.get()->is_stacs_available)
-    {
-      int index = 0;
-      for (int i = 0; i < stacs.ues.size(); i++)
-      {
-        if (!(nc.get()->imsi).compare(stacs.ues[i].imsi))
-        {
-          index = i;
-          break;
-        }
-      }
-      update_ue_information_statics(stacs.ues[index], "", "RM-REGISTRED", ran_ue_ngap_id, amf_ue_ngap_id, "", guti, "", "", 0);
-    }else{
-      ue_infos ueItem;
-      update_ue_information_statics(ueItem, "CM-CONNECTED", "REGISTRATION-REGISTRED", ran_ue_ngap_id, amf_ue_ngap_id, nc.get()->imsi, "", mcc, mnc, uc.get()->cgi.nrCellID);
-      stacs.ues.push_back(ueItem);
-=======
     Logger::amf_n1().info(
         "UE (IMSI %s, GUTI %s, current RAN ID %d, current AMF ID %d) has been "
         "registered to the network",
@@ -2149,7 +2053,6 @@ void amf_n1::security_mode_complete_handle(
       // "REGISTRATION-REGISTRED", ran_ue_ngap_id, amf_ue_ngap_id,
       // nc.get()->imsi, "", mcc, mnc, uc.get()->cgi.nrCellID);
       // stacs.ues.push_back(ueItem);
->>>>>>> prepare_merge_handover
       nc.get()->is_stacs_available = true;
     }
     set_5gmm_state(nc, _5GMM_REGISTERED);
