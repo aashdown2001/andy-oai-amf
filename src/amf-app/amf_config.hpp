@@ -50,6 +50,8 @@
 #define AMF_CONFIG_STRING_STATISTICS_TIMER_INTERVAL     "STATISTICS_TIMER_INTERVAL"
 #define AMF_CONFIG_STRING_INTERFACES                    "INTERFACES"
 #define AMF_CONFIG_STRING_INTERFACE_NGAP_AMF            "NGAP_AMF"
+#define AMF_CONFIG_STRING_INTERFACE_NAUSF               "NAUSF"
+
 #define AMF_CONFIG_STRING_INTERFACE_NAME                "INTERFACE_NAME"
 #define AMF_CONFIG_STRING_IPV4_ADDRESS                  "IPV4_ADDRESS"
 #define AMF_CONFIG_STRING_PORT                          "PORT"
@@ -170,6 +172,7 @@ class amf_config {
   std::string pid_dir;
   interface_cfg_t n2;
   interface_cfg_t n11;
+  interface_cfg_t nausf;
   itti_cfg_t itti;
   unsigned int statistics_interval;
   std::string AMF_Name;
@@ -181,6 +184,8 @@ class amf_config {
   auth_conf auth_para;
   nas_conf_t nas_cfg;
   std::vector<smf_inst_t> smf_pool;
+
+  bool is_Nausf;
 };
 
 }

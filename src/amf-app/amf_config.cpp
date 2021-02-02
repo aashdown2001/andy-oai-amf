@@ -56,6 +56,7 @@ namespace config {
 //------------------------------------------------------------------------------
 amf_config::amf_config() {
   //TODO:
+  is_Nausf = true;
 }
 
 //------------------------------------------------------------------------------
@@ -162,6 +163,11 @@ int amf_config::load(const std::string &config_file) {
     const Setting &new_if_cfg = amf_cfg[AMF_CONFIG_STRING_INTERFACES];
     const Setting &n2_amf_cfg = new_if_cfg[AMF_CONFIG_STRING_INTERFACE_NGAP_AMF];
     load_interface(n2_amf_cfg, n2);
+    if(is_Nausf)
+    {
+        const Setting &nausf_amf_cfg = new_if_cfg[AMF_CONFIG_STRING_INTERFACE_NAUSF];
+        load_interface(nausf_amf_cfg, nausf);
+    }
     const Setting &n11_cfg = new_if_cfg[AMF_CONFIG_STRING_INTERFACE_N11];
     load_interface(n11_cfg, n11);
     const Setting &smf_addr_pool = n11_cfg[AMF_CONFIG_STRING_SMF_INSTANCES_POOL];
@@ -277,6 +283,18 @@ void amf_config::display() {
   Logger::config().info("    iface ................: %s", n2.if_name.c_str());
   Logger::config().info("    ip ...................: %s", inet_ntoa(n2.addr4));
   Logger::config().info("    port .................: %d", n2.port);
+
+  if(is_Nausf)
+  {
+    Logger::config().info("- Nausf Networking:");
+    Logger::config().info("    iface ................: %s", nausf.if_name.c_str());
+    Logger::config().info("    ip ...................: %s", inet_ntoa(nausf.addr4));
+    Logger::config().info("    port .................: %d", nausf.port);
+  }
+  else
+  {
+    Logger::config().warn("- Not using ausf: Please remove [--no-ausf] using it.");
+  }
 
   Logger::config().info("- N11 Networking:");
   Logger::config().info("    iface ................: %s", n11.if_name.c_str());

@@ -77,7 +77,7 @@ class amf_n1 {
   bool check_security_header_type(SecurityHeaderType &type, uint8_t *buffer);
 
   std::map<long, std::shared_ptr<nas_context>> amfueid2nas_context;  // amf ue ngap id
-  std::map<std::string, std::shared_ptr<nas_context>> imsi2nas_context; 
+  std::map<std::string, std::shared_ptr<nas_context>> imsi2nas_context;
   std::map<std::string, long> supi2amfId;
   std::map<std::string, uint32_t> supi2ranId;
 
@@ -100,6 +100,9 @@ class amf_n1 {
   //authentication
   bool auth_vectors_generator(std::shared_ptr<nas_context> &nc);
   bool authentication_vectors_generator_in_ausf(std::shared_ptr<nas_context> &nc);
+  void curl_http_client(std::string remoteUri, std::string Method, std::string msgBody, std::string &Response);
+  bool authentication_vectors_from_ausf(std::shared_ptr<nas_context> &nc);
+  bool _5g_aka_confirmation_from_ausf(std::shared_ptr<nas_context> &nc,std::string &resStar);
   bool authentication_vectors_generator_in_udm(std::shared_ptr<nas_context> &nc);
   //mysql handlers in mysql_db.cpp
   bool get_mysql_auth_info(std::string imsi, mysql_auth_info_t &resp);

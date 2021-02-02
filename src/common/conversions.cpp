@@ -26,6 +26,7 @@
  */
 #include "conversions.hpp"
 
+#include <iostream>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -141,3 +142,4 @@ std::string conv::toString(const struct in6_addr &in6addr) {
   }
   return s;
 }
+

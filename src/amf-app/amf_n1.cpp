@@ -53,11 +53,21 @@
 #include "comUt.hpp"
 #include "sha256.hpp"
 
+#include "AuthenticationInfo.h"
+#include "UEAuthenticationCtx.h"
+#include "ConfirmationData.h"
+#include "ConfirmationDataResponse.h"
+#include <curl/curl.h>
+
+
 extern "C"
 {
 #include "dynamic_memory_check.h"
 #include "bstrlib.h"
 }
+
+
+using namespace oai::amf::model;
 
 using namespace nas;
 using namespace amf_application;
@@ -70,6 +80,9 @@ extern amf_config amf_cfg;
 extern amf_app *amf_app_inst;
 extern amf_n2 *amf_n2_inst;
 extern statistics stacs;
+extern void convert_string_2_hex(std::string &input, std::string &output);
+extern unsigned char * format_string_as_hex(std::string str);
+
 
 Sha256 ctx;
 random_state_t random_state;
@@ -567,7 +580,7 @@ void amf_n1::service_request_handle(bool isNasSig, std::shared_ptr<nas_context> 
     }
     return;
   }
-  
+
   set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
   Logger::amf_n1().info("nas_context pointer(%p)", nc.get());
   nas_secu_ctx * secu = nc.get()->security_ctx;
@@ -872,7 +885,7 @@ void amf_n1::registration_request_handle(bool isNasSig, std::shared_ptr<nas_cont
     }
   }else{
     Logger::amf_n1().debug("existing nas_context(%p)  --> Update", nc.get());
-    //nc = amf_ue_id_2_nas_context(amf_ue_ngap_id); 
+    //nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
   }
   //if(nc.get() == nullptr){
   //  response_registration_reject_msg(_5GMM_CAUSE_ILLEGAL_UE, ran_ue_ngap_id, amf_ue_ngap_id);
@@ -893,7 +906,7 @@ void amf_n1::registration_request_handle(bool isNasSig, std::shared_ptr<nas_cont
   nc.get()->registration_type = reg_type;
   nc.get()->follow_on_req_pending_ind = is_follow_on_req_pending;
 
-  //2.3 check ie ngKSI(Mondantary IE) 
+  //2.3 check ie ngKSI(Mondantary IE)
   uint8_t ngKSI = regReq->getngKSI();
   if(ngKSI == -1){
     Logger::amf_n1().error("MIssing Mandontary IE ngKSI ...");
@@ -1066,7 +1079,7 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context> &nc)
         handle_auth_vector_successful_result(nc);
       }else{
         Logger::amf_n1().error("request authentication vectors failure");
-        response_registration_reject_msg(_5GMM_CAUSE_ILLEGAL_UE, nc.get()->ran_ue_ngap_id, nc.get()->amf_ue_ngap_id);//cause?      
+        response_registration_reject_msg(_5GMM_CAUSE_ILLEGAL_UE, nc.get()->ran_ue_ngap_id, nc.get()->amf_ue_ngap_id);//cause?
       }
     }else{
       Logger::amf_n1().debug("authentication vector in nas_context is avaliable");
@@ -1110,14 +1123,250 @@ bool amf_n1::auth_vectors_generator(std::shared_ptr<nas_context> &nc)
 {
   Logger::amf_n1().debug("Start to generate authentication vectors");
   authentication_vectors_generator_in_udm(nc);
-  authentication_vectors_generator_in_ausf(nc);
-  Logger::amf_n1().debug("Deriving kamf");
-  for (int i = 0; i < MAX_5GS_AUTH_VECTORS; i++)
+  if(amf_cfg.is_Nausf)
   {
-    Authentication_5gaka::derive_kamf(nc.get()->imsi, nc.get()->_5g_av[i].kseaf, nc.get()->kamf[i], 0x0000); //second parameter: abba
+    if(!authentication_vectors_from_ausf(nc))
+        return false;
+  }
+  else
+  {
+    authentication_vectors_generator_in_ausf(nc);
+    Logger::amf_n1().debug("Deriving kamf");
+    for (int i = 0; i < MAX_5GS_AUTH_VECTORS; i++)
+    {
+        Authentication_5gaka::derive_kamf(nc.get()->imsi, nc.get()->_5g_av[i].kseaf, nc.get()->kamf[i], 0x0000); //second parameter: abba
+    }
   }
   return true;
 }
+//------------------------------------------------------------------------------
+#define CURL_TIMEOUT_MS 100L
+
+std::size_t callback_ausf(const char *in, std::size_t size, std::size_t num,std::string *out) {
+  const std::size_t totalBytes(size * num);
+  out->append(in, totalBytes);
+  return totalBytes;
+}
+
+void amf_n1::curl_http_client(std::string remoteUri, std::string Method,
+                            std::string msgBody, std::string &Response) {
+
+  Logger::amf_n1().info("Send HTTP message with body %s", msgBody.c_str());
+
+  uint32_t str_len = msgBody.length();
+  char *body_data = (char *)malloc(str_len + 1);
+  memset(body_data, 0, str_len + 1);
+  memcpy((void *)body_data, (void *)msgBody.c_str(), str_len);
+
+  curl_global_init(CURL_GLOBAL_ALL);
+  CURL *curl = curl_easy_init();
+
+  if (curl) {
+    CURLcode res = {};
+    struct curl_slist *headers = nullptr;
+    if (!Method.compare("POST") || !Method.compare("PATCH") || !Method.compare("PUT")){
+      std::string content_type = "Content-Type: application/json";
+      headers = curl_slist_append(headers, content_type.c_str());
+      curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    }
+    curl_easy_setopt(curl, CURLOPT_URL, remoteUri.c_str());
+    if (!Method.compare("POST"))
+      curl_easy_setopt(curl, CURLOPT_HTTPPOST, 1);
+    else if(!Method.compare("PATCH"))
+      curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PATCH");
+    else if(!Method.compare("PUT"))
+    {
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+    }
+    else
+      curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, CURL_TIMEOUT_MS);
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1);
+    curl_easy_setopt(curl, CURLOPT_INTERFACE, "ens33");
+//    Logger::amf_n1().info("[CURL] request sent by interface " + udm_cfg.nudr.if_name);
+
+    // Response information.
+    long httpCode = {0};
+    std::unique_ptr<std::string> httpData(new std::string());
+    std::unique_ptr<std::string> httpHeaderData(new std::string());
+
+    // Hook up data handling function.
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &callback_ausf);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, httpData.get());
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, httpHeaderData.get());
+    if (!Method.compare("POST") || !Method.compare("PATCH") || !Method.compare("PUT")){
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, msgBody.length());
+      curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body_data);
+    }
+
+    res = curl_easy_perform(curl);
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+
+    // get the response
+    std::string response = *httpData.get();
+    std::string json_data_response = "";
+    std::string resMsg = "";
+    bool is_response_ok = true;
+    Logger::amf_n1().info("Get response with httpcode (%d)", httpCode);
+
+    if (httpCode == 0) {
+      Logger::amf_n1().info("Cannot get response when calling %s", remoteUri.c_str());
+      // free curl before returning
+      curl_slist_free_all(headers);
+      curl_easy_cleanup(curl);
+      return;
+    }
+
+    nlohmann::json response_data = {};
+
+    if (httpCode != 200 && httpCode != 201 && httpCode != 204) {
+      is_response_ok = false;
+      if (response.size() < 1) {
+        Logger::amf_n1().info("There's no content in the response");
+        // TODO: send context response error
+        return;
+      }
+      Logger::amf_n1().info("Wrong response code");
+
+      return;
+    }
+
+    else {
+      Response = *httpData.get();
+    }
+
+    if (!is_response_ok) {
+      try {
+        response_data = nlohmann::json::parse(json_data_response);
+      } catch (nlohmann::json::exception &e) {
+        Logger::amf_n1().info("Could not get Json content from the response");
+        // Set the default Cause
+        response_data["error"]["cause"] = "504 Gateway Timeout";
+      }
+
+      Logger::amf_n1().info("Get response with jsonData: %s", json_data_response.c_str());
+
+      std::string cause = response_data["error"]["cause"];
+      Logger::amf_n1().info("Call Network Function services failure");
+      Logger::amf_n1().info("Cause value: %s", cause.c_str());
+    }
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
+  }
+
+  curl_global_cleanup();
+
+  if (body_data) {
+    free(body_data);
+    body_data = NULL;
+  }
+  fflush(stdout);
+}
+
+bool amf_n1::authentication_vectors_from_ausf(std::shared_ptr<nas_context> &nc)
+{
+    Logger::amf_n1().debug("authentication_vectors_from_ausf");
+    std::string ausf_ip = std::string(inet_ntoa (*((struct in_addr *)&amf_cfg.nausf.addr4)));
+    std::string ausf_port = std::to_string(amf_cfg.nausf.port);
+    std::string remoteUri = ausf_ip + ":" + ausf_port + "/nausf-auth/v1/ue-authentications";
+    std::string msgBody;
+    std::string Response;
+
+    nlohmann::json authenticationinfo_j;
+    AuthenticationInfo authenticationinfo;
+    authenticationinfo.setSupiOrSuci(nc.get()->imsi);
+    authenticationinfo.setServingNetworkName(nc.get()->serving_network);
+    to_json(authenticationinfo_j,authenticationinfo);
+    msgBody=authenticationinfo_j.dump();
+    curl_http_client(remoteUri,"POST",msgBody,Response);
+
+    Logger::amf_n1().info("POST response : %s", Response.c_str());
+
+    try
+    {
+      UEAuthenticationCtx ueauthenticationctx;
+      nlohmann::json::parse(Response.c_str()).get_to(ueauthenticationctx);
+
+      unsigned char *r5gauthdata_rand = format_string_as_hex(ueauthenticationctx.getR5gAuthData().getRand());
+      memcpy(nc.get()->_5g_av[0].rand, r5gauthdata_rand, 16);
+      print_buffer("amf_n1", "5G AV: rand", nc.get()->_5g_av[0].rand, 16);
+      free_wrapper((void**) &r5gauthdata_rand);
+
+      unsigned char *r5gauthdata_autn = format_string_as_hex(ueauthenticationctx.getR5gAuthData().getAutn());
+      memcpy(nc.get()->_5g_av[0].autn, r5gauthdata_autn, 16);
+      print_buffer("amf_n1", "5G AV: autn", nc.get()->_5g_av[0].autn, 16);
+      free_wrapper((void**) &r5gauthdata_autn);
+
+      unsigned char *r5gauthdata_hxresstar = format_string_as_hex(ueauthenticationctx.getR5gAuthData().getHxresStar());
+      memcpy(nc.get()->_5g_av[0].hxresStar, r5gauthdata_hxresstar, 16);
+      print_buffer("amf_n1", "5G AV: hxres*", nc.get()->_5g_av[0].hxresStar, 16);
+      free_wrapper((void**) &r5gauthdata_hxresstar);
+
+      std::map<std::string, LinksValueSchema>::iterator iter;
+      iter = ueauthenticationctx.getLinks().find("5G_AKA");
+      if (iter != ueauthenticationctx.getLinks().end()) {
+          nc.get()->Href = iter->second.getHref();
+          Logger::amf_n1().info("Links is: ",nc.get()->Href);
+      } else {
+          Logger::amf_n1().error("Not found 5G_AKA");
+      }
+    }
+    catch (nlohmann::json::exception &e)
+    {
+      Logger::amf_n1().info("Could not get Json content from AUSF response");
+      //TODO: error handling
+      return false;
+    }
+    return true;
+
+}
+
+bool amf_n1::_5g_aka_confirmation_from_ausf(std::shared_ptr<nas_context> &nc,std::string &resStar)
+{
+    Logger::amf_n1().debug("_5g_aka_confirmation_from_ausf");
+    std::string remoteUri = nc.get()->Href;
+
+    std::string msgBody;
+    std::string Response;
+    std::string resStar_string;
+
+    convert_string_2_hex(resStar,resStar_string);
+
+    nlohmann::json confirmationdata_j;
+    ConfirmationData confirmationdata;
+    confirmationdata.setResStar(resStar_string);
+
+    to_json(confirmationdata_j,confirmationdata);
+    msgBody=confirmationdata_j.dump();
+    curl_http_client(remoteUri,"PUT",msgBody,Response);
+
+    //free(resStar_string.c_str());
+
+    try
+    {
+      ConfirmationDataResponse confirmationdataresponse;
+      nlohmann::json::parse(Response.c_str()).get_to(confirmationdataresponse);
+      unsigned char *kseaf_hex = format_string_as_hex(confirmationdataresponse.getKseaf());
+      memcpy(nc.get()->_5g_av[0].kseaf, kseaf_hex, 32);
+      print_buffer("amf_n1", "5G AV: kseaf", nc.get()->_5g_av[0].kseaf, 32);
+      free_wrapper((void**) &kseaf_hex);
+
+      Logger::amf_n1().debug("Deriving kamf");
+      for (int i = 0; i < MAX_5GS_AUTH_VECTORS; i++)
+      {
+        Authentication_5gaka::derive_kamf(nc.get()->imsi, nc.get()->_5g_av[i].kseaf, nc.get()->kamf[i], 0x0000); //second parameter: abba
+        print_buffer("amf_n1", "kamf", nc.get()->kamf[i], 32);
+      }
+    }
+    catch (nlohmann::json::exception &e)
+    {
+      Logger::amf_n1().info("Could not get Json content from AUSF response");
+      //TODO: error handling
+      return false;
+    }
+    return true;
+}
+
 
 //------------------------------------------------------------------------------
 bool amf_n1::authentication_vectors_generator_in_ausf(std::shared_ptr<nas_context> &nc)
@@ -1478,30 +1727,40 @@ void amf_n1::authentication_response_handle(uint32_t ran_ue_ngap_id, long amf_ue
   }
   else
   {
-    //Get stored XRES*
-    int secu_index = nc.get()->security_ctx->vector_pointer;
-    uint8_t *hxresStar = nc.get()->_5g_av[secu_index].hxresStar;
-    //Calculate HRES* from received RES*, then compare with XRES stored in nas_context
-    uint8_t inputstring[32];
-    uint8_t *res = (uint8_t *)bdata(resStar);
-    Logger::amf_n1().debug("Start to calculate HRES* from received RES*");
-    memcpy(&inputstring[0], nc.get()->_5g_av[secu_index].rand, 16);
-    memcpy(&inputstring[16], res, blength(resStar));
-    unsigned char sha256Out[Sha256::DIGEST_SIZE];
-    sha256((unsigned char *)inputstring, 16 + blength(resStar), sha256Out);
-    uint8_t hres[16];
-    for (int i = 0; i < 16; i++)
-      hres[i] = (uint8_t)sha256Out[i];
-    print_buffer("amf_n1", "Received RES* From Authentication-Response", res, 16);
-    print_buffer("amf_n1", "Stored XRES* in 5G HE AV", nc.get()->_5g_he_av[secu_index].xresStar, 16);
-    print_buffer("amf_n1", "Stored XRES in 5G HE AV", nc.get()->_5g_he_av[secu_index].xres, 8);
-    print_buffer("amf_n1", "Computed HRES* from RES*", hres, 16);
-    print_buffer("amf_n1", "Computed HXRES* from XRES*", hxresStar, 16);
-    for (int i = 0; i < 16; i++)
+    if(amf_cfg.is_Nausf)
     {
-      if (hxresStar[i] != hres[i])
-        isAuthOk = false;
+        std::string data = bdata(resStar);
+        if(!_5g_aka_confirmation_from_ausf(nc,data))
+            isAuthOk = false;
     }
+    else
+    {
+        //Get stored XRES*
+        int secu_index = nc.get()->security_ctx->vector_pointer;
+        uint8_t *hxresStar = nc.get()->_5g_av[secu_index].hxresStar;
+        //Calculate HRES* from received RES*, then compare with XRES stored in nas_context
+        uint8_t inputstring[32];
+        uint8_t *res = (uint8_t *)bdata(resStar);
+        Logger::amf_n1().debug("Start to calculate HRES* from received RES*");
+        memcpy(&inputstring[0], nc.get()->_5g_av[secu_index].rand, 16);
+        memcpy(&inputstring[16], res, blength(resStar));
+        unsigned char sha256Out[Sha256::DIGEST_SIZE];
+        sha256((unsigned char *)inputstring, 16 + blength(resStar), sha256Out);
+        uint8_t hres[16];
+        for (int i = 0; i < 16; i++)
+          hres[i] = (uint8_t)sha256Out[i];
+        print_buffer("amf_n1", "Received RES* From Authentication-Response", res, 16);
+        print_buffer("amf_n1", "Stored XRES* in 5G HE AV", nc.get()->_5g_he_av[secu_index].xresStar, 16);
+        print_buffer("amf_n1", "Stored XRES in 5G HE AV", nc.get()->_5g_he_av[secu_index].xres, 8);
+        print_buffer("amf_n1", "Computed HRES* from RES*", hres, 16);
+        print_buffer("amf_n1", "Computed HXRES* from XRES*", hxresStar, 16);
+        for (int i = 0; i < 16; i++)
+        {
+          if (hxresStar[i] != hres[i])
+            isAuthOk = false;
+        }
+    }
+
   }
   //If success, start SMC procedure; else if failure, response registration reject message with corresponding cause
   if (!isAuthOk)
@@ -1754,9 +2013,9 @@ void amf_n1::security_mode_complete_handle(uint32_t ran_ue_ngap_id, long amf_ue_
       update_ue_information_statics(stacs.ues[index], "", "RM-REGISTRED", ran_ue_ngap_id, amf_ue_ngap_id, "", guti, "", "", 0);
     }else{
       ue_infos ueItem;
-      update_ue_information_statics(ueItem, "CM-CONNECTED", "REGISTRATION-REGISTRED", ran_ue_ngap_id, amf_ue_ngap_id, nc.get()->imsi, "", mcc, mnc, uc.get()->cgi.nrCellID); 
+      update_ue_information_statics(ueItem, "CM-CONNECTED", "REGISTRATION-REGISTRED", ran_ue_ngap_id, amf_ue_ngap_id, nc.get()->imsi, "", mcc, mnc, uc.get()->cgi.nrCellID);
       stacs.ues.push_back(ueItem);
-      nc.get()->is_stacs_available = true; 
+      nc.get()->is_stacs_available = true;
     }
 
     set_guti_2_nas_context(guti, nc);

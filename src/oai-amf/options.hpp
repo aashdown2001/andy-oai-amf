@@ -33,6 +33,7 @@ public:
    static const std::string &getlibconfigConfig() { return m_libconfigcfg; }
    static const bool &getlogRotFilelog()          { return m_log_rot_file_log; }
    static const bool &getlogStdout()              { return m_log_stdout; }
+   static const bool &isNausf()              { return m_is_Nausf; }
 
 private:
 
@@ -48,6 +49,7 @@ private:
 
    static bool m_log_rot_file_log;
    static bool m_log_stdout;
+   static bool m_is_Nausf;
    static std::string m_libconfigcfg;
 };
 

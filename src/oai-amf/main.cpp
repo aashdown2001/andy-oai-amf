@@ -23,7 +23,7 @@
 #include <thread>
 #include <signal.h>
 #include <stdint.h>
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "AMFApiServer.hpp"
@@ -69,6 +69,7 @@ if  (!Options::parse(argc, argv)) {
   Logger::init( "AMF" , Options::getlogStdout() , Options::getlogRotFilelog());
   Logger::amf_app().startup("Options parsed!");
 
+  amf_cfg.is_Nausf = Options::isNausf();
   amf_cfg.load(Options::getlibconfigConfig());
   amf_cfg.display();
   modules.load(Options::getlibconfigConfig());
