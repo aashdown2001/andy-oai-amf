@@ -65,7 +65,7 @@ void N1N2MessageCollectionDocumentApi::n1_n2_message_transfer_handler(const Pist
     Logger::amf_server().debug("Request body, part 2: \n %s", parts[1].body.c_str());
 
     bool is_ngap = false;
-    if (size > 2) {
+    if (size > 0) {
       is_ngap = true;
       Logger::amf_server().debug("Request body, part 3: \n %s", parts[2].body.c_str());
     }

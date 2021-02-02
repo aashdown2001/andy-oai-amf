@@ -46,6 +46,8 @@ namespace ngap
     }
     bool dRBStatusDL::encodedRBStatusDL(Ngap_DRBStatusDL_t *dL)
     {
+        dL->present = Ngap_DRBStatusDL_PR_dRBStatusDL18;
+        dL->choice.dRBStatusDL18 = (Ngap_DRBStatusDL18_t *)calloc(1, sizeof(Ngap_DRBStatusDL18_t));
         if (!dl18->encodeddRBStatusDL18(dL->choice.dRBStatusDL18))
         {
             cout << "encodedRBStatusDL error" << endl;

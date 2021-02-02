@@ -24,6 +24,7 @@ extern "C"{
 #include "GUAMI.hpp"
 #include "S-NSSAI.hpp"
 #include "SecurityKey.hpp"
+#include "MobilityRestrictionList.hpp"
 namespace ngap{
 
 
@@ -47,6 +48,7 @@ namespace ngap{
 
 		void setAllowedNSSAI(std::vector<S_NSSAI> list);
 		void setGUAMI(PlmnId* m_plmnId, AMFRegionID* m_aMFRegionID, AMFSetID* m_aMFSetID, AMFPointer* m_aMFPointer);
+                void setMobilityRestrictionList(PlmnId *m_plmnId);
 		int  encode2buffer(uint8_t *buf, int buf_size);
 		//bool decodefrompdu(Ngap_NGAP_PDU_t *ngap_msg_pdu);
 		unsigned long getAmfUeNgapId();//return -1;(不存在)
@@ -73,6 +75,7 @@ namespace ngap{
 		//Location Reporting Request Type
 		//RRC Inactive Transition Report Request
 		GUAMI *guami;
+                MobilityRestrictionList *mobilityrestrictionlist;
 		//Redirection for Voice EPS Fallback 
 		//CN Assisted RAN Parameters Tuning
 	};

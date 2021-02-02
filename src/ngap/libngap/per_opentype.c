@@ -81,6 +81,7 @@ uper_open_type_get_simple(const asn_codec_ctx_t *ctx,
 	ASN__STACK_OVERFLOW_CHECK(ctx);
 
 	ASN_DEBUG("Getting open type %s...", td->name);
+        printf("test1130 decoding open type %s\n", td->name);
 
 	do {
 		chunk_bytes = uper_get_length(pd, -1, 0, &repeat);
@@ -400,7 +401,7 @@ aper_open_type_get_simple(const asn_codec_ctx_t *ctx,
                           const asn_per_constraints_t *constraints, void **sptr, asn_per_data_t *pd) {
 	asn_dec_rval_t rv;
 	ssize_t chunk_bytes;
-	int repeat;
+	int repeat = 0;
 	uint8_t *buf = 0;
 	size_t bufLen = 0;
 	size_t bufSize = 0;
@@ -410,9 +411,10 @@ aper_open_type_get_simple(const asn_codec_ctx_t *ctx,
 	ASN__STACK_OVERFLOW_CHECK(ctx);
 
 	ASN_DEBUG("Getting open type %s...", td->name);
-	//printf("test0515 Getting open type %s...\n", td->name);
+	printf("test0515 Getting open type %s...\n", td->name);
 
 	do {
+          printf("test1130 while repeat1(%d)\n", repeat);
 	        chunk_bytes = aper_get_length(pd, -1, -1, &repeat);
 		if(chunk_bytes < 0) {
 			FREEMEM(buf);
@@ -433,12 +435,13 @@ aper_open_type_get_simple(const asn_codec_ctx_t *ctx,
 			ASN__DECODE_STARVED;
 		}
 		bufLen += chunk_bytes;
+          printf("test1130 while repeat2(%d)\n", repeat);
 	} while(repeat);
 
-	ASN_DEBUG("Getting open type %s encoded in %ld bytes", td->name,
+	//ASN_DEBUG("Getting open type %s encoded in %ld bytes", td->name,
+	//	(long)bufLen);
+	printf("test1130 Getting open type %s encoded in %ld bytes\n", td->name,
 		(long)bufLen);
-	//printf("test0515 Getting open type %s encoded in %ld bytes\n", td->name,
-		//(long)bufLen);
 
 	memset(&spd, 0, sizeof(spd));
 	spd.buffer = buf;

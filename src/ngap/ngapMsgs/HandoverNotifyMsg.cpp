@@ -64,7 +64,7 @@ namespace ngap {
 
 		if (handoverNotifyPdu->present == Ngap_NGAP_PDU_PR_initiatingMessage)
 		{
-			if (handoverNotifyPdu->choice.initiatingMessage && handoverNotifyPdu->choice.initiatingMessage->procedureCode == Ngap_ProcedureCode_id_HandoverPreparation && handoverNotifyPdu->choice.initiatingMessage->criticality == Ngap_Criticality_reject && handoverNotifyPdu->choice.initiatingMessage->value.present == Ngap_InitiatingMessage__value_PR_HandoverNotify)
+			if (handoverNotifyPdu->choice.initiatingMessage && handoverNotifyPdu->choice.initiatingMessage->procedureCode == Ngap_ProcedureCode_id_HandoverNotification && handoverNotifyPdu->choice.initiatingMessage->criticality == Ngap_Criticality_ignore && handoverNotifyPdu->choice.initiatingMessage->value.present == Ngap_InitiatingMessage__value_PR_HandoverNotify)
 			{
 				handoverNotifyIEs = &handoverNotifyPdu->choice.initiatingMessage->value.choice.HandoverNotify;
 			}
@@ -114,7 +114,7 @@ namespace ngap {
 					cout << "decoded ngap RAN_UE_NGAP_ID IE error" << endl;
 					return false;
 				}
-			}
+			}break;
 			case Ngap_ProtocolIE_ID_id_UserLocationInformation: {
 				if (handoverNotifyIEs->protocolIEs.list.array[i]->criticality == Ngap_Criticality_ignore && handoverNotifyIEs->protocolIEs.list.array[i]->value.present == Ngap_HandoverNotifyIEs__value_PR_UserLocationInformation)
 				{
@@ -131,6 +131,10 @@ namespace ngap {
 					return false;
 				}
 			}break;
+			default: {
+				cout << "decoded ngap message pdu error" << endl;
+				return false;
+			}
 			}
 		}
 		return true;

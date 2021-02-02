@@ -937,7 +937,8 @@ SEQUENCE_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
                asn_app_consume_bytes_f *cb, void *app_key) {
     size_t edx;
 	int ret;
-
+        if(!sptr) printf("test1130 memory not present %s \n", td->name);
+        else printf("test1130 memory present %s \n", td->name);
 	if(!sptr) return (cb("<absent>", 8, app_key) < 0) ? -1 : 0;
 
 	/* Dump preamble */
@@ -947,6 +948,7 @@ SEQUENCE_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
 
 	for(edx = 0; edx < td->elements_count; edx++) {
 		asn_TYPE_member_t *elm = &td->elements[edx];
+                printf("element name: %s\n", elm->name);
 		const void *memb_ptr;
 
 		if(elm->flags & ATF_POINTER) {
@@ -958,6 +960,7 @@ SEQUENCE_print(const asn_TYPE_descriptor_t *td, const void *sptr, int ilevel,
 			}
 		} else {
 			memb_ptr = (const void *)((const char *)sptr + elm->memb_offset);
+                        printf("test1130 element name(%s): mem_ptr(%p)\n", elm->name, memb_ptr);
 		}
 
 		/* Indentation */
@@ -1507,7 +1510,7 @@ SEQUENCE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 	}
 
 	ASN_DEBUG("Decoding %s as SEQUENCE (APER)", td->name);
-	//printf("test0515 Decoding %s as SEQUENCE (APER)\n", td->name);
+	printf("test0515 Decoding %s as SEQUENCE (APER)\n", td->name);
 
 	/* Handle extensions */
 	if(specs->first_extension < 0) {
@@ -1540,6 +1543,7 @@ SEQUENCE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 	 */
 	for(edx = 0; edx < td->elements_count; edx++) {
 		asn_TYPE_member_t *elm = &td->elements[edx];
+                printf("test1130 decoding element (%s)\n", elm->name);
 		void *memb_ptr;		/* Pointer to the member */
 		void **memb_ptr2;	/* Pointer to that pointer */
 #if 0
@@ -1580,9 +1584,9 @@ SEQUENCE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 			ASN_DEBUG("Member %s->%s is optional, p=%d (%d->%d)",
 			          td->name, elm->name, present,
 			          (int)opmd.nboff, (int)opmd.nbits);
-			//printf("test0515 Member %s->%s is optional, p=%d (%d->%d)\n",
-			//          td->name, elm->name, present,
-			//          (int)opmd.nboff, (int)opmd.nbits);
+			printf("test0515 Member %s->%s is optional, p=%d (%d->%d)\n",
+			          td->name, elm->name, present,
+			          (int)opmd.nboff, (int)opmd.nbits);
 			if(present == 0) {
 				/* This element is not present */
 				if(elm->default_value_set) {
@@ -1601,7 +1605,7 @@ SEQUENCE_decode_aper(const asn_codec_ctx_t *opt_codec_ctx,
 
 		/* Fetch the member from the stream */
 		ASN_DEBUG("Decoding member \"%s\" in %s", elm->name, td->name);
-		//printf("test0515 Decoding member \"%s\" in %s\n", elm->name, td->name);
+		printf("test0515 Decoding member \"%s\" in %s\n", elm->name, td->name);
 
 		if(elm->flags & ATF_OPEN_TYPE) {
 			rv = OPEN_TYPE_aper_get(opt_codec_ctx, td, st, elm, pd);

@@ -27,7 +27,8 @@ namespace ngap{
 		PDUSessionResourceSetupList = NULL;
 		allowedNSSAI = NULL;
 		SourceToTarget_TransparentContainer = NULL;
-		guami = NULL;
+	        mobilityrestrictionlist = NULL;
+         	guami = NULL;
 		handoverRequestPdu = NULL;
 		handoverRequestIEs = NULL;
 	}
@@ -380,6 +381,22 @@ namespace ngap{
 		ie->value.choice.SourceToTarget_TransparentContainer = sourceTotarget;
 		int ret = ASN_SEQUENCE_ADD(&handoverRequestIEs->protocolIEs.list, ie);
 		if (ret != 0) cout << "encode SourceToTarget_TransparentContainer IE error" << endl;
+	}
+	void HandoverRequest::setMobilityRestrictionList(PlmnId *m_plmnId)
+	{
+		if (!mobilityrestrictionlist)
+		{
+			mobilityrestrictionlist = new MobilityRestrictionList();
+		}
+		Ngap_HandoverRequestIEs_t *ie = (Ngap_HandoverRequestIEs_t *)calloc(1, sizeof(Ngap_HandoverRequestIEs_t));
+		ie->id = Ngap_ProtocolIE_ID_id_MobilityRestrictionList;
+		ie->criticality = Ngap_Criticality_ignore;
+		ie->value.present = Ngap_HandoverRequestIEs__value_PR_MobilityRestrictionList;
+		mobilityrestrictionlist->setMobilityRestrictionList(m_plmnId);
+		mobilityrestrictionlist->encodeMobilityRestrictionList(&(ie->value.choice.MobilityRestrictionList));
+		int ret = ASN_SEQUENCE_ADD(&handoverRequestIEs->protocolIEs.list, ie);
+		if (ret != 0)
+			cout << "encode MobilityRestrictionList IE error" << endl;
 	}
 
 }

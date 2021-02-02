@@ -32,20 +32,18 @@
 #include "gNB_context.hpp"
 #include "sctp_server.hpp"
 #include <map>
-#include <set>
 #include <shared_mutex>
 #include <string>
-#include <thread>
 
 using namespace sctp;
 
 namespace ngap {
 
-static const char *const ng_gnb_state_str[] = {"NGAP_INIT", "NGAP_RESETTING",
-                                               "NGAP_READY", "NGAP_SHUTDOWN"};
+static const char *const ng_gnb_state_str[] = { "NGAP_INIT", "NGAP_RESETTING",
+    "NGAP_READY", "NGAP_SHUTDOWN" };
 
 class ngap_app : public sctp_application {
-public:
+ public:
   ngap_app(const std::string &address, const uint16_t port_num);
   ~ngap_app();
   uint32_t getPpid();
@@ -67,7 +65,7 @@ public:
                                 std::shared_ptr<gnb_context> gc);
   std::shared_ptr<gnb_context> gnb_id_2_gnb_context(const long &gnb_id) const;
 
-protected:
+ protected:
   sctp_server sctp_s_38412;
   uint32_t ppid_;
   std::map<sctp_assoc_id_t, std::shared_ptr<gnb_context>> assoc2gnbContext;
@@ -76,6 +74,6 @@ protected:
   mutable std::shared_mutex m_gnbid2gnbContext;
 };
 
-} // namespace ngap
+}  // namespace ngap
 
 #endif

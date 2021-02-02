@@ -413,12 +413,16 @@ OPEN_TYPE_aper_get(const asn_codec_ctx_t *opt_codec_ctx,
     if(!elm->type_selector) {
         ASN_DEBUG("Type selector is not defined for Open Type %s->%s->%s",
                   td->name, elm->name, elm->type->name);
+        printf("Type selector is not defined for Open Type %s->%s->%s\n",
+                  td->name, elm->name, elm->type->name);
         ASN__DECODE_FAILED;
     }
 
     selected = elm->type_selector(td, sptr);
+    printf("element selected %d \n", selected.presence_index);
     if(!selected.presence_index) {
         ASN__DECODE_FAILED;
+        printf("element ASN DECODE FAILED");
     }
 
     /* Fetch the pointer to this member */

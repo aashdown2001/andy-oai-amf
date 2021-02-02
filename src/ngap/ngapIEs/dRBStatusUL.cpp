@@ -47,7 +47,9 @@ namespace ngap
     }
     bool dRBStatusUL::encodedRBStatusUL(Ngap_DRBStatusUL_t *uL)
     {
-        if (ul18->encodeddRBStatusUL18(uL->choice.dRBStatusUL18))
+        uL->present = Ngap_DRBStatusUL_PR_dRBStatusUL18;
+        uL->choice.dRBStatusUL18 = (Ngap_DRBStatusUL18_t *)calloc(1, sizeof(Ngap_DRBStatusUL18_t));
+        if (!ul18->encodeddRBStatusUL18(uL->choice.dRBStatusUL18))
         {
             cout << "encodeddRBStatusUL18 error" << endl;
             return false;
