@@ -4,8 +4,8 @@
  * this work for additional information regarding copyright ownership.
  * The OpenAirInterface Software Alliance licenses this file to You under
  * the OAI Public License, Version 1.1  (the "License"); you may not use this
- *file except in compliance with the License. You may obtain a copy of the
- *License at
+ * file except in compliance with the License. You may obtain a copy of the
+ * License at
  *
  *      http://www.openairinterface.org/?page_id=698
  *
@@ -29,18 +29,18 @@
 #ifndef _AMF_MODULE_FROM_CONFIG_H_
 #define _AMF_MODULE_FROM_CONFIG_H_
 
-#include <libconfig.h++>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <libconfig.h++>
 
-#include "Ngap_ProcedureCode.h"
 #include "Ngap_NGAP-PDU.h"
+#include "Ngap_ProcedureCode.h"
 
 #define MODULES_CONFIG_STRING_AMF_MODULES "MODULES"
 #define MODULES_CONFIG_STRING_AMF_MODULES_NGAP_MESSAGE "NGAP_MESSAGE"
 #define MODULES_CONFIG_STRING_AMF_MODULES_NGAP_MESSAGE_NAME "MSG_NAME"
-#define MODULES_CONFIG_STRING_AMF_MODULES_NGAP_MESSAGE_PROCEDURECODE           \
+#define MODULES_CONFIG_STRING_AMF_MODULES_NGAP_MESSAGE_PROCEDURECODE \
   "ProcedureCode"
 #define MODULES_CONFIG_STRING_AMF_MODULES_NGAP_MESSAGE_TYPEOFMSG "TypeOfMessage"
 

@@ -4,8 +4,8 @@
  * this work for additional information regarding copyright ownership.
  * The OpenAirInterface Software Alliance licenses this file to You under
  * the OAI Public License, Version 1.1  (the "License"); you may not use this
- *file except in compliance with the License. You may obtain a copy of the
- *License at
+ * file except in compliance with the License. You may obtain a copy of the
+ * License at
  *
  *      http://www.openairinterface.org/?page_id=698
  *
@@ -29,8 +29,8 @@
 #ifndef _MYSQL_DB_HANDLERS_H_
 #define _MYSQL_DB_HANDLERS_H_
 
-#include <pthread.h>
 #include <mysql/mysql.h>
+#include <pthread.h>
 #include <string>
 
 #define KEY_LENGTH (16)
@@ -45,7 +45,7 @@ typedef struct {
 
 typedef struct {
   // mysql reference connector object
-  MYSQL* db_conn;
+  MYSQL *db_conn;
   std::string server;
   std::string user;
   std::string password;

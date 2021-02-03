@@ -4,8 +4,8 @@
  * this work for additional information regarding copyright ownership.
  * The OpenAirInterface Software Alliance licenses this file to You under
  * the OAI Public License, Version 1.1  (the "License"); you may not use this
- *file except in compliance with the License. You may obtain a copy of the
- *License at
+ * file except in compliance with the License. You may obtain a copy of the
+ * License at
  *
  *      http://www.openairinterface.org/?page_id=698
  *
@@ -29,13 +29,13 @@
 #ifndef _AMF_N2_H_
 #define _AMF_N2_H_
 
-#include "ngap_app.hpp"
-#include "itti_msg_n2.hpp"
-#include "ue_ngap_context.hpp"
-#include "PduSessionResourceReleaseCommand.hpp"
-#include "HandoverRequest.hpp"
-#include "HandoverCommandMsg.hpp"
 #include "DownlinkRANStatusTransfer.hpp"
+#include "HandoverCommandMsg.hpp"
+#include "HandoverRequest.hpp"
+#include "PduSessionResourceReleaseCommand.hpp"
+#include "itti_msg_n2.hpp"
+#include "ngap_app.hpp"
+#include "ue_ngap_context.hpp"
 
 #include "amf.hpp"
 

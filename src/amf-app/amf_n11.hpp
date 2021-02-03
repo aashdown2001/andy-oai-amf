@@ -4,8 +4,8 @@
  * this work for additional information regarding copyright ownership.
  * The OpenAirInterface Software Alliance licenses this file to You under
  * the OAI Public License, Version 1.1  (the "License"); you may not use this
- *file except in compliance with the License. You may obtain a copy of the
- *License at
+ * file except in compliance with the License. You may obtain a copy of the
+ * License at
  *
  *      http://www.openairinterface.org/?page_id=698
  *
@@ -43,7 +43,7 @@ class amf_n11 {
   amf_n11();
   ~amf_n11();
 
-  void handle_itti_message(itti_smf_services_consumer&);
+  void handle_itti_message(itti_smf_services_consumer &);
   void handle_pdu_session_initial_request(
       std::string supi, std::shared_ptr<pdu_session_context> psc,
       std::string smf_addr, bstring sm_msg, std::string dnn);

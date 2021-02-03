@@ -4,8 +4,8 @@
  * this work for additional information regarding copyright ownership.
  * The OpenAirInterface Software Alliance licenses this file to You under
  * the OAI Public License, Version 1.1  (the "License"); you may not use this
- *file except in compliance with the License. You may obtain a copy of the
- *License at
+ * file except in compliance with the License. You may obtain a copy of the
+ * License at
  *
  *      http://www.openairinterface.org/?page_id=698
  *
@@ -79,7 +79,7 @@ void statistics::display() {
       "UE NGAP ID | AMF UE ID |  PLMN   |Cell ID|");
 
   int i = 0;
-  for (auto const& ue : ue_infos) {
+  for (auto const &ue : ue_infos) {
     Logger::amf_app().info(
         "|%7d|%22s|%18s|%15s|%16d|%11d|%9s|%7d|", i + 1,
         ue.second.registerStatus.c_str(), ue.second.imsi.c_str(),

@@ -4,8 +4,8 @@
  * this work for additional information regarding copyright ownership.
  * The OpenAirInterface Software Alliance licenses this file to You under
  * the OAI Public License, Version 1.1  (the "License"); you may not use this
- *file except in compliance with the License. You may obtain a copy of the
- *License at
+ * file except in compliance with the License. You may obtain a copy of the
+ * License at
  *
  *      http://www.openairinterface.org/?page_id=698
  *
@@ -29,8 +29,8 @@
 #ifndef _STATISTICS_H_
 #define _STATISTICS_H_
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "amf.hpp"
 #include "ngap_app.hpp"
@@ -63,8 +63,8 @@ class statistics {
   void display();
   statistics();
   ~statistics();
-  void update_ue_info(const ue_info_t& ue_info);
-  void update_5gmm_state(const std::string& imsi, const std::string& state);
+  void update_ue_info(const ue_info_t &ue_info);
+  void update_5gmm_state(const std::string &imsi, const std::string &state);
 
  public:
   uint32_t gNB_connected;
