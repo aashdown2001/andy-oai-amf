@@ -3,9 +3,9 @@
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The OpenAirInterface Software Alliance licenses this file to You under
- * the OAI Public License, Version 1.1  (the "License"); you may not use this file
- * except in compliance with the License.
- * You may obtain a copy of the License at
+ * the OAI Public License, Version 1.1  (the "License"); you may not use this
+ *file except in compliance with the License. You may obtain a copy of the
+ *License at
  *
  *      http://www.openairinterface.org/?page_id=698
  *
@@ -39,57 +39,59 @@
 #include <string>
 #include "thread_sched.hpp"
 
-#define AMF_CONFIG_STRING_AMF_CONFIG                    "AMF"
-#define AMF_CONFIG_STRING_PID_DIRECTORY                 "PID_DIRECTORY"
-#define AMF_CONFIG_STRING_INSTANCE_ID                   "INSTANCE_ID"
-#define AMF_CONFIG_STRING_STATISTICS_TIMER_INTERVAL     "STATISTICS_TIMER_INTERVAL"
-#define AMF_CONFIG_STRING_INTERFACES                    "INTERFACES"
-#define AMF_CONFIG_STRING_INTERFACE_NGAP_AMF            "NGAP_AMF"
-#define AMF_CONFIG_STRING_INTERFACE_NAUSF               "NAUSF"
+#define AMF_CONFIG_STRING_AMF_CONFIG "AMF"
+#define AMF_CONFIG_STRING_PID_DIRECTORY "PID_DIRECTORY"
+#define AMF_CONFIG_STRING_INSTANCE_ID "INSTANCE_ID"
+#define AMF_CONFIG_STRING_STATISTICS_TIMER_INTERVAL "STATISTICS_TIMER_INTERVAL"
+#define AMF_CONFIG_STRING_INTERFACES "INTERFACES"
+#define AMF_CONFIG_STRING_INTERFACE_NGAP_AMF "NGAP_AMF"
+#define AMF_CONFIG_STRING_INTERFACE_NAUSF "NAUSF"
 
-#define AMF_CONFIG_STRING_INTERFACE_NAME                "INTERFACE_NAME"
-#define AMF_CONFIG_STRING_IPV4_ADDRESS                  "IPV4_ADDRESS"
-#define AMF_CONFIG_STRING_PORT                          "PORT"
-#define AMF_CONFIG_STRING_PPID                          "PPID"
+#define AMF_CONFIG_STRING_INTERFACE_NAME "INTERFACE_NAME"
+#define AMF_CONFIG_STRING_IPV4_ADDRESS "IPV4_ADDRESS"
+#define AMF_CONFIG_STRING_PORT "PORT"
+#define AMF_CONFIG_STRING_PPID "PPID"
 
-#define AMF_CONFIG_STRING_INTERFACE_N11                 "N11"
-#define AMF_CONFIG_STRING_SMF_INSTANCES_POOL            "SMF_INSTANCES_POOL"
-#define AMF_CONFIG_STRING_SMF_INSTANCE_ID               "SMF_INSTANCE_ID"
-#define AMF_CONFIG_STRING_SMF_INSTANCE_PORT             "PORT"
-#define AMF_CONFIG_STRING_SMF_INSTANCE_VERSION          "VERSION"
-#define AMF_CONFIG_STRING_SMF_INSTANCE_SELECTED         "SELECTED"
+#define AMF_CONFIG_STRING_INTERFACE_N11 "N11"
+#define AMF_CONFIG_STRING_SMF_INSTANCES_POOL "SMF_INSTANCES_POOL"
+#define AMF_CONFIG_STRING_SMF_INSTANCE_ID "SMF_INSTANCE_ID"
+#define AMF_CONFIG_STRING_SMF_INSTANCE_PORT "PORT"
+#define AMF_CONFIG_STRING_SMF_INSTANCE_VERSION "VERSION"
+#define AMF_CONFIG_STRING_SMF_INSTANCE_SELECTED "SELECTED"
 
-#define AMF_CONFIG_STRING_SCHED_PARAMS                  "SCHED_PARAMS"
-#define AMF_CONFIG_STRING_THREAD_RD_CPU_ID              "CPU_ID"
-#define AMF_CONFIG_STRING_THREAD_RD_SCHED_POLICY        "SCHED_POLICY"
-#define AMF_CONFIG_STRING_THREAD_RD_SCHED_PRIORITY      "SCHED_PRIORITY"
+#define AMF_CONFIG_STRING_SCHED_PARAMS "SCHED_PARAMS"
+#define AMF_CONFIG_STRING_THREAD_RD_CPU_ID "CPU_ID"
+#define AMF_CONFIG_STRING_THREAD_RD_SCHED_POLICY "SCHED_POLICY"
+#define AMF_CONFIG_STRING_THREAD_RD_SCHED_PRIORITY "SCHED_PRIORITY"
 
-#define AMF_CONFIG_STRING_AMF_NAME                      "AMF_NAME"
-#define AMF_CONFIG_STRING_GUAMI                         "GUAMI"
-#define AMF_CONFIG_STRING_SERVED_GUAMI_LIST             "SERVED_GUAMI_LIST"
-#define AMF_CONFIG_STRING_TAC                           "TAC"
-#define AMF_CONFIG_STRING_MCC                           "MCC"
-#define AMF_CONFIG_STRING_MNC                           "MNC"
-#define AMF_CONFIG_STRING_RegionID                      "RegionID"
-#define AMF_CONFIG_STRING_AMFSetID                      "AMFSetID"
-#define AMF_CONFIG_STRING_AMFPointer                    "AMFPointer"
-#define AMF_CONFIG_STRING_RELATIVE_AMF_CAPACITY         "RELATIVE_CAPACITY"
-#define AMF_CONFIG_STRING_PLMN_SUPPORT_LIST             "PLMN_SUPPORT_LIST"
-#define AMF_CONFIG_STRING_SLICE_SUPPORT_LIST            "SLICE_SUPPORT_LIST"
-#define AMF_CONFIG_STRING_SST                           "SST"
-#define AMF_CONFIG_STRING_SD                            "SD"
-#define AMF_CONFIG_STRING_CORE_CONFIGURATION            "CORE_CONFIGURATION"
-#define AMF_CONFIG_STRING_EMERGENCY_SUPPORT             "EMERGENCY_SUPPORT"
-#define AMF_CONFIG_STRING_AUTHENTICATION                "AUTHENTICATION"
-#define AMF_CONFIG_STRING_AUTH_MYSQL_SERVER             "MYSQL_server"
-#define AMF_CONFIG_STRING_AUTH_MYSQL_USER               "MYSQL_user"
-#define AMF_CONFIG_STRING_AUTH_MYSQL_PASS               "MYSQL_pass"
-#define AMF_CONFIG_STRING_AUTH_MYSQL_DB                 "MYSQL_db"
-#define AMF_CONFIG_STRING_AUTH_OPERATOR_KEY             "OPERATOR_key"
-#define AMF_CONFIG_STRING_AUTH_RANDOM                   "RANDOM"
-#define AMF_CONFIG_STRING_NAS                           "NAS"
-#define AMF_CONFIG_STRING_NAS_SUPPORTED_INTEGRITY_ALGORITHM_LIST  "ORDERED_SUPPORTED_INTEGRITY_ALGORITHM_LIST"
-#define AMF_CONFIG_STRING_NAS_SUPPORTED_CIPHERING_ALGORITHM_LIST  "ORDERED_SUPPORTED_CIPHERING_ALGORITHM_LIST"
+#define AMF_CONFIG_STRING_AMF_NAME "AMF_NAME"
+#define AMF_CONFIG_STRING_GUAMI "GUAMI"
+#define AMF_CONFIG_STRING_SERVED_GUAMI_LIST "SERVED_GUAMI_LIST"
+#define AMF_CONFIG_STRING_TAC "TAC"
+#define AMF_CONFIG_STRING_MCC "MCC"
+#define AMF_CONFIG_STRING_MNC "MNC"
+#define AMF_CONFIG_STRING_RegionID "RegionID"
+#define AMF_CONFIG_STRING_AMFSetID "AMFSetID"
+#define AMF_CONFIG_STRING_AMFPointer "AMFPointer"
+#define AMF_CONFIG_STRING_RELATIVE_AMF_CAPACITY "RELATIVE_CAPACITY"
+#define AMF_CONFIG_STRING_PLMN_SUPPORT_LIST "PLMN_SUPPORT_LIST"
+#define AMF_CONFIG_STRING_SLICE_SUPPORT_LIST "SLICE_SUPPORT_LIST"
+#define AMF_CONFIG_STRING_SST "SST"
+#define AMF_CONFIG_STRING_SD "SD"
+#define AMF_CONFIG_STRING_CORE_CONFIGURATION "CORE_CONFIGURATION"
+#define AMF_CONFIG_STRING_EMERGENCY_SUPPORT "EMERGENCY_SUPPORT"
+#define AMF_CONFIG_STRING_AUTHENTICATION "AUTHENTICATION"
+#define AMF_CONFIG_STRING_AUTH_MYSQL_SERVER "MYSQL_server"
+#define AMF_CONFIG_STRING_AUTH_MYSQL_USER "MYSQL_user"
+#define AMF_CONFIG_STRING_AUTH_MYSQL_PASS "MYSQL_pass"
+#define AMF_CONFIG_STRING_AUTH_MYSQL_DB "MYSQL_db"
+#define AMF_CONFIG_STRING_AUTH_OPERATOR_KEY "OPERATOR_key"
+#define AMF_CONFIG_STRING_AUTH_RANDOM "RANDOM"
+#define AMF_CONFIG_STRING_NAS "NAS"
+#define AMF_CONFIG_STRING_NAS_SUPPORTED_INTEGRITY_ALGORITHM_LIST               \
+  "ORDERED_SUPPORTED_INTEGRITY_ALGORITHM_LIST"
+#define AMF_CONFIG_STRING_NAS_SUPPORTED_CIPHERING_ALGORITHM_LIST               \
+  "ORDERED_SUPPORTED_CIPHERING_ALGORITHM_LIST"
 
 using namespace libconfig;
 
@@ -159,11 +161,11 @@ class amf_config {
  public:
   amf_config();
   ~amf_config();
-  int load(const std::string &config_file);
-  int load_interface(const Setting &if_cfg, interface_cfg_t &cfg);
+  int load(const std::string& config_file);
+  int load_interface(const Setting& if_cfg, interface_cfg_t& cfg);
   int load_thread_sched_params(
-      const libconfig::Setting &thread_sched_params_cfg,
-      util::thread_sched_params &cfg);
+      const libconfig::Setting& thread_sched_params_cfg,
+      util::thread_sched_params& cfg);
   void display();
   unsigned int instance;
   std::string pid_dir;
@@ -185,6 +187,6 @@ class amf_config {
   bool is_Nausf;
 };
 
-}
+}  // namespace config
 
 #endif

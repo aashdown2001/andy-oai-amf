@@ -673,8 +673,8 @@ void amf_n2::handle_itti_message(
   nas_pdu[blength(itti_msg.nas)] = '\0';
   item.pduSessionNAS_PDU         = nas_pdu;
   item.sizeofpduSessionNAS_PDU   = blength(itti_msg.nas);
-  item.s_nssai.sst = "01";  // TODO: get from N1N2msgTranferMsg
-  item.s_nssai.sd = "";     // TODO: get from N1N2msgTranferMsg
+  item.s_nssai.sst               = "01";  // TODO: get from N1N2msgTranferMsg
+  item.s_nssai.sd                = "";    // TODO: get from N1N2msgTranferMsg
 
   // Get NSSAI from PDU Session Context
   std::shared_ptr<nas_context> nc;

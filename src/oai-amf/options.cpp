@@ -30,13 +30,24 @@ bool Options::m_is_Nausf = true;
 
 //------------------------------------------------------------------------------
 void Options::help() {
-  std::cout << std::endl << "Usage:  AMF  [OPTIONS]..." << std::endl << "  -h, --help                   Print help and exit" << std::endl << "  -c, --libconfigcfg filename  Read the application configuration from this file." << std::endl
-      << "  -o, --stdoutlog              Send the application logs to STDOUT fd." << std::endl << "  -r, --rotatelog              Send the application logs to local file (in  current working directory)." << std::endl<< "      --no-ausf               Do not connect ausf." << std::endl;
+  std::cout << std::endl
+            << "Usage:  AMF  [OPTIONS]..." << std::endl
+            << "  -h, --help                   Print help and exit" << std::endl
+            << "  -c, --libconfigcfg filename  Read the application "
+               "configuration from this file."
+            << std::endl
+            << "  -o, --stdoutlog              Send the application logs to "
+               "STDOUT fd."
+            << std::endl
+            << "  -r, --rotatelog              Send the application logs to "
+               "local file (in  current working directory)."
+            << std::endl
+            << "      --no-ausf               Do not connect ausf."
+            << std::endl;
 }
 
 //------------------------------------------------------------------------------
-bool Options::parse(int argc, char **argv) {
-
+bool Options::parse(int argc, char** argv) {
   bool ret = true;
 
   ret = parseInputOptions(argc, argv);
@@ -46,31 +57,34 @@ bool Options::parse(int argc, char **argv) {
 
 //------------------------------------------------------------------------------
 bool Options::validateOptions() {
-
   return ((options & libconfigcfg));
-
 }
 
-#define OPTIONS_NAUSF_VAL   0xFFFF
+#define OPTIONS_NAUSF_VAL 0xFFFF
 //------------------------------------------------------------------------------
-bool Options::parseInputOptions(int argc, char **argv) {
+bool Options::parseInputOptions(int argc, char** argv) {
   int c;
   int lopt;
   int option_index = 0;
-  bool result = true;
+  bool result      = true;
 
-  struct option long_options[] = { { "help", no_argument, NULL, 'h' }, { "libconfigcfg", required_argument, NULL, 'f' }, { "stdoutlog", no_argument, NULL, 'o' }, { "rotatelog", no_argument, NULL, 'r' }, { "no-ausf", no_argument, &lopt, OPTIONS_NAUSF_VAL }, { NULL, 0, NULL, 0 } };
+  struct option long_options[] = {
+      {"help", no_argument, NULL, 'h'},
+      {"libconfigcfg", required_argument, NULL, 'f'},
+      {"stdoutlog", no_argument, NULL, 'o'},
+      {"rotatelog", no_argument, NULL, 'r'},
+      {"no-ausf", no_argument, &lopt, OPTIONS_NAUSF_VAL},
+      {NULL, 0, NULL, 0}};
 
   // Loop on arguments
   while (1) {
     c = getopt_long(argc, argv, "horc:", long_options, &option_index);
-    if (c == -1)
-      break;  // Exit from the loop.
+    if (c == -1) break;  // Exit from the loop.
 
     switch (c) {
-      case 0:{
-        switch (lopt){
-          case OPTIONS_NAUSF_VAL:{
+      case 0: {
+        switch (lopt) {
+          case OPTIONS_NAUSF_VAL: {
             m_is_Nausf = false;
           }
         }
@@ -101,19 +115,19 @@ bool Options::parseInputOptions(int argc, char **argv) {
         switch (optopt) {
           case 'c': {
             std::cout << "Option -l (libconfig config) requires an argument"
-                << std::endl;
+                      << std::endl;
             break;
           }
           case 'o': {
-            std::cout
-                << "Option -o do not requires an argument, can be also set with option -r."
-                << std::endl;
+            std::cout << "Option -o do not requires an argument, can be also "
+                         "set with option -r."
+                      << std::endl;
             break;
           }
           case 'r': {
-            std::cout
-                << "Option -r do not requires an argument, can be also set with option -o."
-                << std::endl;
+            std::cout << "Option -r do not requires an argument, can be also "
+                         "set with option -o."
+                      << std::endl;
             break;
           }
           default: {
@@ -132,4 +146,3 @@ bool Options::parseInputOptions(int argc, char **argv) {
   }
   return result;
 }
-
