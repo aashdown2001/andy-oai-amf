@@ -615,7 +615,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
       PDUSessionResourceSetupRequestItem_t item;
       item.pduSessionId      = itti_msg.pdu_session_id;
       item.s_nssai.sst       = "01";
-      item.s_nssai.sd        = "";
+      item.s_nssai.sd        = "None";
       item.pduSessionNAS_PDU = NULL;
       if (itti_msg.isn2sm_avaliable) {
         bstring n2sm = itti_msg.n2sm;
@@ -674,7 +674,7 @@ void amf_n2::handle_itti_message(
   item.pduSessionNAS_PDU = nas_pdu;
   item.sizeofpduSessionNAS_PDU = blength(itti_msg.nas);
   item.s_nssai.sst = "01";  // TODO: get from N1N2msgTranferMsg
-  item.s_nssai.sd = "";     // TODO: get from N1N2msgTranferMsg
+  item.s_nssai.sd = "None";     // TODO: get from N1N2msgTranferMsg
 
   // Get NSSAI from PDU Session Context
   std::shared_ptr<nas_context> nc;
