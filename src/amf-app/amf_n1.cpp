@@ -1730,30 +1730,39 @@ void amf_n1::authentication_response_handle(uint32_t ran_ue_ngap_id,
     Logger::amf_n1().warn(
         "Cannot receive AuthenticationResponseParameter (RES*)");
   } else {
-    // Get stored XRES*
-    int secu_index = nc.get()->security_ctx->vector_pointer;
-    uint8_t *hxresStar = nc.get()->_5g_av[secu_index].hxresStar;
-    // Calculate HRES* from received RES*, then compare with XRES stored in
-    // nas_context
-    uint8_t inputstring[32];
-    uint8_t *res = (uint8_t *)bdata(resStar);
-    Logger::amf_n1().debug("Start to calculate HRES* from received RES*");
-    memcpy(&inputstring[0], nc.get()->_5g_av[secu_index].rand, 16);
-    memcpy(&inputstring[16], res, blength(resStar));
-    unsigned char sha256Out[Sha256::DIGEST_SIZE];
-    sha256((unsigned char *)inputstring, 16 + blength(resStar), sha256Out);
-    uint8_t hres[16];
-    for (int i = 0; i < 16; i++) hres[i] = (uint8_t)sha256Out[i];
-    print_buffer("amf_n1", "Received RES* From Authentication-Response", res,
-                 16);
-    print_buffer("amf_n1", "Stored XRES* in 5G HE AV",
-                 nc.get()->_5g_he_av[secu_index].xresStar, 16);
-    print_buffer("amf_n1", "Stored XRES in 5G HE AV",
-                 nc.get()->_5g_he_av[secu_index].xres, 8);
-    print_buffer("amf_n1", "Computed HRES* from RES*", hres, 16);
-    print_buffer("amf_n1", "Computed HXRES* from XRES*", hxresStar, 16);
-    for (int i = 0; i < 16; i++) {
-      if (hxresStar[i] != hres[i]) isAuthOk = false;
+    if(amf_cfg.is_Nausf)
+    {
+        std::string data = bdata(resStar);
+        if(!_5g_aka_confirmation_from_ausf(nc,data))
+            isAuthOk = false;
+    }
+    else
+    {
+        // Get stored XRES*
+        int secu_index = nc.get()->security_ctx->vector_pointer;
+        uint8_t *hxresStar = nc.get()->_5g_av[secu_index].hxresStar;
+        // Calculate HRES* from received RES*, then compare with XRES stored in
+        // nas_context
+        uint8_t inputstring[32];
+        uint8_t *res = (uint8_t *)bdata(resStar);
+        Logger::amf_n1().debug("Start to calculate HRES* from received RES*");
+        memcpy(&inputstring[0], nc.get()->_5g_av[secu_index].rand, 16);
+        memcpy(&inputstring[16], res, blength(resStar));
+        unsigned char sha256Out[Sha256::DIGEST_SIZE];
+        sha256((unsigned char *)inputstring, 16 + blength(resStar), sha256Out);
+        uint8_t hres[16];
+        for (int i = 0; i < 16; i++) hres[i] = (uint8_t)sha256Out[i];
+        print_buffer("amf_n1", "Received RES* From Authentication-Response", res,
+                     16);
+        print_buffer("amf_n1", "Stored XRES* in 5G HE AV",
+                     nc.get()->_5g_he_av[secu_index].xresStar, 16);
+        print_buffer("amf_n1", "Stored XRES in 5G HE AV",
+                     nc.get()->_5g_he_av[secu_index].xres, 8);
+        print_buffer("amf_n1", "Computed HRES* from RES*", hres, 16);
+        print_buffer("amf_n1", "Computed HXRES* from XRES*", hxresStar, 16);
+        for (int i = 0; i < 16; i++) {
+          if (hxresStar[i] != hres[i]) isAuthOk = false;
+        }
     }
   }
   // If success, start SMC procedure; else if failure, response registration
