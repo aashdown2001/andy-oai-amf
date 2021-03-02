@@ -566,6 +566,7 @@ void amf_n11::curl_http_client(
       // free curl before returning
       curl_slist_free_all(headers);
       curl_easy_cleanup(curl);
+      psc.get()->smf_context_location = "/nsmf-pdusession/v2/sm-contexts/1";//try to fix bugs for no-response from SMF when requesting /nsmf-pdusession/v2/sm-contexts (first pdu session establishment request)
       return;
     }
 

@@ -1183,9 +1183,7 @@ void amf_n1::curl_http_client(
       curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, CURL_TIMEOUT_MS);
     curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1);
-    curl_easy_setopt(curl, CURLOPT_INTERFACE, "ens33");
-    //    Logger::amf_n1().info("[CURL] request sent by interface " +
-    //    udm_cfg.nudr.if_name);
+    curl_easy_setopt(curl, CURLOPT_INTERFACE, amf_cfg.nausf.if_name.c_str());
 
     // Response information.
     long httpCode = {0};
