@@ -47,14 +47,14 @@ namespace amf_application {
 
 class amf_app {
  public:
-  explicit amf_app(const amf_config &amf_cfg);
-  amf_app(amf_app const &) = delete;
-  void operator=(amf_app const &) = delete;
-  void allRegistredModulesInit(const amf_modules &modules);
+  explicit amf_app(const amf_config& amf_cfg);
+  amf_app(amf_app const&) = delete;
+  void operator=(amf_app const&) = delete;
+  void allRegistredModulesInit(const amf_modules& modules);
   long generate_amf_ue_ngap_id();
   // itti handlers
-  void handle_itti_message(itti_nas_signalling_establishment_request &itti_msg);
-  void handle_itti_message(itti_n1n2_message_transfer_request &itti_msg);
+  void handle_itti_message(itti_nas_signalling_establishment_request& itti_msg);
+  void handle_itti_message(itti_n1n2_message_transfer_request& itti_msg);
   // context management
   std::map<long, std::shared_ptr<ue_context>> amf_ue_ngap_id2ue_ctx;
   mutable std::shared_mutex m_amf_ue_ngap_id2ue_ctx;
@@ -75,8 +75,9 @@ class amf_app {
   // SMF Client response handlers
   void handle_post_sm_context_response_error_400();
   // others
-  bool generate_5g_guti(uint32_t ranid, long amfid, std::string &mcc,
-                        std::string &mnc, uint32_t &tmsi);
+  bool generate_5g_guti(
+      uint32_t ranid, long amfid, std::string& mcc, std::string& mnc,
+      uint32_t& tmsi);
 };
 
 }  // namespace amf_application

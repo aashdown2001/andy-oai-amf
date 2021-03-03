@@ -79,7 +79,7 @@ void statistics::display() {
       "UE NGAP ID | AMF UE ID |  PLMN   |Cell ID|");
 
   int i = 0;
-  for (auto const &ue : ue_infos) {
+  for (auto const& ue : ue_infos) {
     Logger::amf_app().info(
         "|%7d|%22s|%18s|%15s|%16d|%11d|%9s|%7d|", i + 1,
         ue.second.registerStatus.c_str(), ue.second.imsi.c_str(),

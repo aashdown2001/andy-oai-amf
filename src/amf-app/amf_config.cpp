@@ -128,7 +128,7 @@ int amf_config::load(const std::string& config_file) {
         "%s : %s, using defaults", nfex.what(), nfex.getPath());
   }
   try {
-    const Setting &guami_list_cfg =
+    const Setting& guami_list_cfg =
         amf_cfg[AMF_CONFIG_STRING_SERVED_GUAMI_LIST];
     int count = guami_list_cfg.getLength();
     for (int i = 0; i < count; i++) {
@@ -178,8 +178,8 @@ int amf_config::load(const std::string& config_file) {
         "%s : %s, using defaults", nfex.what(), nfex.getPath());
   }
   try {
-    const Setting &new_if_cfg = amf_cfg[AMF_CONFIG_STRING_INTERFACES];
-    const Setting &n2_amf_cfg =
+    const Setting& new_if_cfg = amf_cfg[AMF_CONFIG_STRING_INTERFACES];
+    const Setting& n2_amf_cfg =
         new_if_cfg[AMF_CONFIG_STRING_INTERFACE_NGAP_AMF];
     load_interface(n2_amf_cfg, n2);
     if (is_Nausf) {
@@ -189,7 +189,7 @@ int amf_config::load(const std::string& config_file) {
     }
     const Setting& n11_cfg = new_if_cfg[AMF_CONFIG_STRING_INTERFACE_N11];
     load_interface(n11_cfg, n11);
-    const Setting &smf_addr_pool =
+    const Setting& smf_addr_pool =
         n11_cfg[AMF_CONFIG_STRING_SMF_INSTANCES_POOL];
     int count = smf_addr_pool.getLength();
     for (int i = 0; i < count; i++) {
@@ -402,12 +402,12 @@ int amf_config::load_interface(
       }
     } else {
       std::vector<std::string> words;
-      boost::split(words, address, boost::is_any_of("/"),
-                   boost::token_compress_on);
+      boost::split(
+          words, address, boost::is_any_of("/"), boost::token_compress_on);
       if (words.size() != 2) {
-        Logger::amf_app().error("Bad value " AMF_CONFIG_STRING_IPV4_ADDRESS
-                                " = %s in config file",
-                                address.c_str());
+        Logger::amf_app().error(
+            "Bad value " AMF_CONFIG_STRING_IPV4_ADDRESS " = %s in config file",
+            address.c_str());
         return RETURNerror;
       }
       unsigned char buf_in_addr[sizeof(struct in6_addr)];  // you never know...
@@ -421,9 +421,9 @@ int amf_config::load_interface(
             util::trim(words.at(0)).c_str());
         return RETURNerror;
       }
-      cfg.network4.s_addr =
-          htons(ntohs(cfg.addr4.s_addr) &
-                0xFFFFFFFF << (32 - std::stoi(util::trim(words.at(1)))));
+      cfg.network4.s_addr = htons(
+          ntohs(cfg.addr4.s_addr) &
+          0xFFFFFFFF << (32 - std::stoi(util::trim(words.at(1)))));
     }
     if_cfg.lookupValue(AMF_CONFIG_STRING_PORT, cfg.port);
 
@@ -439,8 +439,8 @@ int amf_config::load_interface(
 }
 
 //------------------------------------------------------------------------------
-int amf_config::load_thread_sched_params(const Setting &thread_sched_params_cfg,
-                                         util::thread_sched_params &cfg) {
+int amf_config::load_thread_sched_params(
+    const Setting& thread_sched_params_cfg, util::thread_sched_params& cfg) {
   try {
     thread_sched_params_cfg.lookupValue(
         AMF_CONFIG_STRING_THREAD_RD_CPU_ID, cfg.cpu_id);

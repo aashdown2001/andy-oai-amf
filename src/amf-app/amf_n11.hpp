@@ -43,7 +43,7 @@ class amf_n11 {
   amf_n11();
   ~amf_n11();
 
-  void handle_itti_message(itti_smf_services_consumer &);
+  void handle_itti_message(itti_smf_services_consumer&);
   void handle_pdu_session_initial_request(
       std::string supi, std::shared_ptr<pdu_session_context> psc,
       std::string smf_addr, bstring sm_msg, std::string dnn);

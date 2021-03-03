@@ -76,7 +76,7 @@ void PlmnId::getMnc(std::string& mnc) {
 
 //------------------------------------------------------------------------------
 bool PlmnId::encode2octetstring(Ngap_PLMNIdentity_t& plmn) {
-  plmn.size       = 3;  // OCTET_STRING(SIZE(3))  9.3.3.5, 3gpp ts 38.413 V15.4.0
+  plmn.size = 3;  // OCTET_STRING(SIZE(3))  9.3.3.5, 3gpp ts 38.413 V15.4.0
   uint8_t* buffer = (uint8_t*) calloc(1, 3 * sizeof(uint8_t));
   if (!buffer) return false;
 

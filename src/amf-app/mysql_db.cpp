@@ -38,9 +38,9 @@ extern amf_config amf_cfg;
 //------------------------------------------------------------------------------
 bool amf_n1::get_mysql_auth_info(
     std::string imsi,
-    mysql_auth_info_t
-        &resp) {  // openair-cn/tree/v0.5.0/src/oai_hss/db/db_connector.c
-  MYSQL_RES *res;
+    mysql_auth_info_t&
+        resp) {  // openair-cn/tree/v0.5.0/src/oai_hss/db/db_connector.c
+  MYSQL_RES* res;
   MYSQL_ROW row;
   std::string query;
 
@@ -88,7 +88,7 @@ bool amf_n1::get_mysql_auth_info(
 //------------------------------------------------------------------------------
 bool amf_n1::connect_to_mysql() {
   const int mysql_reconnect_val = 1;
-  db_desc = (database_t *)calloc(1, sizeof(database_t));
+  db_desc                       = (database_t*) calloc(1, sizeof(database_t));
   if (!db_desc) {
     Logger::amf_n1().error(
         "An error occurs when allocating memory for DB_DESC");
@@ -130,8 +130,8 @@ void amf_n1::mysql_push_rand_sqn(
     Logger::amf_n1().error("Need sqn and rand");
     return;
   }
-  sqn_decimal = ((uint64_t)sqn[0] << 40) | ((uint64_t)sqn[1] << 32) |
-                ((uint64_t)sqn[2] << 24) | (sqn[3] << 16) | (sqn[4] << 8) |
+  sqn_decimal = ((uint64_t) sqn[0] << 40) | ((uint64_t) sqn[1] << 32) |
+                ((uint64_t) sqn[2] << 24) | (sqn[3] << 16) | (sqn[4] << 8) |
                 sqn[5];
   query_length = sprintf(query, "UPDATE `users` SET `rand`=UNHEX('");
   for (int i = 0; i < RAND_LENGTH; i++) {

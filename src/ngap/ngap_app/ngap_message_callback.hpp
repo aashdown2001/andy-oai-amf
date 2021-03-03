@@ -321,7 +321,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
     Logger::ngap().error(
         "Decoding PduSessionResourceSetupResponseMsg "
         "getPduSessionResourceSetupResponseList IE  error");
-    //return -1;
+    // return -1;
   } else {
     uint8_t transferIe[500];
     memcpy(

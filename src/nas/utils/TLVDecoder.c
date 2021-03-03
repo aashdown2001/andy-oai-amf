@@ -37,8 +37,9 @@
 int errorCodeDecoder = 0;
 
 //------------------------------------------------------------------------------
-int decode_bstring(bstring *bstr, const uint16_t pdulen,
-                   const uint8_t *const buffer, const uint32_t buflen) {
+int decode_bstring(
+    bstring* bstr, const uint16_t pdulen, const uint8_t* const buffer,
+    const uint32_t buflen) {
   if (buflen < pdulen) {
     return TLV_BUFFER_TOO_SHORT;
   }
@@ -68,4 +69,3 @@ bstring dump_bstring_xml(const bstring bstr) {
     return b;
   }
 }
-
