@@ -33,7 +33,9 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-ServiceRequest::ServiceRequest() {}
+ServiceRequest::ServiceRequest() {
+  ie_nas_message_container = nullptr;
+}
 
 //------------------------------------------------------------------------------
 ServiceRequest::~ServiceRequest() {}
