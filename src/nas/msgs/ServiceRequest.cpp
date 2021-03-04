@@ -35,6 +35,7 @@ using namespace nas;
 //------------------------------------------------------------------------------
 ServiceRequest::ServiceRequest() {
   ie_nas_message_container = nullptr;
+  ie_PDU_session_status    = nullptr;
 }
 
 //------------------------------------------------------------------------------

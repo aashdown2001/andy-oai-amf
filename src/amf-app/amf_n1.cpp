@@ -604,7 +604,9 @@ void amf_n1::service_request_handle(
   if(serReq->getNasMessageContainer(nas_container)){
     Logger::amf_n1().debug("try to get pdu-session-status value from nas message container(length: %d)", blength(nas_container));
     uint8_t *buf = (uint8_t*)bdata(nas_container);
-    pdu_session_status = buf[19]<<8 | buf[20];
+    ServiceRequest *tmp = new ServiceRequest();
+    tmp->decodefrombuffer(nullptr, (uint8_t*) bdata(nas_container), blength(nas_container));
+    pdu_session_status = tmp->getPduSessionStatus();
     Logger::amf_n1().debug("Get pdu-session-status value: 0x%x", pdu_session_status);
   }
   ServiceAccept* serApt = new ServiceAccept();
