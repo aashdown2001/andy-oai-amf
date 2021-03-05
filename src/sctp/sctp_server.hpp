@@ -39,7 +39,7 @@ extern "C" {
 #include <vector>
 #include <iostream>
 
-#define SCTP_RECV_BUFFER_SIZE 1024
+#define SCTP_RECV_BUFFER_SIZE 2048
 #define SCTP_RC_ERROR -1
 #define SCTP_RC_NORMAL_READ 0
 #define SCTP_RC_DISCONNECT 1
