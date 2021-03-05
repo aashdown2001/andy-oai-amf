@@ -675,7 +675,8 @@ void amf_n1::service_request_handle(
   if(pdu_session_status == 0x00){
     serApt->setPDU_session_status(0x0000);
   }else{
-    serApt->setPDU_session_status(pdu_session_status);
+    //serApt->setPDU_session_status(pdu_session_status);
+    serApt->setPDU_session_status(0x2000);
   }
   serApt->setPDU_session_reactivation_result(0x0000);
   uint8_t buffer[BUFFER_SIZE_256];
