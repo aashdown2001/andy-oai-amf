@@ -35,6 +35,7 @@ using namespace nas;
 //------------------------------------------------------------------------------
 ServiceRequest::ServiceRequest() {
   ie_nas_message_container = nullptr;
+  ie_PDU_session_status    = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -195,7 +196,7 @@ int ServiceRequest::decodefrombuffer(
       buf + decoded_size, len - decoded_size, false);
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First optional IE (0x%x)", octet);
-  while (!octet) {
+  while (octet) {
     switch (octet) {
       case 0x40: {
         Logger::nas_mm().debug("Decoding ie_uplink_data_status (IEI: 0x40)");
