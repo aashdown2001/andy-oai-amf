@@ -600,14 +600,20 @@ void amf_n1::service_request_handle(
   bdestroy(nas);
   uint16_t pdu_session_status = 0xffff;
   bstring nas_container;
-  Logger::amf_n1().debug("try to decode pdu-session-status in service_request(service_request)");
-  if(serReq->getNasMessageContainer(nas_container)){
-    Logger::amf_n1().debug("try to get pdu-session-status value from nas message container(length: %d)", blength(nas_container));
-    uint8_t *buf = (uint8_t*)bdata(nas_container);
-    ServiceRequest *tmp = new ServiceRequest();
-    tmp->decodefrombuffer(nullptr, (uint8_t*) bdata(nas_container), blength(nas_container));
+  Logger::amf_n1().debug(
+      "try to decode pdu-session-status in service_request(service_request)");
+  if (serReq->getNasMessageContainer(nas_container)) {
+    Logger::amf_n1().debug(
+        "try to get pdu-session-status value from nas message "
+        "container(length: %d)",
+        blength(nas_container));
+    uint8_t* buf        = (uint8_t*) bdata(nas_container);
+    ServiceRequest* tmp = new ServiceRequest();
+    tmp->decodefrombuffer(
+        nullptr, (uint8_t*) bdata(nas_container), blength(nas_container));
     pdu_session_status = tmp->getPduSessionStatus();
-    Logger::amf_n1().debug("Get pdu-session-status value: 0x%x", pdu_session_status);
+    Logger::amf_n1().debug(
+        "Get pdu-session-status value: 0x%x", pdu_session_status);
   }
   ServiceAccept* serApt = new ServiceAccept();
   serApt->setHeader(PLAIN_5GS_MSG);
@@ -672,10 +678,10 @@ void amf_n1::service_request_handle(
     delete serReq;
     return;
   }
-  if(pdu_session_status == 0x00){
+  if (pdu_session_status == 0x00) {
     serApt->setPDU_session_status(0x0000);
-  }else{
-    //serApt->setPDU_session_status(pdu_session_status);
+  } else {
+    // serApt->setPDU_session_status(pdu_session_status);
     serApt->setPDU_session_status(0x2000);
   }
   serApt->setPDU_session_reactivation_result(0x0000);

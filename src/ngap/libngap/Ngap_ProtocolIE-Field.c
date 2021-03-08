@@ -118,7 +118,7 @@ static const asn_ioc_cell_t
         //"&criticality", aioc__value, &asn_DEF_Ngap_Criticality,
         //&asn_VAL_9_Ngap_reject }, { "&Value", aioc__type,
         //&asn_DEF_Ngap_UPTransportLayerInformation }, { "&presence",
-        //aioc__value, &asn_DEF_Ngap_Presence, &asn_VAL_9_Ngap_optional },
+        // aioc__value, &asn_DEF_Ngap_Presence, &asn_VAL_9_Ngap_optional },
         {"&id", aioc__value, &asn_DEF_Ngap_ProtocolIE_ID,
          &asn_VAL_10_Ngap_id_DataForwardingNotPossible},
         {"&criticality", aioc__value, &asn_DEF_Ngap_Criticality,
@@ -21198,32 +21198,27 @@ asn_SEQUENCE_specifics_t
         0,  /* Optional elements (not needed) */
         -1, /* First extension addition */
 };
-asn_TYPE_descriptor_t asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs =
-    {
-        "PDUSessionResourceModifyRequestTransferIEs",
-        "PDUSessionResourceModifyRequestTransferIEs",
-        &asn_OP_SEQUENCE,
-        asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109,
-        sizeof(
-            asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109) /
-            sizeof(
-                asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109
-                    [0]), /* 1 */
-        asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109, /* Same
-                                                                             as
-                                                                             above
-                                                                           */
-        sizeof(
-            asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109) /
-            sizeof(
-                asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109
-                    [0]), /* 1 */
-        {0, 0, SEQUENCE_constraint},
-        asn_MBR_Ngap_PDUSessionResourceModifyRequestTransferIEs_109,
-        3, /* Elements count */
-        &asn_SPC_Ngap_PDUSessionResourceModifyRequestTransferIEs_specs_109 /* Additional
-                                                                              specs
-                                                                            */
+asn_TYPE_descriptor_t asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs = {
+    "PDUSessionResourceModifyRequestTransferIEs",
+    "PDUSessionResourceModifyRequestTransferIEs",
+    &asn_OP_SEQUENCE,
+    asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109,
+    sizeof(asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109) /
+        sizeof(asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109
+                   [0]),                                              /* 1 */
+    asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109, /* Same
+                                                                         as
+                                                                         above
+                                                                       */
+    sizeof(asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109) /
+        sizeof(asn_DEF_Ngap_PDUSessionResourceModifyRequestTransferIEs_tags_109
+                   [0]), /* 1 */
+    {0, 0, SEQUENCE_constraint},
+    asn_MBR_Ngap_PDUSessionResourceModifyRequestTransferIEs_109,
+    3, /* Elements count */
+    &asn_SPC_Ngap_PDUSessionResourceModifyRequestTransferIEs_specs_109 /* Additional
+                                                                          specs
+                                                                        */
 };
 
 static asn_TYPE_member_t asn_MBR_Ngap_value_116[] = {
