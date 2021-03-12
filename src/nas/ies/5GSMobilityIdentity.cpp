@@ -86,36 +86,36 @@ int _5GSMobilityIdentity::_5g_s_tmsi_decodefrombuffer(uint8_t* buf, int len) {
   int decoded_size = 1;
   _5g_s_tmsi       = (_5G_S_TMSI_t*) calloc(1, sizeof(_5G_S_TMSI_t));
   uint8_t octet    = *(buf + decoded_size);
-  Logger::nas_mm().debug("first octet 0x%x",octet);
+  Logger::nas_mm().debug("first octet 0x%x", octet);
   decoded_size++;
   _5g_s_tmsi->amf_set_id = 0x0000 | ((uint16_t) octet) << 2;
   octet                  = *(buf + decoded_size);
-  Logger::nas_mm().debug("second octet 0x%x",octet);
+  Logger::nas_mm().debug("second octet 0x%x", octet);
   decoded_size++;
   _5g_s_tmsi->amf_set_id |= (octet & 0xc0) >> 6;
   _5g_s_tmsi->amf_pointer = octet & 0x3f;
   uint32_t tmsi           = 0;
   uint8_t digit[4];
   octet = *(buf + decoded_size);
-  Logger::nas_mm().debug("third octet 0x%x",octet);
+  Logger::nas_mm().debug("third octet 0x%x", octet);
   decoded_size++;
   Logger::nas_mm().debug("Octet 0x%x", octet);
   digit[0] = octet;
   tmsi |= octet;
   octet = *(buf + decoded_size);
-  Logger::nas_mm().debug("fourth octet 0x%x",octet);
+  Logger::nas_mm().debug("fourth octet 0x%x", octet);
   decoded_size++;
   Logger::nas_mm().debug("Octet 0x%x", octet);
   digit[1] = octet;
   tmsi |= octet << 8;
   octet = *(buf + decoded_size);
-  Logger::nas_mm().debug("fifth octet 0x%x",octet);
+  Logger::nas_mm().debug("fifth octet 0x%x", octet);
   decoded_size++;
   Logger::nas_mm().debug("Octet 0x%x", octet);
   digit[2] = octet;
   tmsi |= octet << 16;
   octet = *(buf + decoded_size);
-  Logger::nas_mm().debug("sixth octet 0x%x",octet);
+  Logger::nas_mm().debug("sixth octet 0x%x", octet);
   decoded_size++;
   Logger::nas_mm().debug("Octet 0x%x", octet);
   digit[3] = octet;
@@ -503,7 +503,8 @@ int _5GSMobilityIdentity::decodefrombuffer(
       typeOfIdentity = _5G_S_TMSI;
       decoded_size +=
           _5g_s_tmsi_decodefrombuffer(buf + decoded_size, len - decoded_size);
-      Logger::amf_n1().debug("Decoded 5GSMobilityIdentity %d octets",decoded_size);
+      Logger::amf_n1().debug(
+          "Decoded 5GSMobilityIdentity %d octets", decoded_size);
       return decoded_size;
     } break;
   }
