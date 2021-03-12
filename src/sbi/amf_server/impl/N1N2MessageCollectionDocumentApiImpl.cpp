@@ -86,7 +86,7 @@ void N1N2MessageCollectionDocumentApiImpl::n1_n2_message_transfer(
 
   bstring n1sm;
   msg_str_2_msg_hex(
-      n1sm_str.substr(0, n1sm_str.length() - 2),
+      n1sm_str.substr(0, n1sm_str.length()),
       n1sm);  // TODO: verify n1sm_length
 
   bstring n2sm;

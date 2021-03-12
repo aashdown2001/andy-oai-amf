@@ -261,6 +261,10 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
       uint8_t pti     = sm_msg[2];
       Logger::amf_n11().debug(
           "Decoded PTI for PDUSessionEstablishmentRequest(0x%x)", pti);
+      psc.get()->isn2sm_avaliable = false;
+      handle_pdu_session_initial_request(
+          supi, psc, smf_addr, smf.sm_msg, dnn);
+      /*
       if (psc.get()->isn1sm_avaliable && psc.get()->isn2sm_avaliable) {
         itti_n1n2_message_transfer_request* itti_msg =
             new itti_n1n2_message_transfer_request(TASK_AMF_N11, TASK_AMF_APP);
@@ -289,6 +293,7 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
         handle_pdu_session_initial_request(
             supi, psc, smf_addr, smf.sm_msg, dnn);
       }
+      */
     } break;
     case EXISTING_PDU_SESSION: {
       // TODO:

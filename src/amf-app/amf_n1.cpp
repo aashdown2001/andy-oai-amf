@@ -675,8 +675,9 @@ void amf_n1::service_request_handle(
   if(pdu_session_status == 0x00){
     serApt->setPDU_session_status(0x0000);
   }else{
-    //serApt->setPDU_session_status(pdu_session_status);
-    serApt->setPDU_session_status(0x2000);
+    serApt->setPDU_session_status(htonl(pdu_session_status));
+    Logger::amf_n1().debug("setting pdu session status 0x%x",htonl(pdu_session_status));
+    //serApt->setPDU_session_status(0x2000);
   }
   serApt->setPDU_session_reactivation_result(0x0000);
   uint8_t buffer[BUFFER_SIZE_256];
@@ -2022,7 +2023,7 @@ void amf_n1::security_mode_complete_handle(
   Logger::amf_n1().debug("Allocated GUTI %s", guti.c_str());
 
   // TODO: remove hardcoded values
-  regAccept->set_5GS_Network_Feature_Support(0x00, 0x00);
+  regAccept->set_5GS_Network_Feature_Support(0x01, 0x00);
   regAccept->setT3512_Value(0x5, 0x1e);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = regAccept->encode2buffer(buffer, BUFFER_SIZE_1024);
