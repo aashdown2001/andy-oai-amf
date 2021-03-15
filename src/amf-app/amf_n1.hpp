@@ -177,6 +177,8 @@ class amf_n1 {
       uint32_t ran_ue_ngap_id, long amf_ue_ngap_id, bstring nas);
   void ul_nas_transport_handle(
       uint32_t ran_ue_ngap_id, long amf_ue_ngap_id, bstring nas, plmn_t plmn);
+  void registration_complete_handle(
+      uint32_t ran_ue_ngap_id, long amf_ue_ngap_id, bstring nas_msg);
   void sha256(unsigned char* message, int msg_len, unsigned char* output);
   void service_request_handle(
       bool isNasSig, std::shared_ptr<nas_context> nc, uint32_t ran_ue_ngap_id,

@@ -72,9 +72,9 @@ int PDU_Session_Status::encode2buffer(uint8_t* buf, int len) {
     encoded_size++;
     *(buf + encoded_size) = length - 2;
     encoded_size++;
-    *(buf + encoded_size) = (_value & 0xff00) >> 8;
-    encoded_size++;
     *(buf + encoded_size) = (_value & 0x00ff);
+    encoded_size++;
+    *(buf + encoded_size) = (_value & 0xff00) >> 8;
     encoded_size++;
   } else {
     //*(buf + encoded_size) = length - 1; encoded_size++;
