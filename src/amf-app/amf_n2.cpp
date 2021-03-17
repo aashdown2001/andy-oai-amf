@@ -305,7 +305,7 @@ void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
   NGSetupResponseMsg ngSetupResp;
   ngSetupResp.setMessageType();
   ngSetupResp.setAMFName(amf_cfg.AMF_Name);
-  ngSetupResp.setRelativeAmfCapacity(amf_cfg.relativeAMFCapacity);
+  //ngSetupResp.setRelativeAmfCapacity(amf_cfg.relativeAMFCapacity);
   std::vector<struct GuamiItem_s> guami_list;
   for (int i = 0; i < amf_cfg.guami_list.size(); i++) {
     struct GuamiItem_s tmp;
@@ -318,6 +318,7 @@ void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
     guami_list.push_back(tmp);
   }
   ngSetupResp.setGUAMIList(guami_list);
+  ngSetupResp.setRelativeAmfCapacity(amf_cfg.relativeAMFCapacity);
   std::vector<PlmnSliceSupport_t> plmn_list;
   for (int i = 0; i < amf_cfg.plmn_list.size(); i++) {
     PlmnSliceSupport_t tmp;
@@ -588,18 +589,24 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
   guami.AmfSetID   = amf_cfg.guami.AmfSetID;
   guami.AmfPointer = amf_cfg.guami.AmfPointer;
   msg->setGuami(guami);
-  msg->setUESecurityCapability(
-      0xe000, 0xe000, 0xe000,
-      0xe000);  // TODO: remove hardcoded value
-  msg->setSecurityKey((uint8_t*) bdata(itti_msg.kgnb));
-  msg->setNasPdu((uint8_t*) bdata(itti_msg.nas), blength(itti_msg.nas));
-
   std::vector<S_Nssai> list;
   S_Nssai item;
   item.sst = "01";
   item.sd  = "None";
   list.push_back(item);
   msg->setAllowedNssai(list);
+  msg->setUESecurityCapability(
+      0xe000, 0xe000, 0xe000,
+      0xe000);  // TODO: remove hardcoded value
+  msg->setSecurityKey((uint8_t*) bdata(itti_msg.kgnb));
+  msg->setNasPdu((uint8_t*) bdata(itti_msg.nas), blength(itti_msg.nas));
+
+ /* std::vector<S_Nssai> list;
+  S_Nssai item;
+  item.sst = "01";
+  item.sd  = "None";
+  list.push_back(item);
+  msg->setAllowedNssai(list);*/
   bdestroy(itti_msg.nas);
   bdestroy(itti_msg.kgnb);
   if (itti_msg.is_sr) {
