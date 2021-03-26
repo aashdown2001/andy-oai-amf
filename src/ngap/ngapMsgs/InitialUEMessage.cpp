@@ -294,8 +294,8 @@ bool InitialUEMessageMsg::decodefrompdu(Ngap_NGAP_PDU_t* ngap_msg_pdu) {
         }
       } break;
       case Ngap_ProtocolIE_ID_id_UserLocationInformation: {
-        if (initialUEMessageIEs->protocolIEs.list.array[i]->criticality ==
-                Ngap_Criticality_reject &&
+        if (/*initialUEMessageIEs->protocolIEs.list.array[i]->criticality ==
+                Ngap_Criticality_reject &&*/
             initialUEMessageIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_InitialUEMessage_IEs__value_PR_UserLocationInformation) {
           userLocationInformation = new UserLocationInformation();

@@ -172,8 +172,8 @@ void NGSetupResponseMsg::setPlmnSupportList(
     S_NSSAI* snssai = new S_NSSAI[list[i].slice_list.size()]();
     for (int j = 0; j < list[i].slice_list.size(); j++) {
       snssai[j].setSst(list[i].slice_list[j].sst);
-      if (list[i].slice_list[j].sd.size()) {
-        snssai[j].setSd(list[i].slice_list[j].sd);
+      if (list[i].slice_list[j].sd.size() && (list[i].slice_list[j].sd.compare("None") && list[i].slice_list[j].sd.compare("none"))) {  
+	      snssai[j].setSd(list[i].slice_list[j].sd);
       }
     }
     plmnSupportItem[i].setPlmnSliceSupportList(

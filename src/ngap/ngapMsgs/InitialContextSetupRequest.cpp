@@ -386,7 +386,8 @@ void InitialContextSetupRequestMsg::setAllowedNssai(std::vector<S_Nssai> list) {
   S_NSSAI* m_snssai = new S_NSSAI[list.size()]();
   for (int i = 0; i < list.size(); i++) {
     m_snssai[i].setSst(list[i].sst);
-    if (list[i].sd.size()) m_snssai[i].setSd(list[i].sd);
+  if (list[i].sd.size()  && (list[i].sd.compare("None") && list[i].sd.compare("none")))
+	  m_snssai[i].setSd(list[i].sd);
   }
   allowedNssai->setAllowedNSSAI(m_snssai, list.size());
 
@@ -470,7 +471,7 @@ void InitialContextSetupRequestMsg::setNasPdu(uint8_t* nas, size_t sizeofnas) {
       (Ngap_InitialContextSetupRequestIEs_t*) calloc(
           1, sizeof(Ngap_InitialContextSetupRequestIEs_t));
   ie->id            = Ngap_ProtocolIE_ID_id_NAS_PDU;
-  ie->criticality   = Ngap_Criticality_reject;
+  ie->criticality   = Ngap_Criticality_ignore;
   ie->value.present = Ngap_InitialContextSetupRequestIEs__value_PR_NAS_PDU;
 
   int ret = nasPdu->encode2octetstring(ie->value.choice.NAS_PDU);
@@ -738,7 +739,7 @@ bool InitialContextSetupRequestMsg::decodefrompdu(
       } break;
       case Ngap_ProtocolIE_ID_id_NAS_PDU: {
         if (initialContextSetupRequestIEs->protocolIEs.list.array[i]
-                    ->criticality == Ngap_Criticality_reject &&
+                    ->criticality == Ngap_Criticality_ignore &&
             initialContextSetupRequestIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_InitialContextSetupRequestIEs__value_PR_NAS_PDU) {

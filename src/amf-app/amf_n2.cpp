@@ -626,10 +626,12 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
       item.s_nssai.sd        = "None";
       item.pduSessionNAS_PDU = NULL;
       if (itti_msg.isn2sm_avaliable) {
-        bstring n2sm = itti_msg.n2sm;
+        //bstring n2sm = itti_msg.n2sm;
         if (blength(itti_msg.n2sm) != 0) {
+          Logger::amf_n2().debug("*** test into itti_msg.n2sm ***");
           item.pduSessionResourceSetupRequestTransfer.buf =
               (uint8_t*) bdata(itti_msg.n2sm);
+	  Logger::amf_n2().debug("*** test into item.pduSessionResourceSetupRequestTransfer.buf ***");
           item.pduSessionResourceSetupRequestTransfer.size =
               blength(itti_msg.n2sm);
         } else {

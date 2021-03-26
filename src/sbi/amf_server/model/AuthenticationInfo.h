@@ -19,7 +19,7 @@
 #ifndef AuthenticationInfo_H_
 #define AuthenticationInfo_H_
 
-//#include "ResynchronizationInfo.h"
+#include "ResynchronizationInfo.h"
 //#include "TraceData.h"
 #include <nlohmann/json.hpp>
 #include <string>
@@ -55,10 +55,10 @@ class AuthenticationInfo {
   /// <summary>
   ///
   /// </summary>
-  //  ResynchronizationInfo getResynchronizationInfo() const;
-  //  void setResynchronizationInfo(ResynchronizationInfo const &value);
-  //  bool resynchronizationInfoIsSet() const;
-  //  void unsetResynchronizationInfo();
+  ResynchronizationInfo getResynchronizationInfo() const;
+  void setResynchronizationInfo(ResynchronizationInfo const &value);
+  bool resynchronizationInfoIsSet() const;
+  void unsetResynchronizationInfo();
   //  /// <summary>
   //  ///
   //  /// </summary>
@@ -110,8 +110,8 @@ class AuthenticationInfo {
 
   std::string m_ServingNetworkName;
 
-  //  ResynchronizationInfo m_ResynchronizationInfo;
-  //  bool m_ResynchronizationInfoIsSet;
+  ResynchronizationInfo m_ResynchronizationInfo;
+  bool m_ResynchronizationInfoIsSet;
   //  std::string m_Pei;
   //  bool m_PeiIsSet;
   //  TraceData m_TraceData;
