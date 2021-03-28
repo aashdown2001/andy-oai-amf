@@ -711,7 +711,8 @@ void amf_n2::handle_itti_message(
   item.pduSessionResourceSetupRequestTransfer.size = blength(itti_msg.n2sm);
   list.push_back(item);
   psrsr->setPduSessionResourceSetupRequestList(list);
-
+  psrsr->setUEAggregateMaxBitRate(
+          0x08a7d8c0, 0x20989680);
   size_t buffer_size = BUFFER_SIZE_512;
   char* buffer       = (char*) calloc(1, buffer_size);
   int encoded_size   = 0;
