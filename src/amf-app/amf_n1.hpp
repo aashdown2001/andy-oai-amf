@@ -112,7 +112,7 @@ class amf_n1 {
       std::string& Response);
   bool authentication_vectors_from_ausf(std::shared_ptr<nas_context>& nc);
   bool _5g_aka_confirmation_from_ausf(
-      std::shared_ptr<nas_context>& nc, std::string& resStar);
+      std::shared_ptr<nas_context>& nc, bstring resStar);
 
   bool authentication_vectors_generator_in_ausf(
       std::shared_ptr<nas_context>& nc);

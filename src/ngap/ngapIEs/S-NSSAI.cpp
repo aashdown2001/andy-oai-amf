@@ -89,11 +89,13 @@ void S_NSSAI::getSst(std::string& charSst) {
 
 //------------------------------------------------------------------------------
 void S_NSSAI::setSd(const std::string charSd) {
-  if(charSd.compare("none"))
+  if(charSd.compare("none") && charSd.compare("none"))
+  {
     sdIsSet = true;
+    sd      = fromString<int>(charSd);
+  }
   else 
     sdIsSet = false;
-  sd      = fromString<int>(charSd);
 }
 
 //------------------------------------------------------------------------------

@@ -267,8 +267,8 @@ bool InitialContextSetupResponseMsg::decodefrompdu(
        i++) {
     switch (initialContextSetupResponseIEs->protocolIEs.list.array[i]->id) {
       case Ngap_ProtocolIE_ID_id_AMF_UE_NGAP_ID: {
-        if (initialContextSetupResponseIEs->protocolIEs.list.array[i]
-                    ->criticality == Ngap_Criticality_ignore &&
+        if (/*initialContextSetupResponseIEs->protocolIEs.list.array[i]
+                    ->criticality == Ngap_Criticality_ignore &&*/
             initialContextSetupResponseIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_InitialContextSetupResponseIEs__value_PR_AMF_UE_NGAP_ID) {
@@ -285,8 +285,8 @@ bool InitialContextSetupResponseMsg::decodefrompdu(
         }
       } break;
       case Ngap_ProtocolIE_ID_id_RAN_UE_NGAP_ID: {
-        if (initialContextSetupResponseIEs->protocolIEs.list.array[i]
-                    ->criticality == Ngap_Criticality_ignore &&
+        if (/*initialContextSetupResponseIEs->protocolIEs.list.array[i]
+                    ->criticality == Ngap_Criticality_ignore &&*/
             initialContextSetupResponseIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_InitialContextSetupResponseIEs__value_PR_RAN_UE_NGAP_ID) {
