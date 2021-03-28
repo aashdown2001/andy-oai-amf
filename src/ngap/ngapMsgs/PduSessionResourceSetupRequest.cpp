@@ -68,7 +68,7 @@ void PduSessionResourceSetupRequestMsg::setUEAggregateMaxBitRate(
       (Ngap_PDUSessionResourceSetupRequestIEs_t*) calloc(
           1, sizeof(Ngap_PDUSessionResourceSetupRequestIEs_t));
   ie->id          = Ngap_ProtocolIE_ID_id_UEAggregateMaximumBitRate;
-  ie->criticality = Ngap_Criticality_reject;
+  ie->criticality = Ngap_Criticality_ignore;
   ie->value.present =
       Ngap_PDUSessionResourceSetupRequestIEs__value_PR_UEAggregateMaximumBitRate;
 
