@@ -950,6 +950,7 @@ void amf_n1::registration_request_handle(bool isNasSig,
   }
   nc.get()->ueSecurityCapEnc = encrypt_alg;
   nc.get()->ueSecurityCapInt = integrity_alg;
+  nc.get()->ueSecurityCaplen = regReq->ie_ue_security_capability->getLenght();
 
   // Get Requested NSSAI (Optional IE), if provided
   std::vector<SNSSAI_t> requestedNssai = {};
@@ -2001,6 +2002,12 @@ bool amf_n1::start_security_mode_control_procedure(
   smc->setngKSI(NAS_KEY_SET_IDENTIFIER_NATIVE, nc.get()->ngKsi & 0x07);
   smc->setUE_Security_Capability(nc.get()->ueSecurityCapEnc,
                                  nc.get()->ueSecurityCapInt);
+  if (smc->ie_ue_security_capability != NULL) {
+    smc->ie_ue_security_capability->setLenght(nc.get()->ueSecurityCaplen);
+  } else {
+    Logger::amf_n1().error("smc->ie_ue_security_capability is NULL");
+  }
+
   smc->setIMEISV_Request(0xe1);
   smc->setAdditional_5G_Security_Information(true, false);
   uint8_t buffer[1024];
@@ -2309,12 +2316,14 @@ bool amf_n1::nas_message_integrity_protected(nas_secu_ctx *nsc,
                                              int input_nas_len,
                                              uint32_t &mac32) {
   uint32_t count = 0x00000000;
-  if (direction)
+  if (direction) {
     count = 0x00000000 | ((nsc->dl_count.overflow & 0x0000ffff) << 8) |
             ((nsc->dl_count.seq_num & 0x000000ff));
-  else
+  } else {
+    Logger::amf_n1().debug("nsc->ul_count.overflow %x", nsc->ul_count.overflow);
     count = 0x00000000 | ((nsc->ul_count.overflow & 0x0000ffff) << 8) |
             ((nsc->ul_count.seq_num & 0x000000ff));
+  }
   nas_stream_cipher_t stream_cipher = {0};
   uint8_t mac[4];
   stream_cipher.key = nsc->knas_int;
@@ -2322,6 +2331,7 @@ bool amf_n1::nas_message_integrity_protected(nas_secu_ctx *nsc,
                AUTH_KNAS_INT_SIZE);
   stream_cipher.key_length = AUTH_KNAS_INT_SIZE;
   stream_cipher.count = *(input_nas);
+  stream_cipher.bearer = 0x01;
   // stream_cipher.count = count;
   if (!direction) {
     nsc->ul_count.seq_num = stream_cipher.count;
@@ -2391,8 +2401,19 @@ bool amf_n1::nas_message_cipher_protected(nas_secu_ctx *nsc, uint8_t direction,
   } break;
   case EA1_128_5G: {
     Logger::amf_n1().debug("Cipher protected with EA1_128_5G");
-    nas_algorithms::nas_stream_encrypt_nea1(&stream_cipher,
-                                            (uint8_t *)bdata(output_nas));
+    Logger::amf_n1().debug("stream_cipher.blength %d", stream_cipher.blength);
+    Logger::amf_n1().debug("stream_cipher.message %x",
+                           stream_cipher.message[0]);
+    print_buffer("amf_n1", "stream_cipher.key ", stream_cipher.key, 16);
+    Logger::amf_n1().debug("stream_cipher.count %x", stream_cipher.count);
+
+    uint8_t *ciphered =
+        (uint8_t *)malloc(((stream_cipher.blength + 31) / 32) * 4);
+
+    nas_algorithms::nas_stream_encrypt_nea1(&stream_cipher, ciphered);
+    output_nas = blk2bstr(ciphered, ((stream_cipher.blength + 31) / 32) * 4);
+    // output_nas = blk2bstr(ciphered, blength(input_nas));
+    free(ciphered);
   } break;
   case EA2_128_5G: {
     Logger::amf_n1().debug("Cipher protected with EA2_128_5G");
@@ -2471,7 +2492,8 @@ void amf_n1::ue_initiate_de_registration_handle(uint32_t ran_ue_ngap_id,
     Logger::amf_n1().debug("5G Mobile Identity, GUTI %s",
                            deregReq->get_5g_guti().c_str());
   } break;
-  default: {}
+  default: {
+  }
   }
 
   // Prepare DeregistrationAccept
