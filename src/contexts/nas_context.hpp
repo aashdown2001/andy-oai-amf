@@ -73,6 +73,7 @@ class nas_context {
   // mobility identity: imsi, supi, 5g-guti, etc
   std::string imsi;
   uint8_t mmCapability;
+  uint8_t ueSecurityCaplen;
   uint8_t ueSecurityCapEnc;
   uint8_t ueSecurityCapInt;
   std::vector<nas::SNSSAI_t> requestedNssai;
