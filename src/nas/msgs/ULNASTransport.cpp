@@ -400,6 +400,7 @@ int ULNASTransport::decodefrombuffer(NasMmPlainHeader *header, uint8_t *buf,
       if (flag) {
         Logger::nas_mm().debug("Unknown IEI (0x%x)", octet);
         decoded_size++;
+		*(buf + decoded_size) = 0x00;
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       }

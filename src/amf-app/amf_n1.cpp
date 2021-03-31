@@ -2320,7 +2320,6 @@ bool amf_n1::nas_message_integrity_protected(nas_secu_ctx *nsc,
     count = 0x00000000 | ((nsc->dl_count.overflow & 0x0000ffff) << 8) |
             ((nsc->dl_count.seq_num & 0x000000ff));
   } else {
-    Logger::amf_n1().debug("nsc->ul_count.overflow %x", nsc->ul_count.overflow);
     count = 0x00000000 | ((nsc->ul_count.overflow & 0x0000ffff) << 8) |
             ((nsc->ul_count.seq_num & 0x000000ff));
   }
@@ -2331,7 +2330,6 @@ bool amf_n1::nas_message_integrity_protected(nas_secu_ctx *nsc,
                AUTH_KNAS_INT_SIZE);
   stream_cipher.key_length = AUTH_KNAS_INT_SIZE;
   stream_cipher.count = *(input_nas);
-  stream_cipher.bearer = 0x01;
   // stream_cipher.count = count;
   if (!direction) {
     nsc->ul_count.seq_num = stream_cipher.count;
@@ -2379,17 +2377,22 @@ bool amf_n1::nas_message_cipher_protected(nas_secu_ctx *nsc, uint8_t direction,
   int buf_len = blength(input_nas);
   uint32_t count = 0x00000000;
   if (direction)
+  {
     count = 0x00000000 | ((nsc->dl_count.overflow & 0x0000ffff) << 8) |
             ((nsc->dl_count.seq_num & 0x000000ff));
+  }
   else
+  {
+    Logger::amf_n1().debug("nsc->ul_count.overflow %x", nsc->ul_count.overflow);
     count = 0x00000000 | ((nsc->ul_count.overflow & 0x0000ffff) << 8) |
             ((nsc->ul_count.seq_num & 0x000000ff));
+  }
   nas_stream_cipher_t stream_cipher = {0};
   uint8_t mac[4];
   stream_cipher.key = nsc->knas_enc;
   stream_cipher.key_length = AUTH_KNAS_ENC_SIZE;
   stream_cipher.count = count;
-  stream_cipher.bearer = 0x00;         // 33.501 section 8.1.1
+  stream_cipher.bearer = 0x01;         // 33.501 section 8.1.1
   stream_cipher.direction = direction; // "1" for downlink
   stream_cipher.message = (uint8_t *)bdata(input_nas);
   stream_cipher.blength = blength(input_nas) << 3;
@@ -2412,7 +2415,6 @@ bool amf_n1::nas_message_cipher_protected(nas_secu_ctx *nsc, uint8_t direction,
 
     nas_algorithms::nas_stream_encrypt_nea1(&stream_cipher, ciphered);
     output_nas = blk2bstr(ciphered, ((stream_cipher.blength + 31) / 32) * 4);
-    // output_nas = blk2bstr(ciphered, blength(input_nas));
     free(ciphered);
   } break;
   case EA2_128_5G: {
