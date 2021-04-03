@@ -375,7 +375,7 @@ void amf_n1::nas_signalling_establishment_request_handle(
   } break;
   case SERVICE_REQUEST: {
     Logger::amf_n1().debug("Received service request message, handling...");
-    if (nc.get())
+    if(nc != nullptr)
       nc.get()->security_ctx->ul_count.seq_num = ulCount;
     service_request_handle(true, nc, ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
   } break;
