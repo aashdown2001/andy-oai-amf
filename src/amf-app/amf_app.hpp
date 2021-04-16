@@ -55,6 +55,7 @@ class amf_app {
   // itti handlers
   void handle_itti_message(itti_nas_signalling_establishment_request& itti_msg);
   void handle_itti_message(itti_n1n2_message_transfer_request& itti_msg);
+  void handle_itti_message(itti_paging_n1n2_message_transfer& itti_msg);
   // context management
   std::map<long, std::shared_ptr<ue_context>> amf_ue_ngap_id2ue_ctx;
   mutable std::shared_mutex m_amf_ue_ngap_id2ue_ctx;

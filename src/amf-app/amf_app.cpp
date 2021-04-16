@@ -111,6 +111,13 @@ void amf_app_task(void*) {
         amf_app_inst->handle_itti_message(ref(*m));
       } break;
 
+      case PAGING_N1N2_MESSAGE_TRANSFER: {
+        Logger::amf_app().debug("Received PAGING_N1N2_MESSAGE_TRANSFER");
+        itti_paging_n1n2_message_transfer* m =
+            dynamic_cast<itti_paging_n1n2_message_transfer*>(msg);
+        amf_app_inst->handle_itti_message(ref(*m));
+      } break;
+
       case TIME_OUT:
         if (itti_msg_timeout* to = dynamic_cast<itti_msg_timeout*>(msg)) {
           switch (to->arg1_user) {
@@ -181,6 +188,27 @@ void amf_app::set_ran_amf_id_2_ue_context(
 }
 
 // ITTI handlers
+//------------------------------------------------------------------------------
+void amf_app::handle_itti_message(
+    itti_paging_n1n2_message_transfer& itti_msg) {
+
+  itti_paging* paging_msg = new itti_paging(TASK_AMF_APP, TASK_AMF_N2);
+
+  paging_msg->ran_ue_ngap_id = itti_msg.ran_ue_ngap_id;
+  paging_msg->amf_ue_ngap_id = itti_msg.amf_ue_ngap_id;
+  paging_msg->plmn = itti_msg.plmn;
+
+  std::shared_ptr<itti_paging> i =
+      std::shared_ptr<itti_paging>(paging_msg);
+  int ret = itti_inst->send_msg(i);
+  if (0 != ret) {
+    Logger::amf_app().error(
+        "Could not send ITTI message %s to task TASK_AMF_N2",
+        i->get_msg_name());
+  }
+}
+
+
 //------------------------------------------------------------------------------
 void amf_app::handle_itti_message(
     itti_n1n2_message_transfer_request& itti_msg) {

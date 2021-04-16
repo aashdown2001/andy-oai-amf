@@ -1,6 +1,7 @@
 #ifndef _AMF_APP_ITTI_H_
 #define _AMF_APP_ITTI_H_
 
+#include "amf.hpp"
 #include "itti_msg.hpp"
 #include "NgapIEsStruct.hpp"
 #include <string>
@@ -58,5 +59,18 @@ class itti_n1n2_message_transfer_request : public itti_msg_amf_app {
   std::string n2sm_info_type;
   // other parameters
 };
+
+class itti_paging_n1n2_message_transfer : public itti_msg_amf_app {
+ public:
+  itti_paging_n1n2_message_transfer(const task_id_t origin, const task_id_t destination)
+      : itti_msg_amf_app(PAGING_N1N2_MESSAGE_TRANSFER, origin, destination) {}
+  itti_paging_n1n2_message_transfer(const itti_paging_n1n2_message_transfer& i) : itti_msg_amf_app(i) {}
+
+ public:
+  uint32_t ran_ue_ngap_id;
+  long amf_ue_ngap_id;
+  plmn_t plmn;
+};
+
 
 #endif

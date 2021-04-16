@@ -431,4 +431,13 @@ bool InitialUEMessageMsg::get5GS_TMSI(string& _5g_s_tmsi) {
     return false;
 }
 
+bool InitialUEMessageMsg::get5GS_TMSI(std :: string & setid,std :: string & pointer,std :: string & tmsi) {
+  if (fivegSTmsi) {
+    fivegSTmsi->getValue(setid, pointer, tmsi);
+    return true;
+  } else
+    return false;
+}
+
+
 }  // namespace ngap

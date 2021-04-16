@@ -60,6 +60,7 @@ class amf_n2 : public ngap::ngap_app {
   void handle_itti_message(itti_handover_request_Ack& itti_msg);
   void handle_itti_message(itti_handover_notify& itti_msg);
   void handle_itti_message(itti_uplinkranstatsutransfer& itti_msg);
+  void handle_itti_message(itti_paging& itti_msg);
 
   bool verifyPlmn(std::vector<SupportedItem_t> list);
   std::vector<SupportedItem_t> get_common_plmn(

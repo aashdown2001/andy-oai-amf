@@ -1,6 +1,7 @@
 #ifndef _ITTI_MSG_N2_H_
 #define _ITTI_MSG_N2_H_
 
+#include "amf.hpp"
 #include "itti_msg.hpp"
 #include "NGSetupRequest.hpp"
 #include "InitialUEMessage.hpp"
@@ -170,6 +171,19 @@ class itti_handover_required : public itti_msg_n2 {
   itti_handover_required(const itti_handover_required& i) : itti_msg_n2(i) {}
   HandoverRequiredMsg* handvoerRequ;
 };
+
+class itti_paging : public itti_msg_n2 {
+ public:
+  itti_paging(const task_id_t origin, const task_id_t destination)
+      : itti_msg_n2(PAGING, origin, destination) {}
+  itti_paging(const itti_paging& i) : itti_msg_n2(i) {}
+
+ public:
+  uint32_t ran_ue_ngap_id;
+  long amf_ue_ngap_id;
+  plmn_t plmn;
+};
+
 
 class itti_handover_request_Ack : public itti_msg_n2 {
  public:

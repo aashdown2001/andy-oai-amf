@@ -56,6 +56,10 @@ class ue_ngap_context {
   bool ueContextRequest;
   uint32_t s_tmsi_5g;
 
+  std :: string s_setid = "1";
+  std :: string s_pointer = "1";
+  std :: string s_tmsi = "1";
+
   // state management, ue status over the air
   ng_ue_state_t ng_ue_state;
 };

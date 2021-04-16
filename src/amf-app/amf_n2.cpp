@@ -41,6 +41,7 @@
 #include "PduSessionResourceReleaseCommand.hpp"
 #include "PduSessionResourceSetupRequest.hpp"
 #include "UEContextReleaseCommand.hpp"
+#include "Paging.hpp"
 #include "amf_app.hpp"
 #include "amf_config.hpp"
 #include "amf_n1.hpp"
@@ -178,6 +179,11 @@ void amf_n2_task(void* args_p) {
             dynamic_cast<itti_uplinkranstatsutransfer*>(msg);
         amf_n2_inst->handle_itti_message(ref(*m));
       } break;
+       case PAGING: {
+        Logger::amf_n2().info("Received Paging message,handling");
+        itti_paging* m = dynamic_cast<itti_paging*>(msg);
+        amf_n2_inst->handle_itti_message(ref(*m));
+      } break;
       default:
         Logger::amf_n2().info("No handler for msg type %d", msg->msg_type);
     }
@@ -200,6 +206,55 @@ amf_n2::~amf_n2() {}
 
 // NGAP Messages Handlers
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+void amf_n2::handle_itti_message(itti_paging& itti_msg) {
+  Logger::amf_n2().debug("Handling Paging message...");
+
+  std::shared_ptr<ue_ngap_context> unc;
+
+  if (!is_ran_ue_id_2_ue_ngap_context(itti_msg.ran_ue_ngap_id)) {
+    Logger::amf_n2().error(
+        "No UE NGAP context with ran_ue_ngap_id (%d)", itti_msg.ran_ue_ngap_id);
+    return;
+  }
+  unc = ran_ue_id_2_ue_ngap_context(itti_msg.ran_ue_ngap_id);
+  if (unc.get()->amf_ue_ngap_id != itti_msg.amf_ue_ngap_id) {
+    Logger::amf_n2().error(
+        "The requested UE (amf_ue_ngap_id: 0x%x) is not valid, existed UE "
+        "which's amf_ue_ngap_id (0x%x)",
+        itti_msg.amf_ue_ngap_id, unc.get()->amf_ue_ngap_id);
+  }
+  if (unc.get()->ng_ue_state != NGAP_UE_CONNECTED) {
+    Logger::amf_n2().error(
+        "Received NGAP UPLINK_NAS_TRANSPORT while UE in state != "
+        "NGAP_UE_CONNECTED");
+    // return;
+  }
+
+  PagingMsg Paging_test;
+  Paging_test.setMessageType();
+  Logger::amf_n2().warn(" unc.get()->s_setid (%d)",unc.get()->s_setid);
+  Logger::amf_n2().warn(" unc.get()->s_pointer (%d)",unc.get()->s_pointer);
+  Logger::amf_n2().warn(" unc.get()->s_tmsi (%d)",unc.get()->s_tmsi);
+  Paging_test.setUEPagingIdentity(unc.get()->s_setid, unc.get()->s_pointer, unc.get()->s_tmsi);
+  Logger::amf_n2().warn("==========================================");
+  std :: vector < struct Tai_s > list;
+  Tai_t tai_test;
+  tai_test.mcc = itti_msg.plmn.mcc;
+  tai_test.mnc = itti_msg.plmn.mnc;
+  tai_test.tac = itti_msg.plmn.tac;
+  list.push_back(tai_test);
+  Paging_test.setTAIListForPaging(list);
+
+  uint8_t buffer[BUFFER_SIZE_512];
+  int encoded_size = Paging_test.encode2buffer(buffer, BUFFER_SIZE_512);
+  bstring b        = blk2bstr(buffer, encoded_size);
+
+  amf_n2_inst->sctp_s_38412.sctp_send_msg(unc.get()->gnb_assoc_id, unc.get()->sctp_stream_send, &b);
+
+}
+
 
 void amf_n2::handle_itti_message(itti_new_sctp_association& new_assoc) {
 }  // handled in class ngap_app
@@ -435,6 +490,8 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
       itti_msg->is_5g_s_tmsi_present = true;
       itti_msg->_5g_s_tmsi           = _5g_s_tmsi;
       Logger::amf_n2().debug("5g_s_tmsi present");
+
+      init_ue_msg.initUeMsg->get5GS_TMSI(unc.get()->s_setid, unc.get()->s_pointer, unc.get()->s_tmsi);
     }
 
     uint8_t* nas_buf;
