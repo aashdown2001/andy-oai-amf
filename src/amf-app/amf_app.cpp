@@ -118,6 +118,13 @@ void amf_app_task(void*) {
         amf_app_inst->handle_itti_message(ref(*m));
       } break;
 
+      case TEST_SIGNALLING_NETWORK_INITIATED_DEREGISTRAATION: {
+        Logger::amf_app().debug("Received TEST_SIGNALLING_NETWORK_INITIATED_DEREGISTRAATION");
+        itti_test_signalling_network_initiated_deregistration* m =
+            dynamic_cast<itti_test_signalling_network_initiated_deregistration*>(msg);
+        amf_app_inst->handle_itti_message(ref(*m));
+      } break;
+
       case TIME_OUT:
         if (itti_msg_timeout* to = dynamic_cast<itti_msg_timeout*>(msg)) {
           switch (to->arg1_user) {
@@ -207,6 +214,15 @@ void amf_app::handle_itti_message(
         i->get_msg_name());
   }
 }
+
+//------------------------------------------------------------------------------
+void amf_app::handle_itti_message(
+    itti_test_signalling_network_initiated_deregistration& itti_msg) {
+
+  amf_n1_inst->network_initiate_de_registration_handle(itti_msg.ran_ue_ngap_id, itti_msg.amf_ue_ngap_id);
+
+}
+
 
 
 //------------------------------------------------------------------------------

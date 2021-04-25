@@ -231,8 +231,9 @@ bool RegistrationRequest::getUeSecurityCapability(uint8_t& ea, uint8_t& ia) {
     ea = ie_ue_security_capability->getEASel();
     ia = ie_ue_security_capability->getIASel();
   } else {
-    return -1;
+    return false;
   }
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -299,7 +300,7 @@ uint16_t RegistrationRequest::getPduSessionStatus() {
   if (ie_PDU_session_status) {
     return ie_PDU_session_status->getValue();
   } else {
-    return -1;
+    return 0;
   }
 }
 
@@ -386,9 +387,9 @@ void RegistrationRequest::setEPS_NAS_Message_Container(bstring value) {
 bool RegistrationRequest::getEpsNasMessageContainer(bstring& epsNas) {
   if (ie_eps_nas_message_container) {
     ie_eps_nas_message_container->getValue(epsNas);
-    return 0;
+    return true;
   } else {
-    return -1;
+    return false;
   }
 }
 
@@ -486,9 +487,9 @@ void RegistrationRequest::setNAS_Message_Container(bstring value) {
 bool RegistrationRequest::getNasMessageContainer(bstring& nas) {
   if (ie_nas_message_container) {
     ie_nas_message_container->getValue(nas);
-    return 0;
+    return true;
   } else {
-    return -1;
+    return false;
   }
 }
 

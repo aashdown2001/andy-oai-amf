@@ -41,6 +41,7 @@ class DeregistrationRequest {
   int encode2buffer(uint8_t* buf, int len);
   int decodefrombuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
   void setHeader(uint8_t security_header_type);
+  void setHeader(uint8_t security_header_type,uint8_t msg_type);
   void setDeregistrationType(uint8_t dereg_type);
   void setDeregistrationType(_5gs_deregistration_type_t type);
   void setngKSI(uint8_t tsc, uint8_t key_set_id);

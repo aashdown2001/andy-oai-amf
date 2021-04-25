@@ -72,5 +72,17 @@ class itti_paging_n1n2_message_transfer : public itti_msg_amf_app {
   plmn_t plmn;
 };
 
+class itti_test_signalling_network_initiated_deregistration : public itti_msg_amf_app {
+ public:
+  itti_test_signalling_network_initiated_deregistration(const task_id_t origin, const task_id_t destination)
+      : itti_msg_amf_app(TEST_SIGNALLING_NETWORK_INITIATED_DEREGISTRAATION, origin, destination) {}
+  itti_test_signalling_network_initiated_deregistration(const itti_test_signalling_network_initiated_deregistration& i) : itti_msg_amf_app(i) {}
+
+ public:
+  uint32_t ran_ue_ngap_id;
+  long amf_ue_ngap_id;
+};
+
+
 
 #endif

@@ -104,6 +104,11 @@ class amf_n1 {
   void run_initial_registration_procedure();
   void run_mobility_registration_update_procedure(
       std::shared_ptr<nas_context> nc);
+  void run_periodic_registration_update_procedure(
+    std::shared_ptr<nas_context> nc,uint16_t);
+  void run_periodic_registration_update_procedure(
+    std::shared_ptr<nas_context> nc,bstring& nas_msg);
+
   // authentication
   bool auth_vectors_generator(std::shared_ptr<nas_context>& nc);
 
@@ -158,6 +163,9 @@ class amf_n1 {
 
   void set_5gmm_state(std::shared_ptr<nas_context> nc, _5gmm_state_t state);
   void get_5gmm_state(std::shared_ptr<nas_context> nc, _5gmm_state_t& state);
+
+  void network_initiate_de_registration_handle(
+      uint32_t ran_ue_ngap_id, long amf_ue_ngap_id);
 
  private:  // nas message handlers
   void ue_initiate_de_registration_handle(

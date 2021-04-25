@@ -51,6 +51,14 @@ void DeregistrationRequest::setHeader(uint8_t security_header_type) {
       EPD_5GS_MM_MSG, security_header_type,
       DEREGISTRATION_REQUEST_UE_ORIGINATING);
 }
+//------------------------------------------------------------------------------
+void DeregistrationRequest::setHeader(uint8_t security_header_type,uint8_t msg_type) {
+  plain_header = new NasMmPlainHeader();
+  plain_header->setHeader(
+      EPD_5GS_MM_MSG, security_header_type,
+      msg_type);
+}
+
 
 //------------------------------------------------------------------------------
 void DeregistrationRequest::setDeregistrationType(uint8_t dereg_type) {
@@ -161,11 +169,11 @@ int DeregistrationRequest::encode2buffer(uint8_t* buf, int len) {
     Logger::nas_mm().error("Mandatory IE missing Deregistration Type");
     return 0;
   }
-  if (!ie_ngKSI) {
+  if ((!ie_ngKSI) && (plain_header->getMessageType() == DEREGISTRATION_REQUEST_UE_ORIGINATING)) {
     Logger::nas_mm().error("Mandatory IE missing ie_ngKSI");
     return 0;
   }
-  if (!ie_5gs_mobility_id) {
+  if ((!ie_5gs_mobility_id) && (plain_header->getMessageType() == DEREGISTRATION_REQUEST_UE_ORIGINATING)) {
     Logger::nas_mm().error("Mandatory IE missing ie_5gs_mobility_id");
     return 0;
   }
@@ -173,27 +181,41 @@ int DeregistrationRequest::encode2buffer(uint8_t* buf, int len) {
   encoded_size += 3;
   if (!(ie_deregistrationtype->encode2buffer(
           buf + encoded_size, len - encoded_size))) {
-    if (!(ie_ngKSI->encode2buffer(buf + encoded_size, len - encoded_size))) {
+    if (plain_header->getMessageType() == DEREGISTRATION_REQUEST_UE_ORIGINATING)
+    {
+      if (!(ie_ngKSI->encode2buffer(buf + encoded_size, len - encoded_size))) {
+        encoded_size += 1;
+      } else {
+        Logger::nas_mm().error("Encoding IE ie_ngKSI error");
+        return 0;
+      }
+    }
+    else {
       encoded_size += 1;
-    } else {
-      Logger::nas_mm().error("Encoding IE ie_ngKSI error");
-      return 0;
     }
   } else {
     Logger::nas_mm().error("Encoding IE Deregistrationt Type error");
     return 0;
   }
-  if (int size = ie_5gs_mobility_id->encode2buffer(
-          buf + encoded_size, len - encoded_size)) {
-    encoded_size += size;
-  } else {
-    Logger::nas_mm().error("Encoding IE ie_5gs_mobility_id  error");
-    return 0;
+  if (plain_header->getMessageType() == DEREGISTRATION_REQUEST_UE_ORIGINATING)
+  {
+    if (int size = ie_5gs_mobility_id->encode2buffer(
+            buf + encoded_size, len - encoded_size)) {
+      encoded_size += size;
+    } else {
+      Logger::nas_mm().error("Encoding IE ie_5gs_mobility_id  error");
+      return 0;
+    }
   }
+
+  *(buf + encoded_size) = 0x58;
+  encoded_size += 1;
+  *(buf + encoded_size) = 74;
+  encoded_size += 1;
 
   Logger::nas_mm().debug(
       "Encoded DeregistrationRequest message len (%d)", encoded_size);
-  return 1;
+  return encoded_size;
 }
 
 //------------------------------------------------------------------------------

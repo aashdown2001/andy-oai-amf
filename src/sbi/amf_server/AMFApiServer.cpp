@@ -17,6 +17,8 @@ void AMFApiServer::init(size_t thr) {
   m_nonUEN2MessagesCollectionDocumentApiImpl->init();
   m_nonUEN2MessagesSubscriptionsCollectionDocumentApiImpl->init();
   m_subscriptionsCollectionDocumentApiImpl->init();
+
+  m_testSignallingApiImpl->init();
   Logger::amf_server().debug("Initiate AMF server endpoints done!");
 }
 
@@ -53,6 +55,11 @@ void AMFApiServer::start() {
   if (m_subscriptionsCollectionDocumentApiImpl != nullptr)
     Logger::amf_server().debug(
         "AMF handler for SubscriptionsCollectionDocumentApiImpl");
+
+  if (m_testSignallingApiImpl != nullptr)
+    Logger::amf_server().debug(
+        "AMF handler for TestSignallingApiImpl");
+
   m_httpEndpoint->setHandler(m_router->handler());
   m_httpEndpoint->serve();
 }
