@@ -52,6 +52,7 @@ class FiveGSTmsi {
 
  private:
   std::string _5g_s_tmsi;
+  std::string tmsi_value;
 
   AMFSetID amfSetid;
   AMFPointer amfPointer;

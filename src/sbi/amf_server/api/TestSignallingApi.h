@@ -30,8 +30,10 @@ class TestSignallingApi {
   void test_signalling_network_initiated_deregistration_handler(
       const Pistache::Rest::Request& request,
       Pistache::Http::ResponseWriter response);
-  void
-  test_signalling_api_default_handler(
+  void test_signalling_paging_handler(
+      const Pistache::Rest::Request& request,
+      Pistache::Http::ResponseWriter response);
+  void test_signalling_api_default_handler(
       const Pistache::Rest::Request& request,
       Pistache::Http::ResponseWriter response);
 
@@ -41,7 +43,11 @@ class TestSignallingApi {
   virtual void test_signalling_network_initiated_deregistration(
       const std::string& subscriptionId,
       Pistache::Http::ResponseWriter& response) = 0;
+  virtual void test_signalling_paging(
+      const std::string& ueContextId,
+      Pistache::Http::ResponseWriter& response) = 0;
 };
+
 
 }  // namespace api
 }  // namespace amf

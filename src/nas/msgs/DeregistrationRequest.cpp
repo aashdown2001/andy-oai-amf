@@ -181,9 +181,9 @@ int DeregistrationRequest::encode2buffer(uint8_t* buf, int len) {
   encoded_size += 3;
   if (!(ie_deregistrationtype->encode2buffer(
           buf + encoded_size, len - encoded_size))) {
-    if (plain_header->getMessageType() == DEREGISTRATION_REQUEST_UE_ORIGINATING)
+    if (ie_ngKSI != NULL)
     {
-      if (!(ie_ngKSI->encode2buffer(buf + encoded_size, len - encoded_size))) {
+      if (ie_ngKSI->encode2buffer(buf + encoded_size, len - encoded_size)) {
         encoded_size += 1;
       } else {
         Logger::nas_mm().error("Encoding IE ie_ngKSI error");
@@ -208,10 +208,10 @@ int DeregistrationRequest::encode2buffer(uint8_t* buf, int len) {
     }
   }
 
-  *(buf + encoded_size) = 0x58;
-  encoded_size += 1;
-  *(buf + encoded_size) = 74;
-  encoded_size += 1;
+//  *(buf + encoded_size) = 0x58;
+//  encoded_size += 1;
+//  *(buf + encoded_size) = 6;
+//  encoded_size += 1;
 
   Logger::nas_mm().debug(
       "Encoded DeregistrationRequest message len (%d)", encoded_size);

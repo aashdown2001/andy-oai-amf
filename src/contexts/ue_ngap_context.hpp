@@ -56,7 +56,7 @@ class ue_ngap_context {
   bool ueContextRequest;
   uint32_t s_tmsi_5g;
 
-  std :: string s_setid = "1";
+  std :: string s_setid = "4";
   std :: string s_pointer = "1";
   std :: string s_tmsi = "1";
 

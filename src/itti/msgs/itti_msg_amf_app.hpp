@@ -60,11 +60,11 @@ class itti_n1n2_message_transfer_request : public itti_msg_amf_app {
   // other parameters
 };
 
-class itti_paging_n1n2_message_transfer : public itti_msg_amf_app {
+class itti_test_signalling_paging : public itti_msg_amf_app {
  public:
-  itti_paging_n1n2_message_transfer(const task_id_t origin, const task_id_t destination)
-      : itti_msg_amf_app(PAGING_N1N2_MESSAGE_TRANSFER, origin, destination) {}
-  itti_paging_n1n2_message_transfer(const itti_paging_n1n2_message_transfer& i) : itti_msg_amf_app(i) {}
+  itti_test_signalling_paging(const task_id_t origin, const task_id_t destination)
+      : itti_msg_amf_app(TEST_SIGNALLING_PAGING, origin, destination) {}
+  itti_test_signalling_paging(const itti_test_signalling_paging& i) : itti_msg_amf_app(i) {}
 
  public:
   uint32_t ran_ue_ngap_id;

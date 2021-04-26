@@ -31,6 +31,9 @@ class TestSignallingApiImpl
   void test_signalling_network_initiated_deregistration(
       const std::string& subscriptionId,
       Pistache::Http::ResponseWriter& response);
+  void test_signalling_paging(
+          const std::string& ueContextId,
+          Pistache::Http::ResponseWriter& response);
 
  private:
   amf_application::amf_app* m_amf_app;

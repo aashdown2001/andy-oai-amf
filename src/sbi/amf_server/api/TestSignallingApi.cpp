@@ -21,10 +21,11 @@ void TestSignallingApi::
   Routes::Post(
       *router,
       base + "/test-signalling/network-initiated-deregistration/:subscriptionId",
-      Routes::bind(
-          &TestSignallingApi::
-              test_signalling_network_initiated_deregistration_handler,
-          this));
+      Routes::bind(&TestSignallingApi::test_signalling_network_initiated_deregistration_handler,this));
+  Routes::Post(
+      *router,
+      base + "/test-signalling/paging/:ueContextId",
+      Routes::bind(&TestSignallingApi::test_signalling_paging_handler,this));
 
   // Default handler, called when a route is not found
   router->addCustomHandler(Routes::bind(
@@ -53,6 +54,28 @@ void TestSignallingApi::
     return;
   }
 }
+
+void TestSignallingApi::
+    test_signalling_paging_handler(
+        const Pistache::Rest::Request& request,
+        Pistache::Http::ResponseWriter response) {
+  // Getting the path params
+  auto ueContextId =
+      request.param(":ueContextId").as<std::string>();
+
+  try {
+    this->test_signalling_paging(ueContextId, response);
+  } catch (nlohmann::detail::exception& e) {
+    // send a 400 error
+    response.send(Pistache::Http::Code::Bad_Request, e.what());
+    return;
+  } catch (std::exception& e) {
+    // send a 500 error
+    response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
+    return;
+  }
+}
+
 
 void TestSignallingApi::
     test_signalling_api_default_handler(

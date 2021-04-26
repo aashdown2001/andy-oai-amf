@@ -238,6 +238,7 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind &nas_data_ind) {
   } else {
     if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
       nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
+
     else
       Logger::amf_n1().warn("No existing nas_context with amf_ue_ngap_id 0x%x",
                             amf_ue_ngap_id);
@@ -635,6 +636,8 @@ void amf_n1::service_request_handle(bool isNasSig,
       delete serApt;
       return;
     }
+    psc.get()->ran_ue_ngap_id = ran_ue_ngap_id;
+    psc.get()->amf_ue_ngap_id = amf_ue_ngap_id;
   } else {
     Logger::amf_n1().error("Cannot get pdu_session_context with SUPI %s",
                            supi.c_str());
@@ -993,14 +996,20 @@ void amf_n1::registration_request_handle(bool isNasSig,
         run_periodic_registration_update_procedure(nc, pdu_session_status);
   } break;
   case PERIODIC_REGISTRATION_UPDATING: {
-//    Logger::amf_n1().error(
-//        "Network doesn't support periodic registration, reject ...");
 
-    Logger::amf_n1().debug("Network handling periodic registration ...");
-    if(is_messagecontainer)
-        run_periodic_registration_update_procedure(nc, nas_msg);
-    else
-        run_periodic_registration_update_procedure(nc, pdu_session_status);
+    char *pathvar = NULL;
+    pathvar = getenv("IS_AMF_PERIODIC");
+    if(pathvar && !strcmp(pathvar, "true"))
+    {
+      Logger::amf_n1().debug("Network handling periodic registration ...");
+      if(is_messagecontainer)
+          run_periodic_registration_update_procedure(nc, nas_msg);
+      else
+          run_periodic_registration_update_procedure(nc, pdu_session_status);
+    } else{
+      Logger::amf_n1().warn("Please set environment variable \"IS_AMF_PERIODIC\"");
+      Logger::amf_n1().error("Network doesn't support periodic registration, reject ...");
+    }
   } break;
   case EMERGENCY_REGISTRATION: {
     if (!amf_cfg.is_emergency_support.compare("false")) {
@@ -2128,7 +2137,22 @@ void amf_n1::security_mode_complete_handle(uint32_t ran_ue_ngap_id,
 
   // TODO: remove hardcoded values
   regAccept->set_5GS_Network_Feature_Support(0x01, 0x00);
-  regAccept->setT3512_Value(0x5, 0x01);
+  char *pathvar = NULL;
+  pathvar = getenv("AMF_T3512_MIN");
+  uint8_t t3512_Value = 0x1e;
+  if(pathvar)
+  {
+    uint8_t value = atoi(pathvar);
+    if(value)
+    {
+        t3512_Value = value;
+    }
+  }
+  else
+  {
+    Logger::amf_n1().warn("Please set environment variable \"AMF_T3512_MIN\"");
+  }
+  regAccept->setT3512_Value(0x5, t3512_Value);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = regAccept->encode2buffer(buffer, BUFFER_SIZE_1024);
   print_buffer("amf_n1", "Registration-Accept message buffer", buffer,
@@ -2558,6 +2582,7 @@ void amf_n1::network_initiate_de_registration_handle(uint32_t ran_ue_ngap_id,
   // encode NAS msg
   DeregistrationRequest *deregReq = new DeregistrationRequest();
   deregReq->setHeader(PLAIN_5GS_MSG,DEREGISTRATION_REQUEST_UE_TERMINATED);
+  //deregReq->setngKSI(NAS_KEY_SET_IDENTIFIER_NATIVE,nc.get()->ngKsi);
 
   deregReq->setDeregistrationType(0x05);
 
@@ -2571,8 +2596,12 @@ void amf_n1::network_initiate_de_registration_handle(uint32_t ran_ue_ngap_id,
     return;
   }
 
-  bstring b = blk2bstr(buffer, encoded_size);
-  itti_send_dl_nas_buffer_to_task_n2(b, ran_ue_ngap_id, amf_ue_ngap_id);
+  bstring intProtctedNas;
+  encode_nas_message_protected(
+      nc.get()->security_ctx,false, INTEGRITY_PROTECTED_AND_CIPHERED,
+      NAS_MESSAGE_DOWNLINK, buffer, encoded_size, intProtctedNas);
+
+  itti_send_dl_nas_buffer_to_task_n2(intProtctedNas, ran_ue_ngap_id, amf_ue_ngap_id);
 
   set_5gmm_state(nc, _5GMM_DEREGISTERED);
   if (nc.get()->is_stacs_available) {

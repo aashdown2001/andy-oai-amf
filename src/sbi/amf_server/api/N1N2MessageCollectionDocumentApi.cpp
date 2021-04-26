@@ -92,11 +92,6 @@ void N1N2MessageCollectionDocumentApi::n1_n2_message_transfer_handler(
   try {
     nlohmann::json::parse(parts[0].body.c_str())
         .get_to(n1N2MessageTransferReqData);
-    if(n1N2MessageTransferReqData.ppiIsSet())
-    {
-        this->n1_n2_message_transfer(ueContextId, n1N2MessageTransferReqData, response);
-    }
-    else{
     if (!is_ngap)
       this->n1_n2_message_transfer(
           ueContextId, n1N2MessageTransferReqData, parts[1].body, response);
@@ -104,7 +99,7 @@ void N1N2MessageCollectionDocumentApi::n1_n2_message_transfer_handler(
       this->n1_n2_message_transfer(
           ueContextId, n1N2MessageTransferReqData, parts[1].body, parts[2].body,
           response);
-    }
+
   } catch (nlohmann::detail::exception& e) {
     // send a 400 error
     Logger::amf_server().error(

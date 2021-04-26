@@ -111,10 +111,10 @@ void amf_app_task(void*) {
         amf_app_inst->handle_itti_message(ref(*m));
       } break;
 
-      case PAGING_N1N2_MESSAGE_TRANSFER: {
-        Logger::amf_app().debug("Received PAGING_N1N2_MESSAGE_TRANSFER");
-        itti_paging_n1n2_message_transfer* m =
-            dynamic_cast<itti_paging_n1n2_message_transfer*>(msg);
+      case TEST_SIGNALLING_PAGING: {
+        Logger::amf_app().debug("Received TEST_SIGNALLING_PAGING");
+        itti_test_signalling_paging* m =
+            dynamic_cast<itti_test_signalling_paging*>(msg);
         amf_app_inst->handle_itti_message(ref(*m));
       } break;
 
@@ -197,7 +197,7 @@ void amf_app::set_ran_amf_id_2_ue_context(
 // ITTI handlers
 //------------------------------------------------------------------------------
 void amf_app::handle_itti_message(
-    itti_paging_n1n2_message_transfer& itti_msg) {
+    itti_test_signalling_paging& itti_msg) {
 
   itti_paging* paging_msg = new itti_paging(TASK_AMF_APP, TASK_AMF_N2);
 
