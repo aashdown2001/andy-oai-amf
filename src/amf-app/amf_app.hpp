@@ -60,7 +60,6 @@ class amf_app {
   void operator=(amf_app const&) = delete;
   void allRegistredModulesInit(const amf_modules& modules);
   long generate_amf_ue_ngap_id();
-  // itti handlers
   void handle_itti_message(itti_nas_signalling_establishment_request& itti_msg);
   void handle_itti_message(itti_n1n2_message_transfer_request& itti_msg);
   // context management
@@ -96,9 +95,7 @@ class amf_app {
   bool get_pdu_sessions_context(
       const string& supi,
       std::vector<std::shared_ptr<pdu_session_context>>& sessions_ctx);
-  // SMF Client response handlers
-  void handle_post_sm_context_response_error_400();
-  // others
+
   bool generate_5g_guti(
       uint32_t ranid, long amfid, std::string& mcc, std::string& mnc,
       uint32_t& tmsi);

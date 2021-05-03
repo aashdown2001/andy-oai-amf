@@ -215,7 +215,7 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
       to_string(amf_ue_ngap_id);  // key for nas_context, option 1
 
   std::string snn;
-  if (nas_data_ind.mnc.length() == 2)  // TODO: remove hardcoded value
+  if (nas_data_ind.mnc.length() == 2)
     snn = "5G:mnc0" + nas_data_ind.mnc + ".mcc" + nas_data_ind.mcc +
           ".3gppnetwork.org";
   else
@@ -329,7 +329,7 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
   }
 
   if (nas_data_ind.is_nas_signalling_estab_req) {
-    Logger::amf_n1().debug("Received NAS signalling establishment request...");
+    Logger::amf_n1().debug("Received NAS signalling establishment request");
     print_buffer(
         "amf_n1", "Decoded plain NAS Message buffer",
         (uint8_t*) bdata(decoded_plain_msg), blength(decoded_plain_msg));
@@ -337,7 +337,7 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
         type, nc, nas_data_ind.ran_ue_ngap_id, nas_data_ind.amf_ue_ngap_id,
         decoded_plain_msg, snn, ulCount);
   } else {
-    Logger::amf_n1().debug("Received uplink NAS message...");
+    Logger::amf_n1().debug("Received uplink NAS message");
     print_buffer(
         "amf_n1", "Decoded NAS message buffer",
         (uint8_t*) bdata(decoded_plain_msg), blength(decoded_plain_msg));
@@ -347,7 +347,6 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
   }
 }
 
-// handlers for lower layer
 //------------------------------------------------------------------------------
 void amf_n1::nas_signalling_establishment_request_handle(
     SecurityHeaderType type, std::shared_ptr<nas_context> nc,
@@ -361,7 +360,7 @@ void amf_n1::nas_signalling_establishment_request_handle(
     nc = std::shared_ptr<nas_context>(new nas_context);
     if (!nc.get()) {
       Logger::amf_n1().error(
-          "Cannot allocate memory for new nas_context, exit...");
+          "Cannot allocate memory for new nas_context, exit");
       return;
     }
     set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
@@ -371,7 +370,6 @@ void amf_n1::nas_signalling_establishment_request_handle(
     nc.get()->amf_ue_ngap_id  = amf_ue_ngap_id;
     nc.get()->ran_ue_ngap_id  = ran_ue_ngap_id;
     nc.get()->serving_network = snn;
-    // stacs.UE_connected += 1;
   } else {
     // Logger::amf_n1().debug("existing nas_context with amf_ue_ngap_id(0x%x)
     // --> Update",amf_ue_ngap_id); nc =
@@ -2188,7 +2186,7 @@ void amf_n1::security_mode_reject_handle(
 void amf_n1::registration_complete_handle(
     uint32_t ran_ue_ngap_id, long amf_ue_ngap_id, bstring nas_msg) {
   Logger::amf_n1().debug(
-      "receiving registration complete, encoding Configuration Update Command");
+      "Receiving registration complete, encoding Configuration Update Command");
 
   time_t tt;
   time(&tt);

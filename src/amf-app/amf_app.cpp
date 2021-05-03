@@ -133,7 +133,7 @@ void amf_app_task(void*) {
         }
         break;
       default:
-        Logger::amf_app().info("no handler for msg type %d", msg->msg_type);
+        Logger::amf_app().info("No handler for msg type %d", msg->msg_type);
     }
   } while (true);
 }
@@ -205,6 +205,7 @@ void amf_app::set_supi_2_ue_context(
   supi2ue_ctx[supi] = uc;
 }
 
+//------------------------------------------------------------------------------
 bool amf_app::find_pdu_session_context(
     const string& supi, const std::uint8_t pdu_session_id,
     std::shared_ptr<pdu_session_context>& psc) {
@@ -215,6 +216,7 @@ bool amf_app::find_pdu_session_context(
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool amf_app::get_pdu_sessions_context(
     const string& supi,
     std::vector<std::shared_ptr<pdu_session_context>>& sessions_ctx) {
@@ -349,12 +351,6 @@ void amf_app::handle_itti_message(
   }
 }
 
-// AMF Client response handlers
-//------------------------------------------------------------------------------
-void amf_app::handle_post_sm_context_response_error_400() {
-  Logger::amf_app().error("Post SM context response error 400");
-}
-
 //------------------------------------------------------------------------------
 bool amf_app::generate_5g_guti(
     uint32_t ranid, long amfid, string& mcc, string& mnc, uint32_t& tmsi) {
@@ -437,16 +433,16 @@ void amf_app::generate_amf_profile() {
 
 //---------------------------------------------------------------------------------------------
 void amf_app::register_to_nrf() {
-  // create a NF profile to this instance
+  // Create a NF profile to this instance
   generate_amf_profile();
-  // send request to N11 to send NF registration to NRF
+  // Send request to N11 to send NF registration to NRF
   trigger_nf_registration_request();
 }
 
 //------------------------------------------------------------------------------
 void amf_app::trigger_nf_registration_request() {
   Logger::amf_app().debug(
-      "Send ITTI msg to N11 task to trigger the registration request to NRF");
+      "Send ITTI msg to task N11 to trigger the registration request to NRF");
 
   std::shared_ptr<itti_n11_register_nf_instance_request> itti_msg =
       std::make_shared<itti_n11_register_nf_instance_request>(

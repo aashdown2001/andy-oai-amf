@@ -276,7 +276,6 @@ int amf_config::load(const std::string& config_file) {
     struct in_addr ausf_ipv4_addr;
     unsigned int ausf_port = 0;
     std::string ausf_api_version;
-    // string address;
     ausf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
     IPV4_STR_ADDR_TO_INADDR(
         util::trim(address).c_str(), ausf_ipv4_addr,
@@ -316,8 +315,6 @@ int amf_config::load(const std::string& config_file) {
     auth.lookupValue(AMF_CONFIG_STRING_AUTH_MYSQL_USER, auth_para.mysql_user);
     auth.lookupValue(AMF_CONFIG_STRING_AUTH_MYSQL_PASS, auth_para.mysql_pass);
     auth.lookupValue(AMF_CONFIG_STRING_AUTH_MYSQL_DB, auth_para.mysql_db);
-    auth.lookupValue(
-        AMF_CONFIG_STRING_AUTH_OPERATOR_KEY, auth_para.operator_key);
     auth.lookupValue(AMF_CONFIG_STRING_AUTH_RANDOM, auth_para.random);
   } catch (const SettingNotFoundException& nfex) {
     Logger::amf_app().error(
@@ -453,8 +450,6 @@ void amf_config::display() {
       "- MySQL pass ..............: %s", auth_para.mysql_pass.c_str());
   Logger::config().info(
       "- MySQL DB ................: %s", auth_para.mysql_db.c_str());
-  Logger::config().info(
-      "- operator key ............: %s", auth_para.operator_key.c_str());
   Logger::config().info(
       "- random ..................: %s", auth_para.random.c_str());
 
