@@ -232,6 +232,7 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
   psc.get()->snssai.sD        = smf.snssai.sD;
   psc.get()->plmn.mcc         = smf.plmn.mcc;
   psc.get()->plmn.mnc         = smf.plmn.mnc;
+  psc.get()->plmn.tac         = smf.plmn.tac;
 
   // parse binary dnn and store
   std::string dnn = "default";
