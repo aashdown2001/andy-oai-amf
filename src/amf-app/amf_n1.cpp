@@ -2702,6 +2702,7 @@ void amf_n1::ul_nas_transport_handle(uint32_t ran_ue_ngap_id,
     itti_msg->snssai.sD = std::to_string(snssai.sd);
     itti_msg->plmn.mnc = plmn.mnc;
     itti_msg->plmn.mcc = plmn.mcc;
+    itti_msg->plmn.tac = plmn.tac;
     std::shared_ptr<itti_smf_services_consumer> i =
         std::shared_ptr<itti_smf_services_consumer>(itti_msg);
     int ret = itti_inst->send_msg(i);

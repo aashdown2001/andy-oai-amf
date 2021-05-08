@@ -241,9 +241,10 @@ void amf_n2::handle_itti_message(itti_paging& itti_msg) {
   Logger::amf_n2().warn("==========================================");
   std :: vector < struct Tai_s > list;
   Tai_t tai_test;
-  tai_test.mcc = itti_msg.plmn.mcc;
-  tai_test.mnc = itti_msg.plmn.mnc;
-  tai_test.tac = itti_msg.plmn.tac;
+  tai_test.mcc = unc.get()->tai.mcc;
+  tai_test.mnc = unc.get()->tai.mnc;
+  tai_test.tac = unc.get()->tai.tac;
+
   list.push_back(tai_test);
   Paging_test.setTAIListForPaging(list);
 

@@ -76,7 +76,6 @@ void TestSignallingApiImpl::test_signalling_paging(
 
     itti_msg->ran_ue_ngap_id = psc.get()->ran_ue_ngap_id;
     itti_msg->amf_ue_ngap_id = psc.get()->amf_ue_ngap_id;
-    itti_msg->plmn = psc.get()->plmn;
 
     std::shared_ptr<itti_test_signalling_paging> i =
         std::shared_ptr<itti_test_signalling_paging>(itti_msg);

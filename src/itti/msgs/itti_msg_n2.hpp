@@ -181,7 +181,6 @@ class itti_paging : public itti_msg_n2 {
  public:
   uint32_t ran_ue_ngap_id;
   long amf_ue_ngap_id;
-  plmn_t plmn;
 };
 
 

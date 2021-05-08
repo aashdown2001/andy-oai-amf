@@ -35,6 +35,8 @@
 #include "gNB_context.hpp"
 
 using namespace sctp;
+using namespace ngap;
+
 typedef enum {
   NGAP_UE_INVALID_STATE,
   NGAP_UE_WAITING_CSR,  // Context Setup Response(CSR)
@@ -59,6 +61,8 @@ class ue_ngap_context {
   std :: string s_setid = "4";
   std :: string s_pointer = "1";
   std :: string s_tmsi = "1";
+
+  Tai_t tai;
 
   // state management, ue status over the air
   ng_ue_state_t ng_ue_state;

@@ -69,7 +69,6 @@ class itti_test_signalling_paging : public itti_msg_amf_app {
  public:
   uint32_t ran_ue_ngap_id;
   long amf_ue_ngap_id;
-  plmn_t plmn;
 };
 
 class itti_test_signalling_network_initiated_deregistration : public itti_msg_amf_app {
