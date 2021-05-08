@@ -203,7 +203,6 @@ void amf_app::handle_itti_message(
 
   paging_msg->ran_ue_ngap_id = itti_msg.ran_ue_ngap_id;
   paging_msg->amf_ue_ngap_id = itti_msg.amf_ue_ngap_id;
-  paging_msg->plmn = itti_msg.plmn;
 
   std::shared_ptr<itti_paging> i =
       std::shared_ptr<itti_paging>(paging_msg);

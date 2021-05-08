@@ -465,6 +465,7 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
     if (init_ue_msg.initUeMsg->getUserLocationInfoNR(cgi, tai)) {
       itti_msg->cgi = cgi;
       itti_msg->tai = tai;
+      unc.get()->tai = tai;
     } else {
       Logger::amf_n2().error("Missing Mandatory IE UserLocationInfoNR");
       return;
