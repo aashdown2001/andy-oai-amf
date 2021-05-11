@@ -66,12 +66,23 @@ void PlmnId::getMcc(std::string& mcc) {
 
 //------------------------------------------------------------------------------
 void PlmnId::getMnc(std::string& mnc) {
-  int m_mnc = 0;
+  //int m_mnc = 0;
   if (mnc_digit1 == 0xf)
-    m_mnc = mnc_digit2 * 10 + mnc_digit3;
+  {
+   //m_mnc = mnc_digit2 * 10 + mnc_digit3;
+    mnc = to_string(mnc_digit2);
+
+    mnc += to_string(mnc_digit3);
+  }
   else
-    m_mnc = mnc_digit1 * 100 + mnc_digit2 * 10 + mnc_digit3;
-  mnc = to_string(m_mnc);
+  {
+   //m_mnc = mnc_digit1 * 100 + mnc_digit2 * 10 + mnc_digit3;
+    mnc = to_string(mnc_digit1);
+    mnc = to_string(mnc_digit2);
+    mnc += to_string(mnc_digit3);
+  }
+  //mnc = to_string(m_mnc);
+  cout<<"################ MNC "<<mnc<<endl;
 }
 
 //------------------------------------------------------------------------------

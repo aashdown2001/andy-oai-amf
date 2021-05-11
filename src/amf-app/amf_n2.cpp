@@ -51,6 +51,7 @@
 #include "itti_msg_amf_app.hpp"
 #include "logger.hpp"
 #include "sctp_server.hpp"
+#include "String2Value.hpp"
 
 extern "C" {
 #include "dynamic_memory_check.h"
@@ -1380,8 +1381,10 @@ bool amf_n2::verifyPlmn(vector<SupportedItem_t> list) {
         continue;
       }
       for (int k = 0; k < list[j].b_plmn_list.size(); k++) {
-        if (!(list[j].b_plmn_list[k].mcc.compare(amf_cfg.plmn_list[i].mcc)) &&
-            !(list[j].b_plmn_list[k].mnc.compare(amf_cfg.plmn_list[i].mnc))) {
+        //if (!(list[j].b_plmn_list[k].mcc.compare(amf_cfg.plmn_list[i].mcc)) &&
+        //    !(list[j].b_plmn_list[k].mnc.compare(amf_cfg.plmn_list[i].mnc))) {
+	    if((fromString<int>(list[j].b_plmn_list[k].mcc) == fromString<int>(amf_cfg.plmn_list[i].mcc)) &&
+           (fromString<int>(list[j].b_plmn_list[k].mnc) == fromString<int>(amf_cfg.plmn_list[i].mnc))) {
           return true;
         }
       }
@@ -1404,8 +1407,10 @@ std::vector<SupportedItem_t> amf_n2::get_common_plmn(
         continue;
       }
       for (int k = 0; k < list[j].b_plmn_list.size(); k++) {
-        if (!(list[j].b_plmn_list[k].mcc.compare(amf_cfg.plmn_list[i].mcc)) &&
-            !(list[j].b_plmn_list[k].mnc.compare(amf_cfg.plmn_list[i].mnc))) {
+        //if (!(list[j].b_plmn_list[k].mcc.compare(amf_cfg.plmn_list[i].mcc)) &&
+        //    !(list[j].b_plmn_list[k].mnc.compare(amf_cfg.plmn_list[i].mnc))) {
+	    if((fromString<int>(list[j].b_plmn_list[k].mcc) == fromString<int>(amf_cfg.plmn_list[i].mcc)) &&
+           (fromString<int>(list[j].b_plmn_list[k].mnc) == fromString<int>(amf_cfg.plmn_list[i].mnc))) {
           plmn_list.push_back(list[j]);
         }
       }

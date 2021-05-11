@@ -543,7 +543,10 @@ int _5GSMobilityIdentity::suci_decodefrombuffer(
           "MCC %s, MNC %s", std::to_string(mcc).c_str(),
           std::to_string(mnc).c_str());
       supi_format_imsi->mcc = (const string)(std::to_string(mcc));
-      supi_format_imsi->mnc = (const string)(std::to_string(mnc));
+	  if(std::to_string(mnc).size() == 1)
+      	supi_format_imsi->mnc = (const string)("0" + (const string)(std::to_string(mnc)));
+	  else
+		supi_format_imsi->mnc = (const string)(std::to_string(mnc));
       int routid            = 0;
       uint8_t digit[4];
       octet = *(buf + decoded_size);
@@ -639,6 +642,10 @@ int _5GSMobilityIdentity::_5g_guti_decodefrombuffer(uint8_t* buf, int len) {
       "MCC %s, MNC %s", std::to_string(mcc).c_str(),
       std::to_string(mnc).c_str());
   _5g_guti->mcc = (const string)(std::to_string(mcc));
+  if(std::to_string(mnc).size() == 1)
+  	_5g_guti->mnc = (const string)("0" + (const string)(std::to_string(mnc)));
+  else
+	_5g_guti->mnc = (const string)(std::to_string(mnc));
   _5g_guti->mnc = (const string)(std::to_string(mnc));
 
   _5g_guti->amf_region_id = *(buf + decoded_size);
