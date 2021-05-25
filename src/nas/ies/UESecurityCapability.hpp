@@ -44,6 +44,10 @@ public:
   void setIASel(uint8_t sel);
   uint8_t getEASel();
   uint8_t getIASel();
+  void setEEASel(uint8_t sel);
+  void setEIASel(uint8_t sel);
+  uint8_t getEEASel();
+  uint8_t getEIASel();
   void setLenght(uint8_t len);
   uint8_t getLenght();
   int encode2buffer(uint8_t *buf, int len);
@@ -54,6 +58,8 @@ private:
   uint8_t length;
   uint8_t _5g_EASel;
   uint8_t _5g_IASel;
+  uint8_t _5g_EEASel;
+  uint8_t _5g_EIASel;
 };
 
 } // namespace nas

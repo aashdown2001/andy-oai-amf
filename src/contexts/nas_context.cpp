@@ -43,6 +43,8 @@ nas_context::nas_context() {
   is_common_procedure_for_nas_transport_running         = false;
   auts                                                  = NULL;
   ueSecurityCaplen = 2;
+  ueSecurityCapEEnc = 0;
+  ueSecurityCapEInt = 0;
 }
 
 //------------------------------------------------------------------------------

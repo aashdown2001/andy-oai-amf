@@ -62,6 +62,18 @@ uint8_t UESecurityCapability::getEASel() { return _5g_EASel; }
 uint8_t UESecurityCapability::getIASel() { return _5g_IASel; }
 
 //------------------------------------------------------------------------------
+void UESecurityCapability::setEEASel(uint8_t sel) { _5g_EEASel = sel; }
+
+//------------------------------------------------------------------------------
+void UESecurityCapability::setEIASel(uint8_t sel) { _5g_EIASel = sel; }
+
+//------------------------------------------------------------------------------
+uint8_t UESecurityCapability::getEEASel() { return _5g_EEASel; }
+
+//------------------------------------------------------------------------------
+uint8_t UESecurityCapability::getEIASel() { return _5g_EIASel; }
+
+//------------------------------------------------------------------------------
 void UESecurityCapability::setLenght(uint8_t len) {
   if ((len > 0) && (len <= 4)) {
     length = len;
@@ -93,9 +105,9 @@ int UESecurityCapability::encode2buffer(uint8_t *buf, int len) {
     *(buf + encoded_size) = _5g_IASel;
     encoded_size++;
     if (length == 4) {
-      *(buf + encoded_size) = 0xf0;
+      *(buf + encoded_size) = _5g_EEASel;
       encoded_size++;
-      *(buf + encoded_size) = 0xf0;
+      *(buf + encoded_size) = _5g_EIASel;
       encoded_size++;
     }
 
@@ -107,9 +119,9 @@ int UESecurityCapability::encode2buffer(uint8_t *buf, int len) {
     *(buf + encoded_size) = _5g_IASel;
     encoded_size++;
     if (length == 4) {
-      *(buf + encoded_size) = 0xf0;
+      *(buf + encoded_size) = _5g_EEASel;
       encoded_size++;
-      *(buf + encoded_size) = 0xf0;
+      *(buf + encoded_size) = _5g_EIASel;
       encoded_size++;
     }
   }
@@ -132,7 +144,14 @@ int UESecurityCapability::decodefrombuffer(uint8_t *buf, int len,
   _5g_IASel = *(buf + decoded_size);
   decoded_size++;
   if (length == 4)
-    decoded_size += 2; // to do: decoding EEA EIA
+  {
+    //decoded_size += 2; // to do: decoding EEA EIA
+    _5g_EEASel = *(buf + decoded_size);
+    decoded_size++;
+    _5g_EIASel = *(buf + decoded_size);
+    decoded_size++;
+  }
+
   Logger::nas_mm().debug("UESecurityCapability EA 0x%d,IA 0x%d", _5g_EASel,
                          _5g_IASel);
   return decoded_size;

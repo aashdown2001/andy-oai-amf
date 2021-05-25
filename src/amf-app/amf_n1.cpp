@@ -954,6 +954,9 @@ void amf_n1::registration_request_handle(bool isNasSig,
   }
   else{
     nc.get()->ueSecurityCaplen = regReq->ie_ue_security_capability->getLenght();
+
+    nc.get()->ueSecurityCapEEnc = regReq->ie_ue_security_capability->getEEASel();
+    nc.get()->ueSecurityCapEInt = regReq->ie_ue_security_capability->getEIASel();
   }
   nc.get()->ueSecurityCapEnc = encrypt_alg;
   nc.get()->ueSecurityCapInt = integrity_alg;
@@ -2033,6 +2036,8 @@ bool amf_n1::start_security_mode_control_procedure(
                                  nc.get()->ueSecurityCapInt);
   if (smc->ie_ue_security_capability != NULL) {
     smc->ie_ue_security_capability->setLenght(nc.get()->ueSecurityCaplen);
+    smc->ie_ue_security_capability->setEEASel(nc.get()->ueSecurityCapEEnc);
+    smc->ie_ue_security_capability->setEIASel(nc.get()->ueSecurityCapEInt);
   } else {
     Logger::amf_n1().error("smc->ie_ue_security_capability is NULL");
   }
