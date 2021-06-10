@@ -13,6 +13,7 @@
 
 #include "IndividualSubscriptionDocumentApi.h"
 #include "Helpers.h"
+#include "TransData.hpp"
 
 namespace oai {
 namespace amf {
@@ -46,23 +47,60 @@ void IndividualSubscriptionDocumentApi::setupRoutes() {
               a_mf_status_change_un_subscribe_handler,
           this));
 
-  // Default handler, called when a route is not found
-  router->addCustomHandler(Routes::bind(
-      &IndividualSubscriptionDocumentApi::
-          individual_subscription_document_api_default_handler,
-      this));
+    Routes::Put(*router, base + "/plugin_n2/:assoc_id/:stream", Routes::bind(&IndividualSubscriptionDocumentApi::gnb_message_from_plugin_handler, this));
+    
+    // Default handler, called when a route is not found
+    router->addCustomHandler(Routes::bind(&IndividualSubscriptionDocumentApi::individual_subscription_document_api_default_handler, this));
 }
 
-void IndividualSubscriptionDocumentApi::
-    a_mf_status_change_subscribe_modfy_handler(
-        const Pistache::Rest::Request& request,
-        Pistache::Http::ResponseWriter response) {
-  // Getting the path params
-  auto subscriptionId = request.param(":subscriptionId").as<std::string>();
+void IndividualSubscriptionDocumentApi::gnb_message_from_plugin_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response) {
+    // Getting the path params
+    auto assoc_id = request.param(":assoc_id").as<std::uint32_t>();
+    auto stream = request.param(":stream").as<std::uint32_t>();
+    // Getting the body param
+    printf("-------------------------------------------plugin http request\n-----------");
+    //SubscriptionData subscriptionData;
+    TransData transdata;
+    std::cout<<request.body()<<std::endl;
+    try {
+      nlohmann::json::parse(request.body()).get_to(transdata);
+      this->gnb_message_from_plugin(assoc_id, stream,transdata, response);
+    } catch (nlohmann::detail::exception &e) {
+        //send a 400 error
+        response.send(Pistache::Http::Code::Bad_Request, e.what());
+        return;
+    } catch (std::exception &e) {
+        //send a 500 error
+        response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
+        return;
+    }
+
+}
+
+void IndividualSubscriptionDocumentApi::a_mf_status_change_subscribe_modfy_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response) {
+    // Getting the path params
+    auto subscriptionId = request.param(":subscriptionId").as<std::string>();
+    
+    // Getting the body param
+    
+    SubscriptionData subscriptionData;
+    
+    try {
+      nlohmann::json::parse(request.body()).get_to(subscriptionData);
+      this->a_mf_status_change_subscribe_modfy(subscriptionId, subscriptionData, response);
+    } catch (nlohmann::detail::exception &e) {
+        //send a 400 error
+        response.send(Pistache::Http::Code::Bad_Request, e.what());
+        return;
+    } catch (std::exception &e) {
+        //send a 500 error
+        response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
+        return;
+    }
 
   // Getting the body param
 
-  SubscriptionData subscriptionData;
+  //SubscriptionData subscriptionData;
 
   try {
     nlohmann::json::parse(request.body()).get_to(subscriptionData);

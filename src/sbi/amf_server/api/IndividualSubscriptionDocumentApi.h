@@ -23,6 +23,7 @@
 #include <pistache/router.h>
 #include <pistache/http_headers.h>
 #include <pistache/optional.h>
+#include "TransData.hpp"
 
 #include "ProblemDetails.h"
 #include "SubscriptionData.h"
@@ -55,6 +56,7 @@ class IndividualSubscriptionDocumentApi {
       const Pistache::Rest::Request& request,
       Pistache::Http::ResponseWriter response);
 
+    void gnb_message_from_plugin_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
   std::shared_ptr<Pistache::Rest::Router> router;
 
   /// <summary>
@@ -81,6 +83,7 @@ class IndividualSubscriptionDocumentApi {
   virtual void a_mf_status_change_un_subscribe(
       const std::string& subscriptionId,
       Pistache::Http::ResponseWriter& response) = 0;
+    virtual void gnb_message_from_plugin(const std::uint32_t &assoc_id, const std::uint16_t &stream , TransData transdata,Pistache::Http::ResponseWriter &response) =0;
 };
 
 }  // namespace api

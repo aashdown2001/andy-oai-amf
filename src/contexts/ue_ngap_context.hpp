@@ -36,7 +36,6 @@
 
 using namespace sctp;
 using namespace ngap;
-
 typedef enum {
   NGAP_UE_INVALID_STATE,
   NGAP_UE_WAITING_CSR,  // Context Setup Response(CSR)
@@ -47,6 +46,10 @@ typedef enum {
 
 class ue_ngap_context {
  public:
+  sctp_assoc_id_t ue_ngap_context_ran_ue_ngap_id_from_json(nlohmann::json j);
+  uint32_t ue_ngap_context_gnb_assoc_id_from_json(nlohmann::json j);
+  int ue_ngap_context_ng_ue_state_from_json(nlohmann::json j);
+  bool ue_ngap_context_from_json(nlohmann::json j);
   uint32_t ran_ue_ngap_id;   // 32bits
   long amf_ue_ngap_id : 40;  // 40bits
 

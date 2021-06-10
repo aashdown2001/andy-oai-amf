@@ -30,7 +30,7 @@
 #define _UE_CONTEXT_H_
 
 #include <stdint.h>
-
+#include <nlohmann/json.hpp>
 #include "NgapIEsStruct.hpp"
 
 extern "C" {
@@ -41,6 +41,9 @@ using namespace ngap;
 
 class ue_context {
  public:
+  void ue_context_tai_from_json(nlohmann::json j,Tai_t &tai_json);
+  bool ue_context_from_json(nlohmann::json j);
+  uint32_t ue_context_ran_ue_ngap_id_from_json(nlohmann::json j);
   uint32_t ran_ue_ngap_id;   // 32bits
   long amf_ue_ngap_id : 40;  // 40bits
 

@@ -12,7 +12,17 @@
  */
 
 #include "IndividualSubscriptionDocumentApiImpl.h"
+#include "bstrlib.h"
+#include "amf_n2.hpp"
 
+#include <shared_mutex>
+using namespace amf_application;
+using namespace ngap;
+extern amf_n2 *amf_n2_inst;
+extern unsigned char* format_string_as_hex(std::string str);
+extern char* bstring2charString(bstring b);
+extern void msg_str_2_msg_hex(std::string msg, bstring &b);
+extern void convert_string_2_hex(std::string &input, std::string &output);
 namespace oai {
 namespace amf {
 namespace api {
@@ -40,6 +50,22 @@ void IndividualSubscriptionDocumentApiImpl::a_mf_status_change_un_subscribe(
       "IndividualSubscriptionDocumentApiImpl::a_mf_status_change_un_subscribe "
       "API has not been implemented yet!\n");
 }
+void IndividualSubscriptionDocumentApiImpl::gnb_message_from_plugin(const std::uint32_t &assoc_id, const std::uint16_t &stream , TransData transdata,Pistache::Http::ResponseWriter &response) {
+    
+    printf("receive n2 message from plugin, sent to ngap task\n");
+    printf("transdata = %s\n",transdata.get_amf_data().c_str());
+    uint8_t buffer[SCTP_RECV_BUFFER_SIZE];
+    std::memcpy(buffer, format_string_as_hex(transdata.get_amf_data()),transdata.get_amf_data().length()/2+1);
+    bstring payload = blk2bstr(buffer, transdata.get_amf_data().length()/2+1);
+    printf("%s\n,length %d",bdata(payload),blength(payload));
+    if (!amf_n2_inst->is_assoc_id_2_gnb_context(assoc_id)) {
+        amf_n2_inst->handle_sctp_new_association(assoc_id,10,8);
+    }
+    amf_n2_inst->handle_receive(payload,assoc_id,stream,10,8);
+    response.send(Pistache::Http::Code::Ok, "plugin message\n");
+}
+
+
 
 }  // namespace api
 }  // namespace amf

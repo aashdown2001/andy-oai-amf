@@ -28,6 +28,10 @@
 
 #include "sctp_server.hpp"
 #include "logger.hpp"
+
+#include <nlohmann/json.hpp>
+#include "amf.hpp"
+
 extern "C" {
 #include <netinet/in.h>
 #include <netinet/sctp.h>
@@ -42,12 +46,13 @@ extern "C" {
 #include <netinet/in.h>
 #include <netinet/sctp.h>
 #include <arpa/inet.h>
+#include <curl/curl.h>
 
 #include "bstrlib.h"
 }
 
 #include <iostream>
-
+using namespace std;
 namespace sctp {
 
 //------------------------------------------------------------------------------
@@ -413,6 +418,99 @@ int sctp_server::sctp_send_msg(
   *payload = NULL;
   assoc_desc->messages_sent++;
   return 0;
+}
+void octet_stream_2_hex_stream(uint8_t* buf, int len, std::string& out) {
+  out       = "";
+  char* tmp = (char*) calloc(1, 2 * len * sizeof(uint8_t) + 1);
+  for (int i = 0; i < len; i++) {
+    sprintf(tmp + 2 * i, "%02x", buf[i]);
+  }
+  tmp[2 * len] = '\0';
+  out          = tmp;
+  printf("n1sm buffer: %s\n", out.c_str());
+}
+static std::size_t callback(
+    const char* in, std::size_t size, std::size_t num, std::string* out) {
+  const std::size_t totalBytes(size * num);
+  out->append(in, totalBytes);
+  return totalBytes;
+}
+void sctp_server::curl_http_client_Plugin(sctp_assoc_id_t assoc_id, sctp_stream_id_t stream,bstring payload) 
+{
+    printf("使用http发送到pluginf\n");
+
+    std::string ngapmsg;
+    octet_stream_2_hex_stream((uint8_t*) bdata(payload), blength(payload), ngapmsg);
+    Logger::sctp().debug(
+        "[Assoc ID %d] Sending buffer %p of %d bytes on stream %d,ngapmsg length %d ",
+        assoc_id, bdata(payload), blength(payload), stream,ngapmsg.length());
+    
+    nlohmann::json json_data = {};
+    json_data["n2_data"] = ngapmsg;
+
+
+    std::string url  = 
+        "http://" + std::string("10.112.202.24") +
+        ":" + std::to_string(38414) + "/nplugin-dr/v1/" +
+        to_string (assoc_id ) + "/" + to_string (stream) ;
+
+      Logger::sctp().debug(
+          "Send N2 message to PLUGIN , PLUGIN URL %s", url.c_str());
+
+    std::string body = json_data.dump();
+    Logger::sctp().debug(
+         "Send N2 message to PLUGIN , msg body: \n %s", body.c_str());
+
+     curl_global_init(CURL_GLOBAL_ALL);
+     CURL* curl = curl = curl_easy_init();
+
+     if (curl) {
+        CURLcode res               = {};
+        struct curl_slist* headers = nullptr;
+        // std::string content_type = "content-type: multipart/related; boundary=" +
+        //                        std::string(CURL_MIME_BOUNDARY);
+        // headers = curl_slist_append(headers, content_type.c_str());
+        headers = curl_slist_append(headers, "content-type: application/json");
+        headers = curl_slist_append(headers, "Expect:"); 
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, PLUGIN_CURL_TIMEOUT_MS);
+
+            // Response information.
+        long httpCode = {0};
+        std::unique_ptr<std::string> httpData(new std::string());
+        //std::unique_ptr<std::string> httpHeaderData(new std::string());
+         // Hook up data handling function.
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &callback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, httpData.get());
+       // curl_easy_setopt(curl, CURLOPT_HEADERDATA, httpHeaderData.get());
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, body.length());
+        //curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body_data);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str());
+        res = curl_easy_perform(curl);
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+
+        Logger::sctp().debug("Send NGAP message to PLUGIN, response from PLUGIN, HTTP Code: %d", httpCode);
+        if (static_cast<http_response_codes_e>(httpCode) ==http_response_codes_e::HTTP_RESPONSE_CODE_0) {
+            Logger::sctp().info( "Cannot get response when calling %s", url.c_str());
+            // free curl before returning
+            curl_slist_free_all(headers);
+            curl_easy_cleanup(curl);
+            return;
+        }
+        if (static_cast<http_response_codes_e>(httpCode) ==http_response_codes_e::HTTP_RESPONSE_CODE_200_OK) {
+            Logger::sctp().info("sending successful when calling %s", url.c_str());
+            curl_slist_free_all(headers);
+            curl_easy_cleanup(curl);
+            return;
+        }
+        curl_global_cleanup();
+
+    
+    }
+
 }
 
 }  // namespace sctp

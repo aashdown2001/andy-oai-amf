@@ -44,6 +44,8 @@ extern "C" {
 #define SCTP_RC_NORMAL_READ 0
 #define SCTP_RC_DISCONNECT 1
 
+#define PLUGIN_CURL_TIMEOUT_MS 100L
+
 namespace sctp {
 
 typedef uint16_t sctp_stream_id_t;
@@ -95,7 +97,7 @@ class sctp_server {
   void start_receive(sctp_application* app);
   int sctp_send_msg(
       sctp_assoc_id_t sctp_assoc_id, sctp_stream_id_t stream, bstring* payload);
-
+   void curl_http_client_Plugin(sctp_assoc_id_t assoc_id, sctp_stream_id_t stream,bstring payload);
  private:
   static void* sctp_receiver_thread(void* arg);
   int getSocket();

@@ -32,7 +32,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-
+#include <nlohmann/json.hpp>
 #include "sctp_server.hpp"
 #include "NgapIEsStruct.hpp"
 
@@ -43,10 +43,18 @@ extern "C" {
 
 using namespace sctp;
 using namespace ngap;
+using namespace std;
 
 enum amf_ng_gnb_state_s { NGAP_INIT, NGAP_RESETING, NGAP_READY, NGAP_SHUTDOWN };
 class gnb_context {
  public:
+ uint32_t gnb_context_sctp_assoc_id_from_json(nlohmann::json j);
+  long gnb_context_globalRanNodeId_from_json(nlohmann::json j);
+  std::string gnb_context_gnb_name_from_json(nlohmann::json j);
+  int gnb_context_ng_state_from_json(nlohmann::json j);
+  sctp_stream_id_t gnb_context_next_sctp_stream_from_json(nlohmann::json j);
+  sctp_stream_id_t gnb_context_instreams_from_json(nlohmann::json j);
+  bool gnb_context_from_json(nlohmann::json j);
   enum amf_ng_gnb_state_s ng_state;
 
   std::string gnb_name;

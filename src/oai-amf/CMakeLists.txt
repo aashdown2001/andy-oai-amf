@@ -313,6 +313,7 @@ include_directories(${SRC_TOP_DIR}/amf-app)
 include_directories(${SRC_TOP_DIR}/itti)
 include_directories(${SRC_TOP_DIR}/itti/msgs)
 include_directories(${SRC_TOP_DIR}/common)
+include_directories(${SRC_TOP_DIR}/context)
 include_directories(${SRC_TOP_DIR}/common/unicode)
 include_directories(${SRC_TOP_DIR}/utils)
 include_directories(${SRC_TOP_DIR}/utils/bstr)
@@ -341,6 +342,7 @@ add_executable(amf
   ${SRC_TOP_DIR}/oai-amf/options.cpp
   ${SRC_TOP_DIR}/itti/itti.cpp
   ${SRC_TOP_DIR}/itti/itti_msg.cpp
+  ${SRC_TOP_DIR}/ngap/ngap_app/ngap_app.cpp
 )
 
 IF(STATIC_LINKING)

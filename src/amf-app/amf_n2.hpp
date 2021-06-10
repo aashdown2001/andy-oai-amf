@@ -35,11 +35,14 @@
 #include "PduSessionResourceReleaseCommand.hpp"
 #include "itti_msg_n2.hpp"
 #include "ngap_app.hpp"
+
 #include "ue_ngap_context.hpp"
-
 #include "amf.hpp"
+#include <nlohmann/json.hpp>
 
-namespace amf_application {
+namespace amf_application{
+    
+#define UDSF_CURL_TIMEOUT_MS 100L
 
 class amf_n2 : public ngap::ngap_app {
  public:
@@ -72,6 +75,8 @@ class amf_n2 : public ngap::ngap_app {
 
   void set_ran_ue_ngap_id_2_ue_ngap_context(
       const uint32_t& ran_ue_ngap_id, std::shared_ptr<ue_ngap_context> unc);
+
+  bool curl_http_client_udsf(std::string remoteUri,std::string jsonData,std::string http_mothed,nlohmann::json &udsf_response) ;
 
  private:
   std::map<uint32_t, std::shared_ptr<ue_ngap_context>>

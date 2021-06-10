@@ -27,7 +27,11 @@
  */
 
 #include "nas_context.hpp"
-
+#include <nlohmann/json.hpp>
+#include "logger.hpp"
+#include "Record.h"
+using namespace std;
+using namespace oai::amf::model;
 //------------------------------------------------------------------------------
 nas_context::nas_context() {
   security_ctx                                          = NULL;
@@ -49,3 +53,109 @@ nas_context::nas_context() {
 
 //------------------------------------------------------------------------------
 nas_context::~nas_context() {}
+
+uint32_t nas_context::nas_context_ran_ue_ngap_id_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "ran_ue_ngap_id")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+}
+
+long nas_context::nas_context_amf_ue_ngap_id_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "amf_ue_ngap_id")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+}
+
+bool nas_context::nas_context_ctx_avaliability_ind_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "ctx_avaliability_ind")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+}
+
+std::string nas_context::nas_context_nas_status_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "nas_status")
+        { 
+            string  s  = it_block->at("content");
+            return s;
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+}
+
+std::string nas_context::nas_context_serving_network_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "serving_network")
+        { 
+            string  s  = it_block->at("content");
+            return s;
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+}
+
+bool nas_context::nas_context_from_json(nlohmann::json j)
+{
+  
+  ran_ue_ngap_id = nas_context_ran_ue_ngap_id_from_json(j);
+  amf_ue_ngap_id = nas_context_amf_ue_ngap_id_from_json(j);
+  ctx_avaliability_ind = nas_context_ctx_avaliability_ind_from_json(j);
+  nas_status = nas_context_nas_status_from_json(j);
+  serving_network = nas_context_serving_network_from_json(j);
+    return true;
+}

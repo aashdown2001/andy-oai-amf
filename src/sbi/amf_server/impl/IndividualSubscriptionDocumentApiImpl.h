@@ -32,7 +32,7 @@
 #include "ProblemDetails.h"
 #include "SubscriptionData.h"
 #include <string>
-
+#include "TransData.hpp"
 #include "amf_app.hpp"
 
 namespace oai {
@@ -56,6 +56,7 @@ class IndividualSubscriptionDocumentApiImpl
   void a_mf_status_change_un_subscribe(
       const std::string& subscriptionId,
       Pistache::Http::ResponseWriter& response);
+    void gnb_message_from_plugin(const std::uint32_t &assoc_id, const std::uint16_t &stream ,TransData transdata, Pistache::Http::ResponseWriter &response);
 
  private:
   amf_application::amf_app* m_amf_app;

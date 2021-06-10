@@ -35,10 +35,13 @@ include_directories(${SRC_TOP_DIR}/secu_algorithms/5gaka)
 include_directories(${SRC_TOP_DIR}/secu_algorithms/nas_enc_int)
 include_directories(${SRC_TOP_DIR}/utils)
 include_directories(${SRC_TOP_DIR}/utils/bstr)
+include_directories(${SRC_TOP_DIR}/sbi/amf_server/model)
 
 add_library (CONTEXTS STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/gNB_context.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ue_context.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/nas_context.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ue_ngap_context.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/pdu_session_context.cpp
 )
 

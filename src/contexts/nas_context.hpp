@@ -36,6 +36,12 @@
 #include "nas_security_context.hpp"
 #include "security_def.hpp"
 #include "authentication_algorithms_with_5gaka.hpp"
+#include <nlohmann/json.hpp>
+#include "NgapIEsStruct.hpp"
+
+extern "C" {
+#include "Ngap_RRCEstablishmentCause.h"
+}
 
 typedef enum {
   _5GMM_STATE_MIN     = 0,
@@ -59,6 +65,12 @@ class nas_context {
  public:
   nas_context();
   ~nas_context();
+  bool nas_context_from_json(nlohmann::json j);
+  uint32_t nas_context_ran_ue_ngap_id_from_json(nlohmann::json j);
+  long nas_context_amf_ue_ngap_id_from_json(nlohmann::json j);
+  bool nas_context_ctx_avaliability_ind_from_json(nlohmann::json j);
+  std::string nas_context_nas_status_from_json(nlohmann::json j);
+  std::string nas_context_serving_network_from_json(nlohmann::json j);
   bool ctx_avaliability_ind;
   bool is_stacs_available;
   long amf_ue_ngap_id;

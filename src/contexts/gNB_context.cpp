@@ -27,3 +27,173 @@
  */
 
 #include "gNB_context.hpp"
+#include <nlohmann/json.hpp>
+#include "logger.hpp"
+#include "Record.h"
+using namespace std;
+using namespace oai::amf::model;
+bool get_value_string(const nlohmann::json &j, const string & nm, string &value){
+
+  Record record;
+  nlohmann::json::parse(j.dump()).get_to(record);
+  std::set<nlohmann::json> block_set = record.getBlocks();   
+  std::set<nlohmann::json>::iterator it_block;  
+  for(it_block=block_set.begin();it_block!=block_set.end();)
+  {  
+      
+      if(it_block->at("Content-ID") == nm)
+      {
+        //if((it_block->at("Content-Type") == "varhcar")
+        value = it_block->at("content");
+        return true;
+      }
+      block_set.erase(it_block++); 
+  } 
+  return false;
+}
+// bool get_value_int(const nlohmann::json &j, const string & nm, long &value){
+//    Record record;
+//   nlohmann::json::parse(j.dump()).get_to(record);
+//   std::set<nlohmann::json> block_set = record.getBlocks();   
+//   std::set<nlohmann::json>::iterator it_block;  
+//   for(it_block=block_set.begin();it_block!=block_set.end();)
+//   {  
+      
+//       if(it_block->at("Content-ID") == nm)
+//       { 
+//         string  s  = it_block->at("content");
+//         value = atoi(s.c_str());
+//         return true;
+//       }
+//       block_set.erase(it_block++); 
+//   } 
+//   return false;
+// }
+long gnb_context::gnb_context_globalRanNodeId_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "globalRanNodeId")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+    // long a;
+    // if(!get_value_int(j,"globalRanNodeId",a))
+    //     Logger::amf_server().error("get_value from json  is error");
+    // return a;
+}
+std::string gnb_context::gnb_context_gnb_name_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "gnb_name")
+        { 
+            string  s  = it_block->at("content");
+            return s;
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+}
+int gnb_context::gnb_context_ng_state_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "ng_state")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+}
+sctp_stream_id_t gnb_context::gnb_context_next_sctp_stream_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "next_sctp_stream")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+}
+uint32_t gnb_context::gnb_context_sctp_assoc_id_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "sctp_assoc_id")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+}
+sctp_stream_id_t gnb_context::gnb_context_instreams_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "instreams")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+}
+bool gnb_context::gnb_context_from_json(nlohmann::json j)
+{
+    //std::shared_ptr<gnb_context> gc1;
+    sctp_assoc_id = gnb_context_sctp_assoc_id_from_json( j);
+    globalRanNodeId = gnb_context_globalRanNodeId_from_json(j);
+    gnb_name = gnb_context_gnb_name_from_json(j);
+    ng_state = amf_ng_gnb_state_s(gnb_context_ng_state_from_json(j));
+    next_sctp_stream = gnb_context_next_sctp_stream_from_json(j);
+    next_sctp_stream = gnb_context_instreams_from_json(j);
+
+    //     printf("gnbname-%s\n",gnb_name.c_str());
+    // printf("globalgnbid-%d\n",globalRanNodeId);
+    // printf("next stream-%d\n",next_sctp_stream);
+
+    return true;
+}
