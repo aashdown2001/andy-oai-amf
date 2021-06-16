@@ -74,6 +74,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes && DE
     bc \
     tshark \
     libconfig++9v5 \
+    software-properties-common \
+    gnupg \
     libsctp1 \
   && rm -rf /var/lib/apt/lists/*
 
