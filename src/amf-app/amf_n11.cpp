@@ -27,7 +27,7 @@
  */
 
 #include "amf_n11.hpp"
-
+#include "amf_n2.hpp"
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 
@@ -61,6 +61,7 @@ extern itti_mw* itti_inst;
 extern amf_config amf_cfg;
 extern amf_n11* amf_n11_inst;
 extern amf_n1* amf_n1_inst;
+extern amf_n2* amf_n2_inst;
 
 extern void msg_str_2_msg_hex(std::string msg, bstring& b);
 extern void convert_string_2_hex(std::string& input, std::string& output);
@@ -160,14 +161,28 @@ void amf_n11::handle_itti_message(
       "ID %d)",
       supi.c_str(), itti_msg.pdu_session_id);
   std::shared_ptr<pdu_session_context> psc;
-  if (is_supi_to_pdu_ctx(supi)) {
-    psc = supi_to_pdu_ctx(supi);
-  } else {
-    Logger::amf_n11().error(
-        "Could not find psu_session_context with SUPI %s, Failed",
-        supi.c_str());
+  
+  //***************************stateless
+  pdu_session_context *psc1 = new pdu_session_context();
+  nlohmann::json udsf_response;
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+    Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
     return;
   }
+  Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  psc1->pdu_session_context_from_json(udsf_response);
+  psc = std::shared_ptr<pdu_session_context>(psc1);
+  //***************************stateless
+
+  // if (is_supi_to_pdu_ctx(supi)) {
+  //   psc = supi_to_pdu_ctx(supi);
+  // } else {
+  //   Logger::amf_n11().error(
+  //       "Could not find psu_session_context with SUPI %s, Failed",
+  //       supi.c_str());
+  //   return;
+  // }
   std::string smf_addr;
   if (!psc.get()->smf_available) {
     if (!smf_selection_from_configuration(smf_addr)) {
@@ -216,12 +231,26 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
   std::string supi = "imsi-" + nc.get()->imsi;
 
   std::shared_ptr<pdu_session_context> psc;
-  if (is_supi_to_pdu_ctx(supi)) {
-    psc = supi_to_pdu_ctx(supi);
-  } else {
-    psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
-    set_supi_to_pdu_ctx(supi, psc);
+  
+    //***************************stateless
+  pdu_session_context *psc1 = new pdu_session_context();
+  nlohmann::json udsf_response;
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+    Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
+    return;
   }
+  Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  psc1->pdu_session_context_from_json(udsf_response);
+  psc = std::shared_ptr<pdu_session_context>(psc1);
+  //***************************stateless
+
+  // if (is_supi_to_pdu_ctx(supi)) {
+  //   psc = supi_to_pdu_ctx(supi);
+  // } else {
+  //   psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
+  //   set_supi_to_pdu_ctx(supi, psc);
+  // }
 
   pduid2supi[smf.pdu_sess_id] = supi;
   psc.get()->amf_ue_ngap_id   = nc.get()->amf_ue_ngap_id;
@@ -354,6 +383,55 @@ void amf_n11::handle_pdu_session_initial_request(
       "Handle PDU Session Establishment Request (SUPI %s, PDU Session ID %d)",
       supi.c_str(), psc.get()->pdu_session_id);
 
+  /***************************hxs add**************/
+  //send udsf to storage us_ngap_context recordid=ran+ue_ngap_id
+  std::string udsf_put_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+  nlohmann::json udsf_pdu_session_context;
+ // nlohmann::json udsf_response;
+  udsf_pdu_session_context["meta"] ["tags"] = {
+                                       {"RECORD_ID",nlohmann::json::array({supi})},
+                                       {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
+                                       } ;
+  udsf_pdu_session_context["blocks"] = nlohmann::json::array({
+                                               {{"Content-ID", "ran_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", to_string(psc.get()->ran_ue_ngap_id)}},
+                                               {{"Content-ID", "amf_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", to_string(psc.get()->amf_ue_ngap_id)}},
+                                               {{"Content-ID", "req_type"},{"Content-Type", "varchar(32)"},{"content",to_string(psc.get()->req_type)}},
+                                               {{"Content-ID", "pdu_session_id"},{"Content-Type", "varchar(32)"},{"content", to_string(psc.get()->pdu_session_id)}},
+                                               {{"Content-ID", "dnn"},{"Content-Type", "varchar(32)"},{"content", psc.get()->dnn}},
+                                               {{"Content-ID", "n2sm"},{"Content-Type", "varchar(32)"},{"content", ""}},
+                                               {{"Content-ID", "isn2sm_avaliable"},{"Content-Type", "varchar(32)"},{"content",to_string(psc.get()->isn2sm_avaliable)}},
+                                               {{"Content-ID", "n1sm"},{"Content-Type", "varchar(32)"},{"content", ""}},
+                                               {{"Content-ID", "isn1sm_avaliable"},{"Content-Type", "varchar(32)"},{"content", to_string(psc.get()->isn1sm_avaliable)}},
+                                               {{"Content-ID", "remote_smf_addr"},{"Content-Type", "varchar(32)"},{"content", psc.get()->remote_smf_addr[0]}},
+                                               {{"Content-ID", "smf_available"},{"Content-Type", "varchar(32)"},{"content", to_string(psc.get()->smf_available)}},
+                                               {{"Content-ID", "location"},{"Content-Type", "varchar(32)"},{"content",psc.get()->location}},
+                                               {{"Content-ID", "smf_context_location"},{"Content-Type", "varchar(32)"},{"content", psc.get()->smf_context_location }}   
+                                          });
+  nlohmann::json snssai = {};
+  nlohmann::json plmn = {};
+  nlohmann::json udsf_response;
+  snssai["Content-ID"] ="snssai";
+  snssai["Content-Type"] = "varchar(32)" ;
+  snssai["content"]["sST"] = to_string(psc.get()->snssai.sST) ;
+  snssai["content"]["sD"] = psc.get()->snssai.sD ;
+
+  plmn["Content-ID"] ="plmn";
+  plmn["Content-Type"] = "varchar(32)" ;
+  plmn["content"]["mcc"] = psc.get()->plmn.mcc ;
+  plmn["content"]["mnc"] = psc.get()->plmn.mnc ;
+  plmn["content"]["tac"] = to_string(psc.get()->plmn.tac) ;
+
+  udsf_pdu_session_context["blocks"].push_back(snssai); 
+  udsf_pdu_session_context["blocks"].push_back(plmn);
+  std::string json_part_udsf = udsf_pdu_session_context.dump();
+
+  amf_n2_inst->curl_http_client_udsf(udsf_put_url,json_part_udsf,"PUT",udsf_response);
+
+  
+  /************************hxs add****************/
+
+
+
   // TODO: Remove hardcoded values
   std::string remote_uri =
       smf_addr + "/nsmf-pdusession/v2/sm-contexts";  // TODO
@@ -388,12 +466,34 @@ void amf_n11::handle_pdu_session_initial_request(
   octet_stream_2_hex_stream((uint8_t*) bdata(sm_msg), blength(sm_msg), n1SmMsg);
   curl_http_client(
       remote_uri, json_part, n1SmMsg, "", supi, psc.get()->pdu_session_id);
+
+
+
+
+
+
+
 }
 
 //------------------------------------------------------------------------------
 void amf_n11::handle_itti_message(
     itti_nsmf_pdusession_release_sm_context& itti_msg) {
-  std::shared_ptr<pdu_session_context> psc = supi_to_pdu_ctx(itti_msg.supi);
+  std::shared_ptr<pdu_session_context> psc ;
+  //= supi_to_pdu_ctx(itti_msg.supi);
+  
+    //***************************stateless
+  pdu_session_context *psc1 = new pdu_session_context();
+  nlohmann::json udsf_response;
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + itti_msg.supi ;
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+    Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
+    return;
+  }
+  Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  psc1->pdu_session_context_from_json(udsf_response);
+  psc = std::shared_ptr<pdu_session_context>(psc1);
+  //***************************stateless
+  
   string smf_addr;
   if (!psc.get()->smf_available) {
     if (!smf_selection_from_configuration(smf_addr)) {
@@ -492,13 +592,26 @@ void amf_n11::curl_http_client(
   std::string body;
   std::shared_ptr<pdu_session_context> psc;
 
-  if (is_supi_to_pdu_ctx(supi)) {
-    psc = supi_to_pdu_ctx(supi);
-  } else {
-    Logger::amf_n11().warn(
-        "PDU Session context for SUPI %s doesn't exit!", supi.c_str());
-    // TODO:
+  //***************************stateless
+  pdu_session_context *psc1 = new pdu_session_context();
+  nlohmann::json udsf_response;
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+    Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
+    return;
   }
+  Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  psc1->pdu_session_context_from_json(udsf_response);
+  psc = std::shared_ptr<pdu_session_context>(psc1);
+  //***************************stateless
+
+  // if (is_supi_to_pdu_ctx(supi)) {
+  //   psc = supi_to_pdu_ctx(supi);
+  // } else {
+  //   Logger::amf_n11().warn(
+  //       "PDU Session context for SUPI %s doesn't exit!", supi.c_str());
+  //   // TODO:
+  // }
 
   if ((n1SmMsg.size() > 0) and (n2SmMsg.size() > 0)) {
     // prepare the body content for Curl
@@ -677,6 +790,22 @@ void amf_n11::curl_http_client(
 
         itti_msg->supi           = supi;
         itti_msg->pdu_session_id = pdu_session_id;
+
+        std::string udsf_put_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+        nlohmann::json udsf_put_pdu_session_context;
+        nlohmann::json udsf_response;
+        udsf_put_pdu_session_context["meta"] ["tags"] = {
+                                            {"RECORD_ID",nlohmann::json::array({supi})},
+                                            {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
+                                            } ;
+        udsf_put_pdu_session_context["blocks"] = nlohmann::json::array({
+          {{"Content-ID", "smf_context_location"},{"Content-Type", "varchar(32)"},{"content",psc.get()->smf_context_location}},
+          });
+        std::string json_part = udsf_put_pdu_session_context.dump();
+        amf_n2_inst->curl_http_client_udsf(udsf_put_url,json_part,"PUT",udsf_response);
+
+
+
         std::shared_ptr<itti_n1n2_message_transfer_request> i =
             std::shared_ptr<itti_n1n2_message_transfer_request>(itti_msg);
         int ret = itti_inst->send_msg(i);

@@ -32,12 +32,12 @@
 #include <string>
 #include "bstrlib.h"
 #include "amf.hpp"
-
+#include <nlohmann/json.hpp>
 class pdu_session_context {
  public:
   pdu_session_context();
   ~pdu_session_context();
-
+  bool pdu_session_context_from_json(nlohmann::json j);
   uint32_t ran_ue_ngap_id;
   long amf_ue_ngap_id;
   uint8_t req_type;
@@ -53,5 +53,7 @@ class pdu_session_context {
   snssai_t snssai;
   plmn_t plmn;
   std::string smf_context_location;
+
+  //15
 };
 #endif

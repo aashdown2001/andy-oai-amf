@@ -37,3 +37,14 @@ pdu_session_context::pdu_session_context() {
 
 //------------------------------------------------------------------------------
 pdu_session_context::~pdu_session_context() {}
+bool pdu_session_context::pdu_session_context_from_json(nlohmann::json j)
+{
+    //std::shared_ptr<gnb_context> gc1;
+   
+
+    //     printf("gnbname-%s\n",gnb_name.c_str());
+    // printf("globalgnbid-%d\n",globalRanNodeId);
+    // printf("next stream-%d\n",next_sctp_stream);
+
+    return true;
+}

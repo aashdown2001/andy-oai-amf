@@ -36,9 +36,9 @@
 #include "amf_module_from_config.hpp"
 #include "itti_msg_amf_app.hpp"
 #include "ue_context.hpp"
-
+//#include "amf_profile.hpp"
 using namespace config;
-
+//using namespace amf ;
 static uint32_t amf_app_ue_ngap_id_generator = 1;
 
 namespace amf_application {
@@ -80,6 +80,14 @@ class amf_app {
   bool generate_5g_guti(
       uint32_t ranid, long amfid, std::string& mcc, std::string& mnc,
       uint32_t& tmsi);
+
+//   void register_to_nrf();
+//   void generate_uuid();
+//   void generate_amf_profile();
+//   void register_nf_instance();
+//   amf_profile nf_instance_profile;  // SMF profile
+//   std::string amf_instance_id;      // SMF instance id
+
 };
 
 }  // namespace amf_application

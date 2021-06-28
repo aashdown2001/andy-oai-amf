@@ -44,7 +44,7 @@
 #include "InitialContextSetupResponse.hpp"
 #include "pdu_session_context.hpp"
 #include "nas_context.hpp"
-
+#include "amf_n2.hpp"
 using namespace sctp;
 using namespace ngap;
 using namespace amf_application;
@@ -52,7 +52,7 @@ using namespace amf_application;
 extern itti_mw* itti_inst;
 extern amf_n1* amf_n1_inst;
 extern amf_n11* amf_n11_inst;
-
+extern amf_n2* amf_n2_inst;
 typedef int (*ngap_message_decoded_callback)(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p);
@@ -387,14 +387,42 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
           amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id);
       string supi = "imsi-" + nct.get()->imsi;
       std::shared_ptr<pdu_session_context> psc;
-      if (amf_n11_inst->is_supi_to_pdu_ctx(supi)) {
-        psc = amf_n11_inst->supi_to_pdu_ctx(supi);
-        if (!psc) {
-          Logger::amf_n1().error("connot get pdu_session_context");
-          return 0;
-        }
+
+        //***************************stateless
+      pdu_session_context *psc1 = new pdu_session_context();
+      nlohmann::json udsf_response;
+      std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+      if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+        Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
+        return 0 ;
       }
+      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+      psc1->pdu_session_context_from_json(udsf_response);
+      psc = std::shared_ptr<pdu_session_context>(psc1);
+      //***************************stateless
+      
+      // if (amf_n11_inst->is_supi_to_pdu_ctx(supi)) {
+      //   psc = amf_n11_inst->supi_to_pdu_ctx(supi);
+      //   if (!psc) {
+      //     Logger::amf_n1().error("connot get pdu_session_context");
+      //     return 0;
+      //   }
+      // }
       psc.get()->isn2sm_avaliable = false;
+
+      std::string udsf_put_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+      nlohmann::json udsf_put_pdu_session_context;
+      //nlohmann::json udsf_response;
+      udsf_put_pdu_session_context["meta"] ["tags"] = {
+                                          {"RECORD_ID",nlohmann::json::array({supi})},
+                                          {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
+                                          } ;
+      udsf_put_pdu_session_context["blocks"] = nlohmann::json::array({
+      {{"Content-ID", "isn2sm_avaliable"},{"Content-Type", "varchar(32)"},{"content",to_string(psc.get()->isn2sm_avaliable)}}
+      });
+      std::string json_part = udsf_put_pdu_session_context.dump();
+      amf_n2_inst->curl_http_client_udsf(udsf_put_url,json_part,"PUT",udsf_response);
+
       Logger::ngap().debug(
           "receive pdu session resource setup response fail(multi pdu session "
           "id),set pdu session context isn2sm_avaliable = false");

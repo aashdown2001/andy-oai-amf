@@ -1094,12 +1094,26 @@ void amf_n2::handle_itti_message(
   string supi = "imsi-" + nc.get()->imsi;
   Logger::amf_n2().debug("SUPI (%s)", supi.c_str());
   std::shared_ptr<pdu_session_context> psc;
-  if (amf_n11_inst->is_supi_to_pdu_ctx(supi)) {
-    psc = amf_n11_inst->supi_to_pdu_ctx(supi);
-  } else {
-    Logger::amf_n2().warn(
-        "Cannot get pdu_session_context with SUPI (%s)", supi.c_str());
+
+  //***************************stateless
+  pdu_session_context *psc1 = new pdu_session_context();
+ // nlohmann::json udsf_response;
+  udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+    Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
+    return;
   }
+  Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  psc1->pdu_session_context_from_json(udsf_response);
+  psc = std::shared_ptr<pdu_session_context>(psc1);
+  //***************************stateless
+
+  // if (amf_n11_inst->is_supi_to_pdu_ctx(supi)) 
+  //   psc = amf_n11_inst->supi_to_pdu_ctx(supi);
+  // } else {
+  //   Logger::amf_n2().warn(
+  //       "Cannot get pdu_session_context with SUPI (%s)", supi.c_str());
+  // }
   // item.s_nssai.sst = std::to_string(psc.get()->snssai.sST);
   // item.s_nssai.sd = psc.get()->snssai.sD;
 
@@ -1481,8 +1495,23 @@ void amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
 
   // handoverrequest->setSourceToTarget_TransparentContainer(sourceTotarget);
   string supi = "imsi-" + nc.get()->imsi;
-  std::shared_ptr<pdu_session_context> psc =
-      amf_n11_inst->supi_to_pdu_ctx(supi);
+  std::shared_ptr<pdu_session_context> psc;
+  //  =
+  //     amf_n11_inst->supi_to_pdu_ctx(supi);
+
+  //***************************stateless
+  pdu_session_context *psc1 = new pdu_session_context();
+  nlohmann::json udsf_response;
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+    Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
+    return;
+  }
+  Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  psc1->pdu_session_context_from_json(udsf_response);
+  psc = std::shared_ptr<pdu_session_context>(psc1);
+  //***************************stateless
+
   std::vector<PDUSessionResourceSetupRequestItem_t> list;
   PDUSessionResourceSetupRequestItem_t item;
   item.pduSessionId      = psc.get()->pdu_session_id;
