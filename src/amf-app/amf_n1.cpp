@@ -1392,7 +1392,7 @@ void amf_n1::registration_request_handle(bool isNasSig,
   ran_ue_ngap_id_json["content"] =to_string(nc.get()->ran_ue_ngap_id);
   udsf_nas_context["blocks"].push_back(ran_ue_ngap_id_json);
   
-  serving_network["Content-ID"] = "v";
+  serving_network["Content-ID"] = "serving_network";
   serving_network["Content-Type"] = "varchar(32)";
   serving_network["content"] =(nc.get()->serving_network);
   udsf_nas_context["blocks"].push_back(serving_network);
@@ -1472,7 +1472,7 @@ void amf_n1::registration_request_handle(bool isNasSig,
   ueSecurityCapEnc["Content-ID"] = "ueSecurityCapEnc";
   ueSecurityCapEnc["Content-Type"] = "varchar(32)";
   ueSecurityCapEnc ["content"] = to_string( nc.get()->ueSecurityCapEnc);
-  udsf_nas_context["blocks"].push_back(ngKsi);
+  udsf_nas_context["blocks"].push_back(ueSecurityCapEnc);
   
   ueSecurityCapInt["Content-ID"] = "ueSecurityCapInt";
   ueSecurityCapInt["Content-Type"] = "varchar(32)";
@@ -1498,7 +1498,7 @@ void amf_n1::registration_request_handle(bool isNasSig,
   nc.get()->requestedNssai = requestedNssai;
   nc.get()->ctx_avaliability_ind = true;
   requestedNssai_json["Content-ID"] = "requestedNssai";
-  requestedNssai_json["Content-Type"] = "varchar(32)";
+  requestedNssai_json["Content-Type"] = "JSON";
   requestedNssai_json ["content"] = {};
   nlohmann::json requestedNssai_m = {};
   for(int i=0;i<nc->requestedNssai.size();i++)
@@ -1527,7 +1527,7 @@ void amf_n1::registration_request_handle(bool isNasSig,
   // Run different registration procedure
   
   /**********************hsx add***********************/
-  std::string udsf_url = "http://10.28.234.76:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
   
   nlohmann::json udsf_response;
   udsf_nas_context["meta"] ["tags"] = {
@@ -1549,7 +1549,7 @@ void amf_n1::registration_request_handle(bool isNasSig,
   //                                                 {{"Content-ID", "serving_network"},{"Content-Type", "varchar(32)"},{"content",  nc->serving_network}}
   //                                             });
   
-  
+  printf("----------------udsf_nas_context %s---------\n",udsf_nas_context.dump().c_str());
   amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
 
   // udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + std::to_string(nc.get()->amf_ue_ngap_id) ;

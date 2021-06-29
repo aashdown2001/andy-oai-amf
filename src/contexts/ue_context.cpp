@@ -65,7 +65,14 @@ void ue_context::ue_context_tai_from_json(nlohmann::json j,Tai_t &tai_json)
         { 
             nlohmann::json  s;
             string j;
-            j = it_block->at("content");
+            s = it_block->at("content");
+            
+            tai_json.mcc = s.at("mcc");
+            tai_json.mnc = s.at("mnc") ;
+            j = s.at("tac");
+            tai_json.tac =  atoi(j.c_str());
+            //printf("ue_context_tai_from_json %s---mcc %s---mnc %s--\n",s.dump().c_str(),tai_json.mcc,tai_json.mnc);
+            return ; 
             // s  = nlohmann::json::parse(j);
             // s.at("mnc").get_to(tai_json.mnc);
             // s.at("mcc").get_to(tai_json.mcc);
