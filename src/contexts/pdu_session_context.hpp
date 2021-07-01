@@ -37,7 +37,28 @@ class pdu_session_context {
  public:
   pdu_session_context();
   ~pdu_session_context();
+  void pdu_session_context_n1sm_from_json(nlohmann::json j);
+  void pdu_session_context_n2sm_from_json(nlohmann::json j);
+  
   bool pdu_session_context_from_json(nlohmann::json j);
+  uint32_t pdu_session_context_ran_ue_ngap_id_from_json(nlohmann::json j);
+  long pdu_session_context_amf_ue_ngap_id_from_json(nlohmann::json j);
+  uint8_t pdu_session_context_req_type_from_json(nlohmann::json j);
+  uint8_t pdu_session_context_pdu_session_id_from_json(nlohmann::json j);
+  bool pdu_session_context_isn2sm_avaliable_from_json(nlohmann::json j);
+  bool pdu_session_context_isn1sm_avaliable_from_json(nlohmann::json j);
+  std::string pdu_session_context_dnn_from_json(nlohmann::json j);
+  std::string pdu_session_context_remote_smf_addr_from_json(nlohmann::json j);
+  bool pdu_session_context_smf_available_from_json(nlohmann::json j);
+  std::string pdu_session_context_location_from_json(nlohmann::json j);
+
+  void pdu_session_context_snssai_from_json(nlohmann::json j,snssai_t &snssai_json);
+  void pdu_session_context_plmn_from_json(nlohmann::json j,plmn_t &plmn_json);
+
+
+  std::string pdu_session_context_smf_context_location_from_json(nlohmann::json j);
+
+
   uint32_t ran_ue_ngap_id;
   long amf_ue_ngap_id;
   uint8_t req_type;
@@ -53,7 +74,6 @@ class pdu_session_context {
   snssai_t snssai;
   plmn_t plmn;
   std::string smf_context_location;
-
   //15
 };
 #endif

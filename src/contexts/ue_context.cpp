@@ -52,7 +52,7 @@ uint32_t ue_context::ue_context_ran_ue_ngap_id_from_json(nlohmann::json j)
     } 
     Logger::amf_server().error("get_value from json  is error");
 }
-void ue_context::ue_context_tai_from_json(nlohmann::json j,Tai_t &tai_json)
+void ue_context::ue_context_tai_from_json(nlohmann::json j,Tai_t &Tai_json)
 {
     Record record;
     nlohmann::json::parse(j.dump()).get_to(record);
@@ -67,10 +67,10 @@ void ue_context::ue_context_tai_from_json(nlohmann::json j,Tai_t &tai_json)
             string j;
             s = it_block->at("content");
             
-            tai_json.mcc = s.at("mcc");
-            tai_json.mnc = s.at("mnc") ;
+            Tai_json.mcc = s.at("mcc");
+            Tai_json.mnc = s.at("mnc") ;
             j = s.at("tac");
-            tai_json.tac =  atoi(j.c_str());
+            Tai_json.tac =  atoi(j.c_str());
             //printf("ue_context_tai_from_json %s---mcc %s---mnc %s--\n",s.dump().c_str(),tai_json.mcc,tai_json.mnc);
             return ; 
             // s  = nlohmann::json::parse(j);
@@ -82,6 +82,9 @@ void ue_context::ue_context_tai_from_json(nlohmann::json j,Tai_t &tai_json)
     } 
     Logger::amf_server().error("get_value from json  is error");
 }
+
+
+
 bool ue_context::ue_context_from_json(nlohmann::json j)
 {
     //std::shared_ptr<gnb_context> gc1;

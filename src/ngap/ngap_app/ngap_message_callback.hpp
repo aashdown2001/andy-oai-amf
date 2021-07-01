@@ -386,8 +386,8 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
       std::shared_ptr<nas_context> nct =
           amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id);
       string supi = "imsi-" + nct.get()->imsi;
-      std::shared_ptr<pdu_session_context> psc;
-
+     // std::shared_ptr<pdu_session_context> psc;
+std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
         //***************************stateless
       pdu_session_context *psc1 = new pdu_session_context();
       nlohmann::json udsf_response;
@@ -396,9 +396,12 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
         Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
         return 0 ;
       }
-      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
-      psc1->pdu_session_context_from_json(udsf_response);
-      psc = std::shared_ptr<pdu_session_context>(psc1);
+
+      else{
+        Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+          psc.get()->pdu_session_context_from_json(udsf_response);
+          //psc = std::shared_ptr<pdu_session_context>(psc1);
+      }
       //***************************stateless
       
       // if (amf_n11_inst->is_supi_to_pdu_ctx(supi)) {

@@ -48,6 +48,7 @@ using namespace std;
 enum amf_ng_gnb_state_s { NGAP_INIT, NGAP_RESETING, NGAP_READY, NGAP_SHUTDOWN };
 class gnb_context {
  public:
+ void gnb_context_ue_radio_cap_ind_from_json(nlohmann::json j);
  uint32_t gnb_context_sctp_assoc_id_from_json(nlohmann::json j);
   long gnb_context_globalRanNodeId_from_json(nlohmann::json j);
   std::string gnb_context_gnb_name_from_json(nlohmann::json j);

@@ -8,7 +8,6 @@ uint8_t multipart_parser(
   // simple parser
   mime_parser sp = {};
   sp.parse(input);
-
   std::vector<mime_part> parts = {};
   sp.get_mime_parts(parts);
   uint8_t size = parts.size();

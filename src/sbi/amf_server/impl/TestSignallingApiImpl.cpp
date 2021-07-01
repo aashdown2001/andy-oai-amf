@@ -32,16 +32,16 @@ void TestSignallingApiImpl::
   std::string supi = subscriptionId;
   Logger::amf_server().debug(
       "Key for PDU Session context: SUPI (%s)", supi.c_str());
-  std::shared_ptr<pdu_session_context> psc;
-
+  //std::shared_ptr<pdu_session_context> psc;
+std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
     //***************************stateless
   pdu_session_context *psc1 = new pdu_session_context();
   nlohmann::json udsf_response;
   std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
   if(amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
        Logger::amf_server().debug("udsf_response: %s", udsf_response.dump().c_str());
-       psc1->pdu_session_context_from_json(udsf_response);
-       psc = std::shared_ptr<pdu_session_context>(psc1);  
+       psc.get()->pdu_session_context_from_json(udsf_response);
+       //psc = std::shared_ptr<pdu_session_context>(psc1);  
        itti_test_signalling_network_initiated_deregistration* itti_msg =
         new itti_test_signalling_network_initiated_deregistration(AMF_SERVER, TASK_AMF_APP);
 
@@ -97,16 +97,16 @@ void TestSignallingApiImpl::test_signalling_paging(
   std::string supi = ueContextId;
   Logger::amf_server().debug(
       "Key for PDU Session context: SUPI (%s)", supi.c_str());
-  std::shared_ptr<pdu_session_context> psc;
-
+  //std::shared_ptr<pdu_session_context> psc;
+std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
       //***************************stateless
   pdu_session_context *psc1 = new pdu_session_context();
   nlohmann::json udsf_response;
   std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
   if(amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
        Logger::amf_server().debug("udsf_response: %s", udsf_response.dump().c_str());
-       psc1->pdu_session_context_from_json(udsf_response);
-       psc = std::shared_ptr<pdu_session_context>(psc1);  
+       psc.get()->pdu_session_context_from_json(udsf_response);
+       //psc = std::shared_ptr<pdu_session_context>(psc1);  
        itti_test_signalling_paging* itti_msg =
         new itti_test_signalling_paging(AMF_SERVER, TASK_AMF_APP);
 

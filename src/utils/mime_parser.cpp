@@ -34,7 +34,9 @@ bool mime_parser::parse(const std::string& str) {
   // find boundary
   std::size_t content_type_pos = str.find("Content-Type");  // first part
   if ((content_type_pos <= 4) or (content_type_pos == std::string::npos))
+  {
     return false;
+  }
 
   std::string boundary_str =
       str.substr(2, content_type_pos - 4);  // 2 for -- and 2 for CRLF

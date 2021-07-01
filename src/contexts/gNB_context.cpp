@@ -30,8 +30,11 @@
 #include <nlohmann/json.hpp>
 #include "logger.hpp"
 #include "Record.h"
+#include "conversions.hpp"
 using namespace std;
 using namespace oai::amf::model;
+
+extern void msg_str_2_msg_hex(std::string msg, bstring& b);
 bool get_value_string(const nlohmann::json &j, const string & nm, string &value){
 
   Record record;
@@ -181,6 +184,34 @@ sctp_stream_id_t gnb_context::gnb_context_instreams_from_json(nlohmann::json j)
     } 
     Logger::amf_server().error("get_value from json  is error");
 }
+void gnb_context::gnb_context_ue_radio_cap_ind_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "ue_radio_cap_ind")
+        { 
+            string  s  = it_block->at("content");
+            //msg_str_2_msg_hex(s.substr(0, s.length()),ue_radio_cap_ind);
+            unsigned int msg_len = s.length();
+            char* data           = (char*) malloc(msg_len + 1);
+            memset(data, 0, msg_len + 1);
+            memcpy((void*) data, (void*) s.c_str(), msg_len);
+            //printf("data: %s\n", data);
+            uint8_t* msg_hex = (uint8_t*) malloc(msg_len / 2 + 1);
+            conv::ascii_to_hex(msg_hex, (const char*) data);
+            ue_radio_cap_ind = blk2bstr(msg_hex, (msg_len / 2));
+            return ;
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value n2sm from json  is error");
+}
+
 bool gnb_context::gnb_context_from_json(nlohmann::json j)
 {
     //std::shared_ptr<gnb_context> gc1;
@@ -190,7 +221,7 @@ bool gnb_context::gnb_context_from_json(nlohmann::json j)
     ng_state = amf_ng_gnb_state_s(gnb_context_ng_state_from_json(j));
     next_sctp_stream = gnb_context_next_sctp_stream_from_json(j);
     next_sctp_stream = gnb_context_instreams_from_json(j);
-
+    gnb_context_ue_radio_cap_ind_from_json(j);
     //     printf("gnbname-%s\n",gnb_name.c_str());
     // printf("globalgnbid-%d\n",globalRanNodeId);
     // printf("next stream-%d\n",next_sctp_stream);
