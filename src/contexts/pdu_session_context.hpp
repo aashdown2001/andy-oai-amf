@@ -48,6 +48,7 @@ class pdu_session_context {
   bool pdu_session_context_isn2sm_avaliable_from_json(nlohmann::json j);
   bool pdu_session_context_isn1sm_avaliable_from_json(nlohmann::json j);
   std::string pdu_session_context_dnn_from_json(nlohmann::json j);
+  std::string pdu_session_context_supi_from_json(nlohmann::json j);
   std::string pdu_session_context_remote_smf_addr_from_json(nlohmann::json j);
   bool pdu_session_context_smf_available_from_json(nlohmann::json j);
   std::string pdu_session_context_location_from_json(nlohmann::json j);
@@ -74,6 +75,8 @@ class pdu_session_context {
   snssai_t snssai;
   plmn_t plmn;
   std::string smf_context_location;
+
+  std::string supi;
   //15
 };
 #endif

@@ -91,6 +91,12 @@ class amf_n1 {
   void set_guti_2_nas_context(
       const std::string& guti, std::shared_ptr<nas_context> nc);
 
+  bool is_guti_2_nas_context_in_udsf(const std::string& guti);
+  std::shared_ptr<nas_context> guti_2_nas_context_in_udsf(const std::string& guti) const;
+
+  bool is_amf_ue_id_2_nas_context_in_udsf(const long& amf_ue_ngap_id) const;
+  std::shared_ptr<nas_context> amf_ue_id_2_nas_context_in_udsf(const long& amf_ue_ngap_id) const;
+
   mutable std::shared_mutex m_amfueid2nas_context;
   bool is_amf_ue_id_2_nas_context(const long& amf_ue_ngap_id) const;
   std::shared_ptr<nas_context> amf_ue_id_2_nas_context(

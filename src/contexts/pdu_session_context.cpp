@@ -191,7 +191,24 @@ std::string pdu_session_context::pdu_session_context_dnn_from_json(nlohmann::jso
     } 
     Logger::amf_server().error("get_value dnn from json  is error");
 }
-
+std::string pdu_session_context::pdu_session_context_supi_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "supi")
+        { 
+            string  s  = it_block->at("content");
+            return s;
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value dnn from json  is error");
+}
 
 std::string pdu_session_context::pdu_session_context_remote_smf_addr_from_json(nlohmann::json j)
 {
@@ -415,6 +432,7 @@ bool pdu_session_context::pdu_session_context_from_json(nlohmann::json j)
 
   isn1sm_avaliable = pdu_session_context_isn1sm_avaliable_from_json(j);
   dnn = pdu_session_context_dnn_from_json(j);
+  supi = pdu_session_context_supi_from_json(j);
   //remote_smf_addr[0] = pdu_session_context_remote_smf_addr_from_json(j);
   smf_available = pdu_session_context_smf_available_from_json(j);
   location = pdu_session_context_location_from_json(j);

@@ -331,7 +331,9 @@ void amf_app::handle_itti_message(
     }
     
   /**********************   hxs add *******************************/
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + ue_context_key ;
+
+  std::string record_id = "RECORD_ID=\'" + ue_context_key + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
   nlohmann::json udsf_ue_context;
   nlohmann::json  cgi;
   cgi["Content-ID"] = "cgi";
@@ -422,7 +424,8 @@ bool amf_app::generate_5g_guti(
   // uc   = ran_amf_id_2_ue_context(ue_context_key);
   ue_context *uc1 = new ue_context();
   nlohmann::json udsf_response;
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + ue_context_key ;
+  std::string record_id = "RECORD_ID=\'" + ue_context_key + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing gNG context with assoc_id");
     return false;

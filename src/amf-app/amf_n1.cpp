@@ -233,21 +233,55 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind &nas_data_ind) {
   bstring recved_nas_msg = nas_data_ind.nas_msg;
   bstring decoded_plain_msg;
 
-  std::shared_ptr<nas_context> nc;
+  std::shared_ptr<nas_context> nc ;
   if (nas_data_ind.is_guti_valid) {
     std::string guti = nas_data_ind.guti;
+
     if (is_guti_2_nas_context(guti))
+    {
+      is_guti_2_nas_context_in_udsf(guti);
+       printf("--------service -8---\n");
+      nc = guti_2_nas_context_in_udsf(guti);
+
       nc = guti_2_nas_context(guti);
+    }
+    else if(is_guti_2_nas_context_in_udsf(guti))
+    {
+      
+      
+      printf("--------service --99999999999999999999999999----\n");
+        // nc = guti_2_nas_context_in_udsf(guti);
+          nlohmann::json udsf_response; 
+          nc = std::shared_ptr<nas_context>(new nas_context());
+          std::string record_id = "guti=\'" + guti + "\'";
+          std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+          if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response))
+          {
+            Logger::amf_n1().error("No existing nas_context with GUTI %s",guti.c_str());
+            return ;
+          }
+          nc.get()->nas_context_from_json(udsf_response);
+          printf("--------service ------%x\n",nc.get()->security_ctx->ul_count.seq_num);
+          for(int ly=0;ly<32;ly++)
+          {
+            printf("-------------knas_enc--------in amf 1------%x  ",nc.get()->kamf[0][ly]);
+          }
 
-       //TODO HSX 从udsf找是否存在
-
-
-
-    else {
-      Logger::amf_n1().error("No existing nas_context with GUTI %s",
+          printf("\n--------service -----imsi-%s\n",nc.get()->imsi.c_str());
+          
+          if(nc == nullptr)
+          {
+            printf("--------service  nc ----kong 0 !!!!!!!!!!!! ");
+          }
+    }
+    else
+    {
+        Logger::amf_n1().error("No existing nas_context with GUTI %s",
                              nas_data_ind.guti.c_str());
       // return;
     }
+    
+
   } else {
     if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
       nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
@@ -266,6 +300,17 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind &nas_data_ind) {
     return;
   }
   uint8_t ulCount = 0;
+   if(nc == nullptr)
+          {
+            printf("--------service  nc ----kong !!!!!!!!!!!! ");
+          }
+  printf("--------service  nc ----bu kong !!!!!!!!!!!! ");
+
+   if(nc.get() == nullptr)
+          {
+            printf("--------service  nc .get----kong !!!!!!!!!!!! ");
+          }
+  printf("--------service  nc.get ----bu kong !!!!!!!!!!!! ");
   switch (type) {
   case PlainNasMsg: {
     Logger::amf_n1().debug("Received plain NAS message");
@@ -380,7 +425,8 @@ void amf_n1::nas_signalling_establishment_request_handle(
     /**********************   hxs add *******************************/
     string auts;
     octet_stream_2_hex_stream((uint8_t*) bdata(nc.get()->auts), blength(nc.get()->auts), auts);
-    std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+    std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+    std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id ;
     nlohmann::json udsf_nas_context;
     nlohmann::json udsf_response;
     udsf_nas_context["meta"] ["tags"] = {
@@ -399,6 +445,8 @@ void amf_n1::nas_signalling_establishment_request_handle(
                                                   {{"Content-ID", "follow_on_req_pending_ind"},{"Content-Type", "varchar(32)"},{"content",  to_string( nc->follow_on_req_pending_ind)}},
                                                   {{"Content-ID", "ngKsi"},{"Content-Type", "varchar(32)"},{"content", to_string( nc->ngKsi)}},
                                                   
+                                                  {{"Content-ID", "guti"},{"Content-Type", "varchar(32)"},{"content", nc->guti}},
+
                                                   {{"Content-ID", "imsi"},{"Content-Type", "varchar(32)"},{"content", nc->imsi}},
                                                   {{"Content-ID", "mmCapability"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc->mmCapability)}},
                                                   {{"Content-ID", "ueSecurityCaplen"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc->ueSecurityCaplen)}},
@@ -565,7 +613,7 @@ void amf_n1::nas_signalling_establishment_request_handle(
   // dl_count_ctx["seq_num"]=to_string(nc->security_ctx->dl_count.seq_num);
   // security_ctx.update(dl_count);
   // ue_algorithms["_5gs_encryption"]=to_string(nc->security_ctx->ue_algorithms._5gs_encryption);
-  // ue_algorithms["overflow"]=to_string(nc->security_ctx->ue_algorithms._5gs_integrity);
+  // ue_algorithms["_5gs_integrity"]=to_string(nc->security_ctx->ue_algorithms._5gs_integrity);
   // security_ctx.update(ue_algorithms);
   // nas_algs["encryption"]=to_string(nc->security_ctx->nas_algs.encryption);
   // nas_algs["integrity"]=to_string(nc->security_ctx->nas_algs.integrity);
@@ -615,7 +663,11 @@ void amf_n1::nas_signalling_establishment_request_handle(
   case SERVICE_REQUEST: {
     Logger::amf_n1().debug("Received service request message, handling...");
     if(nc != nullptr)
+    {
+      printf("--------service ------%x\n",nc.get()->security_ctx->ul_count.seq_num);
       nc.get()->security_ctx->ul_count.seq_num = ulCount;
+    }
+    printf("--------service --33333----%x\n",nc.get()->security_ctx->ul_count.seq_num);
     service_request_handle(true, nc, ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
   } break;
   case UE_INIT_DEREGISTER: {
@@ -801,7 +853,8 @@ void amf_n1::identity_response_handle(uint32_t ran_ue_ngap_id,
   nc.get()->is_imsi_present = true;
   nc.get()->imsi = supi;
 /***************************hsx add************************/
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+  std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   nlohmann::json udsf_nas_context;
   nlohmann::json udsf_response;
 
@@ -863,6 +916,9 @@ void amf_n1::service_request_handle(bool isNasSig,
                                     std::shared_ptr<nas_context> nc,
                                     uint32_t ran_ue_ngap_id,
                                     long amf_ue_ngap_id, bstring nas) {
+
+
+  printf("---------------stateless-----service-----------\n");
   if (!nc.get()) {
     // service reject
     uint8_t nas[4];
@@ -921,7 +977,8 @@ void amf_n1::service_request_handle(bool isNasSig,
   //***************************stateless
   pdu_session_context *psc1 = new pdu_session_context();
   nlohmann::json udsf_response;
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+  std::string record_id = "RECORD_ID=\'" + supi + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
   bool is_supi_to_pdu_ctx_udsf = amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response);
   if(!is_supi_to_pdu_ctx_udsf){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
@@ -972,8 +1029,8 @@ void amf_n1::service_request_handle(bool isNasSig,
     Authentication_5gaka::derive_kgnb(ulcount, 0x01, kamf, kgnb);
     bstring kgnb_bs = blk2bstr(kgnb, 32);
 
-
-    std::string udsf_put_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+    std::string record_id = "RECORD_ID=\'" + supi + "\'";
+    std::string udsf_put_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
       nlohmann::json udsf_put_pdu_session_context;
     // nlohmann::json udsf_response;
       udsf_put_pdu_session_context["meta"] ["tags"] = {
@@ -1047,8 +1104,8 @@ void amf_n1::service_request_handle(bool isNasSig,
     itti_msg->isn2sm_avaliable = false;
     Logger::amf_n1().error("Cannot get pdu session information");
   }
-
-  std::string udsf_put_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+  record_id = "RECORD_ID=\'" + supi + "\'";
+  std::string udsf_put_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
       nlohmann::json udsf_put_pdu_session_context;
     // nlohmann::json udsf_response;
       udsf_put_pdu_session_context["meta"] ["tags"] = {
@@ -1253,7 +1310,13 @@ void amf_n1::registration_request_handle(bool isNasSig,
       to_be_register_by_new_suci["Content-Type"] = "varchar(32)";
       to_be_register_by_new_suci ["content"] = to_string( nc.get()->to_be_register_by_new_suci);
       udsf_nas_context["blocks"].push_back(to_be_register_by_new_suci);
-    } else if (is_guti_2_nas_context(guti)) {
+    } 
+    // else if(is_guti_2_nas_context_in_udsf(guti))
+    // {
+    //    nc = guti_2_nas_context_in_udsf(guti);
+
+    else if (is_guti_2_nas_context(guti))
+    {
       nc = guti_2_nas_context(guti);
       set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
       supi2amfId[("imsi-" + nc.get()->imsi)] = amf_ue_ngap_id;
@@ -1272,7 +1335,7 @@ void amf_n1::registration_request_handle(bool isNasSig,
       udsf_nas_context["blocks"].push_back(is_current_security_available);
       
       security_ctx["Content-ID"] = "security_ctx";
-      security_ctx["Content-Type"] = "varchar(32)";
+      security_ctx["Content-Type"] = "JSON";
       security_ctx ["content"]["sc_type"] = to_string( nc.get()->security_ctx->sc_type);
       udsf_nas_context["blocks"].push_back(security_ctx);
     } else {
@@ -1355,6 +1418,10 @@ void amf_n1::registration_request_handle(bool isNasSig,
   // Create NAS context
   if (nc.get() == nullptr) {
     // try to get the GUTI -> nas_context
+    // if(is_guti_2_nas_context_in_udsf(guti))
+    // {
+    //    nc = guti_2_nas_context_in_udsf(guti);
+
     if (is_guti_2_nas_context(guti)) {
       nc = guti_2_nas_context(guti);
       set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
@@ -1562,7 +1629,8 @@ void amf_n1::registration_request_handle(bool isNasSig,
   // Run different registration procedure
   
   /**********************hsx add***********************/
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+  std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   
   nlohmann::json udsf_response;
   udsf_nas_context["meta"] ["tags"] = {
@@ -1584,8 +1652,8 @@ void amf_n1::registration_request_handle(bool isNasSig,
   //                                                 {{"Content-ID", "serving_network"},{"Content-Type", "varchar(32)"},{"content",  nc->serving_network}}
   //                                             });
   
-  printf("----------------udsf_nas_context %s---------\n",udsf_nas_context.dump().c_str());
-  amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+  // printf("----------------udsf_nas_context %s---------\n",udsf_nas_context.dump().c_str());
+  // amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
 
   // udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + std::to_string(nc.get()->amf_ue_ngap_id) ;
   // if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
@@ -1691,6 +1759,47 @@ void amf_n1::set_guti_2_nas_context(const std::string &guti,
                                     std::shared_ptr<nas_context> nc) {
   std::shared_lock lock(m_guti2nas_context);
   guti2nas_context[guti] = nc;
+}
+bool amf_n1::is_guti_2_nas_context_in_udsf(const std::string &guti) {
+  printf("-------is_guti_2_nas_context_in_udsf-------------\n");
+  nlohmann::json udsf_response; 
+  std::string record_id = "guti=\'" + guti + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+  return (amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response));
+}
+std::shared_ptr<nas_context> amf_n1::guti_2_nas_context_in_udsf(const std::string &guti) const {
+  printf("-------guti_2_nas_context_in_udsf-------------");
+  nlohmann::json udsf_response; 
+  std::shared_ptr<nas_context> nc = std::shared_ptr<nas_context>(new nas_context());
+  std::string record_id = "guti=\'" + guti + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response))
+  {
+     Logger::amf_n1().error("No existing nas_context with GUTI %s",guti.c_str());
+     return nc;
+  }
+  nc.get()->nas_context_from_json(udsf_response);
+  return nc;
+}
+
+bool amf_n1::is_amf_ue_id_2_nas_context_in_udsf(const long& amf_ue_ngap_id) const {
+  nlohmann::json udsf_response; 
+  std::string record_id = "RECORD_ID=\'" + to_string(amf_ue_ngap_id) + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+  return (amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response));
+}
+std::shared_ptr<nas_context> amf_n1::amf_ue_id_2_nas_context_in_udsf(const long& amf_ue_ngap_id) const {
+  nlohmann::json udsf_response; 
+  std::shared_ptr<nas_context> nc = std::shared_ptr<nas_context>(new nas_context());
+  std::string record_id = "RECORD_ID=\'" + to_string(amf_ue_ngap_id) + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response))
+  {
+     Logger::amf_n1().error("No existing nas_context with amf_ue_ngap_id %s",to_string(amf_ue_ngap_id).c_str());
+     return nc;
+  }
+  nc.get()->nas_context_from_json(udsf_response);
+  return nc;
 }
 
 // to lower layer TASK_N2
@@ -1817,7 +1926,8 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context> &nc) {
     dnt->amf_ue_ngap_id = nc.get()->amf_ue_ngap_id;
     dnt->ran_ue_ngap_id = nc.get()->ran_ue_ngap_id;
     /*************************hsx add**************************/
-    std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+    std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+    std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
     udsf_nas_context["meta"] ["tags"] = {
                                         {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                         {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
@@ -1825,7 +1935,7 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context> &nc) {
     udsf_nas_context["blocks"] = nlohmann::json::array({
                                                 {{"Content-ID", "is_auth_vectors_present"},{"Content-Type", "varchar(32)"},{"content", to_string(nc.get()->is_auth_vectors_present)}}    
                                             });
-    amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+    //amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
     /*************************hsx add**************************/
 
     std::shared_ptr<itti_dl_nas_transport> i = std::shared_ptr<itti_dl_nas_transport>(dnt);
@@ -2114,13 +2224,14 @@ bool amf_n1::authentication_vectors_from_ausf(
     // TODO: error handling
     return false;
   }
- std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+  std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+ std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   
   udsf_nas_context["meta"] ["tags"] = {
                                       {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                       {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
                                       } ;    
-  amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+  //amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
 
   return true;
 }
@@ -2168,30 +2279,6 @@ bool amf_n1::_5g_aka_confirmation_from_ausf(std::shared_ptr<nas_context> &nc,
     unsigned char *kseaf_hex =
         format_string_as_hex(confirmationdataresponse.getKseaf());
     memcpy(nc.get()->_5g_av[0].kseaf, kseaf_hex, 32);
-
-
-    nlohmann::json udsf_nas_context;
-    nlohmann::json udsf_response;
-    nlohmann::json _5g_av = {};
-    nlohmann::json _5g_av_m = {};
-
-    _5g_av["Content-ID"]="_5g_av";
-    _5g_av["Content-Type"]="JSON";
-   
-    _5g_av_m["kseaf"]=to_string(*(nc->_5g_av[0].kseaf));
-    _5g_av["content"].push_back(_5g_av_m);
-    udsf_nas_context["blocks"].push_back(_5g_av);
-
-
- std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
-  
-  udsf_nas_context["meta"] ["tags"] = {
-                                      {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
-                                      {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
-                                      } ;    
-  amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
-
-
     print_buffer("amf_n1", "5G AV: kseaf", nc.get()->_5g_av[0].kseaf, 32);
     free_wrapper((void **)&kseaf_hex);
 
@@ -2202,6 +2289,49 @@ bool amf_n1::_5g_aka_confirmation_from_ausf(std::shared_ptr<nas_context> &nc,
           0x0000); // second parameter: abba
       print_buffer("amf_n1", "kamf", nc.get()->kamf[i], 32);
     }
+
+    nlohmann::json udsf_nas_context;
+    nlohmann::json udsf_response;
+//_5g_av
+    nlohmann::json _5g_av = {};
+    nlohmann::json _5g_av_m = {};
+    _5g_av["Content-ID"]="_5g_av";
+    _5g_av["Content-Type"]="JSON";
+   for(int i=0;i < MAX_5GS_AUTH_VECTORS;i++)
+    {
+      _5g_av_m["avType"]=to_string(nc->_5g_av[i].avType);
+      _5g_av_m["rand"]=to_string(*(nc->_5g_av[i].rand));
+      _5g_av_m["hxres"]=to_string(*nc->_5g_av[i].hxres);
+      _5g_av_m["autn"]=to_string(*nc->_5g_av[i].autn);
+      _5g_av_m["hxresStar"]=to_string(*nc->_5g_av[i].hxresStar);
+      _5g_av_m["kseaf"]=to_string(*nc->_5g_av[i].kseaf);
+      _5g_av["content"].push_back(_5g_av_m);
+    }
+    udsf_nas_context["blocks"].push_back(_5g_av);
+
+//kamf
+    nlohmann::json kamf = {};
+    nlohmann::json kamf_m = {};
+    kamf["Content-ID"]="kamf";
+    kamf["Content-Type"]="JSON";
+    for(int i=0;i < MAX_5GS_AUTH_VECTORS;i++){
+      for(int j=0;j<32;j++)
+      {
+        kamf_m=to_string(nc.get()->kamf[i][j]);
+      }
+    kamf["content"].push_back(kamf_m);
+    }
+    udsf_nas_context["blocks"].push_back(kamf);
+
+
+    std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+    std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id  ;
+    udsf_nas_context["meta"] ["tags"] = {
+                                      {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
+                                      {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
+                                      } ;    
+    //amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+
   } catch (nlohmann::json::exception &e) {
     Logger::amf_n1().info("Could not get Json content from AUSF response");
     // TODO: error handling
@@ -2263,13 +2393,14 @@ bool amf_n1::authentication_vectors_generator_in_ausf(
     _5g_av["content"].push_back(_5g_av_m);
   }
   udsf_nas_context["blocks"].push_back(_5g_av);
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+  std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id;
   
   udsf_nas_context["meta"] ["tags"] = {
                                       {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                       {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
                                       } ;                       
-  amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+  //amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
 
   return true;
 }
@@ -2519,13 +2650,13 @@ void amf_n1::handle_auth_vector_successful_result(
   ngKsi["Content-Type"] = "varchar(32)";
   ngKsi["content"] = to_string(nc.get()->ngKsi);
   udsf_nas_context["blocks"].push_back(ngKsi);
-
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+  std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   udsf_nas_context["meta"] ["tags"] = {
                                         {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                         {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
                                         } ;    
-  amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+ // amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
   
   /************************hsx add***************************/
   }
@@ -2600,13 +2731,14 @@ bool amf_n1::start_authentication_procedure(std::shared_ptr<nas_context> nc,
                (uint8_t *)bdata(b), blength(b));
   Logger::amf_n1().debug("amf_ue_ngap_id 0x%x", nc.get()->amf_ue_ngap_id);
   
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+  std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   nlohmann::json udsf_ue_nas_context;
   udsf_nas_context["meta"] ["tags"] = {
                                       {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                       {"from_nf",nlohmann::json::array({"AMF_1234"})}
                                       } ;
-amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+//amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
   // udsf_ue_nas_context["blocks"] =; 
   //_5g_av.rand
   //nc.get()->_5g_av[0].autn
@@ -2666,10 +2798,10 @@ void amf_n1::authentication_response_handle(uint32_t ran_ue_ngap_id,
   // Stop timer? common procedure finished!
   nc.get()->is_common_procedure_for_authentication_running = false;
 
- is_common_procedure_for_authentication_running["Content-ID"] = "is_common_procedure_for_authentication_running";
-  is_common_procedure_for_authentication_running["Content-Type"] = "varchar(32)";
-  is_common_procedure_for_authentication_running["content"] = to_string(nc.get()->is_common_procedure_for_authentication_running);
-  udsf_nas_context["blocks"].push_back(is_common_procedure_for_authentication_running);
+  // is_common_procedure_for_authentication_running["Content-ID"] = "is_common_procedure_for_authentication_running";
+  // is_common_procedure_for_authentication_running["Content-Type"] = "varchar(32)";
+  // is_common_procedure_for_authentication_running["content"] = to_string(nc.get()->is_common_procedure_for_authentication_running);
+  // udsf_nas_context["blocks"].push_back(is_common_procedure_for_authentication_running);
 
   // MM state: COMMON-PROCEDURE-INITIATED -> DEREGISTRED
   // Decode AUTHENTICATION RESPONSE message
@@ -2716,13 +2848,14 @@ void amf_n1::authentication_response_handle(uint32_t ran_ue_ngap_id,
           isAuthOk = false;
       }
     }
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("ue_nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
-  nlohmann::json udsf_ue_nas_context;
-  udsf_ue_nas_context["meta"] ["tags"] = {
-                                      {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
-                                      {"from_nf",nlohmann::json::array({"AMF_1234"})}
-                                      } ;
-   amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+  // std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+  // std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("ue_nas_context/records/") +record_id ;
+  // nlohmann::json udsf_ue_nas_context;
+  // udsf_ue_nas_context["meta"] ["tags"] = {
+  //                                     {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
+  //                                     {"from_nf",nlohmann::json::array({"AMF_1234"})}
+  //                                     } ;
+  //  amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
   }
   // If success, start SMC procedure; else if failure, response registration
   // reject message with corresponding cause
@@ -2799,12 +2932,13 @@ void amf_n1::authentication_failure_handle(uint32_t ran_ue_ngap_id,
   auts_json["content"] = auts_m;            
   udsf_nas_context["blocks"].push_back(auts_json); 
 
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+ std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id;
   udsf_nas_context["meta"] ["tags"] = {
                                         {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                         {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
                                         } ;    
-  amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+  //amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
 
 /*********************************hsx add**********************************/
     printf("Received auts: 0x ");
@@ -2886,10 +3020,41 @@ bool amf_n1::start_security_mode_control_procedure(
     security_context_is_new = true;
     nc.get()->is_current_security_available = true;
 
-     is_current_security_available["Content-ID"] = "is_current_security_available";
-      is_current_security_available["Content-Type"] = "varchar(32)";
-      is_current_security_available ["content"] = to_string( nc.get()->is_current_security_available);
-      udsf_nas_context["blocks"].push_back(is_current_security_available);
+    is_current_security_available["Content-ID"] = "is_current_security_available";
+    is_current_security_available["Content-Type"] = "varchar(32)";
+    is_current_security_available ["content"] = to_string( nc.get()->is_current_security_available);
+    udsf_nas_context["blocks"].push_back(is_current_security_available);
+
+    // nlohmann::json security_ctx;
+    // nlohmann::json ue_algorithms;
+    // nlohmann::json nas_algs;
+    // nlohmann::json ul_count;
+    // nlohmann::json dl_count;
+    // security_ctx["Content-ID"] = "security_ctx";
+    // security_ctx["Content-Type"] = "JSON";
+    // security_ctx["content"] = {};
+    // security_ctx["content"]["vector_pointer"] = to_string(nc->security_ctx->vector_pointer);
+    // security_ctx["content"]["sc_type"] = to_string(nc->security_ctx->sc_type);
+    // security_ctx["content"]["ngksi"] = to_string(nc->security_ctx->ngksi);
+    // security_ctx["content"]["knas_enc"] = to_string(*nc->security_ctx->knas_enc);
+    // security_ctx["content"]["knas_int"] = to_string(*nc->security_ctx->knas_int);
+    // ul_count["spare"]=to_string(nc->security_ctx->ul_count.spare);
+    // ul_count["overflow"]=to_string(nc->security_ctx->ul_count.overflow);
+    // ul_count["seq_num"]=to_string(nc->security_ctx->ul_count.seq_num);
+    // security_ctx.push_back(ul_count);
+    // dl_count["spare"]=to_string(nc->security_ctx->dl_count.spare);
+    // dl_count["overflow"]=to_string(nc->security_ctx->dl_count.overflow);
+    // dl_count["seq_num"]=to_string(nc->security_ctx->dl_count.seq_num);
+    // security_ctx.push_back(dl_count);
+    // ue_algorithms["_5gs_encryption"]=to_string(nc->security_ctx->ue_algorithms._5gs_encryption);
+    // ue_algorithms["overflow"]=to_string(nc->security_ctx->ue_algorithms._5gs_integrity);
+    // security_ctx.push_back(ue_algorithms);
+    // nas_algs["encryption"]=to_string(nc->security_ctx->nas_algs.encryption);
+    // nas_algs["integrity"]=to_string(nc->security_ctx->nas_algs.integrity);
+    // security_ctx.push_back(nas_algs);
+    // udsf_nas_context["blocks"].push_back(security_ctx);
+
+
   }
 
   SecurityModeCommand *smc = new SecurityModeCommand();
@@ -2907,12 +3072,14 @@ bool amf_n1::start_security_mode_control_procedure(
     Logger::amf_n1().error("smc->ie_ue_security_capability is NULL");
   }
 
- std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+
+  std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   udsf_nas_context["meta"] ["tags"] = {
                                         {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                         {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
                                         } ;    
-  amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+  //amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
 
 
 
@@ -3086,6 +3253,7 @@ void amf_n1::security_mode_complete_handle(uint32_t ran_ue_ngap_id,
     set_5gmm_state(nc, _5GMM_REGISTERED);
 
     set_guti_2_nas_context(guti, nc);
+    nc.get()->guti = guti;
     nc.get()->is_common_procedure_for_security_mode_control_running = false;
     nlohmann::json is_common_procedure_for_security_mode_control_running;
     is_common_procedure_for_security_mode_control_running["Content-ID"] = "is_common_procedure_for_security_mode_control_running";
@@ -3093,7 +3261,11 @@ void amf_n1::security_mode_complete_handle(uint32_t ran_ue_ngap_id,
     is_common_procedure_for_security_mode_control_running["content"] = to_string(nc.get()->is_common_procedure_for_security_mode_control_running);
     udsf_nas_context["blocks"].push_back(is_common_procedure_for_security_mode_control_running);
 
-
+    nlohmann::json guti_udsf;
+    guti_udsf["Content-ID"] = "guti_udsf";
+    guti_udsf["Content-Type"] = "varchar(32)";
+    guti_udsf["content"] = nc.get()->guti;
+    udsf_nas_context["blocks"].push_back(guti_udsf);
 
     nas_secu_ctx *secu = nc.get()->security_ctx;
     // protect nas message
@@ -3192,6 +3364,265 @@ void amf_n1::registration_complete_handle(uint32_t ran_ue_ngap_id,
     return;
   }
   nas_secu_ctx *secu = nc.get()->security_ctx;
+
+
+//向UDSF 同步全部NAS消息
+/**********************   hxs add *******************************/
+    string auts;
+    octet_stream_2_hex_stream((uint8_t*) bdata(nc.get()->auts), blength(nc.get()->auts), auts);
+    std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
+    std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id ;
+    nlohmann::json udsf_nas_context;
+    nlohmann::json udsf_response;
+    udsf_nas_context["meta"] ["tags"] = {
+                                       {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
+                                       {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
+                                       } ;    
+    udsf_nas_context["blocks"] = nlohmann::json::array({
+                                                  {{"Content-ID", "ctx_avaliability_ind"},{"Content-Type", "varchar(32)"},{"content", to_string(nc.get()->ctx_avaliability_ind)}},
+                                                  {{"Content-ID", "is_stacs_available"},{"Content-Type", "varchar(32)"},{"content", to_string(nc.get()->is_stacs_available)}},
+                                                  {{"Content-ID", "amf_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", to_string(nc.get()->amf_ue_ngap_id)}},
+                                                  {{"Content-ID", "ran_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", to_string(nc.get()->ran_ue_ngap_id)}},
+                                                  {{"Content-ID", "nas_status"},{"Content-Type", "varchar(32)"},{"content", nc.get()->nas_status }},
+                                                  {{"Content-ID", "_5gmm_state"},{"Content-Type", "varchar(32)"},{"content", to_string( nc.get()->_5gmm_state)}},
+                                                  
+                                                  {{"Content-ID", "registration_type"},{"Content-Type", "varchar(32)"},{"content", to_string( nc.get()->registration_type)}},
+                                                  {{"Content-ID", "follow_on_req_pending_ind"},{"Content-Type", "varchar(32)"},{"content",  to_string( nc.get()->follow_on_req_pending_ind)}},
+                                                  {{"Content-ID", "ngKsi"},{"Content-Type", "varchar(32)"},{"content", to_string( nc.get()->ngKsi)}},
+                                                  
+                                                   {{"Content-ID", "guti"},{"Content-Type", "varchar(32)"},{"content", nc.get()->guti}},
+                                                  {{"Content-ID", "imsi"},{"Content-Type", "varchar(32)"},{"content", nc->imsi}},
+                                                  {{"Content-ID", "mmCapability"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->mmCapability)}},
+                                                  {{"Content-ID", "ueSecurityCaplen"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->ueSecurityCaplen)}},
+                                                  {{"Content-ID", "ueSecurityCapEnc"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->ueSecurityCapEnc)}},
+                                                  {{"Content-ID", "ueSecurityCapInt"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->ueSecurityCapInt)}},
+                                                  {{"Content-ID", "ueSecurityCapEEnc"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->ueSecurityCapEEnc)}},
+                                                  {{"Content-ID", "ueSecurityCapEInt"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->ueSecurityCapEInt)}},
+                                                  {{"Content-ID", "serving_network"},{"Content-Type", "varchar(32)"},{"content",  nc.get()->serving_network}},
+                                                  {{"Content-ID", "auts"},{"Content-Type", "varchar(32)"},{"content",  auts}},
+                                                  
+                                                  {{"Content-ID", "is_specific_procedure_for_registration_running"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_specific_procedure_for_registration_running)}},
+                                                  {{"Content-ID", "is_specific_procedure_for_deregistration_running"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_specific_procedure_for_deregistration_running)}},
+                                                  {{"Content-ID", "is_specific_procedure_for_eCell_inactivity_running"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_specific_procedure_for_eCell_inactivity_running)}},
+                                                  {{"Content-ID", "is_common_procedure_for_authentication_running"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_common_procedure_for_authentication_running)}},
+                                                  {{"Content-ID", "is_common_procedure_for_identification_running"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_common_procedure_for_identification_running)}},
+                                                  {{"Content-ID", "is_common_procedure_for_security_mode_control_running"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_common_procedure_for_security_mode_control_running)}},
+                                                  {{"Content-ID", "is_common_procedure_for_nas_transport_running"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_common_procedure_for_nas_transport_running)}},
+                                                  
+                                                  {{"Content-ID", "Href"},{"Content-Type", "varchar(1024)"},{"content",  nc.get()->Href}},
+                                                  {{"Content-ID", "is_current_security_available"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_current_security_available)}},
+                                                  {{"Content-ID", "registration_attempt_counter"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->registration_attempt_counter)}},
+                                                  
+                                                  {{"Content-ID", "is_imsi_present"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_imsi_present)}},
+                                                  {{"Content-ID", "is_5g_guti_present"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_5g_guti_present)}},
+                                                  {{"Content-ID", "is_auth_vectors_present"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_auth_vectors_present)}},
+                                                  {{"Content-ID", "to_be_register_by_new_suci"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->to_be_register_by_new_suci)}},
+                                              });
+   // std::vector<nas::SNSSAI_t> requestedNssai
+    nlohmann::json requestedNssai = {};
+    nlohmann::json requestedNssai_m = {};
+    requestedNssai["Content-ID"]="requestedNssai";
+    requestedNssai["Content-Type"]="JSON";
+    requestedNssai["content"] = {};
+    for(int i=0;i<nc.get()->requestedNssai.size();i++)
+      {
+       requestedNssai_m["sst"]=to_string(nc.get()->requestedNssai[i].sst);
+       requestedNssai_m["sd"]=to_string(nc.get()->requestedNssai[i].sd);
+       requestedNssai_m["mHplmnSst"]=to_string(nc.get()->requestedNssai[i].mHplmnSst);
+       requestedNssai_m["mHplmnSd"]=to_string(nc.get()->requestedNssai[i].mHplmnSd);
+       requestedNssai["content"].push_back(requestedNssai_m);
+
+      }
+    udsf_nas_context["blocks"].push_back(requestedNssai);
+
+//auc_vector_t _vector[MAX_5GS_AUTH_VECTORS]
+
+    nlohmann::json _vector = {};
+    nlohmann::json _vector_m = {};
+    _vector["Content-ID"]="_vector";
+    _vector["Content-Type"]="JSON";
+   for(int i=0;i < MAX_5GS_AUTH_VECTORS;i++)
+    {
+      _vector_m["rand_new"]=to_string(nc.get()->_vector[i].rand_new);
+      _vector_m["rand"]=to_string(*(nc.get()->_vector[i].rand));
+      _vector_m["xres"]=to_string(*nc.get()->_vector[i].xres);
+      _vector_m["autn"]=to_string(*nc.get()->_vector[i].autn);
+      _vector_m["kasme"]=to_string(*nc.get()->_vector[i].kasme);
+      _vector["content"].push_back(_vector_m);
+
+    }
+    udsf_nas_context["blocks"].push_back(_vector);
+
+//_5g_he_av
+    nlohmann::json _5g_he_av = {};
+    nlohmann::json _5g_he_av_m = {};
+    _5g_he_av["Content-ID"]="_5g_he_av";
+    _5g_he_av["Content-Type"]="JSON";
+   for(int i=0;i < MAX_5GS_AUTH_VECTORS;i++)
+    {
+      _5g_he_av_m["avType"]=to_string(nc.get()->_5g_he_av[i].avType);
+      _5g_he_av_m["rand"]=to_string(*(nc.get()->_5g_he_av[i].rand));
+      _5g_he_av_m["xres"]=to_string(*nc.get()->_5g_he_av[i].xres);
+      _5g_he_av_m["autn"]=to_string(*nc.get()->_5g_he_av[i].autn);
+      _5g_he_av_m["xresStar"]=to_string(*nc.get()->_5g_he_av[i].xresStar);
+      _5g_he_av_m["kausf"]=to_string(*nc.get()->_5g_he_av[i].kausf);
+      _5g_he_av["content"].push_back(_5g_he_av_m);
+    }
+    udsf_nas_context["blocks"].push_back(_5g_he_av);
+
+//_5g_av
+    nlohmann::json _5g_av = {};
+    nlohmann::json _5g_av_m = {};
+    _5g_av["Content-ID"]="_5g_av";
+    _5g_av["Content-Type"]="JSON";
+   for(int i=0;i < MAX_5GS_AUTH_VECTORS;i++)
+    {
+      _5g_av_m["avType"]=to_string(nc.get()->_5g_av[i].avType);
+      _5g_av_m["rand"]=to_string(*(nc.get()->_5g_av[i].rand));
+      _5g_av_m["hxres"]=to_string(*nc.get()->_5g_av[i].hxres);
+      _5g_av_m["autn"]=to_string(*nc.get()->_5g_av[i].autn);
+      _5g_av_m["hxresStar"]=to_string(*nc.get()->_5g_av[i].hxresStar);
+      _5g_av_m["kseaf"]=to_string(*nc.get()->_5g_av[i].kseaf);
+      _5g_av["content"].push_back(_5g_av_m);
+    }
+    udsf_nas_context["blocks"].push_back(_5g_av);
+
+//kamf
+    nlohmann::json kamf = {};
+    nlohmann::json kamf_m = {};
+    kamf["Content-ID"]="kamf";
+    kamf["Content-Type"]="JSON";
+    // for(int i=0;i < MAX_5GS_AUTH_VECTORS;i++){
+    //   for(int j=0;j<32;j++)
+    //   {
+    //     kamf_m=to_string(nc.get()->kamf[i][j]);
+    //     printf("--------------kamf_m =========== %s\n",kamf_m.dump().c_str());
+    //   }
+    // kamf["content"].push_back(kamf_m);
+    // }
+    string  kamf_str;
+    octet_stream_2_hex_stream(nc.get()->kamf[0],32,kamf_str);
+    kamf["content"] = kamf_str;
+    udsf_nas_context["blocks"].push_back(kamf);
+    printf("--------------kamf =========== %s\n",kamf_str.c_str());
+
+
+//security_context_t _security和nas_secu_ctx* security_ctx
+  nlohmann::json _security = {};
+  nlohmann::json ul_count = {};
+  nlohmann::json dl_count = {};
+  nlohmann::json capability = {};
+  nlohmann::json selected_algorithms = {};
+  _security["Content-ID"] = "_security";
+  _security["Content-Type"] = "JSON";
+  _security["content"]["vector_index"] = to_string(nc.get()->_security.vector_index);
+  _security["content"]["knas_enc"] = to_string(*nc.get()->_security.knas_enc);
+  _security["content"]["knas_int"] = to_string(*nc.get()->_security.knas_int);
+  _security["content"]["activated"] = to_string(nc.get()->_security.activated);
+  ul_count["spare"]=to_string(nc.get()->_security.ul_count.spare);
+  ul_count["overflow"]=to_string(nc.get()->_security.ul_count.overflow);
+  ul_count["seq_num"]=to_string(nc.get()->_security.ul_count.seq_num);
+  _security.update(ul_count);
+  dl_count["spare"]=to_string(nc.get()->_security.dl_count.spare);
+  dl_count["overflow"]=to_string(nc.get()->_security.dl_count.overflow);
+  dl_count["seq_num"]=to_string(nc.get()->_security.dl_count.seq_num);
+  _security.update(dl_count);
+  capability["eps_encryption"]=to_string(nc.get()->_security.capability.eps_encryption);
+  capability["eps_integrity"]=to_string(nc.get()->_security.capability.eps_integrity);
+  capability["umts_encryption"]=to_string(nc.get()->_security.capability.umts_encryption);
+  capability["umts_integrity"]=to_string(nc.get()->_security.capability.umts_integrity);
+  capability["gprs_encryption"]=to_string(nc.get()->_security.capability.gprs_encryption);
+  capability["umts_present"]=to_string(nc.get()->_security.capability.umts_present);
+  capability["gprs_present"]=to_string(nc.get()->_security.capability.gprs_present);
+  _security.update(capability);
+  selected_algorithms["encryption"]=to_string(nc.get()->_security.selected_algorithms.encryption);
+  selected_algorithms["integrity"]=to_string(nc.get()->_security.selected_algorithms.encryption);
+  _security.update(selected_algorithms);
+  udsf_nas_context["blocks"].push_back(_security);
+
+ nlohmann::json security_ctx;
+  nlohmann::json ue_algorithms;
+  nlohmann::json nas_algs;
+  nlohmann::json vector_pointer;
+  nlohmann::json sc_type;
+  nlohmann::json ngksi;
+  nlohmann::json knas_enc;
+  nlohmann::json knas_int;
+  // nlohmann::json ul_count;
+  // nlohmann::json dl_count;
+  security_ctx["Content-ID"] = "security_ctx";
+  security_ctx["Content-Type"] = "JSON";
+  security_ctx["content"] = {};
+
+  vector_pointer["Content-ID"] = "vector_pointer";
+  vector_pointer["Content-Type"] = "varchar(32)";
+  vector_pointer["content"]=to_string(nc.get()->security_ctx->vector_pointer);
+  security_ctx["content"].push_back(vector_pointer);
+
+  sc_type["Content-ID"] = "sc_type";
+  sc_type["Content-Type"] = "varchar(32)";
+  sc_type["content"]=to_string(nc.get()->security_ctx->sc_type);
+  security_ctx["content"].push_back(sc_type);
+
+  ngksi["Content-ID"] = "ngksi";
+  ngksi["Content-Type"] = "varchar(32)";
+  ngksi["content"]=to_string(nc.get()->security_ctx->ngksi);
+  security_ctx["content"].push_back(ngksi);
+
+  knas_enc["Content-ID"] = "knas_enc";
+  knas_enc["Content-Type"] = "varchar(32)";
+  string  knas_enc_str;
+  octet_stream_2_hex_stream(nc.get()->security_ctx->knas_enc,AUTH_KNAS_INT_SIZE,knas_enc_str);
+  printf("-------------knas_enc string--------in amf 1------%s \n",knas_enc_str.c_str());
+    for(int ly=0;ly<16;ly++)
+  {
+    printf("-------------knas_enc--------in amf 1------%x \n",nc.get()->security_ctx->knas_enc[ly]);
+  }
+  knas_enc["content"]=knas_enc_str;
+  security_ctx["content"].push_back(knas_enc);
+
+  knas_int["Content-ID"] = "knas_int";
+  knas_int["Content-Type"] = "varchar(32)";
+  //knas_int["content"]=to_string(*nc.get()->security_ctx->knas_int);
+  string  knas_int_str;
+  octet_stream_2_hex_stream(nc.get()->security_ctx->knas_int,AUTH_KNAS_INT_SIZE,knas_int_str);
+  printf("-------------knas_int string--------in amf 1------%s \n",knas_int_str.c_str());
+    for(int ly=0;ly<16;ly++)
+  {
+    printf("-------------knas_int--------in amf 1------%x \n",nc.get()->security_ctx->knas_int[ly]);
+  }
+  knas_int["content"]=knas_int_str;
+  security_ctx["content"].push_back(knas_int);
+
+  
+  ul_count["Content-ID"] = "ul_count";
+  ul_count["Content-Type"] = "JSON";
+  ul_count["spare"]=to_string(nc.get()->security_ctx->ul_count.spare);
+  ul_count["overflow"]=to_string(nc.get()->security_ctx->ul_count.overflow);
+  ul_count["seq_num"]=to_string(nc.get()->security_ctx->ul_count.seq_num);
+  security_ctx["content"].push_back(ul_count);
+  dl_count["Content-ID"] = "dl_count";
+  dl_count["Content-Type"] = "JSON";
+  dl_count["spare"]=to_string(nc.get()->security_ctx->dl_count.spare);
+  dl_count["overflow"]=to_string(nc.get()->security_ctx->dl_count.overflow);
+  dl_count["seq_num"]=to_string(nc.get()->security_ctx->dl_count.seq_num);
+  security_ctx["content"].push_back(dl_count);
+  ue_algorithms["Content-ID"] = "ue_algorithms";
+  ue_algorithms["Content-Type"] = "JSON";
+  ue_algorithms["_5gs_encryption"]=to_string(nc.get()->security_ctx->ue_algorithms._5gs_encryption);
+  ue_algorithms["_5gs_integrity"]=to_string(nc.get()->security_ctx->ue_algorithms._5gs_integrity);
+  security_ctx["content"].push_back(ue_algorithms);
+  nas_algs["Content-ID"] = "nas_algs";
+  nas_algs["Content-Type"] = "JSON";
+  nas_algs["encryption"]=to_string(nc.get()->security_ctx->nas_algs.encryption);
+  nas_algs["integrity"]=to_string(nc.get()->security_ctx->nas_algs.integrity);
+  security_ctx["content"].push_back(nas_algs);
+
+  udsf_nas_context["blocks"].push_back(security_ctx);
+
+  amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+
+    /**********************   hxs add *******************************/
   // protect nas message
   bstring protectedNas;
   encode_nas_message_protected(secu, false, INTEGRITY_PROTECTED_AND_CIPHERED,
@@ -3759,7 +4190,8 @@ void amf_n1::run_mobility_registration_update_procedure(
   //***************************stateless
   pdu_session_context *psc1 = new pdu_session_context();
   nlohmann::json udsf_response;
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+   std::string record_id = "RECORD_ID=\'" + supi+ "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
     return;
@@ -3867,7 +4299,8 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   //***************************stateless
   pdu_session_context *psc1 = new pdu_session_context();
   nlohmann::json udsf_response;
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+   std::string record_id = "RECORD_ID=\'" +supi+ "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
   }
@@ -3972,7 +4405,8 @@ void amf_n1::run_periodic_registration_update_procedure(
   //***************************stateless
   pdu_session_context *psc1 = new pdu_session_context();
   nlohmann::json udsf_response;
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + supi ;
+   std::string record_id = "RECORD_ID=\'" +supi+ "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
   }
@@ -4022,15 +4456,15 @@ void amf_n1::set_5gmm_state(std::shared_ptr<nas_context> nc,
   _5gmm_state["content"] = to_string(nc.get()->_5gmm_state);
   udsf_nas_context["blocks"].push_back(_5gmm_state);
 
-
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+ std::string record_id = "RECORD_ID=\'" +to_string(nc.get()->amf_ue_ngap_id)+ "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id;
   
   udsf_nas_context["meta"] ["tags"] = {
                                       {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                       {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
                                       } ;    
 
-  amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
+  //amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
   /*****************************hsx add****************************/
   // TODO:
 }

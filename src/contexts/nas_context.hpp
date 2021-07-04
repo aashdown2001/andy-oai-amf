@@ -65,12 +65,65 @@ class nas_context {
  public:
   nas_context();
   ~nas_context();
+  //
+  //ctx_avaliability_ind = true;
+
+  // nc.get()->is_imsi_present = true;
+  // nc.get()->imsi = supi;
+//nc.get()->imsi = supi;
+
   bool nas_context_from_json(nlohmann::json j);
-  uint32_t nas_context_ran_ue_ngap_id_from_json(nlohmann::json j);
-  long nas_context_amf_ue_ngap_id_from_json(nlohmann::json j);
+  
+
   bool nas_context_ctx_avaliability_ind_from_json(nlohmann::json j);
+  bool nas_context_is_stacs_available_from_json(nlohmann::json j);
+  long nas_context_amf_ue_ngap_id_from_json(nlohmann::json j);
+  uint32_t nas_context_ran_ue_ngap_id_from_json(nlohmann::json j);
   std::string nas_context_nas_status_from_json(nlohmann::json j);
+  int nas_context__5gmm_state_from_json(nlohmann::json j);
+  uint8_t nas_context_registration_type_from_json(nlohmann::json j);
+  bool nas_context_follow_on_req_pending_ind_from_json(nlohmann::json j);
+  uint8_t nas_context_ngKsi_from_json(nlohmann::json j);
+  std::string nas_context_imsi_from_json(nlohmann::json j);  //ok
+
+
+//  uint8_t mmCapability;
+//   uint8_t ueSecurityCaplen;
+//   uint8_t ueSecurityCapEnc;
+//   uint8_t ueSecurityCapInt;
+//   uint8_t ueSecurityCapEEnc;
+//   uint8_t ueSecurityCapEInt;
+
+  //void nas_context_requestedNssai_from_json(nlohmann::json j);
   std::string nas_context_serving_network_from_json(nlohmann::json j);
+  void nas_context_auts_from_json(nlohmann::json j);
+  bool nas_context_is_specific_procedure_for_registration_running_from_json(nlohmann::json j);
+  bool nas_context_is_specific_procedure_for_deregistration_running_from_json(nlohmann::json j);
+  bool nas_context_is_specific_procedure_for_eCell_inactivity_running_from_json(nlohmann::json j);
+  bool nas_context_is_common_procedure_for_authentication_running_from_json(nlohmann::json j);
+  bool nas_context_is_common_procedure_for_identification_running_from_json(nlohmann::json j);
+  bool nas_context_is_common_procedure_for_security_mode_control_running_from_json(nlohmann::json j);
+  bool nas_context_is_common_procedure_for_nas_transport_running_from_json(nlohmann::json j);
+  void nas_context__vector_from_json(nlohmann::json j);
+  void nas_context__5g_he_av_from_json(nlohmann::json j);
+  void nas_context__5g_av_from_json(nlohmann::json j);
+  std::string nas_context_Href_from_json(nlohmann::json j);
+  void nas_context_kamf_from_json(nlohmann::json j);
+  void nas_context__security_from_json(nlohmann::json j);
+  void nas_context_security_ctx_from_json(nlohmann::json j);
+  bool nas_context_is_current_security_available_from_json(nlohmann::json j);
+  int nas_context_registration_attempt_counter_from_json(nlohmann::json j);
+
+  bool nas_context_is_imsi_present_from_json(nlohmann::json j);
+  bool nas_context_is_5g_guti_present_from_json(nlohmann::json j);
+  bool nas_context_is_auth_vectors_present_from_json(nlohmann::json j);
+  bool nas_context_to_be_register_by_new_suci_from_json(nlohmann::json j);
+  std::string nas_context_guti_from_json(nlohmann::json j);
+
+
+  
+
+
   bool ctx_avaliability_ind;
   bool is_stacs_available;
   long amf_ue_ngap_id;
@@ -124,6 +177,9 @@ class nas_context {
   bool is_5g_guti_present;
   bool is_auth_vectors_present;
   bool to_be_register_by_new_suci;
+
+  std::string guti ;
+
 };
 
 #endif
