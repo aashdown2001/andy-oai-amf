@@ -75,6 +75,7 @@ class itti_nsmf_pdusession_update_sm_context : public itti_msg_n11 {
   bstring n2sm;
   bool is_n2sm_set;
   std::string n2sm_info_type;
+  long amf_ue_ngap_id : 40;
 };
 
 class itti_nsmf_pdusession_release_sm_context : public itti_msg_n11 {

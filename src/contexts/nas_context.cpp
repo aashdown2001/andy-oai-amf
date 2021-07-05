@@ -582,8 +582,8 @@ bool nas_context::nas_context_from_json(nlohmann::json j)
 {
 //   ctx_avaliability_ind = nas_context_ctx_avaliability_ind_from_json(j);
 //   is_stacs_available = nas_context_is_stacs_available_from_json(j);
-//   amf_ue_ngap_id = nas_context_amf_ue_ngap_id_from_json(j);
-//   ran_ue_ngap_id = nas_context_ran_ue_ngap_id_from_json(j);
+   amf_ue_ngap_id = nas_context_amf_ue_ngap_id_from_json(j);
+   ran_ue_ngap_id = nas_context_ran_ue_ngap_id_from_json(j);
 //   nas_status = nas_context_nas_status_from_json(j);
 //  _5gmm_state = nas_context__5gmm_state_from_json( j);
 //   registration_type = nas_context_registration_type_from_json(j);

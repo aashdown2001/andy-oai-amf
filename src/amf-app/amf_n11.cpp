@@ -167,8 +167,25 @@ void amf_n11::handle_itti_message(
   std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
   //***************************stateless
   nlohmann::json udsf_response;
-  std::string record_id = "pdu_session_id=\'" + to_string(itti_msg.pdu_session_id)   + "\'";
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+  std::shared_ptr<nas_context> nc = std::shared_ptr<nas_context>(new nas_context());
+  std::string record_id_nas = "amf_ue_ngap_id=\'" + to_string(itti_msg.amf_ue_ngap_id) + "\'";
+  std::string udsf_url_nas = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id_nas ;
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url_nas,"","GET",udsf_response)){
+    Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
+    return ;
+  }
+  else{
+     Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+      nc.get()->nas_context_from_json(udsf_response);
+  }
+  std::string supi ="imsi-" + nc.get()->imsi ;
+  Logger::amf_n11().debug(
+      "Send PDU Session Update SM Context Request to SMF (SUPI %s, PDU Session "
+      "ID %d)",
+      supi.c_str(), itti_msg.pdu_session_id);
+
+  std::string record_id = "RECORD_ID=\'" +supi  + "\'";
+  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
     return ;
@@ -182,12 +199,8 @@ void amf_n11::handle_itti_message(
   // if (amf_n1_inst->is_amf_ue_id_2_nas_context_in_udsf(psc.get()->amf_ue_ngap_id))
   //     nc = amf_n1_inst->amf_ue_id_2_nas_context_in_udsf(psc.get()->amf_ue_ngap_id);
 
-  std::string supi =psc.get()->supi;
-   Logger::amf_n11().debug(
-      "Send PDU Session Update SM Context Request to SMF (SUPI %s, PDU Session "
-      "ID %d)",
-      supi.c_str(), itti_msg.pdu_session_id);
-
+  
+   
   //***************************stateless
 
   // if (is_supi_to_pdu_ctx(supi)) {
@@ -256,7 +269,7 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
 
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";
   std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
-  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response) || udsf_response == nullptr){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
     psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
   }

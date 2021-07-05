@@ -239,10 +239,6 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind &nas_data_ind) {
 
     if (is_guti_2_nas_context(guti))
     {
-      is_guti_2_nas_context_in_udsf(guti);
-       printf("--------service -8---\n");
-      nc = guti_2_nas_context_in_udsf(guti);
-
       nc = guti_2_nas_context(guti);
     }
     else if(is_guti_2_nas_context_in_udsf(guti))

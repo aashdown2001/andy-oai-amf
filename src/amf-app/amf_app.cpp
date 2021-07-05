@@ -43,7 +43,7 @@
 #include "amf_n2.hpp"
 #include "amf_statistics.hpp"
 #include "ngap_app.hpp"
-
+#include <time.h>
 using namespace ngap;
 using namespace nas;
 //using namespace amf ;
@@ -154,7 +154,9 @@ void amf_app_task(void*) {
 //------------------------------------------------------------------------------
 long amf_app::generate_amf_ue_ngap_id() {
   long tmp = 0;
-  tmp      = __sync_fetch_and_add(&amf_app_ue_ngap_id_generator, 1);
+  // tmp      = __sync_fetch_and_add(&amf_app_ue_ngap_id_generator, 1);
+  srand(time(NULL));
+  tmp = rand()%10000 + 1;
   return tmp & 0xffffffffff;
 }
 
@@ -332,7 +334,7 @@ void amf_app::handle_itti_message(
     
   /**********************   hxs add *******************************/
 
-  std::string record_id = "RECORD_ID=\'" + ue_context_key + "\'";
+  std::string record_id = "amf_ue_ngap_id=\'" + to_string(amf_ue_ngap_id) + "\'";
   std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
   nlohmann::json udsf_ue_context;
   nlohmann::json  cgi;

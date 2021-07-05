@@ -172,6 +172,7 @@ int ngap_amf_handle_initial_context_setup_response(
   itti_msg->n2sm           = n2sm;
   itti_msg->is_n2sm_set    = true;
   itti_msg->n2sm_info_type = "PDU_RES_SETUP_RSP";
+  itti_msg->amf_ue_ngap_id = initCtxResp->getAmfUeNgapId();
   std::shared_ptr<itti_nsmf_pdusession_update_sm_context> i =
       std::shared_ptr<itti_nsmf_pdusession_update_sm_context>(itti_msg);
   int ret = itti_inst->send_msg(i);
@@ -339,6 +340,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
     itti_msg->n2sm           = n2sm;
     itti_msg->is_n2sm_set    = true;
     itti_msg->n2sm_info_type = "PDU_RES_SETUP_RSP";
+    itti_msg->amf_ue_ngap_id = pduresp->getAmfUeNgapId();
     std::shared_ptr<itti_nsmf_pdusession_update_sm_context> i =
         std::shared_ptr<itti_nsmf_pdusession_update_sm_context>(itti_msg);
     int ret = itti_inst->send_msg(i);
