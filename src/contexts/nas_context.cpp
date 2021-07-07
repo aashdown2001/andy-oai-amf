@@ -556,24 +556,277 @@ bool nas_context::nas_context_is_specific_procedure_for_deregistration_running_f
     Logger::amf_server().error("get value from json  is error");
 }
 
-// bool nas_context::nas_context_is_specific_procedure_for_deregistration_running_from_json(nlohmann::json j)
-// {
-//     Record record;
-//     nlohmann::json::parse(j.dump()).get_to(record);
-//     std::set<nlohmann::json> block_set = record.getBlocks();   
-//     std::set<nlohmann::json>::iterator it_block;  
-//     for(it_block=block_set.begin();it_block!=block_set.end();)
-//     {  
+ bool nas_context::nas_context_is_specific_procedure_for_eCell_inactivity_running_from_json(nlohmann::json j)
+ {
+     Record record;
+     nlohmann::json::parse(j.dump()).get_to(record);
+     std::set<nlohmann::json> block_set = record.getBlocks();   
+     std::set<nlohmann::json>::iterator it_block;  
+     for(it_block=block_set.begin();it_block!=block_set.end();)
+     {  
         
-//         if(it_block->at("Content-ID") == "is_specific_procedure_for_deregistration_running")
-//         { 
-//             string  s  = it_block->at("content");
-//             return atoi(s.c_str());
-//         }
-//         block_set.erase(it_block++); 
-//     } 
-//     Logger::amf_server().error("get value from json  is error");
-// }
+         if(it_block->at("Content-ID") == "is_specific_procedure_for_eCell_inactivity_running")
+         { 
+             string  s  = it_block->at("content");
+             return atoi(s.c_str());
+         }
+         block_set.erase(it_block++); 
+     } 
+     Logger::amf_server().error("get value from json  is error");
+ }
+
+
+
+bool nas_context::nas_context_is_common_procedure_for_authentication_running_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "is_common_procedure_for_authentication_running")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+
+bool nas_context::nas_context_is_common_procedure_for_identification_running_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "is_common_procedure_for_identification_running")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+
+
+bool nas_context::nas_context_is_common_procedure_for_security_mode_control_running_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "is_common_procedure_for_security_mode_control_running")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+
+bool nas_context::nas_context_is_common_procedure_for_nas_transport_running_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "is_common_procedure_for_nas_transport_running")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+std::string nas_context::nas_context_Href_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "Href")
+        { 
+            string  s  = it_block->at("content");
+            return s;
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+
+bool nas_context::nas_context_is_current_security_available_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "is_current_security_available")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+
+
+int nas_context::nas_context_registration_attempt_counter_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+
+        
+        if(it_block->at("Content-ID") == "registration_attempt_counter")
+        { 
+            string  s  = it_block->at("content");
+           
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+bool nas_context::nas_context_is_imsi_present_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "is_imsi_present")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+
+
+
+bool nas_context::nas_context_is_5g_guti_present_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "is_5g_guti_present")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+
+bool nas_context::nas_context_is_auth_vectors_present_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "is_auth_vectors_present")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+
+bool nas_context::nas_context_to_be_register_by_new_suci_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "to_be_register_by_new_suci")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+
+std::string nas_context::nas_context_guti_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "guti")
+        { 
+            string  s  = it_block->at("content");
+            return s;
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value from json  is error");
+}
+
+
+ // void nas_context__vector_from_json(nlohmann::json j);
+ // void nas_context__5g_he_av_from_json(nlohmann::json j);
+ // void nas_context__5g_av_from_json(nlohmann::json j);
+ // void nas_context__security_from_json(nlohmann::json j);
+ // void nas_context_security_ctx_from_json(nlohmann::json j);
+ // void nas_context_requestedNssai_from_json(nlohmann::json j);
 
 
 
@@ -594,7 +847,7 @@ bool nas_context::nas_context_from_json(nlohmann::json j)
 //serving_network = nas_context_serving_network_from_json(j);
 //nas_context_auts_from_json(j);
 
-  //   is_specific_procedure_for_registration_running = nas_context_is_specific_procedure_for_registration_running_from_json(j);
+//   is_specific_procedure_for_registration_running = nas_context_is_specific_procedure_for_registration_running_from_json(j);
 //   is_specific_procedure_for_deregistration_running = nas_context_is_specific_procedure_for_deregistration_running_from_json(j);
 //   is_specific_procedure_for_eCell_inactivity_running = nas_context_is_specific_procedure_for_eCell_inactivity_running_from_json(j);
 //   is_common_procedure_for_authentication_running = nas_context_is_common_procedure_for_authentication_running_from_json(j);
@@ -604,7 +857,7 @@ bool nas_context::nas_context_from_json(nlohmann::json j)
   
 //Href = nas_context_Href_from_json(j);
 //kamf = nas_context_kamf_from_json(j); 
- //is_current_security_available = nas_context_is_current_security_available_from_json(j);
+//is_current_security_available = nas_context_is_current_security_available_from_json(j);
   
   
   nas_context_security_ctx_from_json(j);

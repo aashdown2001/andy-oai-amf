@@ -269,9 +269,13 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
 
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";
   std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
-  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response) || udsf_response == nullptr){
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response) ){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
     psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
+  }
+  if(udsf_response.dump().c_str() == nullptr)
+  {
+    Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
   }
   else{
      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
