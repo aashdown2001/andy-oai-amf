@@ -42,7 +42,7 @@
 
 namespace amf_application{
     
-#define UDSF_CURL_TIMEOUT_MS 100L
+#define UDSF_CURL_TIMEOUT_MS 2000L
 
 class amf_n2 : public ngap::ngap_app {
  public:

@@ -96,6 +96,11 @@ void amf_app::allRegistredModulesInit(const amf_modules& modules) {
 void amf_app_task(void*) {
   const task_id_t task_id = TASK_AMF_APP;
   itti_inst->notify_task_ready(task_id);
+    // nlohmann::json udsf_response2;
+    // std::string record_id = "RECORD_ID=\'" + to_string(1221) + "\'";
+    // std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+    // while(1)
+    // {amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response2);}
   do {
     std::shared_ptr<itti_msg> shared_msg = itti_inst->receive_msg(task_id);
     auto* msg                            = shared_msg.get();
@@ -424,7 +429,7 @@ bool amf_app::generate_5g_guti(
   // }
   // std::shared_ptr<ue_context> uc;
   // uc   = ran_amf_id_2_ue_context(ue_context_key);
-  ue_context *uc1 = new ue_context();
+   std::shared_ptr<ue_context> uc = std::shared_ptr<ue_context>(new ue_context());
   nlohmann::json udsf_response;
   std::string record_id = "RECORD_ID=\'" + ue_context_key + "\'";
   std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id;
@@ -433,9 +438,8 @@ bool amf_app::generate_5g_guti(
     return false;
   }
   Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
-  uc1->ue_context_from_json(udsf_response);
-  std::shared_ptr<ue_context> uc;
-  uc = std::shared_ptr<ue_context>(uc1);
+  uc.get()->ue_context_from_json(udsf_response);
+
 
 
   mcc  = uc.get()->tai.mcc;

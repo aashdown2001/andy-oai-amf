@@ -273,9 +273,11 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
     psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
   }
-  if(udsf_response.dump().c_str() == nullptr)
+  else if(udsf_response.dump().length() < 8)
   {
-    Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
+    Logger::amf_n2().error("No existing pdu_session_context with assoc_id----length = %d ",udsf_response.dump().length());
+    Logger::amf_n2().error("No existing pdu_session_context with assoc_id 2222");
+     psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
   }
   else{
      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
@@ -292,7 +294,7 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
   //   set_supi_to_pdu_ctx(supi, psc);
   // }
 
-  pduid2supi[smf.pdu_sess_id] = supi;
+  //pduid2supi[smf.pdu_sess_id] = supi;
   psc.get()->amf_ue_ngap_id   = nc.get()->amf_ue_ngap_id;
   psc.get()->ran_ue_ngap_id   = nc.get()->ran_ue_ngap_id;
   psc.get()->req_type         = smf.req_type;
@@ -811,7 +813,7 @@ void amf_n11::curl_http_client(
           {{"Content-ID", "smf_context_location"},{"Content-Type", "varchar(128)"},{"content",psc.get()->smf_context_location}},
           });
         std::string json_part = udsf_put_pdu_session_context.dump();
-        while(!(amf_n2_inst->curl_http_client_udsf(udsf_put_url,json_part,"PUT",udsf_response)));
+        amf_n2_inst->curl_http_client_udsf(udsf_put_url,json_part,"PUT",udsf_response);
 
         }
       }

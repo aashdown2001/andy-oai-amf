@@ -90,7 +90,7 @@ void N1N2MessageCollectionDocumentApiImpl::n1_n2_message_transfer(
   //std::shared_ptr<pdu_session_context> psc;
 std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
   //***************************stateless
-
+    sleep(1);
   nlohmann::json udsf_response;
 
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";

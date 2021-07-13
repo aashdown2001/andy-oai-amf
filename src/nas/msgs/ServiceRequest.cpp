@@ -231,6 +231,7 @@ int ServiceRequest::decodefrombuffer(
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+      default: octet =0;break;
     }
   }
   Logger::nas_mm().debug(

@@ -68,7 +68,8 @@
 #include "ConfirmationDataResponse.h"
 #include "UEAuthenticationCtx.h"
 #include <curl/curl.h>
-
+#include <nlohmann/json.hpp>
+#include "Record.h"
 extern "C" {
 #include "bstrlib.h"
 #include "dynamic_memory_check.h"
@@ -122,7 +123,7 @@ void amf_n1_task(void *) {
     default:
       Logger::amf_n1().error("No handler for msg type %d", msg->msg_type);
     }
-  } while (true);
+  }while (true);
 }
 
 //------------------------------------------------------------------------------

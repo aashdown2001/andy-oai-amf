@@ -360,7 +360,7 @@ void pdu_session_context::pdu_session_context_n1sm_from_json(nlohmann::json j)
         if(it_block->at("Content-ID") == "n1sm")
         { 
             string  s  = it_block->at("content");
-            s= s.substr(0, s.length() - 2);
+          //  s= s.substr(0, s.length());
             // msg_str_2_msg_hex(s.substr(0, s.length()),n1sm);
             unsigned int msg_len = s.length();
             char* data           = (char*) malloc(msg_len + 1);
