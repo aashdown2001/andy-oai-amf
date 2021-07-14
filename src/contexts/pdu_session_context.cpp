@@ -407,6 +407,38 @@ void pdu_session_context::pdu_session_context_n2sm_from_json(nlohmann::json j)
             //  octet_stream_2_hex_stream((uint8_t*) bdata(n2sm), blength(n2sm), ssaa);
             // printf("-----bstring n2sm  pdu _session----------------(%s)\n",ssaa.c_str());
             return ;
+
+
+// std::string msg_hex_str;
+// convert_string_2_hex(msg, msg_hex_str);
+// printf("tmp string: %s\n", msg_hex_str.c_str());
+// unsigned int msg_len = msg_hex_str.length();
+// char* data           = (char*) malloc(msg_len + 1);
+// memset(data, 0, msg_len + 1);
+// memcpy((void*) data, (void*) msg_hex_str.c_str(), msg_len);
+// printf("data: %s\n", data);
+// uint8_t* msg_hex = (uint8_t*) malloc(msg_len / 2 + 1);
+// conv::ascii_to_hex(msg_hex, (const char*) data);
+// b = blk2bstr(msg_hex, (msg_len / 2));
+// void convert_string_2_hex(std::string& input_str, std::string& output_str) {
+//   unsigned char* data = (unsigned char*) malloc(input_str.length() + 1);
+//   memset(data, 0, input_str.length() + 1);
+//   memcpy((void*) data, (void*) input_str.c_str(), input_str.length());
+
+//   for (int i = 0; i < input_str.length(); i++) {
+//     printf("%02x ", data[i]);
+//   }
+//   printf("\n");
+//   char* datahex = (char*) malloc(input_str.length() * 2 + 1);
+//   memset(datahex, 0, input_str.length() * 2 + 1);
+
+//   for (int i = 0; i < input_str.length(); i++)
+//     sprintf(datahex + i * 2, "%02x", data[i]);
+
+//   output_str = reinterpret_cast<char*>(datahex);
+// }
+
+
         }
         block_set.erase(it_block++); 
     } 
@@ -422,7 +454,7 @@ bool pdu_session_context::pdu_session_context_from_json(nlohmann::json j)
     //     printf("gnbname-%s\n",gnb_name.c_str());
     // printf("globalgnbid-%d\n",globalRanNodeId);
     // printf("next stream-%d\n",next_sctp_stream);
-  pdu_session_context_n1sm_from_json(j);
+  //pdu_session_context_n1sm_from_json(j);
   pdu_session_context_n2sm_from_json(j);
 
   ran_ue_ngap_id = pdu_session_context_ran_ue_ngap_id_from_json(j);
