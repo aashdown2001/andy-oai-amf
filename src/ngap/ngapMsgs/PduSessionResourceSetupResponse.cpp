@@ -391,7 +391,7 @@ unsigned long PduSessionResourceSetupResponseMsg::getAmfUeNgapId() {
 
 //------------------------------------------------------------------------------
 uint32_t PduSessionResourceSetupResponseMsg::getRanUeNgapId() {
-  if (!ranUeNgapId) return -1;
+  if (!ranUeNgapId) return 0;
   return ranUeNgapId->getRanUeNgapId();
 }
 

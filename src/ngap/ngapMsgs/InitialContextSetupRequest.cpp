@@ -805,7 +805,7 @@ unsigned long InitialContextSetupRequestMsg::getAmfUeNgapId() {
 
 //------------------------------------------------------------------------------
 uint32_t InitialContextSetupRequestMsg::getRanUeNgapId() {
-  if (!ranUeNgapId) return -1;
+  if (!ranUeNgapId) return 0;
   return ranUeNgapId->getRanUeNgapId();
 }
 
