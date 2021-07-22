@@ -46,13 +46,13 @@ namespace ngap {
 
 //------------------------------------------------------------------------------
 PduSessionResourceReleaseCommandMsg::PduSessionResourceReleaseCommandMsg() {
-  pduSessionResourceReleaseCommandPdu = NULL;
-  pduSessionResourceReleaseCommandIEs = NULL;
-  amfUeNgapId                         = NULL;
-  ranUeNgapId                         = NULL;
-  ranPagingPriority                   = NULL;
-  nasPdu                              = NULL;
-  pduSessionResourceToReleaseList     = NULL;
+  pduSessionResourceReleaseCommandPdu = nullptr;
+  pduSessionResourceReleaseCommandIEs = nullptr;
+  amfUeNgapId                         = nullptr;
+  ranUeNgapId                         = nullptr;
+  ranPagingPriority                   = nullptr;
+  nasPdu                              = nullptr;
+  pduSessionResourceToReleaseList     = nullptr;
 }
 
 //------------------------------------------------------------------------------

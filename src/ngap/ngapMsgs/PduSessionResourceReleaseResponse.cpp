@@ -45,12 +45,12 @@ namespace ngap {
 
 //------------------------------------------------------------------------------
 PduSessionResourceReleaseResponseMsg::PduSessionResourceReleaseResponseMsg() {
-  pduSessionResourceReleaseResponsePdu = NULL;
-  pduSessionResourceReleaseResponseIEs = NULL;
-  amfUeNgapId                          = NULL;
-  ranUeNgapId                          = NULL;
-  pduSessionResourceReleasedList       = NULL;
-  userLocationInformation              = NULL;
+  pduSessionResourceReleaseResponsePdu = nullptr;
+  pduSessionResourceReleaseResponseIEs = nullptr;
+  amfUeNgapId                          = nullptr;
+  ranUeNgapId                          = nullptr;
+  pduSessionResourceReleasedList       = nullptr;
+  userLocationInformation              = nullptr;
 }
 
 //------------------------------------------------------------------------------
