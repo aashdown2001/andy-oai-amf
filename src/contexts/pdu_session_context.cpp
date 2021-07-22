@@ -454,7 +454,7 @@ bool pdu_session_context::pdu_session_context_from_json(nlohmann::json j)
     //     printf("gnbname-%s\n",gnb_name.c_str());
     // printf("globalgnbid-%d\n",globalRanNodeId);
     // printf("next stream-%d\n",next_sctp_stream);
-  //pdu_session_context_n1sm_from_json(j);
+  pdu_session_context_n1sm_from_json(j);
   pdu_session_context_n2sm_from_json(j);
 
   ran_ue_ngap_id = pdu_session_context_ran_ue_ngap_id_from_json(j);
