@@ -27,9 +27,9 @@
 using namespace std;
 namespace ngap {
 dRBSubjectItem::dRBSubjectItem() {
-  drb_id = NULL;
-  drb_ul = NULL;
-  drb_dl = NULL;
+  drb_id = nullptr;
+  drb_ul = nullptr;
+  drb_dl = nullptr;
 }
 dRBSubjectItem::~dRBSubjectItem() {}
 void dRBSubjectItem::setdRBSubjectItem(
@@ -48,19 +48,15 @@ bool dRBSubjectItem::decodefromdRBSubjectItem(
     Ngap_DRBsSubjectToStatusTransferItem_t* dRB_item) {
   if (dRB_item->dRB_ID) {
     drb_id = &dRB_item->dRB_ID;
-    cout << "the decode drb_id is" << *drb_id << endl;
   }
   drb_ul = new dRBStatusUL();
   if (!drb_ul->decodedRBStatusUL(&dRB_item->dRBStatusUL)) {
-    cout << "decode from dRBSubjectItem  dRBStatusUL error" << endl;
     return false;
   }
   drb_dl = new dRBStatusDL();
   if (!drb_dl->decodedRBStatusDL(&dRB_item->dRBStatusDL)) {
-    cout << "decode from dRBSubjectItem  dRBStatusDL error" << endl;
     return false;
   }
-  cout << "decode from dRBSubjectItem  successfully" << endl;
   return true;
 }
 bool dRBSubjectItem::encodedRBSubjectItem(
