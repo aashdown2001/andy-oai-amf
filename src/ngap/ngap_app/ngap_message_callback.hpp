@@ -92,12 +92,12 @@ int ngap_amf_handle_ng_setup_request(
 int ngap_amf_handle_initial_ue_message(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti initial ue message to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Initial UE Message to TASK_AMF_N2");
   asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, message_p);
   // decode INITIAL_UE_MESSAGE
   InitialUEMessageMsg* initUeMsg = new InitialUEMessageMsg();
   if (!initUeMsg->decodefrompdu(message_p)) {
-    Logger::ngap().error("decoding initialuemessage message error");
+    Logger::ngap().error("Decoding InitialUEMessage error");
     return -1;
   }
   itti_initial_ue_message* init_ue_msg =
@@ -148,7 +148,7 @@ int ngap_amf_handle_uplink_nas_transport(
 int ngap_amf_handle_initial_context_setup_response(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Handling Initial Context Setup Response...");
+  Logger::ngap().debug("Handling Initial Context Setup Response");
   InitialContextSetupResponseMsg* initCtxResp =
       new InitialContextSetupResponseMsg();
   if (!initCtxResp->decodefrompdu(message_p)) {
@@ -197,7 +197,7 @@ int ngap_amf_handle_initial_context_setup_failure(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti initial context setup failure to TASK_AMF_N2");
+      "Sending ITTI Initial Context Setup Failure to TASK_AMF_N2");
   return 0;
 }
 
@@ -206,7 +206,7 @@ int ngap_amf_handle_ue_radio_cap_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti ue radio capability indication to TASK_AMF_N2");
+      "Sending ITTI UE Radio Capability Indication to TASK_AMF_N2");
   UeRadioCapabilityInfoIndicationMsg* ueRadioCap =
       new UeRadioCapabilityInfoIndicationMsg();
   if (!ueRadioCap->decodefrompdu(message_p)) {
@@ -234,7 +234,7 @@ int ngap_amf_handle_ue_context_release_request(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti ue context release request to TASK_AMF_N2");
+      "Sending ITTI UE Context Release Request to TASK_AMF_N2");
   UEContextReleaseRequestMsg* ueCtxRelReq = new UEContextReleaseRequestMsg();
   if (!ueCtxRelReq->decodefrompdu(message_p)) {
     Logger::ngap().error("Decoding UEContextReleaseRequest message error");
@@ -261,7 +261,7 @@ int ngap_amf_handle_ue_context_release_complete(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti ue context release complete to TASK_AMF_N2");
+      "Sending ITTI UE Context Release Complete to TASK_AMF_N2");
 
   UEContextReleaseCompleteMsg* ueCtxRelCmpl = new UEContextReleaseCompleteMsg();
   if (!ueCtxRelCmpl->decodefrompdu(message_p)) {
@@ -303,7 +303,7 @@ int ngap_amf_handle_pdu_session_resource_release_response(
   if (!pduresp->getPduSessionResourceReleasedList(list)) {
     Logger::ngap().error(
         "Decoding PduSessionResourceReleaseResponseMsg "
-        "getPduSessionResourceReleasedList IE  error");
+        "getPduSessionResourceReleasedList IE error");
     return -1;
   }
   // TODO: add the full list
@@ -314,7 +314,7 @@ int ngap_amf_handle_pdu_session_resource_release_response(
   bstring n2sm = blk2bstr(
       transferIe, list[0].pduSessionResourceReleaseResponseTransfer.size);
   Logger::ngap().debug(
-      "Sending itti PDUSessionResourceReleaseResponse to TASK_AMF_N11");
+      "Sending ITTI PDUSessionResourceReleaseResponse to TASK_AMF_N11");
 
   itti_nsmf_pdusession_update_sm_context* itti_msg =
       new itti_nsmf_pdusession_update_sm_context(TASK_NGAP, TASK_AMF_N11);
@@ -352,7 +352,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
   if (!pduresp->getPduSessionResourceSetupResponseList(list)) {
     Logger::ngap().error(
         "Decoding PduSessionResourceSetupResponseMsg "
-        "getPduSessionResourceSetupResponseList IE  error");
+        "getPduSessionResourceSetupResponseList IE error");
     // return -1;
   } else {
     // TODO: for multiple PDU Sessions
@@ -410,16 +410,6 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
          Ngap_Cause_PR_radioNetwork) &&
         (UnSuccessfultransfer->getCause() ==
          Ngap_CauseRadioNetwork_multiple_PDU_session_ID_instances)) {
-      /*Logger::ngap().debug("Sending itti pdu session resource release command
-       to TASK_AMF_N2"); itti_pdu_session_resource_release_command * itti_msg =
-       new itti_pdu_session_resource_release_command(TASK_NGAP, TASK_AMF_N2);
-       itti_msg->amf_ue_ngap_id = pduresp->getAmfUeNgapId();
-       itti_msg->ran_ue_ngap_id = pduresp->getRanUeNgapId();
-       std::shared_ptr<itti_pdu_session_resource_release_command> i =
-       std::shared_ptr<itti_pdu_session_resource_release_command>(itti_msg); int
-       ret = itti_inst->send_msg(i); if (0 != ret) { Logger::ngap().error("Could
-       not send ITTI message %s to task TASK_AMF_N2", i->get_msg_name());
-       }*/
       long amf_ue_ngap_id = pduresp->getAmfUeNgapId();
       std::shared_ptr<nas_context> nct =
           amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id);
@@ -434,20 +424,8 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
       }
       psc.get()->isn2sm_avaliable = false;
       Logger::ngap().debug(
-          "Receive pdu session resource setup response fail (multi pdu session "
-          "id),set pdu session context isn2sm_avaliable = false");
-      /*Logger::ngap().debug("Sending itti ue context release command to
-       TASK_AMF_N2"); itti_ue_context_release_command * itti_msg = new
-       itti_ue_context_release_command(TASK_AMF_N1, TASK_AMF_N2);
-       itti_msg->amf_ue_ngap_id = pduresp->getAmfUeNgapId();
-       itti_msg->ran_ue_ngap_id = pduresp->getRanUeNgapId();
-       itti_msg->cause.setChoiceOfCause(Ngap_Cause_PR_radioNetwork);
-       itti_msg->cause.setValue(28);
-       std::shared_ptr<itti_ue_context_release_command> i =
-       std::shared_ptr<itti_ue_context_release_command>(itti_msg); int ret =
-       itti_inst->send_msg(i); if (0 != ret) { Logger::ngap().error("Could not
-       send ITTI message %s to task TASK_AMF_N2", i->get_msg_name());
-       }*/
+          "Receive PDU Session Resource Setup Response Fail (Multi PDU Session "
+          "ID), set PDU Session Context isn2sm_avaliable = false");
       return 0;
     }
   }
@@ -458,7 +436,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
 int ngap_amf_handle_error_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti ngap error indication to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI NGAP Error Indication to TASK_AMF_N2");
   return 0;
 }
 
@@ -466,7 +444,7 @@ int ngap_amf_handle_error_indication(
 int ngap_amf_configuration_update(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti amf configuration update to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI AMF Configuration Update to TASK_AMF_N2");
   return 0;
 }
 
@@ -474,7 +452,7 @@ int ngap_amf_configuration_update(
 int amf_status_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti amf status indication to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI AMF Status Indication to TASK_AMF_N2");
   return 0;
 }
 
@@ -482,7 +460,7 @@ int amf_status_indication(
 int cell_traffic_trace(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti cell_traffic_trace to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Cell Traffic Trace to TASK_AMF_N2");
   return 0;
 }
 
@@ -490,7 +468,7 @@ int cell_traffic_trace(
 int deactivate_trace(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti deactivate trace to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Deactivate Trace to TASK_AMF_N2");
   return 0;
 }
 
@@ -498,7 +476,7 @@ int deactivate_trace(
 int downlink_nas_transport(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti downlink nas transport to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Downlink NAS Transport to TASK_AMF_N2");
   return 0;
 }
 
@@ -507,7 +485,7 @@ int downlink_non_UEassociated_nrppa_transport(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti downlink non UEassociated nrppa transport to TASK_AMF_N2");
+      "Sending ITTI Downlink Non UEAssociated NRPPA Transport to TASK_AMF_N2");
   return 0;
 }
 
@@ -516,7 +494,7 @@ int downlink_ran_configuration_transfer(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti downlink ran configuration transfer to TASK_AMF_N2");
+      "Sending ITTI Downlink RAN Configuration Transfer to TASK_AMF_N2");
   return 0;
 }
 
@@ -525,7 +503,7 @@ int downlink_ran_status_transfer(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti downlink ran status transfer to TASK_AMF_N2");
+      "Sending ITTI Downlink RAN Status Transfer to TASK_AMF_N2");
   return 0;
 }
 
@@ -534,7 +512,7 @@ int downlink_ue_associated_nappa_transport(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti downlink ue associated nappa transport to TASK_AMF_N2");
+      "Sending ITTI Downlink UE Associated NAPPA Transport to TASK_AMF_N2");
   return 0;
 }
 
@@ -633,7 +611,7 @@ int location_reporting_control(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti location reporting control to TASK_AMF_N2");
+      "Sending ITTI Location Reporting Control to TASK_AMF_N2");
   return 0;
 }
 
@@ -642,7 +620,7 @@ int location_reporting_failure_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti location reporting failure indication to TASK_AMF_N2");
+      "Sending ITTI Location Reporting Failure Indication to TASK_AMF_N2");
   return 0;
 }
 
@@ -650,7 +628,7 @@ int location_reporting_failure_indication(
 int location_report(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti location report to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Location Report to TASK_AMF_N2");
   return 0;
 }
 
@@ -659,7 +637,7 @@ int nas_non_delivery_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti nas non delivery indication to TASK_AMF_N2");
+      "Sending ITTI NAS Non Delivery Indication to TASK_AMF_N2");
   return 0;
 }
 
@@ -695,7 +673,7 @@ int ng_reset(
 int overload_start(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti overload start to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Overload Start to TASK_AMF_N2");
   return 0;
 }
 
@@ -703,7 +681,7 @@ int overload_start(
 int overload_stop(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti overload stop to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Overload Stop to TASK_AMF_N2");
   return 0;
 }
 
@@ -711,7 +689,7 @@ int overload_stop(
 int paging(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti paging to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Paging to TASK_AMF_N2");
   return 0;
 }
 
@@ -719,8 +697,7 @@ int paging(
 int ngap_amf_handle_path_switch_request(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug(
-      "Sending itti ngap amf handle path switch request to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Path Switch Request to TASK_AMF_N2");
   return 0;
 }
 
@@ -729,7 +706,7 @@ int pdu_session_resource_modify(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti pdu session resource modify to TASK_AMF_N2");
+      "Sending ITTI PDU Session Resource Modify to TASK_AMF_N2");
   return 0;
 }
 
@@ -738,7 +715,7 @@ int pdu_session_resource_modify_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti pdu session resource modify indication to TASK_AMF_N2");
+      "Sending ITTI PDU Session Resource Modify Indication to TASK_AMF_N2");
   return 0;
 }
 
@@ -747,7 +724,7 @@ int pdu_session_resource_notify(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti pdu session resource notify to TASK_AMF_N2");
+      "Sending ITTI PDU Session Resource Notify to TASK_AMF_N2");
   return 0;
 }
 
@@ -755,7 +732,7 @@ int pdu_session_resource_notify(
 int private_message(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti private message to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Private Message to TASK_AMF_N2");
   return 0;
 }
 
@@ -763,7 +740,7 @@ int private_message(
 int pws_cancel(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti pws cancel to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI PWS Cancel to TASK_AMF_N2");
   return 0;
 }
 
@@ -771,7 +748,7 @@ int pws_cancel(
 int pws_failure_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti pws failure indication to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI PWS Failure Indication to TASK_AMF_N2");
   return 0;
 }
 
@@ -779,7 +756,7 @@ int pws_failure_indication(
 int pws_restart_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti pws restart indication to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI PWS Restart Indication to TASK_AMF_N2");
   return 0;
 }
 
@@ -787,7 +764,7 @@ int pws_restart_indication(
 int ran_configuration_update(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti ran configuration update to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI RAN Configuration Update to TASK_AMF_N2");
   return 0;
 }
 
@@ -795,7 +772,7 @@ int ran_configuration_update(
 int reroute_nas_request(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti reroute nas request to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Reroute NAS Request to TASK_AMF_N2");
   return 0;
 }
 
@@ -804,7 +781,7 @@ int rrc_inactive_transition_report(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti rrc inactive transition report to TASK_AMF_N2");
+      "Sending ITTI RRC Inactive Transition Report to TASK_AMF_N2");
   return 0;
 }
 
@@ -812,7 +789,7 @@ int rrc_inactive_transition_report(
 int trace_failure_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti trace failure indication to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Trace Failure Indication to TASK_AMF_N2");
   return 0;
 }
 
@@ -820,7 +797,7 @@ int trace_failure_indication(
 int trace_start(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti trace start to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI Trace Start to TASK_AMF_N2");
   return 0;
 }
 
@@ -828,7 +805,7 @@ int trace_start(
 int ue_context_modification(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti ue context modification to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI UE Context Modification to TASK_AMF_N2");
   return 0;
 }
 
@@ -836,7 +813,7 @@ int ue_context_modification(
 int ue_radio_capability_check(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti ue radio capability check to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI UE Radio Capability Check to TASK_AMF_N2");
   return 0;
 }
 
@@ -844,7 +821,7 @@ int ue_radio_capability_check(
 int ue_tnla_binding_release(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending itti ue tnla binding release to TASK_AMF_N2");
+  Logger::ngap().debug("Sending ITTI UE TNLA Binding Release to TASK_AMF_N2");
   return 0;
 }
 
@@ -853,7 +830,7 @@ int uplink_non_ue_associated_nrppa_transport(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti uplink non ue associated nrppa transport to TASK_AMF_N2");
+      "Sending ITTI Uplink Non UE Associated NRPPA Transport to TASK_AMF_N2");
   return 0;
 }
 
@@ -862,7 +839,7 @@ int uplink_ran_configuration_transfer(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti uplink ran configuration transfer to TASK_AMF_N2");
+      "Sending ITTI Uplink RAN Configuration Transfer to TASK_AMF_N2");
   return 0;
 }
 
@@ -901,7 +878,7 @@ int uplink_ue_associated_nrppa_transport(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending itti uplink ue associated nrppa transport to TASK_AMF_N2");
+      "Sending ITTI Uplink UE Associated NRPPA Transport to TASK_AMF_N2");
   return 0;
 }
 
