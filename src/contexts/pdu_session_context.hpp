@@ -69,6 +69,8 @@ class pdu_session_context {
   bstring n1sm;
   bool isn1sm_avaliable;
   std::string dnn;
+  std::string smf_addr;
+  std::string smf_api_version;
   std::string remote_smf_addr[0];  //"192.168.12.10:8080"
   bool smf_available;
   std::string location;

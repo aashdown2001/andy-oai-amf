@@ -44,6 +44,7 @@
 #include "SMContextsCollectionApi.h"
 #include "SmContextCreateData.h"
 #include "mime_parser.hpp"
+#include "ue_context.hpp"
 
 extern "C" {
 #include "dynamic_memory_check.h"
@@ -62,6 +63,8 @@ extern amf_config amf_cfg;
 extern amf_n11* amf_n11_inst;
 extern amf_n1* amf_n1_inst;
 extern amf_n2* amf_n2_inst;
+extern amf_app* amf_app_inst;
+extern statistics stacs;
 
 extern void msg_str_2_msg_hex(std::string msg, bstring& b);
 extern void convert_string_2_hex(std::string& input, std::string& output);
@@ -225,15 +228,17 @@ void amf_n11::handle_itti_message(
   //       supi.c_str());
   //   return;
   // }
+
   std::string smf_addr;
   if (!psc.get()->smf_available) {
     if (!smf_selection_from_configuration(smf_addr)) {
       Logger::amf_n11().error("No SMF candidate is available");
-      return;
+     return;
     }
   } else {
     smf_selection_from_context(smf_addr);
   }
+ 
 
   std::string smf_ip_addr, remote_uri;
   std::shared_ptr<pdu_session_context> context = std::shared_ptr<pdu_session_context>(new pdu_session_context());
@@ -332,13 +337,28 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
   psc.get()->dnn = dnn;
 
   std::string smf_addr;
+  std::string smf_api_version;
   if (!psc.get()->smf_available) {
-    if (!smf_selection_from_configuration(smf_addr)) {
-      Logger::amf_n11().error("No candidate for SMF is available");
+    if (amf_cfg.enable_smf_selection) {
+      // use NRF to find suitable SMF based on snssai, plmn and dnn
+      if (!discover_smf(
+              smf_addr, smf_api_version, psc.get()->snssai, psc.get()->plmn,
+              psc.get()->dnn)) {
+        Logger::amf_n11().error("SMF Selection, no SMF candidate is available");
       return;
     }
+   } else if (!smf_selection_from_configuration(smf_addr)) {
+      Logger::amf_n11().error(
+          "No SMF candidate is available (from configuration file)");
+      return;
+    }
+    // store smf info to be used with this PDU session
+    psc.get()->smf_available = true;
+    psc->smf_addr            = smf_addr;
+    psc->smf_api_version     = smf_api_version;
   } else {
-    smf_selection_from_context(smf_addr);
+    smf_addr        = psc->smf_addr;
+    smf_api_version = psc->smf_api_version;
   }
 
   switch (smf.req_type & 0x07) {
@@ -350,7 +370,7 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
           "Decoded PTI for PDUSessionEstablishmentRequest(0x%x)", pti);
       psc.get()->isn2sm_avaliable = false;
       handle_pdu_session_initial_request(
-          supi, psc, smf_addr, smf.sm_msg, dnn);
+          supi, psc, smf_addr, smf_api_version, smf.sm_msg, dnn);
       /*
       if (psc.get()->isn1sm_avaliable && psc.get()->isn2sm_avaliable) {
         itti_n1n2_message_transfer_request* itti_msg =
@@ -435,7 +455,8 @@ void amf_n11::send_pdu_session_update_sm_context_request(
 //------------------------------------------------------------------------------
 void amf_n11::handle_pdu_session_initial_request(
     std::string supi, std::shared_ptr<pdu_session_context> psc,
-    std::string smf_addr, bstring sm_msg, std::string dnn) {
+    std::string smf_addr, std::string smf_api_version, bstring sm_msg,
+    std::string dnn) {
   Logger::amf_n11().debug(
       "Handle PDU Session Establishment Request (SUPI %s, PDU Session ID %d)",
       supi.c_str(), psc.get()->pdu_session_id);
@@ -492,17 +513,15 @@ void amf_n11::handle_pdu_session_initial_request(
 
 
   // TODO: Remove hardcoded values
-  std::string remote_uri =
-      smf_addr + "/nsmf-pdusession/v2/sm-contexts";  // TODO
+   std::string remote_uri =
+      smf_addr + ":8889" + "/nsmf-pdusession/" + smf_api_version + "/sm-contexts";
   nlohmann::json pdu_session_establishment_request;
-  pdu_session_establishment_request["supi"] = supi.c_str();
-  pdu_session_establishment_request["pei"]  = "imei-200000000000001";
-  pdu_session_establishment_request["gpsi"] = "msisdn-200000000001";
-  pdu_session_establishment_request["dnn"]  = dnn.c_str();
-  // pdu_session_establishment_request["sNssai"]["sst"] = psc.get()->snssai.sST;
-  pdu_session_establishment_request["sNssai"]["sst"] = 1;
-  pdu_session_establishment_request["sNssai"]["sd"]  = "0";
-  // pdu_session_establishment_request["sNssai"]["sd"] = psc.get()->snssai.sD;
+  pdu_session_establishment_request["supi"]          = supi.c_str();
+  pdu_session_establishment_request["pei"]           = "imei-200000000000001";
+  pdu_session_establishment_request["gpsi"]          = "msisdn-200000000001";
+  pdu_session_establishment_request["dnn"]           = dnn.c_str();
+  pdu_session_establishment_request["sNssai"]["sst"] = psc.get()->snssai.sST;
+  pdu_session_establishment_request["sNssai"]["sd"]  = psc.get()->snssai.sD;
   pdu_session_establishment_request["pduSessionId"] = psc.get()->pdu_session_id;
   pdu_session_establishment_request["requestType"] =
       "INITIAL_REQUEST";  // TODO: from SM_MSG
@@ -513,7 +532,10 @@ void amf_n11::handle_pdu_session_initial_request(
       psc.get()->plmn.mnc;
   pdu_session_establishment_request["anType"] = "3GPP_ACCESS";  // TODO
   pdu_session_establishment_request["smContextStatusUri"] =
-      "smContextStatusUri";
+      "http://" +
+      std::string(inet_ntoa(*((struct in_addr*) &amf_cfg.n11.addr4))) +
+      "/nsmf-pdusession/callback/" + supi + "/" +
+      std::to_string(psc.get()->pdu_session_id);
 
   pdu_session_establishment_request["n1MessageContainer"]["n1MessageClass"] =
       "SM";
@@ -525,13 +547,6 @@ void amf_n11::handle_pdu_session_initial_request(
   octet_stream_2_hex_stream((uint8_t*) bdata(sm_msg), blength(sm_msg), n1SmMsg);
   curl_http_client(
       remote_uri, json_part, n1SmMsg, "", supi, psc.get()->pdu_session_id);
-
-
-
-
-
-
-
 }
 
 //------------------------------------------------------------------------------
@@ -890,6 +905,111 @@ void amf_n11::curl_http_client(
   curl_global_cleanup();
   free_wrapper((void**) &body_data);
 }
+
+bool amf_n11::discover_smf(
+    std::string& smf_addr, std::string& smf_api_version, const snssai_t snssai,
+    const plmn_t plmn, const std::string dnn) {
+  Logger::amf_n11().debug(
+      "Send NFDiscovery to NRF to discover the available SMFs");
+  bool result = true;
+
+  nlohmann::json json_data = {};
+  // TODO: remove hardcoded values
+  std::string url =
+      std::string(inet_ntoa(*((struct in_addr*) &amf_cfg.nrf_addr.ipv4_addr))) +
+      ":" + std::to_string(amf_cfg.nrf_addr.port) + "/nnrf-disc/" +
+      amf_cfg.nrf_addr.api_version +
+      "/nf-instances?target-nf-type=SMF&requester-nf-type=AMF";
+
+  curl_global_init(CURL_GLOBAL_ALL);
+  CURL* curl = curl = curl_easy_init();
+
+  if (curl) {
+    CURLcode res               = {};
+    struct curl_slist* headers = nullptr;
+    // headers = curl_slist_append(headers, "charsets: utf-8");
+    headers = curl_slist_append(headers, "content-type: application/json");
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, NRF_CURL_TIMEOUT_MS);
+    curl_easy_setopt(curl, CURLOPT_INTERFACE, amf_cfg.n11.if_name.c_str());
+
+    // Response information.
+    long httpCode = {0};
+    std::unique_ptr<std::string> httpData(new std::string());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &callback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, httpData.get());
+    // curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, body.length());
+    // curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str());
+
+    res = curl_easy_perform(curl);
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+
+    Logger::amf_n11().debug(
+        "NFDiscovery, response from NRF, HTTP Code: %d", httpCode);
+
+    if (httpCode == 200) {
+      Logger::amf_n11().debug("NFDiscovery, got successful response from NRF");
+
+      nlohmann::json response_data = {};
+      try {
+        response_data = nlohmann::json::parse(*httpData.get());
+      } catch (nlohmann::json::exception& e) {
+        Logger::amf_n11().warn(
+            "NFDiscovery, could not parse json from the NRF "
+            "response");
+      }
+      Logger::amf_n11().debug(
+          "NFDiscovery, response from NRF, json data: \n %s",
+          response_data.dump().c_str());
+
+      // Process data to obtain SMF info
+      if (response_data.find("nfInstances") != response_data.end()) {
+        for (auto& it : response_data["nfInstances"].items()) {
+          nlohmann::json instance_json = it.value();
+          // TODO: convert instance_json to SMF profile
+          // TODO: add SMF to the list of available SMF
+          // TODO: check with sNSSAI and DNN
+          // TODO: PLMN (need to add plmnList into NRF profile, SMF profile)
+          // for now, just IP addr of SMF of the first NF instance
+          if (instance_json.find("ipv4Addresses") != instance_json.end()) {
+            if (instance_json["ipv4Addresses"].size() > 0)
+              smf_addr =
+                  instance_json["ipv4Addresses"].at(0).get<std::string>();
+            // break;
+          }
+          if (instance_json.find("nfServices") != instance_json.end()) {
+            if (instance_json["nfServices"].size() > 0) {
+              nlohmann::json nf_service = instance_json["nfServices"].at(0);
+              if (nf_service.find("versions") != nf_service.end()) {
+                nlohmann::json nf_version = nf_service["versions"].at(0);
+                if (nf_version.find("apiVersionInUri") != nf_version.end()) {
+                  smf_api_version =
+                      nf_version["apiVersionInUri"].get<std::string>();
+                }
+              }
+            }
+            break;
+          }
+        }
+      }
+    } else {
+      Logger::amf_n11().warn("NFDiscovery, could not get response from NRF");
+      result = false;
+    }
+
+    Logger::amf_n11().debug(
+        "NFDiscovery, SMF Addr: %s, SMF Api Version: %s", smf_addr.c_str(),
+        smf_api_version.c_str());
+
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
+  }
+  curl_global_cleanup();
+  return result;
+}
+
 //-----------------------------------------------------------------------------------------------------
 void amf_n11::register_nf_instance(
     std::shared_ptr<itti_n11_register_nf_instance_request> msg) {
@@ -924,7 +1044,7 @@ void amf_n11::register_nf_instance(
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, NRF_CURL_TIMEOUT_MS);
-    //curl_easy_setopt(curl, CURLOPT_INTERFACE, amf_cfg.n11.if_name.c_str());
+    curl_easy_setopt(curl, CURLOPT_INTERFACE, amf_cfg.n11.if_name.c_str());
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
 
     // Response information.
@@ -995,6 +1115,7 @@ void amf_n11::register_nf_instance(
     }
     curl_global_cleanup();
 }
+
 void amf_n11::update_nf_instance(
     std::shared_ptr<itti_n11_update_nf_instance_request> msg) {
   Logger::amf_n11().debug(

@@ -48,7 +48,8 @@ class amf_n11 {
   void handle_itti_message(itti_smf_services_consumer&);
   void handle_pdu_session_initial_request(
       std::string supi, std::shared_ptr<pdu_session_context> psc,
-      std::string smf_addr, bstring sm_msg, std::string dnn);
+      std::string smf_addr, std::string smf_api_version, bstring sm_msg, 
+      std::string dnn);
   void handle_itti_message(itti_nsmf_pdusession_update_sm_context& itti_msg);
   void handle_itti_message(itti_nsmf_pdusession_release_sm_context& itti_msg);
   void handle_itti_message(itti_pdu_session_resource_setup_response& itti_msg);
@@ -66,7 +67,8 @@ class amf_n11 {
       const std::string& supi, std::shared_ptr<pdu_session_context> psc);
   std::map<uint8_t, std::string> pduid2supi;
 
-  bool smf_selection_from_configuration(std::string& smf_addr);
+  bool smf_selection_from_configuration(
+      std::string& smf_addr);
   bool smf_selection_from_context(std::string& smf_addr);
   void handle_post_sm_context_response_error_400();
   void handle_post_sm_context_response_error(
@@ -77,6 +79,9 @@ class amf_n11 {
       std::string remoteUri, std::string jsonData, std::string n1SmMsg,
       std::string n2SmMsg, std::string supi, uint8_t pdu_session_id);
 
+  bool discover_smf(
+      std::string& smf_addr, std::string& smf_api_version,
+      const snssai_t snssai, const plmn_t plmn, const std::string dnn);
 
   void register_nf_instance(
       std::shared_ptr<itti_n11_register_nf_instance_request> msg);
