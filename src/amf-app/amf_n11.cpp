@@ -186,7 +186,7 @@ void amf_n11::handle_itti_message(
   nlohmann::json udsf_response;
   std::shared_ptr<nas_context> nc = std::shared_ptr<nas_context>(new nas_context());
   std::string record_id_nas = "amf_ue_ngap_id=\'" + to_string(itti_msg.amf_ue_ngap_id) + "\'";
-  std::string udsf_url_nas = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id_nas ;
+  std::string udsf_url_nas = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id_nas ;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url_nas,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
     return ;
@@ -202,7 +202,7 @@ void amf_n11::handle_itti_message(
       supi.c_str(), itti_msg.pdu_session_id);
 
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
+  std::string udsf_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
     return ;
@@ -287,7 +287,7 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
 
 
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
+  std::string udsf_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response) ){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
     psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
@@ -465,7 +465,7 @@ void amf_n11::handle_pdu_session_initial_request(
   //send udsf to storage us_ngap_context recordid=ran+ue_ngap_id
 
    std::string record_id = "RECORD_ID=\'" +supi  + "\'";
-  std::string udsf_put_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+  std::string udsf_put_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
   nlohmann::json udsf_pdu_session_context;
  // nlohmann::json udsf_response;
   udsf_pdu_session_context["meta"] ["tags"] = {
@@ -560,7 +560,7 @@ void amf_n11::handle_itti_message(
   nlohmann::json udsf_response;
 
    std::string record_id = "RECORD_ID=\'" +itti_msg.supi  + "\'";
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+  std::string udsf_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
   }
@@ -672,7 +672,7 @@ void amf_n11::curl_http_client(
   //***************************stateless
   nlohmann::json udsf_response;
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";
-  std::string udsf_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
+  std::string udsf_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
     return;
@@ -833,7 +833,7 @@ void amf_n11::curl_http_client(
 
 
         std::string record_id = "RECORD_ID=\'" +supi  + "\'";
-        std::string udsf_put_url = "http://10.112.202.24:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+        std::string udsf_put_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
         nlohmann::json udsf_put_pdu_session_context;
         udsf_put_pdu_session_context["meta"] ["tags"] = {
                                             {"RECORD_ID",nlohmann::json::array({supi})},
