@@ -33,6 +33,8 @@
 #include <shared_mutex>
 #include <string>
 
+#include "AuthenticationInfo.h"
+#include "UEAuthenticationCtx.h"
 #include "itti_msg_n11.hpp"
 #include "pdu_session_context.hpp"
 
@@ -74,6 +76,12 @@ class amf_n11 {
   void curl_http_client(
       std::string remoteUri, std::string jsonData, std::string n1SmMsg,
       std::string n2SmMsg, std::string supi, uint8_t pdu_session_id);
+
+
+  void register_nf_instance(
+      std::shared_ptr<itti_n11_register_nf_instance_request> msg);
+  void update_nf_instance(
+      std::shared_ptr<itti_n11_update_nf_instance_request> msg);
 };
 
 }  // namespace amf_application

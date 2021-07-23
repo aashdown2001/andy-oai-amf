@@ -81,9 +81,15 @@ amf_app::amf_app(const amf_config& amf_cfg) {
     throw;
   }
 
+  // Register to NRF
+  if (amf_cfg.enable_nf_registration) register_to_nrf();
+
   timer_id_t tid = itti_inst->timer_setup(
       amf_cfg.statistics_interval, 0, TASK_AMF_APP,
       TASK_AMF_APP_PERIODIC_STATISTICS, 0);
+  timer_nrf_heartbeat = itti_inst->timer_setup(1, 0, TASK_AMF_APP,
+		          TASK_AMF_APP_TIMEOUT_NRF_HEARTBEAT,
+			        0); 
   Logger::amf_app().startup("Started timer(%d)", tid);
 }
 
@@ -133,6 +139,11 @@ void amf_app_task(void*) {
             dynamic_cast<itti_test_signalling_network_initiated_deregistration*>(msg);
         amf_app_inst->handle_itti_message(ref(*m));
       } break;
+      case N11_REGISTER_NF_INSTANCE_RESPONSE:{
+        itti_n11_register_nf_instance_response* m =
+            dynamic_cast<itti_n11_register_nf_instance_response*>(msg);
+        amf_app_inst->handle_itti_msg(std::ref(*m));
+      } break;
 
       case TIME_OUT:
         if (itti_msg_timeout* to = dynamic_cast<itti_msg_timeout*>(msg)) {
@@ -142,6 +153,10 @@ void amf_app_task(void*) {
                   amf_cfg.statistics_interval, 0, TASK_AMF_APP,
                   TASK_AMF_APP_PERIODIC_STATISTICS, 0);
               stacs.display();
+              break;
+              case TASK_AMF_APP_TIMEOUT_NRF_HEARTBEAT:
+                amf_app_inst->timer_nrf_heartbeat_timeout(
+                    to->timer_id, to->arg2_user);
               break;
             default:
               Logger::amf_app().info(
@@ -272,7 +287,18 @@ void amf_app::handle_itti_message(
         i->get_msg_name());
   }
 }
-
+void amf_app::handle_itti_msg(itti_n11_register_nf_instance_response& r){
+  Logger::amf_app().debug("Handle NF Instance Registration response");
+ // nf_instance_profile = itti_msg.profile;
+  // Set heartbeat timer
+  Logger::amf_app().debug(
+      "Set value of NRF Heartbeat timer to %d",
+      r.profile.get_nf_heartBeat_timer());
+  /*timer_nrf_heartbeat = itti_inst->timer_setup(
+      r.profile.get_nf_heartBeat_timer(), 0, TASK_AMF_APP,
+      TASK_AMF_APP_TIMEOUT_NRF_HEARTBEAT,
+      0); */
+}
 //------------------------------------------------------------------------------
 void amf_app::handle_itti_message(
     itti_nas_signalling_establishment_request& itti_msg) {
@@ -449,198 +475,117 @@ bool amf_app::generate_5g_guti(
   return true;
 }
 
-// void amf_app::generate_amf_profile() {
-//   // TODO: remove hardcoded values
-//   // generate UUID
-//   generate_uuid();
-//   nf_instance_profile.set_nf_instance_id(amf_instance_id);
-//   nf_instance_profile.set_nf_instance_name("OAI-AMF");
-//   nf_instance_profile.set_nf_type("SMF");
-//   nf_instance_profile.set_nf_status("REGISTERED");
-//   nf_instance_profile.set_nf_heartBeat_timer(50);
-//   nf_instance_profile.set_nf_priority(1);
-//   nf_instance_profile.set_nf_capacity(100);
-//   nf_instance_profile.add_nf_ipv4_addresses(amf_cfg.n11.addr4);
+void amf_app::register_to_nrf() {
+  // create a NF profile to this instance
+  generate_amf_profile();
+  // send request to N11 to send NF registration to NRF
+  trigger_nf_registration_request();
+}
+void amf_app::trigger_nf_registration_request() {
+  Logger::amf_app().debug(
+      "Send ITTI msg to N11 task to trigger the registration request to NRF");
 
-//   // // NF services
-//   // nf_service_t nf_service        = {};
-//   // nf_service.service_instance_id = "nsmf-pdusession";
-//   // nf_service.service_name        = "nsmf-pdusession";
-//   // nf_service_version_t version   = {};
-//   // version.api_version_in_uri     = "v1";
-//   // version.api_full_version       = "1.0.0";  // TODO: to be updated
-//   // nf_service.versions.push_back(version);
-//   // nf_service.scheme            = "http";
-//   // nf_service.nf_service_status = "REGISTERED";
-//   // // IP Endpoint
-//   // ip_endpoint_t endpoint = {};
-//   // std::vector<struct in_addr> addrs;
-//   // nf_instance_profile.get_nf_ipv4_addresses(addrs);
-//   // endpoint.ipv4_address = addrs[0];  // TODO: use first IP ADDR for now
-//   // endpoint.transport    = "TCP";
-//   // endpoint.port         = smf_cfg.sbi.port;
-//   // nf_service.ip_endpoints.push_back(endpoint);
+  std::shared_ptr<itti_n11_register_nf_instance_request> itti_msg =
+      std::make_shared<itti_n11_register_nf_instance_request>(
+          TASK_AMF_APP, TASK_AMF_N11);
+  itti_msg->profile = nf_instance_profile;
 
-//   // nf_instance_profile.add_nf_service(nf_service);
+  amf_n11_inst->register_nf_instance(itti_msg);
+  /*
 
-//   // // TODO: custom info
+  int ret           = itti_inst->send_msg(itti_msg);
+  if (RETURNok != ret) {
+    Logger::amf_app().error(
+        "Could not send ITTI message %s to task TASK_AMF_N11",
+        itti_msg->get_msg_name());
+  }
+  */
+}
+//------------------------------------------------------------------------------
+void amf_app::generate_uuid() {
+  amf_instance_id = to_string(boost::uuids::random_generator()());
+}
 
-//   // int i = 0;
-//   // for (auto sms : smf_cfg.session_management_subscription) {
-//   //   if (i < smf_cfg.num_session_management_subscription)
-//   //     i++;
-//   //   else
-//   //     break;
+//---------------------------------------------------------------------------------------------
+void amf_app::generate_amf_profile() {
+  // generate UUID
+  generate_uuid();
+  nf_instance_profile.set_nf_instance_id(amf_instance_id);
+  nf_instance_profile.set_nf_instance_name("OAI-AMF");
+  nf_instance_profile.set_nf_type("AMF");
+  nf_instance_profile.set_nf_status("REGISTERED");
+  nf_instance_profile.set_nf_heartBeat_timer(1);
+  nf_instance_profile.set_nf_priority(1);
+  nf_instance_profile.set_nf_capacity(100);
+  nf_instance_profile.add_nf_ipv4_addresses(amf_cfg.n11.addr4);
 
-//   //   // SNSSAIS
-//   //   snssai_t snssai = {};
-//   //   snssai.sD       = sms.single_nssai.sD;
-//   //   snssai.sST      = sms.single_nssai.sST;
-//   //   // Verify if this SNSSAI exist
-//   //   std::vector<snssai_t> ss = {};
-//   //   nf_instance_profile.get_nf_snssais(ss);
-//   //   bool found = false;
-//   //   for (auto it : ss) {
-//   //     if ((it.sD == snssai.sD) and (it.sST == snssai.sST)) {
-//   //       found = true;
-//   //       break;
-//   //     }
-//   //   }
-//   //   if (!found) nf_instance_profile.add_snssai(snssai);
+  // NF services
+  nf_service_t nf_service        = {};
+  nf_service.service_instance_id = "namf_communication";
+  nf_service.service_name        = "namf_communication";
+  nf_service_version_t version   = {};
+  version.api_version_in_uri     = "v1";
+  version.api_full_version       = "1.0.0";  // TODO: to be updated
+  nf_service.versions.push_back(version);
+  nf_service.scheme            = "http";
+  nf_service.nf_service_status = "REGISTERED";
+  // IP Endpoint
+  ip_endpoint_t endpoint = {};
+  endpoint.ipv4_address  = amf_cfg.n11.addr4;
+  endpoint.transport     = "TCP";
+  endpoint.port          = amf_cfg.n11.port;
+  nf_service.ip_endpoints.push_back(endpoint);
 
-//   //   // SMF info
-//   //   dnn_smf_info_item_t dnn_item         = {.dnn = sms.dnn};
-//   //   snssai_smf_info_item_t smf_info_item = {};
-//   //   smf_info_item.dnn_smf_info_list.push_back(dnn_item);
-//   //   smf_info_item.snssai.sD  = sms.single_nssai.sD;
-//   //   smf_info_item.snssai.sST = sms.single_nssai.sST;
-//   //   nf_instance_profile.add_smf_info_item(smf_info_item);
-//   // }
+  nf_instance_profile.add_nf_service(nf_service);
 
-//   // // Display the profile
-//   // nf_instance_profile.display();
-// }
+  // TODO: custom info
+  // AMF info
+  amf_info_t info    = {};
+  info.amf_region_id = amf_cfg.guami.regionID;
+  info.amf_set_id    = amf_cfg.guami.AmfSetID;
+  for (auto g : amf_cfg.guami_list) {
+    _3gpp_23003::guami_5g_t guami = {};
+    guami.amf_id =
+        g.regionID + ":" + g.AmfSetID + ":" + g.AmfPointer;  // TODO verify??
+    guami.plmn.mcc = g.mcc;
+    guami.plmn.mnc = g.mnc;
+    info.guami_list.push_back(guami);
+  }
 
-// //---------------------------------------------------------------------------------------------
-// void amf_app::register_to_nrf() {
-//   // Create a NF profile to this instance
-//   generate_amf_profile();
-//   // Send request to N11 to send NF registration to NRF
-//   //trigger_nf_registration_request();
-// }
+  nf_instance_profile.set_amf_info(info);
 
-// //------------------------------------------------------------------------------
-// void amf_app::generate_uuid() {
-//   amf_instance_id = to_string(boost::uuids::random_generator()());
-// }
+  // Display the profile
+  nf_instance_profile.display();
+}
 
-// //------------------------------------------------------------------------------
-// // void smf_app::trigger_nf_registration_request() {
-// //   Logger::smf_app().debug(
-// //       "Send ITTI msg to N11 task to trigger the registration request to NRF");
+//------------------------------------------------------------------------------
+void amf_app::timer_nrf_heartbeat_timeout(
+    timer_id_t timer_id, uint64_t arg2_user) {
+  Logger::amf_app().debug("Send ITTI msg to N11 task to trigger NRF Heartbeat");
 
-// //   std::shared_ptr<itti_n11_register_nf_instance_request> itti_msg =
-// //       std::make_shared<itti_n11_register_nf_instance_request>(
-// //           TASK_SMF_APP, TASK_SMF_SBI);
-// //   itti_msg->profile = nf_instance_profile;
-// //   int ret           = itti_inst->send_msg(itti_msg);
-// //   if (RETURNok != ret) {
-// //     Logger::smf_app().error(
-// //         "Could not send ITTI message %s to task TASK_SMF_SBI",
-// //         itti_msg->get_msg_name());
-// //   }
-// // }
-// void amf_app::register_nf_instance() {
-//   Logger::amf_app().debug(
-//       "Send NF Instance Registration to NRF ");
-//   nlohmann::json json_data = {};
-//   msg->profile.to_json(json_data);
+  std::shared_ptr<itti_n11_update_nf_instance_request> itti_msg =
+      std::make_shared<itti_n11_update_nf_instance_request>(
+          TASK_AMF_APP, TASK_AMF_N11);
+  oai::amf::model::PatchItem patch_item = {};
+  //{"op":"replace","path":"/nfStatus", "value": "REGISTERED"}
+  patch_item.setOp("replace");
+  patch_item.setPath("/nfStatus");
+  patch_item.setValue("REGISTERED");
+  itti_msg->patch_items.push_back(patch_item);
+  itti_msg->amf_instance_id = amf_instance_id;
 
-//   std::string url =
-//       std::string(inet_ntoa(*((struct in_addr*) &smf_cfg.nrf_addr.ipv4_addr))) +
-//       ":" + std::to_string(smf_cfg.nrf_addr.port) + NNRF_NFM_BASE +
-//       smf_cfg.nrf_addr.api_version + NNRF_NF_REGISTER_URL +
-//       msg->profile.get_nf_instance_id();
-
-//   Logger::smf_sbi().debug(
-//       "Send NF Instance Registration to NRF, NRF URL %s", url.c_str());
-
-//   std::string body = json_data.dump();
-//   Logger::smf_sbi().debug(
-//       "Send NF Instance Registration to NRF, msg body: \n %s", body.c_str());
-
-//   curl_global_init(CURL_GLOBAL_ALL);
-//   CURL* curl = curl = curl_easy_init();
-
-//   if (curl) {
-//     CURLcode res               = {};
-//     struct curl_slist* headers = nullptr;
-//     // headers = curl_slist_append(headers, "charsets: utf-8");
-//     headers = curl_slist_append(headers, "content-type: application/json");
-//     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-//     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-//     curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
-//     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
-//     curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, NRF_CURL_TIMEOUT_MS);
-
-//     if (msg->http_version == 2) {
-//       curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-//       // we use a self-signed test server, skip verification during debugging
-//       curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-//       curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-//       curl_easy_setopt(
-//           curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE);
-//     }
-
-//     // Response information.
-//     long httpCode = {0};
-//     std::unique_ptr<std::string> httpData(new std::string());
-//     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &callback);
-//     curl_easy_setopt(curl, CURLOPT_WRITEDATA, httpData.get());
-//     curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, body.length());
-//     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body.c_str());
-//     res = curl_easy_perform(curl);
-//     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-
-//     Logger::smf_sbi().debug(
-//         "NF Instance Registration, response from NRF, HTTP Code: %d", httpCode);
-
-//     if (static_cast<http_response_codes_e>(httpCode) ==
-//         http_response_codes_e::HTTP_RESPONSE_CODE_CREATED) {
-//       json response_data = {};
-//       try {
-//         response_data = json::parse(*httpData.get());
-//       } catch (json::exception& e) {
-//         Logger::smf_sbi().warn(
-//             "NF Instance Registration, could not parse json from the NRF "
-//             "response");
-//       }
-//       Logger::smf_sbi().debug(
-//           "NF Instance Registration, response from NRF, json data: \n %s",
-//           response_data.dump().c_str());
-
-//       // send response to APP to process
-//       std::shared_ptr<itti_n11_register_nf_instance_response> itti_msg =
-//           std::make_shared<itti_n11_register_nf_instance_response>(
-//               TASK_SMF_SBI, TASK_SMF_APP);
-//       itti_msg->http_response_code = httpCode;
-//       itti_msg->http_version       = msg->http_version;
-//       Logger::smf_app().debug("Registered SMF profile (from NRF)");
-//       itti_msg->profile.from_json(response_data);
-
-//       int ret = itti_inst->send_msg(itti_msg);
-//       if (RETURNok != ret) {
-//         Logger::smf_sbi().error(
-//             "Could not send ITTI message %s to task TASK_SMF_APP",
-//             itti_msg->get_msg_name());
-//       }
-//     } else {
-//       Logger::smf_sbi().warn(
-//           "NF Instance Registration, could not get response from NRF");
-//     }
-
-//     curl_slist_free_all(headers);
-//     curl_easy_cleanup(curl);
-//   }
-//   curl_global_cleanup();
-// }
+  int ret = itti_inst->send_msg(itti_msg);
+  if (RETURNok != ret) {
+    Logger::amf_app().error(
+        "Could not send ITTI message %s to task TASK_AMF_N11",
+        itti_msg->get_msg_name());
+  } else {
+    Logger::amf_app().debug(
+        "Set a timer to the next Heart-beat (%d)",
+        nf_instance_profile.get_nf_heartBeat_timer());
+    timer_nrf_heartbeat = itti_inst->timer_setup(
+        nf_instance_profile.get_nf_heartBeat_timer(), 0, TASK_AMF_APP,
+        TASK_AMF_APP_TIMEOUT_NRF_HEARTBEAT,
+        0);  // TODO arg2_user
+  }
+}

@@ -51,6 +51,7 @@ include_directories(${SRC_TOP_DIR}/utils/bstr)
 file(GLOB AMF_src_files
   ${CMAKE_CURRENT_SOURCE_DIR}/amf_app.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/amf_config.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/amf_profile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/amf_module_from_config.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/amf_n1.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/amf_n2.cpp

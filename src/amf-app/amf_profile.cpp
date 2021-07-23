@@ -27,15 +27,16 @@
  \email: Tien-Thinh.Nguyen@eurecom.fr
  */
 
+#include "amf_profile.hpp"
+
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
 #include "logger.hpp"
-#include "amf_profile.hpp"
 #include "string.hpp"
 
 using namespace std;
-using namespace amf;
+using namespace amf_application;
 
 //------------------------------------------------------------------------------
 void nf_profile::set_nf_instance_id(const std::string& instance_id) {
@@ -76,7 +77,6 @@ void nf_profile::set_nf_type(const std::string& type) {
 std::string nf_profile::get_nf_type() const {
   return nf_type;
 }
-
 //------------------------------------------------------------------------------
 void nf_profile::set_nf_status(const std::string& status) {
   nf_status = status;
@@ -138,20 +138,19 @@ uint16_t nf_profile::get_nf_capacity() const {
 }
 
 //------------------------------------------------------------------------------
-void nf_profile::set_nf_snssais(const std::vector<snssai_t>& s) {
+void nf_profile::set_nf_snssais(const std::vector<_3gpp_23003::snssai_t>& s) {
   snssais = s;
 }
 
 //------------------------------------------------------------------------------
-void nf_profile::get_nf_snssais(std::vector<snssai_t>& s) const {
+void nf_profile::get_nf_snssais(std::vector<_3gpp_23003::snssai_t>& s) const {
   s = snssais;
 }
 
 //------------------------------------------------------------------------------
-void nf_profile::add_snssai(const snssai_t& s) {
+void nf_profile::add_snssai(const _3gpp_23003::snssai_t& s) {
   snssais.push_back(s);
 }
-
 //------------------------------------------------------------------------------
 void nf_profile::set_nf_ipv4_addresses(const std::vector<struct in_addr>& a) {
   ipv4_addresses = a;
@@ -161,7 +160,6 @@ void nf_profile::set_nf_ipv4_addresses(const std::vector<struct in_addr>& a) {
 void nf_profile::add_nf_ipv4_addresses(const struct in_addr& a) {
   ipv4_addresses.push_back(a);
 }
-
 //------------------------------------------------------------------------------
 void nf_profile::get_nf_ipv4_addresses(std::vector<struct in_addr>& a) const {
   a = ipv4_addresses;
@@ -208,6 +206,7 @@ void nf_profile::to_json(nlohmann::json& data) const {
     nlohmann::json tmp = {};
     tmp["sst"]         = s.sST;
     tmp["sd"]          = s.sD;
+    ;
     data["sNssais"].push_back(tmp);
   }
   // ipv4_addresses
@@ -218,6 +217,8 @@ void nf_profile::to_json(nlohmann::json& data) const {
 
   data["priority"] = priority;
   data["capacity"] = capacity;
+
+  // Logger::amf_app().debug("AMF profile to json:\n %s", data.dump().c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -244,10 +245,12 @@ void nf_profile::from_json(const nlohmann::json& data) {
   // sNssais
   if (data.find("sNssais") != data.end()) {
     for (auto it : data["sNssais"]) {
-      snssai_t s = {};
+      _3gpp_23003::snssai_t s = {};
       s.sST      = it["sst"].get<int>();
       s.sD       = it["sd"].get<std::string>();
       snssais.push_back(s);
+      // Logger::amf_app().debug("Added SNSSAI (SST %d, SD %s)", s.sST,
+      // s.sD.c_str());
     }
   }
 
@@ -264,6 +267,7 @@ void nf_profile::from_json(const nlohmann::json& data) {
         Logger::amf_app().warn(
             "Address conversion: Bad value %s", util::trim(address).c_str());
       }
+      // Logger::amf_app().debug("\tIPv4 Addr: %s", address.c_str());
       add_nf_ipv4_addresses(addr4);
     }
   }
@@ -278,7 +282,6 @@ void nf_profile::from_json(const nlohmann::json& data) {
 }
 
 //------------------------------------------------------------------------------
-void amf_profile::~amf_profile() {}
 void amf_profile::set_nf_services(const std::vector<nf_service_t>& n) {
   nf_services = n;
 }
@@ -309,11 +312,6 @@ void amf_profile::set_amf_info(const amf_info_t& s) {
 }
 
 //------------------------------------------------------------------------------
-void amf_profile::add_amf_info_item(const snssai_amf_info_item_t& s) {
-  amf_info.snssai_amf_info_list.push_back(s);
-}
-
-//------------------------------------------------------------------------------
 void amf_profile::get_amf_info(amf_info_t& s) const {
   s = amf_info;
 }
@@ -335,17 +333,17 @@ void amf_profile::display() const {
     Logger::amf_app().debug("\tCustom info: %s", custom_info.dump().c_str());
   }
 
-  // amf info
-  if (amf_info.snssai_amf_info_list.size() > 0) {
-    Logger::amf_app().debug("\tamf Info:");
-  }
-  for (auto s : amf_info.snssai_amf_info_list) {
-    Logger::amf_app().debug("\t\tParameters supported by the amf:");
+  // AMF info
+  Logger::amf_app().debug("\tAMF Info");
+  Logger::amf_app().debug(
+      "\t\tAMF Set ID: %s, AMF Region ID: %s", amf_info.amf_set_id.c_str(),
+      amf_info.amf_region_id.c_str());
+
+  for (auto g : amf_info.guami_list) {
+    Logger::amf_app().debug("\t\tAMF GUAMI List, AMF_ID: %s", g.amf_id.c_str());
     Logger::amf_app().debug(
-        "\t\t\tSNSSAI (SST %d, SD %s)", s.snssai.sST, s.snssai.sD.c_str());
-    for (auto d : s.dnn_amf_info_list) {
-      Logger::amf_app().debug("\t\t\tDNN %s", d.dnn.c_str());
-    }
+        "\t\tAMF GUAMI List, PLMN (MCC: %s, MNC: %s)", g.plmn.mcc.c_str(),
+        g.plmn.mnc.c_str());
   }
 }
 
@@ -372,6 +370,7 @@ void amf_profile::to_json(nlohmann::json& data) const {
     srv_tmp["ipEndPoints"] = nlohmann::json::array();
     for (auto endpoint : service.ip_endpoints) {
       nlohmann::json ep_tmp = {};
+      ep_tmp["ipv4Address"] = nlohmann::json::array();
       ep_tmp["ipv4Address"] = inet_ntoa(endpoint.ipv4_address);
       ep_tmp["transport"]   = endpoint.transport;
       ep_tmp["port"]        = endpoint.port;
@@ -383,23 +382,20 @@ void amf_profile::to_json(nlohmann::json& data) const {
 
   data["custom_info"] = custom_info;
 
-  // amf info
-  data["amfInfo"]                      = {};
-  data["amfInfo"]["sNssaiAmfInfoList"] = nlohmann::json::array();
-  for (auto s : amf_info.snssai_amf_info_list) {
-    nlohmann::json tmp    = {};
-    tmp["sNssai"]["sst"]  = s.snssai.sST;
-    tmp["sNssai"]["sd"]   = s.snssai.sD;
-    tmp["dnnAmfInfoList"] = nlohmann::json::array();
-    for (auto d : s.dnn_amf_info_list) {
-      nlohmann::json dnn_json = {};
-      dnn_json["dnn"]         = d.dnn;
-      tmp["dnnAmfInfoList"].push_back(dnn_json);
-    }
-    data["amfInfo"]["sNssaiAmfInfoList"].push_back(tmp);
+  // AMF info
+  data["amfInfo"]["amfSetId"]    = amf_info.amf_set_id;
+  data["amfInfo"]["amfRegionId"] = amf_info.amf_region_id;
+  // guamiList
+  data["amfInfo"]["guamiList"] = nlohmann::json::array();
+  for (auto guami : amf_info.guami_list) {
+    nlohmann::json tmp   = {};
+    tmp["amfId"]         = guami.amf_id;
+    tmp["plmnId"]["mnc"] = guami.plmn.mnc;
+    tmp["plmnId"]["mcc"] = guami.plmn.mcc;
+    data["amfInfo"]["guamiList"].push_back(tmp);
   }
 
-  Logger::amf_app().debug("amf profile to json:\n %s", data.dump().c_str());
+  Logger::amf_app().debug("AMF profile to json:\n %s", data.dump().c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -408,34 +404,32 @@ void amf_profile::from_json(const nlohmann::json& data) {
 
   // TODO: custom_info;
 
-  // amf info
+  // AMF info
   if (data.find("amfInfo") != data.end()) {
-    nlohmann::json info = data["amfInfo"];
+    nlohmann::json info    = data["amfInfo"];
+    amf_info.amf_set_id    = info["amfSetId"].get<std::string>();
+    amf_info.amf_region_id = info["amfRegionId"].get<std::string>();
 
-    dnn_amf_info_item_t dnn_item = {};
+    nlohmann::json guami_list = data["amfInfo"]["guamiList"];
 
-    if (info.find("sNssaiAmfInfoList") != info.end()) {
-      nlohmann::json snssai_amf_info_list =
-          data["amfInfo"]["sNssaiAmfInfoList"];
+    for (auto it : guami_list) {
+      _3gpp_23003::guami_5g_t guami = {};
 
-      for (auto it : snssai_amf_info_list) {
-        snssai_amf_info_item_t amf_info_item = {};
-        if (it.find("sNssai") != it.end()) {
-          if (it["sNssai"].find("sst") != it["sNssai"].end())
-            amf_info_item.snssai.sST = it["sNssai"]["sst"].get<int>();
-          if (it["sNssai"].find("sd") != it["sNssai"].end())
-            amf_info_item.snssai.sD = it["sNssai"]["sd"].get<std::string>();
-        }
-        if (it.find("dnnAmfInfoList") != it.end()) {
-          for (auto d : it["dnnAmfInfoList"]) {
-            if (d.find("dnn") != d.end()) {
-              dnn_item.dnn = d["dnn"].get<std::string>();
-              amf_info_item.dnn_amf_info_list.push_back(dnn_item);
-            }
-          }
-        }
-        amf_info.snssai_amf_info_list.push_back(amf_info_item);
+      if (it.find("amfId") != it.end()) {
+        guami.amf_id = it["amfId"].get<std::string>();
       }
+      if (it.find("plmnId") != it.end()) {
+        nlohmann::json plmn = it["plmnId"];
+
+        if (plmn.find("mnc") != plmn.end()) {
+          guami.plmn.mnc = plmn["mnc"].get<std::string>();
+        }
+
+        if (plmn.find("mcc") != plmn.end()) {
+          guami.plmn.mcc = plmn["mcc"].get<std::string>();
+        }
+      }
+      amf_info.guami_list.push_back(guami);
     }
   }
 
@@ -449,92 +443,3 @@ void amf_profile::handle_heartbeart_timeout(uint64_t ms) {
       ms);
   set_nf_status("SUSPENDED");
 }
-
-// //------------------------------------------------------------------------------
-// void upf_profile::add_upf_info_item(const snssai_upf_info_item_t& s) {
-//   upf_info.snssai_upf_info_list.push_back(s);
-// }
-
-// //------------------------------------------------------------------------------
-// void upf_profile::get_upf_info(upf_info_t& s) const {
-//   s = upf_info;
-// }
-
-// //------------------------------------------------------------------------------
-// void upf_profile::display() const {
-//   // display NF part
-//   nf_profile::display();
-
-//   // UPF info
-//   if (upf_info.snssai_upf_info_list.size() > 0) {
-//     Logger::amf_app().debug("\tUPF Info:");
-//   }
-//   for (auto s : upf_info.snssai_upf_info_list) {
-//     Logger::amf_app().debug("\t\tParameters supported by the UPF:");
-//     Logger::amf_app().debug(
-//         "\t\t\tSNSSAI (SST %d, SD %s)", s.snssai.sST, s.snssai.sD.c_str());
-//     for (auto d : s.dnn_upf_info_list) {
-//       Logger::amf_app().debug("\t\t\tDNN %s", d.dnn.c_str());
-//     }
-//   }
-// }
-
-// //------------------------------------------------------------------------------
-// void upf_profile::to_json(nlohmann::json& data) const {
-//   nf_profile::to_json(data);
-
-//   // UPF info
-//   data["upfInfo"]                      = {};
-//   data["upfInfo"]["sNssaiUpfInfoList"] = nlohmann::json::array();
-//   for (auto s : upf_info.snssai_upf_info_list) {
-//     nlohmann::json tmp    = {};
-//     tmp["sNssai"]["sst"]  = s.snssai.sST;
-//     tmp["sNssai"]["sd"]   = s.snssai.sD;
-//     tmp["dnnAmfInfoList"] = nlohmann::json::array();
-//     for (auto d : s.dnn_upf_info_list) {
-//       nlohmann::json dnn_json = {};
-//       dnn_json["dnn"]         = d.dnn;
-//       tmp["dnnAmfInfoList"].push_back(dnn_json);
-//     }
-//     data["upfInfo"]["sNssaiUpfInfoList"].push_back(tmp);
-//   }
-
-//   Logger::amf_app().debug("UPF profile to json:\n %s", data.dump().c_str());
-// }
-
-// //------------------------------------------------------------------------------
-// void upf_profile::from_json(const nlohmann::json& data) {
-//   nf_profile::from_json(data);
-
-//   // UPF info
-//   if (data.find("upfInfo") != data.end()) {
-//     nlohmann::json info          = data["upfInfo"];
-//     dnn_upf_info_item_t dnn_item = {};
-
-//     if (info.find("sNssaiUpfInfoList") != info.end()) {
-//       nlohmann::json snssai_upf_info_list =
-//           data["upfInfo"]["sNssaiUpfInfoList"];
-
-//       for (auto it : snssai_upf_info_list) {
-//         snssai_upf_info_item_t upf_info_item = {};
-//         if (it.find("sNssai") != it.end()) {
-//           if (it["sNssai"].find("sst") != it["sNssai"].end())
-//             upf_info_item.snssai.sST = it["sNssai"]["sst"].get<int>();
-//           if (it["sNssai"].find("sd") != it["sNssai"].end())
-//             upf_info_item.snssai.sD = it["sNssai"]["sd"].get<std::string>();
-//         }
-//         if (it.find("dnnUpfInfoList") != it.end()) {
-//           for (auto d : it["dnnUpfInfoList"]) {
-//             if (d.find("dnn") != d.end()) {
-//               dnn_item.dnn = d["dnn"].get<std::string>();
-//               upf_info_item.dnn_upf_info_list.push_back(dnn_item);
-//             }
-//           }
-//         }
-//         upf_info.snssai_upf_info_list.push_back(upf_info_item);
-//       }
-//     }
-//   }
-
-//   display();
-// }

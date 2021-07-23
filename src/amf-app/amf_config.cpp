@@ -59,6 +59,11 @@ namespace config {
 amf_config::amf_config() {
   // TODO:
   is_Nausf = true;
+  use_fqdn_dns              = false;
+    enable_nf_registration    = false;
+  enable_smf_selection      = false;
+  enable_external_ausf      = false;
+  enable_external_udm       = false;
 }
 
 //------------------------------------------------------------------------------
@@ -240,6 +245,99 @@ int amf_config::load(const std::string& config_file) {
     return -1;
   }
   try {
+    const Setting& new_if_cfg = amf_cfg[AMF_CONFIG_STRING_INTERFACES];
+    const Setting& support_features =
+        new_if_cfg[AMF_CONFIG_STRING_SUPPORT_FEATURES];
+    string opt;
+    support_features.lookupValue(
+        AMF_CONFIG_STRING_SUPPORT_FEATURES_NF_REGISTRATION, opt);
+    if (boost::iequals(opt, "yes")) {
+      enable_nf_registration = true;
+    } else {
+      enable_nf_registration = false;
+    }
+
+    support_features.lookupValue(
+        AMF_CONFIG_STRING_SUPPORT_FEATURES_SMF_SELECTION, opt);
+    if (boost::iequals(opt, "yes")) {
+      enable_smf_selection = true;
+    } else {
+      enable_smf_selection = false;
+    }
+
+    support_features.lookupValue(
+        AMF_CONFIG_STRING_SUPPORT_FEATURES_EXTERNAL_AUSF, opt);
+    if (boost::iequals(opt, "yes")) {
+      enable_external_ausf = true;
+    } else {
+      enable_external_ausf = false;
+    }
+
+    support_features.lookupValue(
+        AMF_CONFIG_STRING_SUPPORT_FEATURES_EXTERNAL_UDM, opt);
+    if (boost::iequals(opt, "yes")) {
+      enable_external_udm = true;
+    } else {
+      enable_external_udm = false;
+    }
+
+    support_features.lookupValue(
+        AMF_CONFIG_STRING_SUPPORT_FEATURES_USE_FQDN_DNS, opt);
+    if (boost::iequals(opt, "yes")) {
+      use_fqdn_dns = true;
+    } else {
+      use_fqdn_dns = false;
+    }
+
+    printf("support featurn -------------%d   %d\n",enable_nf_registration,enable_smf_selection);
+ 
+  } catch (const SettingNotFoundException& nfex) {
+    Logger::amf_app().error(
+        "%s : %s, using defaults", nfex.what(), nfex.getPath());
+    return -1;
+  }
+  const Setting& new_if_cfg = amf_cfg[AMF_CONFIG_STRING_INTERFACES];
+  const Setting& nrf_cfg       = new_if_cfg[AMF_CONFIG_STRING_NRF];
+    struct in_addr nrf_ipv4_addr = {};
+    unsigned int nrf_port        = 0;
+    std::string nrf_api_version  = {};
+    string address               = {};
+
+    if (!use_fqdn_dns) {
+      nrf_cfg.lookupValue(AMF_CONFIG_STRING_NRF_IPV4_ADDRESS, address);
+      IPV4_STR_ADDR_TO_INADDR(
+          util::trim(address).c_str(), nrf_ipv4_addr,
+          "BAD IPv4 ADDRESS FORMAT FOR NRF !");
+      nrf_addr.ipv4_addr = nrf_ipv4_addr;
+      if (!(nrf_cfg.lookupValue(AMF_CONFIG_STRING_NRF_PORT, nrf_port))) {
+        Logger::amf_app().error(AMF_CONFIG_STRING_NRF_PORT "failed");
+        throw(AMF_CONFIG_STRING_NRF_PORT "failed");
+      }
+      nrf_addr.port = nrf_port;
+      if (!(nrf_cfg.lookupValue(
+              AMF_CONFIG_STRING_API_VERSION, nrf_api_version))) {
+        Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
+        throw(AMF_CONFIG_STRING_API_VERSION "failed");
+      }
+      nrf_addr.api_version = nrf_api_version;
+    } else {
+      std::string nrf_fqdn = {};
+      nrf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nrf_fqdn);
+      uint8_t addr_type = {};
+      //fqdn::resolve(nrf_fqdn, address, nrf_port, addr_type);
+      if (addr_type != 0) {  // IPv6: TODO
+        throw("DO NOT SUPPORT IPV6 ADDR FOR NRF!");
+      } else {  // IPv4
+        IPV4_STR_ADDR_TO_INADDR(
+            util::trim(address).c_str(), nrf_ipv4_addr,
+            "BAD IPv4 ADDRESS FORMAT FOR NRF !");
+        nrf_addr.ipv4_addr   = nrf_ipv4_addr;
+        nrf_addr.port        = nrf_port;
+        nrf_addr.api_version = "v1";  // TODO: get API version
+      }
+    }
+
+  try {
     const Setting& nas = amf_cfg[AMF_CONFIG_STRING_NAS];
     const Setting& intAlg =
         nas[AMF_CONFIG_STRING_NAS_SUPPORTED_INTEGRITY_ALGORITHM_LIST];
@@ -362,6 +460,16 @@ void amf_config::display() {
     Logger::config().warn(
         "- Not using ausf: Please remove [--no-ausf] using it.");
   }
+  if (enable_nf_registration or enable_smf_selection) {
+    Logger::config().info("- NRF:");
+    Logger::config().info(
+        "    IP Addr ...............: %s", inet_ntoa(nrf_addr.ipv4_addr));
+    Logger::config().info("    Port ..................: %d", nrf_addr.port);
+    Logger::config().info(
+        "    API version ...........: %s", nrf_addr.api_version.c_str());
+  }
+
+
 
   Logger::config().info("- N11 Networking:");
   Logger::config().info("    iface ................: %s", n11.if_name.c_str());

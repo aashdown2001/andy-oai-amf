@@ -4,8 +4,8 @@
  * this work for additional information regarding copyright ownership.
  * The OpenAirInterface Software Alliance licenses this file to You under
  * the OAI Public License, Version 1.1  (the "License"); you may not use this
- *file except in compliance with the License. You may obtain a copy of the
- *License at
+ * file except in compliance with the License. You may obtain a copy of the
+ * License at
  *
  *      http://www.openairinterface.org/?page_id=698
  *
@@ -28,6 +28,8 @@
 #ifndef __AMF_HPP
 #define __AMF_HPP
 
+#include "3gpp_23.003.h"
+/*
 typedef struct {
   std::string mcc;
   std::string mnc;
@@ -37,12 +39,24 @@ typedef struct {
 typedef struct s_nssai  // section 28.4, TS23.003
 {
   uint8_t sST;
-  // uint32_t sD:24;
+  //uint32_t sD:24;
   std::string sD;
-  s_nssai(const uint8_t& sst, const std::string sd) : sST(sst), sD(sd) {}
-  s_nssai() : sST(), sD() {}
-  s_nssai(const s_nssai& p) : sST(p.sST), sD(p.sD) {}
-  bool operator==(const struct s_nssai& s) const {
+  s_nssai(const uint8_t &sst, const std::string sd)
+      :
+      sST(sst),
+      sD(sd) {
+  }
+  s_nssai()
+      :
+      sST(),
+      sD() {
+  }
+  s_nssai(const s_nssai &p)
+      :
+      sST(p.sST),
+      sD(p.sD) {
+  }
+  bool operator==(const struct s_nssai &s) const {
     if ((s.sST == this->sST) && (s.sD.compare(this->sD) == 0)) {
       return true;
     } else {
@@ -51,6 +65,7 @@ typedef struct s_nssai  // section 28.4, TS23.003
   }
 
 } snssai_t;
+*/
 
 // SMF + AMF + 3GPP TS 29.571 (Common data)
 enum class http_response_codes_e {
@@ -85,6 +100,9 @@ enum class http_response_codes_e {
 #define SMF_NUMBER_RETRIES 3
 constexpr auto CURL_MIME_BOUNDARY = "----Boundary";
 #define NRF_CURL_TIMEOUT_MS 100L
+#define AUSF_CURL_TIMEOUT_MS 100L
+#define CURL_TIMEOUT_MS 100L
+
 #define BUFFER_SIZE_1024 1024
 #define BUFFER_SIZE_512 512
 #define BUFFER_SIZE_256 256

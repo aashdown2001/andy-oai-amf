@@ -5,7 +5,8 @@
 #include "itti_msg.hpp"
 #include <string>
 #include "amf.hpp"
-
+#include "amf_profile.hpp"
+#include "PatchItem.h"
 class itti_msg_n11 : public itti_msg {
  public:
   itti_msg_n11(
@@ -91,4 +92,54 @@ class itti_nsmf_pdusession_release_sm_context : public itti_msg_n11 {
   std::string supi;
 };
 
+class itti_n11_register_nf_instance_request : public itti_msg_n11 {
+ public:
+  itti_n11_register_nf_instance_request(
+      const task_id_t orig, const task_id_t dest)
+      : itti_msg_n11(N11_REGISTER_NF_INSTANCE_REQUEST, orig, dest),
+        http_version(1) {}
+  const char* get_msg_name() { return "N11_REGISTER_NF_INSTANCE_REQUEST"; };
+
+  amf_application::amf_profile profile;
+  uint8_t http_version;
+};
+class itti_n11_register_nf_instance_response : public itti_msg_n11 {
+ public:
+  itti_n11_register_nf_instance_response(
+      const task_id_t orig, const task_id_t dest)
+      : itti_msg_n11(N11_REGISTER_NF_INSTANCE_RESPONSE, orig, dest),
+        http_version(1) {}
+  const char* get_msg_name() { return "N11_REGISTER_NF_INSTANCE_RESPONSE"; };
+
+  amf_application::amf_profile profile;
+  uint8_t http_version;
+  uint8_t http_response_code;
+};
+
+class itti_n11_update_nf_instance_request : public itti_msg_n11 {
+ public:
+  itti_n11_update_nf_instance_request(
+      const task_id_t orig, const task_id_t dest)
+      : itti_msg_n11(N11_UPDATE_NF_INSTANCE_REQUEST, orig, dest),
+        http_version(1) {}
+  const char* get_msg_name() { return "N11_UPDATE_NF_INSTANCE_REQUEST"; };
+
+  std::vector<oai::amf::model::PatchItem> patch_items;
+  uint8_t http_version;
+  std::string amf_instance_id;
+};
+
+//-----------------------------------------------------------------------------
+class itti_n11_update_nf_instance_response : public itti_msg_n11 {
+ public:
+  itti_n11_update_nf_instance_response(
+      const task_id_t orig, const task_id_t dest)
+      : itti_msg_n11(N11_UPDATE_NF_INSTANCE_RESPONSE, orig, dest),
+        http_version(1) {}
+  const char* get_msg_name() { return "N11_UPDATE_NF_INSTANCE_RESPONSE"; };
+
+  uint8_t http_version;
+  std::string amf_instance_id;
+  uint8_t http_response_code;
+};
 #endif

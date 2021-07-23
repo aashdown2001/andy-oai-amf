@@ -33,9 +33,12 @@
 #include <shared_mutex>
 #include <string>
 #include "amf_config.hpp"
+#include "itti.hpp"
 #include "amf_module_from_config.hpp"
 #include "itti_msg_amf_app.hpp"
 #include "ue_context.hpp"
+#include "amf_profile.hpp"
+#include "itti_msg_n11.hpp"
 //#include "amf_profile.hpp"
 using namespace config;
 //using namespace amf ;
@@ -44,8 +47,13 @@ static uint32_t amf_app_ue_ngap_id_generator = 1;
 namespace amf_application {
 
 #define TASK_AMF_APP_PERIODIC_STATISTICS (0)
+#define TASK_AMF_APP_TIMEOUT_NRF_HEARTBEAT (1)
 
 class amf_app {
+ private:
+  amf_profile nf_instance_profile;  // AMF profile
+  std::string amf_instance_id;      // AMF instance id
+  timer_id_t timer_nrf_heartbeat;
  public:
   explicit amf_app(const amf_config& amf_cfg);
   amf_app(amf_app const&) = delete;
@@ -57,6 +65,7 @@ class amf_app {
   void handle_itti_message(itti_n1n2_message_transfer_request& itti_msg);
   void handle_itti_message(itti_test_signalling_paging& itti_msg);
   void handle_itti_message(itti_test_signalling_network_initiated_deregistration& itti_msg);
+  void handle_itti_msg(itti_n11_register_nf_instance_response& r);
   // context management
   std::map<long, std::shared_ptr<ue_context>> amf_ue_ngap_id2ue_ctx;
   mutable std::shared_mutex m_amf_ue_ngap_id2ue_ctx;
@@ -81,13 +90,33 @@ class amf_app {
       uint32_t ranid, long amfid, std::string& mcc, std::string& mnc,
       uint32_t& tmsi);
 
-//   void register_to_nrf();
-//   void generate_uuid();
-//   void generate_amf_profile();
-//   void register_nf_instance();
-//   amf_profile nf_instance_profile;  // SMF profile
-//   std::string amf_instance_id;      // SMF instance id
+/*
+   * Trigger NF instance registration to NRF
+   * @param [void]
+   * @return void
+   */
+  void register_to_nrf();
+  /*
+   * Generate a random UUID for SMF instance
+   * @param [void]
+   * @return void
+   */
+  void generate_uuid();
 
+  /*
+   * Generate a SMF profile for this instance
+   * @param [void]
+   * @return void
+   */
+  void generate_amf_profile();
+
+  /*
+   * Send request to N11 task to trigger NF instance registration to NRF
+   * @param [void]
+   * @return void
+   */
+  void trigger_nf_registration_request();
+   void timer_nrf_heartbeat_timeout(timer_id_t timer_id, uint64_t arg2_user);
 };
 
 }  // namespace amf_application
