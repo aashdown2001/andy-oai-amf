@@ -39,7 +39,7 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   nlohmann::json udsf_response;
 
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";
-  std::string udsf_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
   if(amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
        Logger::amf_server().debug("udsf_response: %s", udsf_response.dump().c_str());
        psc.get()->pdu_session_context_from_json(udsf_response);
@@ -106,7 +106,7 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   nlohmann::json udsf_response;
 
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";
-  std::string udsf_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
+  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
   if(amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
        Logger::amf_server().debug("udsf_response: %s", udsf_response.dump().c_str());
        psc.get()->pdu_session_context_from_json(udsf_response);

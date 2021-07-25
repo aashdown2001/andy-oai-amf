@@ -104,7 +104,7 @@ void amf_app_task(void*) {
   itti_inst->notify_task_ready(task_id);
     // nlohmann::json udsf_response2;
     // std::string record_id = "RECORD_ID=\'" + to_string(1221) + "\'";
-    // std::string udsf_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+    // std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
     // while(1)
     // {amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response2);}
   do {
@@ -366,7 +366,7 @@ void amf_app::handle_itti_message(
   /**********************   hxs add *******************************/
 
   std::string record_id = "amf_ue_ngap_id=\'" + to_string(amf_ue_ngap_id) + "\'";
-  std::string udsf_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
+  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
   nlohmann::json udsf_ue_context;
   nlohmann::json  cgi;
   cgi["Content-ID"] = "cgi";
@@ -396,7 +396,7 @@ void amf_app::handle_itti_message(
   //amf_n2_inst->curl_http_client_udsf(udsf_url,json_part,"PUT",udsf_ue_context);
   nlohmann::json udsf_response;
   amf_n2_inst->curl_http_client_udsf(udsf_url,json_part,"PUT",udsf_response);
-  // udsf_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("gnb_context/records/") + std::to_string(itti_msg.assoc_id) ;
+  // udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("gnb_context/records/") + std::to_string(itti_msg.assoc_id) ;
   // if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
   //   Logger::amf_n2().error("No existing gNG context with assoc_id (%d)", itti_msg.assoc_id);
   //   return;
@@ -407,7 +407,7 @@ void amf_app::handle_itti_message(
   // gc1->gnb_context_from_json(udsf_response);
   // gc2 = std::shared_ptr<gnb_context>(gc1);
 
-  // udsf_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + std::to_string(uc.get()->ran_ue_ngap_id) ;
+  // udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + std::to_string(uc.get()->ran_ue_ngap_id) ;
   // if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
   //   Logger::amf_n2().error("No existing gNG context with assoc_id (%d)", uc.get()->ran_ue_ngap_id);
   //   return;
@@ -458,7 +458,7 @@ bool amf_app::generate_5g_guti(
    std::shared_ptr<ue_context> uc = std::shared_ptr<ue_context>(new ue_context());
   nlohmann::json udsf_response;
   std::string record_id = "RECORD_ID=\'" + ue_context_key + "\'";
-  std::string udsf_url = "http://192.168.199.201:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id;
+  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing gNG context with assoc_id");
     return false;
