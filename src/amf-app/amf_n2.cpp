@@ -1200,7 +1200,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
     memcpy(uecap, (uint8_t*) bdata(ueCapability), blength(ueCapability));
     uecap[blength(ueCapability)] = '\0';
     //URANSIM 不会发ueradio
-    //msg->setUERadioCapability(uecap, (size_t) blength(ueCapability));
+    msg->setUERadioCapability(uecap, (size_t) blength(ueCapability));
     free(uecap);
     Logger::amf_n2().debug("Encoding parameters for Service Request");
 
@@ -1576,7 +1576,7 @@ void amf_n2::handle_itti_message(
   udsf_gnb_update_context["blocks"] = nlohmann::json::array({
                                                {{"Content-ID", "ue_radio_cap_ind"},{"Content-Type", "varchar(1024)"},{"content",  ue_radio_cap_ind}}
                                           });
-  //amf_n2_inst->curl_http_client_udsf(udsf_update_url,udsf_gnb_update_context.dump(),"PUT",udsf_response);
+  amf_n2_inst->curl_http_client_udsf(udsf_update_url,udsf_gnb_update_context.dump(),"PUT",udsf_response);
   return ;
 
 }

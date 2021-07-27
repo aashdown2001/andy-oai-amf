@@ -450,7 +450,7 @@ void sctp_server::curl_http_client_Plugin(sctp_assoc_id_t assoc_id, sctp_stream_
 
 
     std::string url  = 
-        "http://" + std::string("10.112.202.24") +
+        "http://" + std::string("192.168.83.130") +
         ":" + std::to_string(38414) + "/nplugin-dr/v1/" +
         to_string (assoc_id ) + "/" + to_string (stream) ;
 

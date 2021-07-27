@@ -205,7 +205,7 @@ void amf_n11::handle_itti_message(
   std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
-    return ;
+return ;
   }
   else{
      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
@@ -229,17 +229,38 @@ void amf_n11::handle_itti_message(
   //   return;
   // }
 
+  /*string ue_context_key = "app_ue_ranid_" + to_string(itti_msg.ran_ue_ngap_id) +
+	                            ":amfid_" + to_string(itti_msg.amf_ue_ngap_id);
+  std::shared_ptr<ue_context> uc;
+  uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
+  std::string supi_2;
+  if (uc.get() != nullptr) {
+    supi_2 = uc->supi;
+  }
+  Logger::amf_n11().debug(
+		        "Send PDU Session Update SM Context Request to SMF (SUPI %s, PDU Session "
+			      "ID %d)",
+			            supi_2.c_str(), itti_msg.pdu_session_id);
+  std::shared_ptr<pdu_session_context> psc_2 = {};
+    if (!uc.get()->find_pdu_session_context(itti_msg.pdu_session_id, psc_2)) {
+	 Logger::amf_n11().error(
+		"Could not find psu_session_context with SUPI %s, Failed",
+			supi_2.c_str());
+        return;
+   }*/
   std::string smf_addr;
   if (!psc.get()->smf_available) {
-    if (!smf_selection_from_configuration(smf_addr)) {
+    /*if (!smf_selection_from_configuration(smf_addr)) {
       Logger::amf_n11().error("No SMF candidate is available");
      return;
-    }
+    }*/
+    Logger::amf_n11().error("No SMF is available for this PDU session");
   } else {
-    smf_selection_from_context(smf_addr);
+    //smf_selection_from_context(smf_addr);
+    smf_addr        = psc->smf_addr;
   }
  
-
+  smf_addr        = psc->smf_addr;
   std::string smf_ip_addr, remote_uri;
   std::shared_ptr<pdu_session_context> context = std::shared_ptr<pdu_session_context>(new pdu_session_context());
    context.get()->pdu_session_context_from_json(udsf_response);
@@ -302,6 +323,10 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
      psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
       psc.get()->pdu_session_context_from_json(udsf_response);
+      if(psc.get()->isn2sm_avaliable == false)
+      {
+	 psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
+      }
       //psc = std::shared_ptr<pdu_session_context>(psc1);
   }
  
@@ -514,13 +539,13 @@ void amf_n11::handle_pdu_session_initial_request(
 
   // TODO: Remove hardcoded values
    std::string remote_uri =
-      smf_addr + ":8889" + "/nsmf-pdusession/" + smf_api_version + "/sm-contexts";
+      smf_addr  + ":8889/nsmf-pdusession/v2/sm-contexts";
   nlohmann::json pdu_session_establishment_request;
   pdu_session_establishment_request["supi"]          = supi.c_str();
   pdu_session_establishment_request["pei"]           = "imei-200000000000001";
   pdu_session_establishment_request["gpsi"]          = "msisdn-200000000001";
   pdu_session_establishment_request["dnn"]           = dnn.c_str();
-  pdu_session_establishment_request["sNssai"]["sst"] = psc.get()->snssai.sST;
+  pdu_session_establishment_request["sNssai"]["sst"] = 1;
   pdu_session_establishment_request["sNssai"]["sd"]  = psc.get()->snssai.sD;
   pdu_session_establishment_request["pduSessionId"] = psc.get()->pdu_session_id;
   pdu_session_establishment_request["requestType"] =
