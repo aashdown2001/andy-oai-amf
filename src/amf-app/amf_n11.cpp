@@ -322,10 +322,10 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
   else{
      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
      psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
-      psc.get()->pdu_session_context_from_json(udsf_response);
-      if(psc.get()->isn2sm_avaliable == false)
+     psc.get()->pdu_session_context_from_json(udsf_response);
+      if(psc.get()->isn2sm_avaliable==false)
       {
-	 psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
+        psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
       }
       //psc = std::shared_ptr<pdu_session_context>(psc1);
   }
