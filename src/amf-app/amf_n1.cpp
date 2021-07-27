@@ -1066,6 +1066,7 @@ void amf_n1::service_request_handle(bool isNasSig,
   if (pdu_session_status == 0x0000) {
     serApt->setPDU_session_status(0x0000);
   } else {
+    //serApt->setPDU_session_status(0x0000);
     serApt->setPDU_session_status(pdu_session_status);
     Logger::amf_n1().debug("setting pdu session status 0x%02x",
                            htonl(pdu_session_status));
