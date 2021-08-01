@@ -251,7 +251,7 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind &nas_data_ind) {
           nlohmann::json udsf_response; 
           nc = std::shared_ptr<nas_context>(new nas_context());
           std::string record_id = "guti=\'" + guti + "\'";
-          std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+          std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
           if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response))
           {
             Logger::amf_n1().error("No existing nas_context with GUTI %s",guti.c_str());
@@ -416,6 +416,7 @@ void amf_n1::nas_signalling_establishment_request_handle(
     nc.get()->amf_ue_ngap_id = amf_ue_ngap_id;
     nc.get()->ran_ue_ngap_id = ran_ue_ngap_id;
     nc.get()->serving_network = snn;
+    nc.get()->is_common_procedure_for_authentication_running = false;
     // stacs.UE_connected += 1;
     
 
@@ -423,7 +424,7 @@ void amf_n1::nas_signalling_establishment_request_handle(
     string auts;
     octet_stream_2_hex_stream((uint8_t*) bdata(nc.get()->auts), blength(nc.get()->auts), auts);
     std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-    std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id ;
+    std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id ;
     nlohmann::json udsf_nas_context;
     nlohmann::json udsf_response;
     udsf_nas_context["meta"] ["tags"] = {
@@ -620,7 +621,7 @@ void amf_n1::nas_signalling_establishment_request_handle(
 
   amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
 
-  // udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + std::to_string(nc.get()->amf_ue_ngap_id) ;
+  // udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + std::to_string(nc.get()->amf_ue_ngap_id) ;
   // if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
   // Logger::amf_n2().error("No existing nas context with amf_ue_ngap_id (%d)", nc.get()->amf_ue_ngap_id);
   //   return;
@@ -851,7 +852,7 @@ void amf_n1::identity_response_handle(uint32_t ran_ue_ngap_id,
   nc.get()->imsi = supi;
 /***************************hsx add************************/
   std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   nlohmann::json udsf_nas_context;
   nlohmann::json udsf_response;
 
@@ -975,7 +976,7 @@ void amf_n1::service_request_handle(bool isNasSig,
   pdu_session_context *psc1 = new pdu_session_context();
   nlohmann::json udsf_response;
   std::string record_id = "RECORD_ID=\'" + supi + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
   bool is_supi_to_pdu_ctx_udsf = amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response);
   if(!is_supi_to_pdu_ctx_udsf){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
@@ -1027,7 +1028,7 @@ void amf_n1::service_request_handle(bool isNasSig,
     bstring kgnb_bs = blk2bstr(kgnb, 32);
 
     std::string record_id = "RECORD_ID=\'" + supi + "\'";
-    std::string udsf_put_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+    std::string udsf_put_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
       nlohmann::json udsf_put_pdu_session_context;
     // nlohmann::json udsf_response;
       udsf_put_pdu_session_context["meta"] ["tags"] = {
@@ -1103,7 +1104,7 @@ void amf_n1::service_request_handle(bool isNasSig,
     Logger::amf_n1().error("Cannot get pdu session information");
   }
   record_id = "RECORD_ID=\'" + supi + "\'";
-  std::string udsf_put_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+  std::string udsf_put_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
       nlohmann::json udsf_put_pdu_session_context;
     // nlohmann::json udsf_response;
       udsf_put_pdu_session_context["meta"] ["tags"] = {
@@ -1628,7 +1629,7 @@ void amf_n1::registration_request_handle(bool isNasSig,
   
   /**********************hsx add***********************/
   std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   
   nlohmann::json udsf_response;
   udsf_nas_context["meta"] ["tags"] = {
@@ -1653,7 +1654,7 @@ void amf_n1::registration_request_handle(bool isNasSig,
   // printf("----------------udsf_nas_context %s---------\n",udsf_nas_context.dump().c_str());
   // amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
 
-  // udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + std::to_string(nc.get()->amf_ue_ngap_id) ;
+  // udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + std::to_string(nc.get()->amf_ue_ngap_id) ;
   // if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
   // Logger::amf_n2().error("No existing gNG context with assoc_id (%d)", nc.get()->amf_ue_ngap_id);
   //   return;
@@ -1762,7 +1763,7 @@ bool amf_n1::is_guti_2_nas_context_in_udsf(const std::string &guti) {
   printf("-------is_guti_2_nas_context_in_udsf-------------\n");
   nlohmann::json udsf_response; 
   std::string record_id = "guti=\'" + guti + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
   return (amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response));
 }
 std::shared_ptr<nas_context> amf_n1::guti_2_nas_context_in_udsf(const std::string &guti) const {
@@ -1770,7 +1771,7 @@ std::shared_ptr<nas_context> amf_n1::guti_2_nas_context_in_udsf(const std::strin
   nlohmann::json udsf_response; 
   std::shared_ptr<nas_context> nc = std::shared_ptr<nas_context>(new nas_context());
   std::string record_id = "guti=\'" + guti + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response))
   {
      Logger::amf_n1().error("No existing nas_context with GUTI %s",guti.c_str());
@@ -1783,14 +1784,14 @@ std::shared_ptr<nas_context> amf_n1::guti_2_nas_context_in_udsf(const std::strin
 bool amf_n1::is_amf_ue_id_2_nas_context_in_udsf(const long& amf_ue_ngap_id) const {
   nlohmann::json udsf_response; 
   std::string record_id = "RECORD_ID=\'" + to_string(amf_ue_ngap_id) + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
   return (amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response));
 }
 std::shared_ptr<nas_context> amf_n1::amf_ue_id_2_nas_context_in_udsf(const long& amf_ue_ngap_id) const {
   nlohmann::json udsf_response; 
   std::shared_ptr<nas_context> nc = std::shared_ptr<nas_context>(new nas_context());
   std::string record_id = "RECORD_ID=\'" + to_string(amf_ue_ngap_id) + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response))
   {
      Logger::amf_n1().error("No existing nas_context with amf_ue_ngap_id %s",to_string(amf_ue_ngap_id).c_str());
@@ -1900,7 +1901,7 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context> &nc) {
   ngksi["Content-Type"] = "varchar(32)";
   ngksi["content"] = to_string(nc.get()->ngKsi);
   udsf_nas_context["blocks"].push_back(ngksi);
-  // std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
+  // std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
   // amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
   } else if (nc.get()->is_5g_guti_present) {
     Logger::amf_n1().debug("Start to run identification procedure");
@@ -1925,7 +1926,7 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context> &nc) {
     dnt->ran_ue_ngap_id = nc.get()->ran_ue_ngap_id;
     /*************************hsx add**************************/
     std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-    std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
+    std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
     udsf_nas_context["meta"] ["tags"] = {
                                         {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                         {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
@@ -2223,7 +2224,7 @@ bool amf_n1::authentication_vectors_from_ausf(
     return false;
   }
   std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
- std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
+ std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   
   udsf_nas_context["meta"] ["tags"] = {
                                       {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
@@ -2323,7 +2324,7 @@ bool amf_n1::_5g_aka_confirmation_from_ausf(std::shared_ptr<nas_context> &nc,
 
 
     std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-    std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id  ;
+    std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id  ;
     udsf_nas_context["meta"] ["tags"] = {
                                       {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                       {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
@@ -2392,7 +2393,7 @@ bool amf_n1::authentication_vectors_generator_in_ausf(
   }
   udsf_nas_context["blocks"].push_back(_5g_av);
   std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id;
   
   udsf_nas_context["meta"] ["tags"] = {
                                       {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
@@ -2649,7 +2650,7 @@ void amf_n1::handle_auth_vector_successful_result(
   ngKsi["content"] = to_string(nc.get()->ngKsi);
   udsf_nas_context["blocks"].push_back(ngKsi);
   std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   udsf_nas_context["meta"] ["tags"] = {
                                         {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                         {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
@@ -2730,7 +2731,7 @@ bool amf_n1::start_authentication_procedure(std::shared_ptr<nas_context> nc,
   Logger::amf_n1().debug("amf_ue_ngap_id 0x%x", nc.get()->amf_ue_ngap_id);
   
   std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   nlohmann::json udsf_ue_nas_context;
   udsf_nas_context["meta"] ["tags"] = {
                                       {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
@@ -2847,7 +2848,7 @@ void amf_n1::authentication_response_handle(uint32_t ran_ue_ngap_id,
       }
     }
   // std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-  // std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("ue_nas_context/records/") +record_id ;
+  // std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_nas_context/records/") +record_id ;
   // nlohmann::json udsf_ue_nas_context;
   // udsf_ue_nas_context["meta"] ["tags"] = {
   //                                     {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
@@ -2931,7 +2932,7 @@ void amf_n1::authentication_failure_handle(uint32_t ran_ue_ngap_id,
   udsf_nas_context["blocks"].push_back(auts_json); 
 
  std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id;
   udsf_nas_context["meta"] ["tags"] = {
                                         {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                         {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
@@ -3072,7 +3073,7 @@ bool amf_n1::start_security_mode_control_procedure(
 
 
   std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id ;
   udsf_nas_context["meta"] ["tags"] = {
                                         {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
                                         {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
@@ -3369,7 +3370,7 @@ void amf_n1::registration_complete_handle(uint32_t ran_ue_ngap_id,
     string auts;
     octet_stream_2_hex_stream((uint8_t*) bdata(nc.get()->auts), blength(nc.get()->auts), auts);
     std::string record_id = "RECORD_ID=\'" + to_string(nc.get()->amf_ue_ngap_id) + "\'";
-    std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id ;
+    std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") +record_id ;
     nlohmann::json udsf_nas_context;
     nlohmann::json udsf_response;
     udsf_nas_context["meta"] ["tags"] = {
@@ -4189,7 +4190,7 @@ void amf_n1::run_mobility_registration_update_procedure(
   pdu_session_context *psc1 = new pdu_session_context();
   nlohmann::json udsf_response;
    std::string record_id = "RECORD_ID=\'" + supi+ "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
     return;
@@ -4298,7 +4299,7 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   pdu_session_context *psc1 = new pdu_session_context();
   nlohmann::json udsf_response;
    std::string record_id = "RECORD_ID=\'" +supi+ "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
   }
@@ -4404,7 +4405,7 @@ void amf_n1::run_periodic_registration_update_procedure(
   pdu_session_context *psc1 = new pdu_session_context();
   nlohmann::json udsf_response;
    std::string record_id = "RECORD_ID=\'" +supi+ "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
   }
@@ -4455,7 +4456,7 @@ void amf_n1::set_5gmm_state(std::shared_ptr<nas_context> nc,
   udsf_nas_context["blocks"].push_back(_5gmm_state);
 
  std::string record_id = "RECORD_ID=\'" +to_string(nc.get()->amf_ue_ngap_id)+ "\'";
-  std::string udsf_url = "http://192.168.83.130:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + record_id;
   
   udsf_nas_context["meta"] ["tags"] = {
                                       {"RECORD_ID",nlohmann::json::array({to_string(nc.get()->amf_ue_ngap_id)})},
