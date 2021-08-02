@@ -58,11 +58,35 @@ void IndividualSubscriptionDocumentApiImpl::gnb_message_from_plugin(const std::u
     std::memcpy(buffer, format_string_as_hex(transdata.get_amf_data()),transdata.get_amf_data().length()/2+1);
     bstring payload = blk2bstr(buffer, transdata.get_amf_data().length()/2+1);
     printf("%s\n,length %d",bdata(payload),blength(payload));
-    if (!amf_n2_inst->is_assoc_id_2_gnb_context(assoc_id)) {
-        amf_n2_inst->handle_sctp_new_association(assoc_id,10,8);
+
+    // try to get gnb_context from UDSF
+    bool is_gnb_context_present = false;
+    std::shared_ptr<gnb_context> gc = std::shared_ptr<gnb_context>(new gnb_context());
+    amf_n2_inst->set_assoc_id_2_gnb_context(assoc_id, gc);
+    nlohmann::json udsf_response;
+    std::string record_id = "RECORD_ID=\'" +std::to_string(assoc_id)  + "\'";
+    std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("gnb_context/records/") + record_id ;
+    if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+      Logger::amf_n2().error("No existing gNG context with assoc_id ...");
+      is_gnb_context_present = false;
+    }else if(udsf_response.dump().length()<8){
+      Logger::amf_n2().error("No existing gNG context with assoc_id .....");
+      is_gnb_context_present = false;
+    }else{
+      is_gnb_context_present = true;
     }
+    if(is_gnb_context_present){
+      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+      gc.get()->gnb_context_from_json(udsf_response);
+    }else{
+      amf_n2_inst->handle_sctp_new_association(assoc_id,10,8);
+    } 
     amf_n2_inst->handle_receive(payload,assoc_id,stream,10,8);
     response.send(Pistache::Http::Code::Ok, "plugin message\n");
+
+    //if (!amf_n2_inst->is_assoc_id_2_gnb_context(assoc_id)) {//to do - get context from udsf
+    //    amf_n2_inst->handle_sctp_new_association(assoc_id,10,8);
+    //}
 }
 
 
