@@ -60,6 +60,7 @@ void IndividualSubscriptionDocumentApiImpl::gnb_message_from_plugin(const std::u
     printf("%s\n,length %d",bdata(payload),blength(payload));
 
     // try to get gnb_context from UDSF
+    printf("try to get gnb_context from UDSF in IndividualSubscriptionDocumentApiImpl.cpp \n");
     bool is_gnb_context_present = false;
     std::shared_ptr<gnb_context> gc = std::shared_ptr<gnb_context>(new gnb_context());
     amf_n2_inst->set_assoc_id_2_gnb_context(assoc_id, gc);

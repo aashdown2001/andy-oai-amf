@@ -303,6 +303,105 @@ void amf_app::handle_itti_msg(itti_n11_register_nf_instance_response& r){
 //------------------------------------------------------------------------------
 void amf_app::handle_itti_message(
     itti_nas_signalling_establishment_request& itti_msg) {
+
+  // get ue_context
+  Logger::amf_app().debug("Try to get ue_context from UDSF");
+  long amf_ue_ngap_id = 0;
+  if ((amf_ue_ngap_id = itti_msg.amf_ue_ngap_id) == -1) {
+    amf_ue_ngap_id = generate_amf_ue_ngap_id();
+  }else{
+    amf_ue_ngap_id = itti_msg.amf_ue_ngap_id;
+  }
+  nlohmann::json udsf_response;
+  std::shared_ptr<ue_context> uc = std::shared_ptr<ue_context>(new ue_context());
+  string ue_context_key = "app_ue_ranid_" + to_string(itti_msg.ran_ue_ngap_id) + "-amfid_" + to_string(amf_ue_ngap_id);
+  std::string record_id = "amf_ue_ngap_id=\'" + to_string(amf_ue_ngap_id) + "\'";
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
+  //std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID = \'" + ue_context_key + "\'";
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+    Logger::amf_n2().error("No existing ue_context with ue_context_key ...");
+  }else if(udsf_response.dump().length()<8){
+    Logger::amf_n2().error("No existing ue_context with ue_context_key .....");
+  }else{
+    Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+    uc.get()->ue_context_from_json(udsf_response);
+  }
+  set_ran_amf_id_2_ue_context(ue_context_key, uc);
+  // Update ue_context
+  uc.get()->cgi = itti_msg.cgi;
+  uc.get()->tai = itti_msg.tai;
+  if (itti_msg.rrc_cause != -1)
+    uc.get()->rrc_estb_cause =
+        (e_Ngap_RRCEstablishmentCause) itti_msg.rrc_cause;
+  if (itti_msg.ueCtxReq == -1)
+    uc.get()->isUeContextRequest = false;
+  else
+    uc.get()->isUeContextRequest = true;
+  uc.get()->ran_ue_ngap_id = itti_msg.ran_ue_ngap_id;
+  uc.get()->amf_ue_ngap_id = amf_ue_ngap_id;
+  // send to TASK_AMF_N1
+  std::string guti;
+  bool is_guti_valid = false;
+  if (itti_msg.is_5g_s_tmsi_present) {
+    guti = itti_msg.tai.mcc + itti_msg.tai.mnc + amf_cfg.guami.regionID +
+           itti_msg._5g_s_tmsi;
+    is_guti_valid = true;
+    Logger::amf_app().debug("Receiving GUTI %s", guti.c_str());
+  }
+  itti_uplink_nas_data_ind* itti_n1_msg =
+      new itti_uplink_nas_data_ind(TASK_AMF_APP, TASK_AMF_N1);
+  itti_n1_msg->amf_ue_ngap_id              = amf_ue_ngap_id;
+  itti_n1_msg->ran_ue_ngap_id              = itti_msg.ran_ue_ngap_id;
+  itti_n1_msg->is_nas_signalling_estab_req = true;
+  itti_n1_msg->nas_msg                     = itti_msg.nas_buf;
+  itti_n1_msg->mcc                         = itti_msg.tai.mcc;
+  itti_n1_msg->mnc                         = itti_msg.tai.mnc;
+  itti_n1_msg->is_guti_valid               = is_guti_valid;
+  if (is_guti_valid) {
+    itti_n1_msg->guti = guti;
+  }
+  std::shared_ptr<itti_uplink_nas_data_ind> i =
+      std::shared_ptr<itti_uplink_nas_data_ind>(itti_n1_msg);
+  int ret = itti_inst->send_msg(i);
+  if (0 != ret) {
+    Logger::amf_app().error(
+        "Could not send ITTI message %s to task TASK_AMF_N1",
+        i->get_msg_name());
+  }
+  //Update ue_context to UDSF
+  record_id = "amf_ue_ngap_id=\'" + to_string(amf_ue_ngap_id) + "\'";
+  udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
+  nlohmann::json udsf_ue_context;
+  nlohmann::json  cgi;
+  cgi["Content-ID"] = "cgi";
+  cgi["Content-Type"] = "JSON";
+  cgi["content"]["mcc"] = uc.get()->cgi.mcc;
+  cgi["content"]["mnc"] = uc.get()->cgi.mnc; 
+  cgi["content"]["nrCellID"] = to_string(uc.get()->cgi.nrCellID);
+  nlohmann::json  tai;
+  tai["Content-ID"] = "tai";
+  tai["Content-Type"] = "JSON";
+  tai["content"]["mcc"] = uc.get()->tai.mcc;
+  tai["content"]["mnc"] = uc.get()->tai.mnc; 
+  tai["content"]["tac"] = to_string(uc.get()->tai.tac);
+  udsf_ue_context["meta"] ["tags"] = {
+                                       {"RECORD_ID",nlohmann::json::array({ue_context_key})},
+                                       {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
+                                       } ;
+  udsf_ue_context["blocks"] = nlohmann::json::array({
+                                               {{"Content-ID", "ran_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", to_string(uc.get()->ran_ue_ngap_id)}},
+                                               {{"Content-ID", "amf_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", to_string(uc.get()->amf_ue_ngap_id)}},
+                                               {{"Content-ID", "rrc_estb_cause"},{"Content-Type", "varchar(32)"},{"content",to_string(uc.get()->rrc_estb_cause)}},
+                                               {{"Content-ID", "isUeContextRequest"},{"Content-Type", "varchar(32)"},{"content", to_string(uc.get()->isUeContextRequest)}}
+                                          });              
+  udsf_ue_context["blocks"].push_back(cgi);    
+  udsf_ue_context["blocks"].push_back(tai);  
+  std::string json_part = udsf_ue_context.dump();
+  //nlohmann::json udsf_response;
+  amf_n2_inst->curl_http_client_udsf(udsf_url,json_part,"PUT",udsf_response);
+
+#if 0
+
   // 1. generate amf_ue_ngap_id
   // 2. establish ue_context associated with amf_ue_ngap_id
   // 3. store ue-reated core information
@@ -437,6 +536,7 @@ void amf_app::handle_itti_message(
           i->get_msg_name());
     }
   }
+#endif
 }
 
 // SMF Client response handlers

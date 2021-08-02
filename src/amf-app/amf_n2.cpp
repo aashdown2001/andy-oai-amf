@@ -578,6 +578,8 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
   // check the gNB context on which  this UE is attached with assoc_id
   itti_nas_signalling_establishment_request* itti_msg =
       new itti_nas_signalling_establishment_request(TASK_AMF_N2, TASK_AMF_APP);
+
+#if 0
   //get gnb_context from udsf.200 ok gnb_context is exist
   std::shared_ptr<gnb_context> gc = std::shared_ptr<gnb_context>(new gnb_context());
   nlohmann::json udsf_response;
@@ -592,16 +594,19 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
   }
   Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
   gc.get()->gnb_context_from_json(udsf_response);
-
+#endif
   // gc = std::shared_ptr<gnb_context>(gc1);
 
-  // if (!is_assoc_id_2_gnb_context(init_ue_msg.assoc_id)) {
-  //   Logger::amf_n2().error(
-  //       "No existing gNG context with assoc_id (%d)", init_ue_msg.assoc_id);
-  //   return;
-  // }
+  // try to get gnb_contexti
+  Logger::amf_n2().debug("try to get gnb_context in amf_n2.cpp");
+  std::shared_ptr<gnb_context> gc;
+  if (!is_assoc_id_2_gnb_context(init_ue_msg.assoc_id)) {
+    Logger::amf_n2().error(
+        "No existing gNG context with assoc_id (%d)", init_ue_msg.assoc_id);
+    return;
+  }
 
-  // gc = assoc_id_2_gnb_context(init_ue_msg.assoc_id);
+  gc = assoc_id_2_gnb_context(init_ue_msg.assoc_id);
   if (gc.get()->ng_state == NGAP_RESETING ||
       gc.get()->ng_state == NGAP_SHUTDOWN) {
     Logger::amf_n2().warn(
@@ -614,14 +619,20 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
     return;
   }
 
-  // UE NGAP Context
+
+  // try to get IEs
+  Logger::amf_n2().debug("try to get IEs  in amf_n2.cpp");
+  // parse ran_ue_ngap_id from INITIAL_UE_MESSAGE
+  Logger::amf_n2().debug("try to parse ran_ue_ngap_id from INITIAL_UE_MESSAGE  in amf_n2.cpp");
   uint32_t ran_ue_ngap_id;
   if ((ran_ue_ngap_id = init_ue_msg.initUeMsg->getRanUENgapID()) == -1) {
     Logger::amf_n2().error("Missing Mandatory IE (RanUeNgapId)");
     return;
+  }else{
+    itti_msg->ran_ue_ngap_id = ran_ue_ngap_id;
   }
-  std::shared_ptr<nas_context> nc = std::shared_ptr<nas_context>(new nas_context());
-  std::string _5g_s_tmsi; 
+  // parse nas-pdu from INITIAL_UE_MESSAGEss
+  Logger::amf_n2().debug("try to parse nas-pdu from INITIAL_UE_MESSAGE  in amf_n2.cpp");
   uint8_t* nas_buf;
   size_t nas_len = 0;
   if (init_ue_msg.initUeMsg->getNasPdu(nas_buf, nas_len)) {
@@ -631,8 +642,126 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
     Logger::amf_n2().error("Missing IE NAS-PDU");
     return;
   }
+  // parse location information from INITIAL_UE_MESSAGE
+  Logger::amf_n2().debug("try to parse location infromation from INITIAL_UE_MESSAGE  in amf_n2.cpp");
   Tai_t tai;
   NrCgi_t cgi;
+  init_ue_msg.initUeMsg->getUserLocationInfoNR(cgi, tai);
+  // parse rrc_establishment from INITIAL_UE_MESSAGE
+  Logger::amf_n2().debug("try to parse rrc_establiehment from INITIAL_UE_MESSAGE  in amf_n2.cpp");
+  if (init_ue_msg.initUeMsg->getRRCEstablishmentCause() == -1) {
+    Logger::amf_n2().warn("IE RRCEstablishmentCause not present");
+    itti_msg->rrc_cause = -1;  // not present
+  } else {
+    itti_msg->rrc_cause = init_ue_msg.initUeMsg->getRRCEstablishmentCause();
+  }
+  // parse 5g-s-tmsi from INITIAL_UE_MESSAGE
+  Logger::amf_n2().debug("try to parse 5g-s-tmsi from INITIAL_UE_MESSAGE  in amf_n2.cpp");
+  std::string _5g_s_tmsi; 
+  if (!init_ue_msg.initUeMsg->get5GS_TMSI(_5g_s_tmsi)) {
+    itti_msg->is_5g_s_tmsi_present = false;
+    Logger::amf_n2().debug("5g_s_tmsi not present");
+    itti_msg->amf_ue_ngap_id = -1;
+  }else{
+    itti_msg->is_5g_s_tmsi_present = true;
+    itti_msg->_5g_s_tmsi           = _5g_s_tmsi;
+  }
+
+  //check if ue_ngap_context is to be establishetd a new one
+  Logger::amf_n2().debug("check if ue_ngap_context is to be establishetd a new one in amf_n2.cpp");
+  bool is_ran_ue_ngap_id_new = true;
+  std::shared_ptr<nas_context> nc;
+  if(itti_msg->is_5g_s_tmsi_present){
+    //try to get nas_context using guti
+    std::string guti;
+    guti = tai.mcc + tai.mnc + amf_cfg.guami.regionID + itti_msg->_5g_s_tmsi ;
+    Logger::amf_app().debug("Receiving GUTI %s", guti.c_str());
+    if(amf_n1_inst->is_guti_2_nas_context_in_udsf(guti)){
+      nlohmann::json udsf_response; 
+      std::string record_id_nas = "guti=\'" + guti + "\'";
+      std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id_nas;
+      if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+        Logger::amf_n1().error("No existing nas_context with GUTI %s",guti.c_str());
+      }else if(udsf_response.dump().length()<8){
+        Logger::amf_n1().error("No existing nas_context with GUTI %s  ...",guti.c_str());
+      }else{
+        nc = std::shared_ptr<nas_context>(new nas_context());
+        nc.get()->nas_context_from_json(udsf_response);
+	is_ran_ue_ngap_id_new = false;
+        itti_msg->amf_ue_ngap_id = nc.get()->amf_ue_ngap_id;
+        itti_msg->ran_ue_ngap_id = nc.get()->ran_ue_ngap_id;
+      }
+    }
+  }
+
+  // try to get a ue_ngap_context using (new/old) ran_ue_ngap_id
+  Logger::amf_n2().debug("try to get a ue_ngap_context using (new/old) ran_ue_ngap_id in amf_n2.cpp");
+  std::shared_ptr<ue_ngap_context> unc  = std::shared_ptr<ue_ngap_context>(new ue_ngap_context());
+  nlohmann::json udsf_response;
+  std::string record_id, udsf_url;
+  if(is_ran_ue_ngap_id_new){
+    record_id = "RECORD_ID=\'" +std::to_string(ran_ue_ngap_id)  + "\'";
+  }else{
+    record_id = "RECORD_ID=\'" +std::to_string(nc.get()->ran_ue_ngap_id)  + "\'";
+  }
+  udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_ngap_context/records/") + record_id ;
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+    Logger::amf_n2().error("No existing ue_ngap context with ran_ue_ngap_id ...");
+  }else if(udsf_response.dump().length()<8){
+     Logger::amf_n2().error("No existing ue_ngap context with ran_ue_ngap_id .....");
+  }else{
+    Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+    unc.get()->ue_ngap_context_from_json(udsf_response);
+  }
+  set_ran_ue_ngap_id_2_ue_ngap_context(ran_ue_ngap_id, unc);
+
+  // Update ue_ngap_context
+  unc.get()->ran_ue_ngap_id   = ran_ue_ngap_id;
+  unc.get()->sctp_stream_recv = init_ue_msg.stream;
+  unc.get()->sctp_stream_send == gc.get()->next_sctp_stream;
+  gc.get()->next_sctp_stream += 1;
+  if (gc.get()->next_sctp_stream >= gc.get()->instreams)
+    gc.get()->next_sctp_stream = 1;
+  unc.get()->gnb_assoc_id = init_ue_msg.assoc_id;
+  
+  // Send ue_ngap_context to UDSF
+  Logger::amf_n2().debug("update ue_ngap_context to UDSF amf_n2.cpp");
+  nlohmann::json udsf_ue_ngap_context;
+  std::string udsf_put_url = "";
+  int old_ran_ue_ngap_id = 0;
+  if(is_ran_ue_ngap_id_new)
+    old_ran_ue_ngap_id = ran_ue_ngap_id;
+  else
+    old_ran_ue_ngap_id = nc.get()->ran_ue_ngap_id;
+  udsf_put_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_ngap_context/records/") + to_string(old_ran_ue_ngap_id);
+  udsf_ue_ngap_context["meta"] ["tags"] = {
+                                       {"RECORD_ID",nlohmann::json::array({to_string(old_ran_ue_ngap_id)})},
+                                       {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
+                                       } ;
+  udsf_ue_ngap_context["blocks"] = nlohmann::json::array({
+                                               {{"Content-ID", "ran_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", to_string(unc.get()->ran_ue_ngap_id)}},
+                                               {{"Content-ID", "amf_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", ""}},
+                                               {{"Content-ID", "sctp_stream_recv"},{"Content-Type", "varchar(32)"},{"content",to_string(unc.get()->sctp_stream_recv)}},
+                                               {{"Content-ID", "sctp_stream_send"},{"Content-Type", "varchar(32)"},{"content", to_string(unc.get()->sctp_stream_send)}},
+                                               {{"Content-ID", "gnb_assoc_id"},{"Content-Type", "varchar(32)"},{"content", to_string(unc.get()->gnb_assoc_id)}},
+                                               {{"Content-ID", "s_tmsi_5g"},{"Content-Type", "varchar(32)"},{"content", ""}},
+                                               {{"Content-ID", "ng_ue_state"},{"Content-Type", "varchar(32)"},{"content",  ""}},
+                                               {{"Content-ID", "ueContextRequest"},{"Content-Type", "varchar(32)"},{"content",  ""}}
+                                          });
+  std::string json_part = udsf_ue_ngap_context.dump();
+  amf_n2_inst->curl_http_client_udsf(udsf_put_url,json_part,"PUT",udsf_response);
+  // Send itti_nas_signalling_establishment_request
+  Logger::amf_n2().debug("Send itti_nas_signalling_establishment_request to TASK_AMF_APP amf_n2.cpp");
+  std::shared_ptr<itti_nas_signalling_establishment_request> i =
+      std::shared_ptr<itti_nas_signalling_establishment_request>(itti_msg);
+  int ret = itti_inst->send_msg(i);
+  if (0 != ret) {
+    Logger::amf_n2().error(
+        "Could not send ITTI message %s to task TASK_AMF_APP",
+        i->get_msg_name());
+  }
+
+# if 0
     if (!init_ue_msg.initUeMsg->get5GS_TMSI(_5g_s_tmsi)) {
       itti_msg->is_5g_s_tmsi_present = false;
       Logger::amf_n2().debug("5g_s_tmsi not present");
@@ -735,7 +864,7 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
       }
     }
   
-  std::shared_ptr<ue_ngap_context> unc;
+  //std::shared_ptr<ue_ngap_context> unc;
   
   if (!is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id)) {
     Logger::amf_n2().debug(
@@ -942,6 +1071,8 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
         "Could not send ITTI message %s to task TASK_AMF_APP",
         i->get_msg_name());
   }
+
+#endif
 }
 
 //------------------------------------------------------------------------------
