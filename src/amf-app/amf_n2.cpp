@@ -647,6 +647,9 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
   Tai_t tai;
   NrCgi_t cgi;
   init_ue_msg.initUeMsg->getUserLocationInfoNR(cgi, tai);
+  itti_msg->cgi = cgi;
+  itti_msg->tai = tai;
+  Logger::amf_n2().debug("parse tai from INITIAL UE MESSAGE(mcc %s, mnc %s)", tai.mcc.c_str(), tai.mnc.c_str());
   // parse rrc_establishment from INITIAL_UE_MESSAGE
   Logger::amf_n2().debug("try to parse rrc_establiehment from INITIAL_UE_MESSAGE  in amf_n2.cpp");
   if (init_ue_msg.initUeMsg->getRRCEstablishmentCause() == -1) {

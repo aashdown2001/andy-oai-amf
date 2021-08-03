@@ -95,7 +95,8 @@ class amf_n1 {
   std::shared_ptr<nas_context> guti_2_nas_context_in_udsf(const std::string& guti) const;
 
   bool is_amf_ue_id_2_nas_context_in_udsf(const long& amf_ue_ngap_id) const;
-  std::shared_ptr<nas_context> amf_ue_id_2_nas_context_in_udsf(const long& amf_ue_ngap_id) const;
+  void amf_ue_id_2_nas_context_in_udsf(const long& amf_ue_ngap_id, std::shared_ptr<nas_context> &) const;
+  //std::shared_ptr<nas_context> amf_ue_id_2_nas_context_in_udsf(const long& amf_ue_ngap_id) const;
 
   mutable std::shared_mutex m_amfueid2nas_context;
   bool is_amf_ue_id_2_nas_context(const long& amf_ue_ngap_id) const;
@@ -125,6 +126,7 @@ class amf_n1 {
   bool _5g_aka_confirmation_from_ausf(
       std::shared_ptr<nas_context>& nc, bstring resStar);
 
+  void http_update_nas_context_into_udsf(std::shared_ptr<nas_context> nc);
   bool authentication_vectors_generator_in_ausf(
       std::shared_ptr<nas_context>& nc);
   bool authentication_vectors_generator_in_udm(

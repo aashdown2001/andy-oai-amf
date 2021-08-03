@@ -339,6 +339,38 @@ void amf_app::handle_itti_message(
     uc.get()->isUeContextRequest = true;
   uc.get()->ran_ue_ngap_id = itti_msg.ran_ue_ngap_id;
   uc.get()->amf_ue_ngap_id = amf_ue_ngap_id;
+  //Update ue_context to UDSF
+  Logger::amf_app().debug("Update ue_context to UDSF");
+  record_id = "amf_ue_ngap_id=\'" + to_string(amf_ue_ngap_id) + "\'";
+  udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
+  nlohmann::json udsf_ue_context;
+  nlohmann::json  cgi;
+  cgi["Content-ID"] = "cgi";
+  cgi["Content-Type"] = "JSON";
+  cgi["content"]["mcc"] = uc.get()->cgi.mcc;
+  cgi["content"]["mnc"] = uc.get()->cgi.mnc; 
+  cgi["content"]["nrCellID"] = to_string(uc.get()->cgi.nrCellID);
+  nlohmann::json  tai;
+  tai["Content-ID"] = "tai";
+  tai["Content-Type"] = "JSON";
+  tai["content"]["mcc"] = uc.get()->tai.mcc;
+  tai["content"]["mnc"] = uc.get()->tai.mnc; 
+  tai["content"]["tac"] = to_string(uc.get()->tai.tac);
+  udsf_ue_context["meta"] ["tags"] = {
+                                       {"RECORD_ID",nlohmann::json::array({ue_context_key})},
+                                       {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
+                                       } ;
+  udsf_ue_context["blocks"] = nlohmann::json::array({
+                                               {{"Content-ID", "ran_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", to_string(uc.get()->ran_ue_ngap_id)}},
+                                               {{"Content-ID", "amf_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", to_string(uc.get()->amf_ue_ngap_id)}},
+                                               {{"Content-ID", "rrc_estb_cause"},{"Content-Type", "varchar(32)"},{"content",to_string(uc.get()->rrc_estb_cause)}},
+                                               {{"Content-ID", "isUeContextRequest"},{"Content-Type", "varchar(32)"},{"content", to_string(uc.get()->isUeContextRequest)}}
+                                          });              
+  udsf_ue_context["blocks"].push_back(cgi);    
+  udsf_ue_context["blocks"].push_back(tai);  
+  std::string json_part = udsf_ue_context.dump();
+  amf_n2_inst->curl_http_client_udsf(udsf_url,json_part,"PUT",udsf_response);
+  Logger::amf_app().debug("Update ue_context to UDSF finished");
   // send to TASK_AMF_N1
   std::string guti;
   bool is_guti_valid = false;
@@ -368,37 +400,6 @@ void amf_app::handle_itti_message(
         "Could not send ITTI message %s to task TASK_AMF_N1",
         i->get_msg_name());
   }
-  //Update ue_context to UDSF
-  record_id = "amf_ue_ngap_id=\'" + to_string(amf_ue_ngap_id) + "\'";
-  udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
-  nlohmann::json udsf_ue_context;
-  nlohmann::json  cgi;
-  cgi["Content-ID"] = "cgi";
-  cgi["Content-Type"] = "JSON";
-  cgi["content"]["mcc"] = uc.get()->cgi.mcc;
-  cgi["content"]["mnc"] = uc.get()->cgi.mnc; 
-  cgi["content"]["nrCellID"] = to_string(uc.get()->cgi.nrCellID);
-  nlohmann::json  tai;
-  tai["Content-ID"] = "tai";
-  tai["Content-Type"] = "JSON";
-  tai["content"]["mcc"] = uc.get()->tai.mcc;
-  tai["content"]["mnc"] = uc.get()->tai.mnc; 
-  tai["content"]["tac"] = to_string(uc.get()->tai.tac);
-  udsf_ue_context["meta"] ["tags"] = {
-                                       {"RECORD_ID",nlohmann::json::array({ue_context_key})},
-                                       {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}
-                                       } ;
-  udsf_ue_context["blocks"] = nlohmann::json::array({
-                                               {{"Content-ID", "ran_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", to_string(uc.get()->ran_ue_ngap_id)}},
-                                               {{"Content-ID", "amf_ue_ngap_id"},{"Content-Type", "varchar(32)"},{"content", to_string(uc.get()->amf_ue_ngap_id)}},
-                                               {{"Content-ID", "rrc_estb_cause"},{"Content-Type", "varchar(32)"},{"content",to_string(uc.get()->rrc_estb_cause)}},
-                                               {{"Content-ID", "isUeContextRequest"},{"Content-Type", "varchar(32)"},{"content", to_string(uc.get()->isUeContextRequest)}}
-                                          });              
-  udsf_ue_context["blocks"].push_back(cgi);    
-  udsf_ue_context["blocks"].push_back(tai);  
-  std::string json_part = udsf_ue_context.dump();
-  //nlohmann::json udsf_response;
-  amf_n2_inst->curl_http_client_udsf(udsf_url,json_part,"PUT",udsf_response);
 
 #if 0
 
