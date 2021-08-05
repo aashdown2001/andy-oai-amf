@@ -73,7 +73,7 @@ uint32_t nas_context::nas_context_ran_ue_ngap_id_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get_value from json  is error");
+    Logger::amf_server().error("get_value nas_context_ran_ue_ngap_id_from_json from json  is error");
 }
 
 long nas_context::nas_context_amf_ue_ngap_id_from_json(nlohmann::json j)
@@ -92,7 +92,7 @@ long nas_context::nas_context_amf_ue_ngap_id_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get_value from json  is error");
+    Logger::amf_server().error("get_value nas_context_amf_ue_ngap_id_from_json from json  is error");
 }
 
 bool nas_context::nas_context_ctx_avaliability_ind_from_json(nlohmann::json j)
@@ -111,7 +111,7 @@ bool nas_context::nas_context_ctx_avaliability_ind_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get_value from json  is error");
+    Logger::amf_server().error("get_value nas_context_amf_ue_ngap_id_from_json from json  is error");
 }
 
 std::string nas_context::nas_context_nas_status_from_json(nlohmann::json j)
@@ -130,7 +130,7 @@ std::string nas_context::nas_context_nas_status_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get_value from json  is error");
+    Logger::amf_server().error("get_value nas_context_nas_status_from_json from json  is error");
 }
 
 std::string nas_context::nas_context_serving_network_from_json(nlohmann::json j)
@@ -149,7 +149,7 @@ std::string nas_context::nas_context_serving_network_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get_value from json  is error");
+    Logger::amf_server().error("get_value nas_context_serving_network_from_json from json  is error");
 }
 std::string nas_context::nas_context_imsi_from_json(nlohmann::json j)
 {
@@ -167,7 +167,7 @@ std::string nas_context::nas_context_imsi_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get_value from json  is error");
+    Logger::amf_server().error("get_value nas_context_serving_network_from_json from json  is error");
 }
 
 
@@ -353,7 +353,7 @@ void nas_context::nas_context_security_ctx_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get_value from json  is error");
+    Logger::amf_server().error("get_value nas_context_security_ctx_from_json from json  is error");
 }
 void nas_context::nas_context_kamf_from_json(nlohmann::json j)
 {
@@ -376,7 +376,7 @@ void nas_context::nas_context_kamf_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get_value from json  kamf is error");
+    Logger::amf_server().error("get_value nas_context_security_ctx_from_json from json  kamf is error");
 }
 
 bool nas_context::nas_context_is_stacs_available_from_json(nlohmann::json j)
@@ -395,7 +395,7 @@ bool nas_context::nas_context_is_stacs_available_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get_value from json  is error");
+    Logger::amf_server().error("get_value nas_context_is_stacs_available_from_json from json  is error");
 }
 
 /*int nas_context::nas_context__5gmm_state_from_json(nlohmann::json j)
@@ -436,8 +436,9 @@ uint8_t nas_context::nas_context_registration_type_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_registration_type_from_json from json  is error");
 }
+
 
 
 
@@ -457,7 +458,7 @@ bool nas_context::nas_context_follow_on_req_pending_ind_from_json(nlohmann::json
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_follow_on_req_pending_ind_from_json from json  is error");
 }
 
 uint8_t nas_context::nas_context_ngKsi_from_json(nlohmann::json j)
@@ -478,7 +479,7 @@ uint8_t nas_context::nas_context_ngKsi_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_ngKsi_from_json from json  is error");
 }
 
 
@@ -511,7 +512,7 @@ void nas_context::nas_context_auts_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get_value n2sm from json  is error");
+    Logger::amf_server().error("get_value nas_context_auts_from_json n2sm from json  is error");
 }
 
 
@@ -534,7 +535,7 @@ bool nas_context::nas_context_is_specific_procedure_for_registration_running_fro
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_is_specific_procedure_for_registration_running_from_json from json  is error");
 }
 
 
@@ -554,7 +555,7 @@ bool nas_context::nas_context_is_specific_procedure_for_deregistration_running_f
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_is_specific_procedure_for_deregistration_running_from_json from json  is error");
 }
 
  bool nas_context::nas_context_is_specific_procedure_for_eCell_inactivity_running_from_json(nlohmann::json j)
@@ -573,7 +574,7 @@ bool nas_context::nas_context_is_specific_procedure_for_deregistration_running_f
          }
          block_set.erase(it_block++); 
      } 
-     Logger::amf_server().error("get value from json  is error");
+     Logger::amf_server().error("get value nas_context_is_specific_procedure_for_eCell_inactivity_running_from_json from json  is error");
  }
 
 
@@ -594,7 +595,7 @@ bool nas_context::nas_context_is_common_procedure_for_authentication_running_fro
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_is_common_procedure_for_authentication_running_from_json from json  is error");
 }
 
 
@@ -614,7 +615,7 @@ bool nas_context::nas_context_is_common_procedure_for_identification_running_fro
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value from nas_context_is_common_procedure_for_authentication_running_from_json json  is error");
 }
 
 
@@ -635,7 +636,7 @@ bool nas_context::nas_context_is_common_procedure_for_security_mode_control_runn
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_is_common_procedure_for_security_mode_control_running_from_json from json  is error");
 }
 
 
@@ -655,7 +656,7 @@ bool nas_context::nas_context_is_common_procedure_for_nas_transport_running_from
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_is_common_procedure_for_nas_transport_running_from_json from json  is error");
 }
 
 std::string nas_context::nas_context_Href_from_json(nlohmann::json j)
@@ -674,7 +675,7 @@ std::string nas_context::nas_context_Href_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value  nas_context_Href_from_json from json  is error");
 }
 
 
@@ -694,7 +695,7 @@ bool nas_context::nas_context_is_current_security_available_from_json(nlohmann::
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value  nas_context_is_current_security_available_from_json from json  is error");
 }
 
 
@@ -717,7 +718,7 @@ int nas_context::nas_context_registration_attempt_counter_from_json(nlohmann::js
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_registration_attempt_counter_from_json from json  is error");
 }
 
 bool nas_context::nas_context_is_imsi_present_from_json(nlohmann::json j)
@@ -736,11 +737,131 @@ bool nas_context::nas_context_is_imsi_present_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_is_imsi_present_from_json from json  is error");
+}
+uint8_t nas_context::nas_context_mmCapability_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+
+        
+        if(it_block->at("Content-ID") == "mmCapability")
+        { 
+            string  s  = it_block->at("content");
+          
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value nas_context_mmCapability_from_json from json  is error");
+}
+uint8_t nas_context::nas_context_ueSecurityCaplen_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+
+        
+        if(it_block->at("Content-ID") == "ueSecurityCaplen")
+        { 
+            string  s  = it_block->at("content");
+          
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value nas_context_ueSecurityCaplen_from_json from json  is error");
+}
+uint8_t nas_context::nas_context_ueSecurityCapEnc_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+
+        
+        if(it_block->at("Content-ID") == "ueSecurityCapEnc")
+        { 
+            string  s  = it_block->at("content");
+          
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value nas_context_ueSecurityCapEnc_from_json from json  is error");
 }
 
+uint8_t nas_context::nas_context_ueSecurityCapInt_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
 
+        
+        if(it_block->at("Content-ID") == "ueSecurityCapInt")
+        { 
+            string  s  = it_block->at("content");
+          
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value nas_context_ueSecurityCapInt_from_json from json  is error");
+}
 
+uint8_t nas_context::nas_context_ueSecurityCapEEnc_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+
+        
+        if(it_block->at("Content-ID") == "ueSecurityCapEEnc")
+        { 
+            string  s  = it_block->at("content");
+          
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value nas_context_ueSecurityCapEEnc_from_json from json  is error");
+}
+
+uint8_t nas_context::nas_context_ueSecurityCapEInt_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+
+        
+        if(it_block->at("Content-ID") == "ueSecurityCapEInt")
+        { 
+            string  s  = it_block->at("content");
+          
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get value nas_context_ueSecurityCapEInt_from_json from json  is error");
+}
 
 bool nas_context::nas_context_is_5g_guti_present_from_json(nlohmann::json j)
 {
@@ -758,7 +879,7 @@ bool nas_context::nas_context_is_5g_guti_present_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_is_5g_guti_present_from_json from json  is error");
 }
 
 
@@ -778,7 +899,7 @@ bool nas_context::nas_context_is_auth_vectors_present_from_json(nlohmann::json j
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_is_auth_vectors_present_from_json from json  is error");
 }
 
 
@@ -798,7 +919,7 @@ bool nas_context::nas_context_to_be_register_by_new_suci_from_json(nlohmann::jso
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_to_be_register_by_new_suci_from_json from json  is error");
 }
 
 
@@ -818,7 +939,7 @@ std::string nas_context::nas_context_guti_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get value from json  is error");
+    Logger::amf_server().error("get value nas_context_guti_from_json from json  is error");
 }
 
 
@@ -834,59 +955,43 @@ std::string nas_context::nas_context_guti_from_json(nlohmann::json j)
 
 bool nas_context::nas_context_from_json(nlohmann::json j)
 {
-   Logger::amf_n1().debug("------------------ 1");
    ctx_avaliability_ind = nas_context_ctx_avaliability_ind_from_json(j);
-   Logger::amf_n1().debug("------------------ 2");
    is_stacs_available = nas_context_is_stacs_available_from_json(j);
-   Logger::amf_n1().debug("------------------ 3");
    amf_ue_ngap_id = nas_context_amf_ue_ngap_id_from_json(j);
-   Logger::amf_n1().debug("------------------ 4");
    ran_ue_ngap_id = nas_context_ran_ue_ngap_id_from_json(j);
-   Logger::amf_n1().debug("------------------ 5");
    nas_status = nas_context_nas_status_from_json(j);
-   Logger::amf_n1().debug("------------------ 6");
    //_5gmm_state = nas_context__5gmm_state_from_json( j);
-   Logger::amf_n1().debug("------------------ 7");
+
    //registration_type = nas_context_registration_type_from_json(j);
-   Logger::amf_n1().debug("------------------ 8");
    follow_on_req_pending_ind = nas_context_follow_on_req_pending_ind_from_json(j);
-   Logger::amf_n1().debug("------------------ 9");
    ngKsi= nas_context_ngKsi_from_json(j);
-   Logger::amf_n1().debug("------------------ 10");
+
    imsi = nas_context_imsi_from_json(j);
-   Logger::amf_n1().debug("------------------ 11");
+   mmCapability = nas_context_mmCapability_from_json(j);
+   ueSecurityCaplen = nas_context_ueSecurityCaplen_from_json(j);
+   ueSecurityCapEnc = nas_context_ueSecurityCapEnc_from_json(j);
+   ueSecurityCapInt = nas_context_ueSecurityCapInt_from_json(j);
+   ueSecurityCapEEnc = nas_context_ueSecurityCapEEnc_from_json(j);
+   ueSecurityCapEInt = nas_context_ueSecurityCapEInt_from_json(j);
    //nas_context_requestedNssai_from_json( j);
-   Logger::amf_n1().debug("------------------ 12");
    serving_network = nas_context_serving_network_from_json(j);
-   Logger::amf_n1().debug("------------------ 13");
    nas_context_auts_from_json(j);
-   Logger::amf_n1().debug("------------------ 14");
 
    is_specific_procedure_for_registration_running = nas_context_is_specific_procedure_for_registration_running_from_json(j);
-   Logger::amf_n1().debug("------------------ 15");
    is_specific_procedure_for_deregistration_running = nas_context_is_specific_procedure_for_deregistration_running_from_json(j);
-   Logger::amf_n1().debug("------------------ 16");
    is_specific_procedure_for_eCell_inactivity_running = nas_context_is_specific_procedure_for_eCell_inactivity_running_from_json(j);
-   Logger::amf_n1().debug("------------------ 17");
    is_common_procedure_for_authentication_running = nas_context_is_common_procedure_for_authentication_running_from_json(j);
-   Logger::amf_n1().debug("------------------ 18");
    is_common_procedure_for_identification_running = nas_context_is_common_procedure_for_identification_running_from_json(j);
-   Logger::amf_n1().debug("------------------ 19");
-   is_common_procedure_for_security_mode_control_running = nas_context_is_common_procedure_for_security_mode_control_running_from_json(j);
-   Logger::amf_n1().debug("------------------ 20");
+   //is_common_procedure_for_security_mode_control_running = nas_context_is_common_procedure_for_security_mode_control_running_from_json(j);
    is_common_procedure_for_nas_transport_running = nas_context_is_common_procedure_for_nas_transport_running_from_json(j);
-   Logger::amf_n1().debug("------------------ 21");
   
    Href = nas_context_Href_from_json(j);
-   Logger::amf_n1().debug("------------------ 22");
    //kamf = nas_context_kamf_from_json(j); 
-   Logger::amf_n1().debug("------------------ 23");
    is_current_security_available = nas_context_is_current_security_available_from_json(j);
-   Logger::amf_n1().debug("------------------ 24");
   
   
-//   nas_context_security_ctx_from_json(j);
-//   nas_context_kamf_from_json(j);
+   nas_context_security_ctx_from_json(j);
+    nas_context_kamf_from_json(j);
   
   return true;
 }

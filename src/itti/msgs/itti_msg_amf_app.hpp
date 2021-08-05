@@ -58,6 +58,8 @@ class itti_n1n2_message_transfer_request : public itti_msg_amf_app {
   uint8_t pdu_session_id;
   std::string n2sm_info_type;
   // other parameters
+  long amf_ue_ngap_id;
+  uint32_t ran_ue_ngap_id;
 };
 
 class itti_test_signalling_paging : public itti_msg_amf_app {

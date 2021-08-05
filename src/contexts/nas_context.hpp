@@ -81,18 +81,24 @@ class nas_context {
   uint32_t nas_context_ran_ue_ngap_id_from_json(nlohmann::json j);
   std::string nas_context_nas_status_from_json(nlohmann::json j);
   int nas_context__5gmm_state_from_json(nlohmann::json j);
+
   uint8_t nas_context_registration_type_from_json(nlohmann::json j);
   bool nas_context_follow_on_req_pending_ind_from_json(nlohmann::json j);
   uint8_t nas_context_ngKsi_from_json(nlohmann::json j);
+
   std::string nas_context_imsi_from_json(nlohmann::json j);  //ok
-
-
 //  uint8_t mmCapability;
+uint8_t nas_context_mmCapability_from_json(nlohmann::json j);
 //   uint8_t ueSecurityCaplen;
+uint8_t nas_context_ueSecurityCaplen_from_json(nlohmann::json j);
 //   uint8_t ueSecurityCapEnc;
+uint8_t nas_context_ueSecurityCapEnc_from_json(nlohmann::json j);
 //   uint8_t ueSecurityCapInt;
+uint8_t nas_context_ueSecurityCapInt_from_json(nlohmann::json j);
 //   uint8_t ueSecurityCapEEnc;
+uint8_t nas_context_ueSecurityCapEEnc_from_json(nlohmann::json j);
 //   uint8_t ueSecurityCapEInt;
+uint8_t nas_context_ueSecurityCapEInt_from_json(nlohmann::json j);
 
   //void nas_context_requestedNssai_from_json(nlohmann::json j);
   std::string nas_context_serving_network_from_json(nlohmann::json j);
@@ -104,6 +110,7 @@ class nas_context {
   bool nas_context_is_common_procedure_for_identification_running_from_json(nlohmann::json j);
   bool nas_context_is_common_procedure_for_security_mode_control_running_from_json(nlohmann::json j);
   bool nas_context_is_common_procedure_for_nas_transport_running_from_json(nlohmann::json j);
+  
   void nas_context__vector_from_json(nlohmann::json j);
   void nas_context__5g_he_av_from_json(nlohmann::json j);
   void nas_context__5g_av_from_json(nlohmann::json j);

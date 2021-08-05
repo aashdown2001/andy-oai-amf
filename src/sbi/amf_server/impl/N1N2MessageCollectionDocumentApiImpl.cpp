@@ -158,6 +158,8 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   itti_msg->is_n1sm_set = true;
   itti_msg->n2sm        = n2sm;
   itti_msg->is_n2sm_set = true;
+  itti_msg->amf_ue_ngap_id = psc.get()->amf_ue_ngap_id;
+  itti_msg->ran_ue_ngap_id = psc.get()->ran_ue_ngap_id;
   itti_msg->pdu_session_id =
       (uint8_t) n1N2MessageTransferReqData.getPduSessionId();
   std::shared_ptr<itti_n1n2_message_transfer_request> i =

@@ -277,8 +277,8 @@ void amf_app::handle_itti_message(
     dl_msg->is_n2sm_set    = true;
     dl_msg->n2sm_info_type = itti_msg.n2sm_info_type;
   }
-  dl_msg->amf_ue_ngap_id = amf_n1_inst->supi2amfId.at(itti_msg.supi);
-  dl_msg->ran_ue_ngap_id = amf_n1_inst->supi2ranId.at(itti_msg.supi);
+  dl_msg->amf_ue_ngap_id = itti_msg.amf_ue_ngap_id;//amf_n1_inst->supi2amfId.at(itti_msg.supi);
+  dl_msg->ran_ue_ngap_id = itti_msg.ran_ue_ngap_id;//amf_n1_inst->supi2ranId.at(itti_msg.supi);
   std::shared_ptr<itti_downlink_nas_transfer> i =
       std::shared_ptr<itti_downlink_nas_transfer>(dl_msg);
   int ret = itti_inst->send_msg(i);

@@ -3009,9 +3009,6 @@ bool amf_n1::start_security_mode_control_procedure(
   nlohmann::json udsf_response;
   nlohmann::json is_current_security_available;
   nlohmann::json  is_common_procedure_for_security_mode_control_running;
-  
-  Logger::amf_n1().debug("Start Security Mode Control procedure");
-  nc.get()->is_common_procedure_for_security_mode_control_running = true;
 
   is_common_procedure_for_security_mode_control_running["Content-ID"] = "is_common_procedure_for_security_mode_control_running";
   is_common_procedure_for_security_mode_control_running["Content-Type"] = "varchar(32)";
@@ -3021,12 +3018,15 @@ bool amf_n1::start_security_mode_control_procedure(
 
 
 
+  Logger::amf_n1().debug("Start Security Mode Control procedure");
+  nc.get()->is_common_procedure_for_security_mode_control_running = true;
   bool security_context_is_new = false;
   uint8_t amf_nea = EA0_5G;
   uint8_t amf_nia = IA0_5G;
   // decide which ea/ia alg used by UE, which is supported by network
   security_data_t *data = (security_data_t *)calloc(1, sizeof(security_data_t));
-  nas_secu_ctx *secu_ctx = nc.get()->security_ctx;
+  nas_secu_ctx *secu_ctx = new nas_secu_ctx();
+  nc.get()->security_ctx = secu_ctx;
   if (!data)
     Logger::amf_n1().error("Cannot allocate memory for security_data_t");
 
