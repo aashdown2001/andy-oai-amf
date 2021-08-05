@@ -737,7 +737,7 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
     old_ran_ue_ngap_id = ran_ue_ngap_id;
   else
     old_ran_ue_ngap_id = nc.get()->ran_ue_ngap_id;
-  udsf_put_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_ngap_context/records/") + to_string(old_ran_ue_ngap_id);
+  udsf_put_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_ngap_context/records/") + +"RECORD_ID=\'"+to_string(old_ran_ue_ngap_id)+"\'";
   udsf_ue_ngap_context["meta"] ["tags"] = {
                                        {"RECORD_ID",nlohmann::json::array({to_string(old_ran_ue_ngap_id)})},
                                        {"from_nf_ID",nlohmann::json::array({"AMF_1234"})}

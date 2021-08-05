@@ -316,8 +316,8 @@ void amf_app::handle_itti_message(
   std::shared_ptr<ue_context> uc = std::shared_ptr<ue_context>(new ue_context());
   string ue_context_key = "app_ue_ranid_" + to_string(itti_msg.ran_ue_ngap_id) + "-amfid_" + to_string(amf_ue_ngap_id);
   std::string record_id = "amf_ue_ngap_id=\'" + to_string(amf_ue_ngap_id) + "\'";
-  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
-  //std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID = \'" + ue_context_key + "\'";
+  //std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID = \'" + ue_context_key + "\'";
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing ue_context with ue_context_key ...");
   }else if(udsf_response.dump().length()<8){
@@ -342,7 +342,8 @@ void amf_app::handle_itti_message(
   //Update ue_context to UDSF
   Logger::amf_app().debug("Update ue_context to UDSF");
   record_id = "amf_ue_ngap_id=\'" + to_string(amf_ue_ngap_id) + "\'";
-  udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
+  //udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
+  udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID = \'" + ue_context_key + "\'";
   nlohmann::json udsf_ue_context;
   nlohmann::json  cgi;
   cgi["Content-ID"] = "cgi";
@@ -559,8 +560,10 @@ bool amf_app::generate_5g_guti(
   // uc   = ran_amf_id_2_ue_context(ue_context_key);
    std::shared_ptr<ue_context> uc = std::shared_ptr<ue_context>(new ue_context());
   nlohmann::json udsf_response;
-  std::string record_id = "RECORD_ID=\'" + ue_context_key + "\'";
-  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id;
+  std::string record_id = "RECORD_ID=\'" + to_string(amfid) + "\'";
+  //std::string record_id = "RECORD_ID=\'" + ue_context_key + "\'";
+  //std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID = \'" + ue_context_key + "\'";
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing gNG context with assoc_id");
     return false;
