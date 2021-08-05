@@ -1190,6 +1190,9 @@ void amf_n2::handle_itti_message(itti_dl_nas_transport& dl_nas_transport) {
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing ue_ngap context with ran_ue_ngap_id ");
     return;
+  }else if(udsf_response.dump().length()<8){
+    Logger::amf_n2().error("No existing ue_ngap context with ran_ue_ngap_id ...");
+    return;
   }
  Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
  //printf("---------------std::to_string(unc.get()->gnb_assoc_id) ----------------%s",std::to_string(unc.get()->gnb_assoc_id) );
@@ -1203,6 +1206,9 @@ void amf_n2::handle_itti_message(itti_dl_nas_transport& dl_nas_transport) {
   udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("gnb_context/records/") + record_id ;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing gNG context with assoc_id (%d)", unc.get()->gnb_assoc_id);
+    return;
+  }else if(udsf_response.dump().length()<8){
+    Logger::amf_n2().error("No existing gNG context with assoc_id (%d) ...", unc.get()->gnb_assoc_id);
     return;
   }
  Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
