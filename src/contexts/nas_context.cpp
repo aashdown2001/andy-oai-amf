@@ -248,7 +248,7 @@ void nas_context::nas_context_security_ctx_from_json(nlohmann::json j)
                     s = it_security_ctx->at("spare");
                     security_ctx_udsf.dl_count.spare = atoi(s.c_str());
                     i++;
-                    //printf("---------security_ctx_udsf-------%x\n",security_ctx_udsf.dl_count.seq_num);
+                    printf("---------security_ctx_udsf-------%x\n",security_ctx_udsf.dl_count.seq_num);
                 }
                 if(it_security_ctx->at("Content-ID") == "nas_algs")
                 {
@@ -376,7 +376,7 @@ void nas_context::nas_context_kamf_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get_value nas_context_security_ctx_from_json from json  kamf is error");
+    Logger::amf_server().error("get_value nas_context_kamf_from_jsons from json  kamf is error");
 }
 
 bool nas_context::nas_context_is_stacs_available_from_json(nlohmann::json j)
@@ -398,7 +398,7 @@ bool nas_context::nas_context_is_stacs_available_from_json(nlohmann::json j)
     Logger::amf_server().error("get_value nas_context_is_stacs_available_from_json from json  is error");
 }
 
-/*int nas_context::nas_context__5gmm_state_from_json(nlohmann::json j)
+int nas_context::nas_context__5gmm_state_from_json(nlohmann::json j)
 {
     Record record;
     nlohmann::json::parse(j.dump()).get_to(record);
@@ -414,8 +414,8 @@ bool nas_context::nas_context_is_stacs_available_from_json(nlohmann::json j)
         }
         block_set.erase(it_block++); 
     } 
-    Logger::amf_server().error("get  value from json  is error");
-}*/
+    Logger::amf_server().error("get  value nas_context__5gmm_state_from_json from json  is error");
+}
 
 
 uint8_t nas_context::nas_context_registration_type_from_json(nlohmann::json j)
@@ -943,9 +943,139 @@ std::string nas_context::nas_context_guti_from_json(nlohmann::json j)
 }
 
 
- // void nas_context__vector_from_json(nlohmann::json j);
+void nas_context::nas_context__vector_from_json(nlohmann::json j)
+{
+    printf("------------nas_context__vector_from_json----\n");
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "_vector")
+        { 
+            auc_vector_t _vector_udsf;
+            //string s;
+            nlohmann::json j;
+            int i=0;
+            std::set<nlohmann::json> _vector_set ;
+            if(it_block->find("content")!=it_block->end())
+            {
+                it_block->at("content").get_to(_vector_set);
+            }
+            std::set<nlohmann::json>::iterator it_security_ctx;  
+            for(it_security_ctx=_vector_set.begin();it_security_ctx!=_vector_set.end();)
+            {   
+                string s;
+                s = it_security_ctx->at("rand_new");
+                _vector_udsf.rand_new = atoi(s.c_str());
+                i++;
+                s = it_security_ctx->at("rand");
+                std::memcpy(_vector_udsf.rand, format_string_as_hex(s),s.length()/2+1);  
+                for(int uu=0;uu<16;uu++)   
+                    printf("-----------rand----uint8---%x\n",_vector_udsf.rand[uu]);
+                i++;
+                s = it_security_ctx->at("xres");
+                std::memcpy(_vector_udsf.xres, format_string_as_hex(s),s.length()/2+1);  
+                    for(int uu=0;uu<16;uu++)   
+                        printf("-----------xres----uint8---%x\n",_vector_udsf.xres[uu]);
+                i++;
+                s = it_security_ctx->at("autn");
+                std::memcpy(_vector_udsf.autn, format_string_as_hex(s),s.length()/2+1);  
+                    for(int uu=0;uu<16;uu++)   
+                        printf("-----------autn----uint8---%x\n",_vector_udsf.autn[uu]);
+                i++;
+                s = it_security_ctx->at("kasme");
+                std::memcpy(_vector_udsf.kasme, format_string_as_hex(s),s.length()/2+1);  
+                    for(int uu=0;uu<32;uu++)   
+                        printf("-----------kasme----uint8---%x\n",_vector_udsf.kasme[uu]);
+                i++;
+                
+                if(i==5)
+                {  
+                     return ;
+                }
+                _vector_set.erase(it_security_ctx++); 
+
+            }
+            Logger::amf_server().error("get_value from json  is error 000000000");
+
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value nas_context__vector_from_json from json  is error");
+}
  // void nas_context__5g_he_av_from_json(nlohmann::json j);
- // void nas_context__5g_av_from_json(nlohmann::json j);
+
+void nas_context::nas_context__5g_av_from_json(nlohmann::json j)
+{
+    printf("------------nas_context__5g_av_from_json----\n");
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "_5g_av")
+        { 
+            _5G_AV_t _5g_av_udsf;
+            //string s;
+            nlohmann::json j;
+            int i=0;
+            std::set<nlohmann::json> _5g_av_set ;
+            if(it_block->find("content")!=it_block->end())
+            {
+                it_block->at("content").get_to(_5g_av_set);
+            }
+            std::set<nlohmann::json>::iterator it_security_ctx;  
+            for(it_security_ctx=_5g_av_set.begin();it_security_ctx!=_5g_av_set.end();)
+            {   
+                string s;
+                s = it_security_ctx->at("avType");
+                _5g_av_udsf.avType = atoi(s.c_str());
+                i++;
+                s = it_security_ctx->at("rand");
+                std::memcpy(_5g_av_udsf.rand, format_string_as_hex(s),s.length()/2+1);  
+                for(int uu=0;uu<16;uu++)   
+                    printf("-----------rand----uint8---%x\n",_5g_av_udsf.rand[uu]);
+                i++;
+                s = it_security_ctx->at("hxres");
+                std::memcpy(_5g_av_udsf.hxres, format_string_as_hex(s),s.length()/2+1);  
+                    for(int uu=0;uu<16;uu++)   
+                        printf("-----------hxres----uint8---%x\n",_5g_av_udsf.hxres[uu]);
+                i++;
+                s = it_security_ctx->at("hxresStar");
+                std::memcpy(_5g_av_udsf.hxresStar, format_string_as_hex(s),s.length()/2+1);  
+                    for(int uu=0;uu<16;uu++)   
+                        printf("-----------hxresStar----uint8---%x\n",_5g_av_udsf.hxresStar[uu]);
+                i++;
+                s = it_security_ctx->at("autn");
+                std::memcpy(_5g_av_udsf.autn, format_string_as_hex(s),s.length()/2+1);  
+                    for(int uu=0;uu<16;uu++)   
+                        printf("-----------autn----uint8---%x\n",_5g_av_udsf.autn[uu]);
+                i++;
+                s = it_security_ctx->at("kseaf");
+                std::memcpy(_5g_av_udsf.kseaf, format_string_as_hex(s),s.length()/2+1);  
+                    for(int uu=0;uu<32;uu++)   
+                        printf("-----------kseaf----uint8---%x\n",_5g_av_udsf.kseaf[uu]);
+                i++;
+                
+                if(i==6)
+                {  
+                     return ;
+                }
+                _5g_av_set.erase(it_security_ctx++); 
+
+            }
+            Logger::amf_server().error("get_value from json  is error 000000000");
+
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value nas_context__5g_av_from_json from json  is error");
+}
  // void nas_context__security_from_json(nlohmann::json j);
  // void nas_context_security_ctx_from_json(nlohmann::json j);
  // void nas_context_requestedNssai_from_json(nlohmann::json j);
@@ -976,22 +1106,41 @@ bool nas_context::nas_context_from_json(nlohmann::json j)
    //nas_context_requestedNssai_from_json( j);
    serving_network = nas_context_serving_network_from_json(j);
    nas_context_auts_from_json(j);
-
+   Logger::amf_n1().debug("------------------------1 --------------------------");
    is_specific_procedure_for_registration_running = nas_context_is_specific_procedure_for_registration_running_from_json(j);
+   Logger::amf_n1().debug("------------------------2 --------------------------");
    is_specific_procedure_for_deregistration_running = nas_context_is_specific_procedure_for_deregistration_running_from_json(j);
+   Logger::amf_n1().debug("------------------------3 --------------------------");
    is_specific_procedure_for_eCell_inactivity_running = nas_context_is_specific_procedure_for_eCell_inactivity_running_from_json(j);
+   Logger::amf_n1().debug("------------------------4 --------------------------");
    is_common_procedure_for_authentication_running = nas_context_is_common_procedure_for_authentication_running_from_json(j);
+   Logger::amf_n1().debug("------------------------5 --------------------------");
    is_common_procedure_for_identification_running = nas_context_is_common_procedure_for_identification_running_from_json(j);
+   Logger::amf_n1().debug("------------------------6 --------------------------");
    //is_common_procedure_for_security_mode_control_running = nas_context_is_common_procedure_for_security_mode_control_running_from_json(j);
+   Logger::amf_n1().debug("------------------------7 --------------------------");
    is_common_procedure_for_nas_transport_running = nas_context_is_common_procedure_for_nas_transport_running_from_json(j);
+   Logger::amf_n1().debug("------------------------8 --------------------------");
   
+   Logger::amf_n1().debug("------------------------9 --------------------------");
    Href = nas_context_Href_from_json(j);
+   Logger::amf_n1().debug("------------------------10 --------------------------");
    //kamf = nas_context_kamf_from_json(j); 
+   Logger::amf_n1().debug("------------------------11 --------------------------");
    is_current_security_available = nas_context_is_current_security_available_from_json(j);
+   Logger::amf_n1().debug("------------------------12 --------------------------");
   
-  
+   nas_context__vector_from_json(j);
+   Logger::amf_n1().debug("------------------------13 --------------------------");
+   nas_context__5g_av_from_json(j);
+   Logger::amf_n1().debug("------------------------14 --------------------------");
    nas_context_security_ctx_from_json(j);
-    nas_context_kamf_from_json(j);
+   Logger::amf_n1().debug("------------------------15 --------------------------");
+   nas_context_kamf_from_json(j);
   
+
+
+   registration_attempt_counter = nas_context_registration_attempt_counter_from_json(j);
+   is_imsi_present = nas_context_is_imsi_present_from_json(j);
   return true;
 }

@@ -529,7 +529,7 @@ bool amf_n2::curl_http_client_udsf(std::string remoteUrl,std::string jsonData,st
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
 
         std::string response = *httpData.get();
-        Logger::amf_n2().debug("response from udsf =(%d) %s ",response.length(),response.c_str());
+        //Logger::amf_n2().debug("response from udsf =(%d) %s ",response.length(),response.c_str());
         nlohmann::json response_data = {};
         Logger::amf_n2().debug("Send message to UDSF, response from UDSF, HTTP Code: %d", httpCode);
         if (static_cast<http_response_codes_e>(httpCode) ==http_response_codes_e::HTTP_RESPONSE_CODE_0) {
@@ -545,7 +545,7 @@ bool amf_n2::curl_http_client_udsf(std::string remoteUrl,std::string jsonData,st
             try {
               //response_data = nlohmann::json::parse(response);
               udsf_response = nlohmann::json::parse(response);
-	      Logger::amf_n2().debug("UDSF RESPONSE in curl_http_client_udsf:\n %s", udsf_response.dump().c_str());
+	      //Logger::amf_n2().debug("UDSF RESPONSE in curl_http_client_udsf:\n %s", udsf_response.dump().c_str());
               //Logger::amf_n2().debug("Get response with jsonData: %s", response_data.dump().c_str());
             } catch (nlohmann::json::exception &e) {
               Logger::amf_n11().warn("Could not get Json content from  usdf the response");

@@ -143,6 +143,26 @@ amf_n1::~amf_n1() {}
 void amf_n1::handle_itti_message(itti_downlink_nas_transfer &itti_msg) {
   long amf_ue_ngap_id = itti_msg.amf_ue_ngap_id;
   uint32_t ran_ue_ngap_id = itti_msg.ran_ue_ngap_id;
+  
+  std::shared_ptr<nas_context> nc;
+
+  Logger::amf_n1().debug("try to get sequence_number");
+  nlohmann::json udsf_response; 
+  std::string record_id = "amf_ue_ngap_id=\'" + to_string(amf_ue_ngap_id) + "\'";
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/"+ std::string("nas_context/records/") +  record_id;
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+    Logger::amf_n1().debug("No existing nas_context from UDSF using amf_ue_ngap_id (%d) ...", amf_ue_ngap_id);
+  }else if(udsf_response.dump().length()<8){
+    Logger::amf_n1().debug("No existing nas_context from UDSF using amf_ue_ngap_id (%d) .....", amf_ue_ngap_id);
+  }else{
+    Logger::amf_n1().debug("udsf_response %s",udsf_response.dump().c_str());
+    nc = std::shared_ptr<nas_context>(new nas_context());
+    nc.get()->nas_context_from_json(udsf_response);
+    set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
+    Logger::amf_n1().debug("GET nas_context (%p) from UDSF using amf_ue_ngap_id (%d) .....", nc.get(), amf_ue_ngap_id);
+  }
+
+#if 0
   std::shared_ptr<nas_context> nc;
   if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
     nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
@@ -151,7 +171,10 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer &itti_msg) {
                           amf_ue_ngap_id);
     return;
   }
+#endif
   nas_secu_ctx *secu = nc.get()->security_ctx;
+  print_buffer("amf_n1","dukl kas_int:",secu->knas_int, 16);
+  Logger::amf_n1().debug("dukl dl.seq %d", secu->dl_count.seq_num);
   bstring protected_nas;
   encode_nas_message_protected(secu, false, INTEGRITY_PROTECTED_AND_CIPHERED,
                                NAS_MESSAGE_DOWNLINK,
@@ -2787,6 +2810,7 @@ bool amf_n1::start_authentication_procedure(std::shared_ptr<nas_context> nc,
   //Update nas_context into UDSF
 
   http_update_nas_context_into_udsf(nc);
+  Logger::amf_n1().debug("dukl start_authentication_procedure dl.seq %d",nc.get()->security_ctx->dl_count.seq_num);
 
   itti_send_dl_nas_buffer_to_task_n2(b, nc.get()->ran_ue_ngap_id,
                                      nc.get()->amf_ue_ngap_id);
@@ -3061,6 +3085,7 @@ bool amf_n1::start_security_mode_control_procedure(
     Authentication_5gaka::derive_knas(
         NAS_ENC_ALG, secu_ctx->nas_algs.encryption,
         nc.get()->kamf[secu_ctx->vector_pointer], secu_ctx->knas_enc);
+    print_buffer("amf_n1","dukl in SMC, Knas_int", secu_ctx->knas_int, 16);
     security_context_is_new = true;
     nc.get()->is_current_security_available = true;
 #if 0
@@ -3143,6 +3168,7 @@ bool amf_n1::start_security_mode_control_procedure(
                                      nc.get()->amf_ue_ngap_id);
   // secu_ctx->dl_count.seq_num ++;
   http_update_nas_context_into_udsf(nc);
+  Logger::amf_n1().debug("dukl security_mode_command dl.seq %d",nc.get()->security_ctx->dl_count.seq_num);
   return true;
 }
 
@@ -3334,6 +3360,10 @@ void amf_n1::security_mode_complete_handle(uint32_t ran_ue_ngap_id,
     itti_msg->nas = protectedNas;
     itti_msg->is_sr = false; // TODO: for Setup Request procedure
 
+    http_update_nas_context_into_udsf(nc);
+    Logger::amf_n1().debug("dukl security mode complete dl.seq %d",nc.get()->security_ctx->dl_count.seq_num);
+
+#if 0
 /****************************hsx add*****************************/
     std::string udsf_url = "http://10.28.234.76:7123/nudsf-dr/v1/amfdata/" + std::string("nas_context/records/") + to_string(nc.get()->amf_ue_ngap_id) ;
     nlohmann::json udsf_response;
@@ -3344,7 +3374,7 @@ void amf_n1::security_mode_complete_handle(uint32_t ran_ue_ngap_id,
     amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
 
 /****************************hsx add*****************************/  
-   
+#endif
     std::shared_ptr<itti_initial_context_setup_request> i =
         std::shared_ptr<itti_initial_context_setup_request>(itti_msg);
     int ret = itti_inst->send_msg(i);
@@ -3410,7 +3440,7 @@ void amf_n1::registration_complete_handle(uint32_t ran_ue_ngap_id,
   }
   nas_secu_ctx *secu = nc.get()->security_ctx;
 
-
+#if 0
 //向UDSF 同步全部NAS消息
 /**********************   hxs add *******************************/
     string auts;
@@ -3668,10 +3698,13 @@ void amf_n1::registration_complete_handle(uint32_t ran_ue_ngap_id,
   amf_n2_inst->curl_http_client_udsf(udsf_url,udsf_nas_context.dump(),"PUT",udsf_response);
 
     /**********************   hxs add *******************************/
+#endif
   // protect nas message
   bstring protectedNas;
   encode_nas_message_protected(secu, false, INTEGRITY_PROTECTED_AND_CIPHERED,
                                NAS_MESSAGE_DOWNLINK, conf, 45, protectedNas);
+  http_update_nas_context_into_udsf(nc);
+  Logger::amf_n1().debug("dukl registration complete complete dl.seq %d",nc.get()->security_ctx->dl_count.seq_num);
 
   itti_send_dl_nas_buffer_to_task_n2(protectedNas, ran_ue_ngap_id,
                                      amf_ue_ngap_id);
@@ -4565,7 +4598,7 @@ void amf_n1::http_update_nas_context_into_udsf(std::shared_ptr<nas_context> nc){
                                                   {{"Content-ID", "is_common_procedure_for_nas_transport_running"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_common_procedure_for_nas_transport_running)}},
                                                   
                                                   {{"Content-ID", "Href"},{"Content-Type", "varchar(1024)"},{"content",  nc.get()->Href}},
-                                                  //{{"Content-ID", "is_current_security_available"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_current_security_available)}},
+                                                  {{"Content-ID", "is_current_security_available"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_current_security_available)}},
                                                   {{"Content-ID", "registration_attempt_counter"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->registration_attempt_counter)}},
                                                   
                                                   {{"Content-ID", "is_imsi_present"},{"Content-Type", "varchar(32)"},{"content",  to_string(nc.get()->is_imsi_present)}},
