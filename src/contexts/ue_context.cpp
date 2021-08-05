@@ -83,7 +83,24 @@ void ue_context::ue_context_tai_from_json(nlohmann::json j,Tai_t &Tai_json)
     Logger::amf_server().error("get_value from json  is error");
 }
 
-
+bool ue_context::ue_context_isUeContextRequest_from_json(nlohmann::json j)
+{
+    Record record;
+    nlohmann::json::parse(j.dump()).get_to(record);
+    std::set<nlohmann::json> block_set = record.getBlocks();   
+    std::set<nlohmann::json>::iterator it_block;  
+    for(it_block=block_set.begin();it_block!=block_set.end();)
+    {  
+        
+        if(it_block->at("Content-ID") == "isUeContextRequest")
+        { 
+            string  s  = it_block->at("content");
+            return atoi(s.c_str());
+        }
+        block_set.erase(it_block++); 
+    } 
+    Logger::amf_server().error("get_value from json  is error");
+}
 
 bool ue_context::ue_context_from_json(nlohmann::json j)
 {
@@ -93,6 +110,7 @@ bool ue_context::ue_context_from_json(nlohmann::json j)
     // ng_state = amf_ng_gnb_state_s(gnb_context_ng_state_from_json(j));
     // next_sctp_stream = gnb_context_next_sctp_stream_from_json(j);
     // next_sctp_stream = gnb_context_instreams_from_json(j);
+   isUeContextRequest =  ue_context_isUeContextRequest_from_json(j);
   ue_context_tai_from_json(j,tai);
   ran_ue_ngap_id = ue_context_ran_ue_ngap_id_from_json(j);
     //     printf("gnbname-%s\n",gnb_name.c_str());

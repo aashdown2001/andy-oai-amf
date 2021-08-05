@@ -3203,7 +3203,21 @@ void amf_n1::security_mode_complete_handle(uint32_t ran_ue_ngap_id,
   string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
                           "-amfid_" + to_string(amf_ue_ngap_id);
   std::shared_ptr<ue_context> uc;
-  uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
+  //uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
+
+  nlohmann::json udsf_response;
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID=\'" + ue_context_key + "\'";
+  if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
+    Logger::amf_n2().error("No existing ue_context with ue_context_key ...");
+  }else if(udsf_response.dump().length()<8){
+    Logger::amf_n2().error("No existing ue_context with ue_context_key .....");
+  }else{
+    Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+    uc = std::shared_ptr<ue_context>(new ue_context());
+    uc.get()->ue_context_from_json(udsf_response);
+  }
+  amf_app_inst->set_ran_amf_id_2_ue_context(ue_context_key, uc);
+
   if (uc.get() == nullptr) {
     // TODO:
     Logger::amf_n1().error(
