@@ -176,7 +176,7 @@ long amf_app::generate_amf_ue_ngap_id() {
   long tmp = 0;
    tmp      = __sync_fetch_and_add(&amf_app_ue_ngap_id_generator, 1);
   //srand(time(NULL));
-  //tmp = rand()%10000 + 1;
+  //tmp = rand()%1000 + 1;
   //return tmp & 0xffffffffff;
   return tmp;
 }

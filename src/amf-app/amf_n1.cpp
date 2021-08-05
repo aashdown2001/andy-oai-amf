@@ -2170,10 +2170,12 @@ bool amf_n1::authentication_vectors_from_ausf(
   authenticationinfo.setServingNetworkName(nc.get()->serving_network);
   ResynchronizationInfo resynchronizationInfo;
   uint8_t auts_len = blength(nc.get()->auts);
+  Logger::amf_n1().debug("auts_len = %d",auts_len);
   uint8_t *auts_value = (uint8_t *)bdata(nc.get()->auts);
   std::string authenticationinfo_auts;
   std::string authenticationinfo_rand;
-  if (auts_value) {
+  if (auts_len > 0) {
+  //if (auts_value) {
     Logger::amf_n1().debug("********* has auts *********");
     char *auts_s = (char *)malloc(auts_len * 2 + 1);
     // char *rand_s = (char *)malloc(RAND_LENGTH * 2 + 1);
