@@ -1876,6 +1876,7 @@ void amf_n1::response_registration_reject_msg(uint8_t cause_value,
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = registrationRej->encode2buffer(buffer, BUFFER_SIZE_1024);
   // dump_nas_message(buffer, encoded_size);
+  Logger::amf_n1().debug("dukl-Registration-Reject with amf_ue_ngap_id (%d)", amf_ue_ngap_id);
   print_buffer("amf_n1", "Registration-Reject message buffer", buffer,
                encoded_size);
   if (!encoded_size) {
@@ -1904,6 +1905,7 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context> &nc) {
     return;
   }
   nc.get()->is_specific_procedure_for_registration_running = true;
+  nc.get()->is_common_procedure_for_authentication_running = false;
 #if 0
   is_specific_procedure_for_registration_running["Content-ID"] = "is_specific_procedure_for_registration_running";
   is_specific_procedure_for_registration_running["Content-Type"] = "varchar(32)";
@@ -2161,6 +2163,7 @@ bool amf_n1::authentication_vectors_from_ausf(
   std::string ausf_port = std::to_string(amf_cfg.nausf.port);
   std::string remoteUri =
       ausf_ip + ":" + ausf_port + "/nausf-auth/v1/ue-authentications";
+  Logger::amf_n1().debug("remote ausf URI: %s",remoteUri.c_str());
   std::string msgBody;
   std::string Response;
 
@@ -2333,6 +2336,10 @@ bool amf_n1::_5g_aka_confirmation_from_ausf(std::shared_ptr<nas_context> &nc,
   // free(resStar_string.c_str());
   Logger::amf_n1().info("Get Json content from AUSF response: %s",
                         Response.c_str());
+  if(Response.find("false") != string::npos){
+    Logger::amf_n1().error("authResult:false");
+    return false;
+  }
 
   try {
     ConfirmationDataResponse confirmationdataresponse;
