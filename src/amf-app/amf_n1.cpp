@@ -1241,6 +1241,7 @@ void amf_n1::registration_request_handle(bool isNasSig,
       }
       nc.get()->is_imsi_present = true;
       nc.get()->imsi = imsi.mcc + imsi.mnc + imsi.msin;
+      Logger::amf_n1().debug("Receiving Registration Request message from UE (imsi-%s)",nc.get()->imsi.c_str());
       Logger::amf_n1().debug("Received IMSI %s", nc.get()->imsi.c_str());
       supi2amfId[("imsi-" + nc.get()->imsi)] = amf_ue_ngap_id;
       supi2ranId[("imsi-" + nc.get()->imsi)] = ran_ue_ngap_id;
@@ -1892,7 +1893,7 @@ void amf_n1::response_registration_reject_msg(uint8_t cause_value,
 //------------------------------------------------------------------------------
 // specific procedures running logic
 void amf_n1::run_registration_procedure(std::shared_ptr<nas_context> &nc) {
-  Logger::amf_n1().debug("Start to run registration procedure");
+  Logger::amf_n1().debug("Start to run registration procedure with UE (%s)", nc.get()->imsi.c_str());
 #if 0
   nlohmann::json udsf_nas_context;
   nlohmann::json udsf_response;
@@ -2023,7 +2024,7 @@ bool amf_n1::auth_vectors_generator(std::shared_ptr<nas_context> &nc) {
   return true;
 }
 //------------------------------------------------------------------------------
-#define CURL_TIMEOUT_MS 300L
+#define CURL_TIMEOUT_MS 3000L
 
 std::size_t callback_ausf(const char *in, std::size_t size, std::size_t num,
                           std::string *out) {
@@ -2767,6 +2768,7 @@ bool amf_n1::start_authentication_procedure(std::shared_ptr<nas_context> nc,
   is_common_procedure_for_authentication_running["content"] = to_string(nc.get()->is_common_procedure_for_authentication_running);
   udsf_nas_context["blocks"].push_back(is_common_procedure_for_authentication_running);
 #endif
+  Logger::amf_n1().debug("Sending Authentication Request to UE (%s)",nc.get()->imsi.c_str());
   AuthenticationRequest *authReq = new AuthenticationRequest();
   authReq->setHeader(PLAIN_5GS_MSG);
   authReq->setngKSI(NAS_KEY_SET_IDENTIFIER_NATIVE, ngksi);

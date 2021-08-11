@@ -181,6 +181,7 @@ class amf_config {
       util::thread_sched_params& cfg);
   void display();
   unsigned int instance;
+  int amf_id_region;
   std::string pid_dir;
   interface_cfg_t n2;
   interface_cfg_t n11;

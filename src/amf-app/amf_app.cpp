@@ -173,10 +173,13 @@ void amf_app_task(void*) {
 
 //------------------------------------------------------------------------------
 long amf_app::generate_amf_ue_ngap_id() {
-  long tmp = 0;
-   //tmp      = __sync_fetch_and_add(&amf_app_ue_ngap_id_generator, 1);
+  //time_t now_time = time(NULL);
+  //tm* t_tm = localtime(&now_time);
+  //long current = t_tm->tm_mday*24*60*60 + t_tm->tm_hour*60*60 + t_tm->tm_min*60 + t_tm->tm_sec;
+  //long tmp = (rand()+current)%100000 + 1;
+  long tmp      = __sync_fetch_and_add(&amf_cfg.amf_id_region, 1);
   //srand(time(NULL));
-  tmp = rand()%1000 + 1;
+  //tmp = rand()%1000 + 1;
   //return tmp & 0xffffffffff;
   return tmp;
 }
@@ -309,6 +312,7 @@ void amf_app::handle_itti_message(
   long amf_ue_ngap_id = 0;
   if ((amf_ue_ngap_id = itti_msg.amf_ue_ngap_id) == -1) {
     amf_ue_ngap_id = generate_amf_ue_ngap_id();
+    Logger::amf_app().debug("Generated amf_ue_ngap_id(%d) for UE (ran_ue_ngap_id = %d)", amf_ue_ngap_id, itti_msg.ran_ue_ngap_id);
   }else{
     amf_ue_ngap_id = itti_msg.amf_ue_ngap_id;
   }

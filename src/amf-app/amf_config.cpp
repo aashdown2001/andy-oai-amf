@@ -110,6 +110,13 @@ int amf_config::load(const std::string& config_file) {
         "%s : %s, using defaults", nfex.what(), nfex.getPath());
   }
   try {
+    amf_cfg.lookupValue(
+        "AMF_ID_REGION", amf_id_region);
+  } catch (const SettingNotFoundException& nfex) {
+    Logger::amf_app().error(
+        "%s : %s, using defaults", nfex.what(), nfex.getPath());
+  }
+  try {
     amf_cfg.lookupValue(AMF_CONFIG_STRING_PID_DIRECTORY, pid_dir);
   } catch (const SettingNotFoundException& nfex) {
     Logger::amf_app().error(

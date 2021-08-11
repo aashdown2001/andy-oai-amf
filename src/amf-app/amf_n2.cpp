@@ -617,7 +617,7 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
   } else if (gc.get()->ng_state != NGAP_READY) {
     Logger::amf_n2().debug(
         "gNB with assoc_id (%d) is illegal", init_ue_msg.assoc_id);
-    return;
+    //return;
   }
 
 
