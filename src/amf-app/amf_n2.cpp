@@ -529,7 +529,7 @@ bool amf_n2::curl_http_client_udsf(std::string remoteUrl,std::string jsonData,st
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
 
         std::string response = *httpData.get();
-        //Logger::amf_n2().debug("response from udsf =(%d) %s ",response.length(),response.c_str());
+        Logger::amf_n2().debug("response from udsf =(%d) %s ",response.length(),response.c_str());
         nlohmann::json response_data = {};
         Logger::amf_n2().debug("Send message to UDSF, response from UDSF, HTTP Code: %d", httpCode);
         if (static_cast<http_response_codes_e>(httpCode) ==http_response_codes_e::HTTP_RESPONSE_CODE_0) {
@@ -704,9 +704,9 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
   nlohmann::json udsf_response;
   std::string record_id, udsf_url;
   if(is_ran_ue_ngap_id_new){
-    record_id = "RECORD_ID=\'" +std::to_string(ran_ue_ngap_id)  + "\'";
+    record_id = "RECORD_ID=\'" +  std::to_string(ran_ue_ngap_id)  + "\'";
   }else{
-    record_id = "RECORD_ID=\'" +std::to_string(nc.get()->ran_ue_ngap_id)  + "\'";
+    record_id = "RECORD_ID=\'" +  std::to_string(nc.get()->ran_ue_ngap_id)  + "\'";
   }
   udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_ngap_context/records/") + record_id ;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
