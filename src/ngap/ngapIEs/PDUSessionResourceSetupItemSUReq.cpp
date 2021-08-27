@@ -35,13 +35,20 @@ namespace ngap {
 
 //------------------------------------------------------------------------------
 PDUSessionResourceSetupItemSUReq::PDUSessionResourceSetupItemSUReq() {
-  pDUSessionID = NULL;
-  nAS_PDU      = NULL;
-  s_NSSAI      = NULL;
+  pDUSessionID = nullptr;
+  nAS_PDU      = nullptr;
+  s_NSSAI      = nullptr;
 }
 
 //------------------------------------------------------------------------------
-PDUSessionResourceSetupItemSUReq::~PDUSessionResourceSetupItemSUReq() {}
+PDUSessionResourceSetupItemSUReq::~PDUSessionResourceSetupItemSUReq() {
+  if (pDUSessionID) delete (pDUSessionID);
+  if (nAS_PDU) delete (nAS_PDU);
+  if (s_NSSAI) delete (s_NSSAI);
+  pDUSessionID = nullptr;
+  nAS_PDU      = nullptr;
+  s_NSSAI      = nullptr;
+}
 
 //------------------------------------------------------------------------------
 void PDUSessionResourceSetupItemSUReq::setPDUSessionResourceSetupItemSUReq(

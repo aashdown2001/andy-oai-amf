@@ -40,7 +40,9 @@ PDUSessionResourceSetupListSUReq::PDUSessionResourceSetupListSUReq() {
 }
 
 //------------------------------------------------------------------------------
-PDUSessionResourceSetupListSUReq::~PDUSessionResourceSetupListSUReq() {}
+PDUSessionResourceSetupListSUReq::~PDUSessionResourceSetupListSUReq() {
+  delete[] pduSessionResourceSetupItemSUReq;
+}
 
 //------------------------------------------------------------------------------
 void PDUSessionResourceSetupListSUReq::setPDUSessionResourceSetupListSUReq(

@@ -38,11 +38,9 @@ NAS_PDU::NAS_PDU() {
 
 //------------------------------------------------------------------------------
 NAS_PDU::~NAS_PDU() {
-  if (naspdubuffer) {
-    free(naspdubuffer);
-    naspdubuffer = nullptr;
-  }
-  buffersize = -1;
+  if (naspdubuffer) free(naspdubuffer);
+  naspdubuffer = nullptr;
+  buffersize   = -1;
 }
 
 //------------------------------------------------------------------------------

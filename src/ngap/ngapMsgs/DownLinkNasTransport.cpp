@@ -57,39 +57,16 @@ DownLinkNasTransportMsg::DownLinkNasTransportMsg() {
 
 //------------------------------------------------------------------------------
 DownLinkNasTransportMsg::~DownLinkNasTransportMsg() {
-  if (amfUeNgapId) {
-    delete (amfUeNgapId);
-    amfUeNgapId = nullptr;
-  }
-
-  if (ranUeNgapId) {
-    delete (ranUeNgapId);
-    ranUeNgapId = nullptr;
-  }
-
-  if (oldAmfName) {
-    delete (oldAmfName);
-    oldAmfName = nullptr;
-  }
-
-  if (ranPagingPriority) {
-    delete (ranPagingPriority);
-    ranPagingPriority = nullptr;
-  }
-  if (nasPdu) {
-    delete (nasPdu);
-    nasPdu = nullptr;
-  }
-
-  if (indexToRFSP) {
-    delete (indexToRFSP);
-    indexToRFSP = nullptr;
-  }
-
+  if (amfUeNgapId) delete (amfUeNgapId);
+  if (ranUeNgapId) delete (ranUeNgapId);
+  if (oldAmfName) delete (oldAmfName);
+  if (ranPagingPriority) delete (ranPagingPriority);
+  if (nasPdu) delete (nasPdu);
+  if (indexToRFSP) delete (indexToRFSP);
   if (downLinkNasTransportPdu) {
     if (downLinkNasTransportPdu->choice.initiatingMessage)
       free(downLinkNasTransportPdu->choice.initiatingMessage);
-    if (downLinkNasTransportIEs) downLinkNasTransportIEs = nullptr;
+
     /*
                       for (int i = 0; i <
        downLinkNasTransportPdu->choice.initiatingMessage->value.choice
@@ -100,7 +77,15 @@ DownLinkNasTransportMsg::~DownLinkNasTransportMsg() {
                       }
     */
   }
-  // if (downLinkNasTransportIEs) free(downLinkNasTransportIEs);
+
+  amfUeNgapId             = nullptr;
+  ranUeNgapId             = nullptr;
+  oldAmfName              = nullptr;
+  ranPagingPriority       = nullptr;
+  nasPdu                  = nullptr;
+  indexToRFSP             = nullptr;
+  downLinkNasTransportIEs = nullptr;
+  downLinkNasTransportPdu = nullptr;
 }
 
 //------------------------------------------------------------------------------

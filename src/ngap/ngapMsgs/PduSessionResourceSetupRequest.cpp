@@ -83,8 +83,15 @@ PduSessionResourceSetupRequestMsg::~PduSessionResourceSetupRequestMsg() {
     */
   }
 
-  pduSessionResourceSetupRequestPdu = nullptr;
-  pduSessionResourceSetupRequestIEs = nullptr;
+  pduSessionResourceSetupRequestPdu  = nullptr;
+  pduSessionResourceSetupRequestIEs  = nullptr;
+  amfUeNgapId                        = nullptr;
+  ranUeNgapId                        = nullptr;
+  ranPagingPriority                  = nullptr;
+  nasPdu                             = nullptr;
+  pduSessionResourceSetupRequestList = nullptr;
+  uEAggregateMaxBitRate              = nullptr;
+  pduSessionAggregateMaximumBitRate  = nullptr;
 }
 //-----------------------------------------------------------------------------
 void PduSessionResourceSetupRequestMsg::setUEAggregateMaxBitRate(
