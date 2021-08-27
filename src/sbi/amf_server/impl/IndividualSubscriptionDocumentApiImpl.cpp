@@ -14,10 +14,13 @@
 #include "IndividualSubscriptionDocumentApiImpl.h"
 #include "bstrlib.h"
 #include "amf_n2.hpp"
+#include <time.h>
 
 #include <shared_mutex>
 using namespace amf_application;
 using namespace ngap;
+
+extern std::vector<long> delay_nudsf;
 extern amf_n2 *amf_n2_inst;
 extern unsigned char* format_string_as_hex(std::string str);
 extern char* bstring2charString(bstring b);

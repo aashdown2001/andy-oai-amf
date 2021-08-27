@@ -40,6 +40,7 @@
 #include "amf_module_from_config.hpp"
 #include "amf_statistics.hpp"
 
+#include <fstream>
 #include <string>
 #include <cstring>
 #include "normalizer.hh"
@@ -57,6 +58,10 @@ amf_modules modules;
 itti_mw* itti_inst    = nullptr;
 amf_app* amf_app_inst = nullptr;
 statistics stacs;
+std::vector<long> delay_nudsf;
+std::vector<long> delay_processing;
+ofstream timeline;
+
 
 //------------------------------------------------------------------------------
 int main(int argc, char** argv) {
@@ -66,6 +71,8 @@ int main(int argc, char** argv) {
     std::cout << "Options::parse() failed" << std::endl;
     return 1;
   }
+
+  //timeline.open("stacs.log", ios::app);
 
   Logger::init("AMF", Options::getlogStdout(), Options::getlogRotFilelog());
   Logger::amf_app().startup("Options parsed!");

@@ -43,7 +43,9 @@
 #include "amf_n2.hpp"
 #include "amf_statistics.hpp"
 #include "ngap_app.hpp"
-#include <time.h>
+#include <sys/time.h>
+#include <numeric>
+#include <fstream>
 using namespace ngap;
 using namespace nas;
 //using namespace amf ;
@@ -59,9 +61,18 @@ amf_n1* amf_n1_inst   = nullptr;
 amf_n11* amf_n11_inst = nullptr;
 extern amf_config amf_cfg;
 extern statistics stacs;
+extern std::vector<long> delay_nudsf;
+extern ofstream timeline;
 
 void amf_app_task(void*);
 uint32_t golbal_tmsi = 1;
+int last_delay_nudsf_size = 0;
+
+std::vector<long> sig_delay_amf_n2;
+std::vector<long> sig_delay_amf_n1;
+std::vector<long> sig_delay_amf_n11;
+std::vector<long> sig_delay_amf_app;
+
 
 //------------------------------------------------------------------------------
 amf_app::amf_app(const amf_config& amf_cfg) {
@@ -148,12 +159,39 @@ void amf_app_task(void*) {
       case TIME_OUT:
         if (itti_msg_timeout* to = dynamic_cast<itti_msg_timeout*>(msg)) {
           switch (to->arg1_user) {
-            case TASK_AMF_APP_PERIODIC_STATISTICS:
+            case TASK_AMF_APP_PERIODIC_STATISTICS:{
               tid = itti_inst->timer_setup(
                   amf_cfg.statistics_interval, 0, TASK_AMF_APP,
                   TASK_AMF_APP_PERIODIC_STATISTICS, 0);
-              stacs.display();
-              break;
+	      ofstream tsm("/home/xgcore/total_signaling_msg.txt",ios::app);
+              tsm << "TASK_AMF_N2	" << itti_inst->itti_task_ctxts[TASK_AMF_N2]->msg_queue.size() << "	";
+              tsm << "TASK_AMF_N1	" << itti_inst->itti_task_ctxts[TASK_AMF_N1]->msg_queue.size() << "	";
+              tsm << "TASK_AMF_N11	" << itti_inst->itti_task_ctxts[TASK_AMF_N11]->msg_queue.size() << "	";
+              tsm << "TASK_AMF_APP	" << itti_inst->itti_task_ctxts[TASK_AMF_APP]->msg_queue.size() << "	"<< std::endl;;
+              //stacs.display();
+	      //double sumValue = accumulate(begin(delay_nudsf), end(delay_nudsf), 0.0);
+	      //double meanValue = sumValue / delay_nudsf.size();
+	      //Logger::amf_app().debug("dukl meanValue %4f", meanValue);
+#if 0
+	      if(delay_nudsf.size() == last_delay_nudsf_size && delay_nudsf.size()!=0){
+	        Logger::amf_app().debug("total time %9f", accumulate(begin(delay_nudsf), end(delay_nudsf), 0.0));
+		timeline.open("/home/xgcore/dukl.txt", ios::out);
+		timeline.setf(ios::fixed, ios::floatfield);
+		timeline.precision(6);
+		if(!timeline.is_open()){
+		  Logger::amf_app().error("cannot open file dukl.txt");
+		}else{
+		  Logger::amf_app().debug("open file dukl.txt");
+		}
+		Logger::amf_app().debug("Recording statics");
+	        for(int i=0; i<delay_nudsf.size();i++){
+		  timeline << delay_nudsf.at(i) << std::endl; 
+		}
+		timeline.close();
+	      }
+	      last_delay_nudsf_size = delay_nudsf.size();
+#endif
+	      }break;
               case TASK_AMF_APP_TIMEOUT_NRF_HEARTBEAT:
                 amf_app_inst->timer_nrf_heartbeat_timeout(
                     to->timer_id, to->arg2_user);
@@ -328,7 +366,10 @@ void amf_app::handle_itti_message(
     Logger::amf_n2().error("No existing ue_context with ue_context_key .....");
   }else{
     Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+    struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
     uc.get()->ue_context_from_json(udsf_response);
+    struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+    long one_time = end - start; delay_nudsf.push_back(one_time);
   }
   set_ran_amf_id_2_ue_context(ue_context_key, uc);
   // Update ue_context
@@ -573,7 +614,10 @@ bool amf_app::generate_5g_guti(
     return false;
   }
   Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
   uc.get()->ue_context_from_json(udsf_response);
+  struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+  long one_time = end - start; delay_nudsf.push_back(one_time);
 
 
 

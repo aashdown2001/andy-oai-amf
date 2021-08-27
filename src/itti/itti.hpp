@@ -124,7 +124,8 @@ class itti_task_ctxt {
 };
 
 class itti_mw {
- private:
+ //private:
+ public:
   itti_task_ctxt* itti_task_ctxts[TASK_MAX];
 
   /*

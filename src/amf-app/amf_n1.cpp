@@ -87,6 +87,9 @@ extern amf_n11 *amf_n11_inst;
 extern amf_config amf_cfg;
 extern amf_app *amf_app_inst;
 extern amf_n2 *amf_n2_inst;
+
+extern std::vector<long> delay_nudsf;
+
 extern statistics stacs;
 extern void convert_string_2_hex(std::string &input, std::string &output);
 extern unsigned char *format_string_as_hex(std::string str);
@@ -157,7 +160,10 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer &itti_msg) {
   }else{
     Logger::amf_n1().debug("udsf_response %s",udsf_response.dump().c_str());
     nc = std::shared_ptr<nas_context>(new nas_context());
+    struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
     nc.get()->nas_context_from_json(udsf_response);
+    struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+    long one_time = end - start; delay_nudsf.push_back(one_time);
     set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
     Logger::amf_n1().debug("GET nas_context (%p) from UDSF using amf_ue_ngap_id (%d) .....", nc.get(), amf_ue_ngap_id);
   }
@@ -320,7 +326,10 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind &nas_data_ind) {
     }else{
       Logger::amf_n1().debug("udsf_response %s",udsf_response.dump().c_str());
       nc = std::shared_ptr<nas_context>(new nas_context());
+      struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
       nc.get()->nas_context_from_json(udsf_response);
+      struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+      long one_time = end - start; delay_nudsf.push_back(one_time);
       set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
       Logger::amf_n1().debug("GET nas_context (%p) from UDSF using amf_ue_ngap_id (%d) .....", nc.get(), amf_ue_ngap_id);
     }
@@ -1008,7 +1017,10 @@ void amf_n1::service_request_handle(bool isNasSig,
   }
   else{
      Logger::amf_n1().debug("udsf_response: %s", udsf_response.dump().c_str());
+      struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
       psc.get()->pdu_session_context_from_json(udsf_response);
+      struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+      long one_time = end - start; delay_nudsf.push_back(one_time);
       //psc = std::shared_ptr<pdu_session_context>(psc1);
   }
   psc.get()->ran_ue_ngap_id = ran_ue_ngap_id;
@@ -1845,7 +1857,10 @@ void amf_n1::amf_ue_id_2_nas_context_in_udsf(const long& amf_ue_ngap_id, std::sh
      Logger::amf_n1().error("No existing nas_context with amf_ue_ngap_id %s",to_string(amf_ue_ngap_id).c_str());
      return ;
   }
+  struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
   nc.get()->nas_context_from_json(udsf_response);
+  struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+  long one_time = end - start; delay_nudsf.push_back(one_time);
   return ;
 }
 
@@ -3229,7 +3244,12 @@ void amf_n1::security_mode_complete_handle(uint32_t ran_ue_ngap_id,
   }else{
     Logger::amf_n1().debug("udsf_response: %s", udsf_response.dump().c_str());
     uc = std::shared_ptr<ue_context>(new ue_context());
+    Logger::amf_n1().debug("Parse Start");
+    struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
     uc.get()->ue_context_from_json(udsf_response);
+    struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+    long one_time = end - start; delay_nudsf.push_back(one_time);
+    Logger::amf_n1().debug("Parse End");
   }
   amf_app_inst->set_ran_amf_id_2_ue_context(ue_context_key, uc);
 
@@ -4310,7 +4330,10 @@ void amf_n1::run_mobility_registration_update_procedure(
     return;
   }
   Logger::amf_n1().debug("udsf_response: %s", udsf_response.dump().c_str());
+    struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
   psc.get()->pdu_session_context_from_json(udsf_response);
+    struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+    long one_time = end - start; delay_nudsf.push_back(one_time);
  // psc = std::shared_ptr<pdu_session_context>(psc1);
   //***************************stateless
 
@@ -4419,7 +4442,10 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   }
   else{
      Logger::amf_n1().debug("udsf_response: %s", udsf_response.dump().c_str());
+    struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
       psc.get()->pdu_session_context_from_json(udsf_response);
+    struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+    long one_time = end - start; delay_nudsf.push_back(one_time);
      // psc = std::shared_ptr<pdu_session_context>(psc1);
   }
   //***************************stateless
@@ -4525,7 +4551,10 @@ void amf_n1::run_periodic_registration_update_procedure(
   }
   else{
      Logger::amf_n1().debug("udsf_response: %s", udsf_response.dump().c_str());
+    struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
       psc.get()->pdu_session_context_from_json(udsf_response);
+    struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+    long one_time = end - start; delay_nudsf.push_back(one_time);
       //psc = std::shared_ptr<pdu_session_context>(psc1);
   }
   //***************************stateless

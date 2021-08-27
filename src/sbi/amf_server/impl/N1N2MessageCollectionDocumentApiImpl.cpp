@@ -19,11 +19,13 @@
 
 //#include "amf_n2.hpp"
 //#include "Paging.hpp"
+#include <time.h>
 
 #include "pdu_session_context.hpp"
 using namespace amf_application;
 using namespace ngap;
 
+extern std::vector<long> delay_nudsf;
 extern void octet_stream_2_hex_stream(uint8_t *buf, int len, std::string &out);
 extern void msg_str_2_msg_hex(std::string msg, bstring& b);
 extern void convert_string_2_hex(std::string& input, std::string& output);
@@ -95,6 +97,7 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
 
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";
   std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+  time_t t1 = time(NULL); time(&t1);
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
   }
@@ -103,6 +106,9 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
       psc.get()->pdu_session_context_from_json(udsf_response);
       //psc = std::shared_ptr<pdu_session_context>(psc1);
   }
+  time_t t2 = time(NULL); time(&t2);
+  long one_time = (long)(t2-t1);
+  delay_nudsf.push_back(one_time);
   //***************************stateless
 
 //   if (amf_n11_inst->is_supi_to_pdu_ctx(supi)) {
@@ -145,8 +151,11 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
     {{"Content-ID", "isn1sm_avaliable"},{"Content-Type", "varchar(32)"},{"content", to_string(psc.get()->isn1sm_avaliable)}},
     });
     std::string json_part = udsf_put_pdu_session_context.dump();
+    time(&t1);
     amf_n2_inst->curl_http_client_udsf(udsf_put_url,json_part,"PUT",udsf_response);
-
+    time(&t2);
+    one_time = (long)(t2-t1);
+    delay_nudsf.push_back(one_time);
 
   Logger::amf_server().debug(
       "n2sm size in amf_server(%d)", blength(psc.get()->n2sm));
