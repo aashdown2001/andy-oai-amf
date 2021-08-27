@@ -94,29 +94,17 @@ void DownLinkNasTransportMsg::setMessageType() {
     downLinkNasTransportPdu =
         (Ngap_NGAP_PDU_t*) calloc(1, sizeof(Ngap_NGAP_PDU_t));
 
-  MessageType downLinkNasTransportPduTypeIE;
-  downLinkNasTransportPduTypeIE.setProcedureCode(
-      Ngap_ProcedureCode_id_DownlinkNASTransport);
-  downLinkNasTransportPduTypeIE.setTypeOfMessage(
-      Ngap_NGAP_PDU_PR_initiatingMessage);
-  downLinkNasTransportPduTypeIE.setCriticality(Ngap_Criticality_ignore);
-  downLinkNasTransportPduTypeIE.setValuePresent(
-      Ngap_InitiatingMessage__value_PR_DownlinkNASTransport);
+  downLinkNasTransportPdu->choice.initiatingMessage =
+      (Ngap_InitiatingMessage_t*) calloc(1, sizeof(Ngap_InitiatingMessage_t));
+  downLinkNasTransportPdu->choice.initiatingMessage->procedureCode =
+      Ngap_ProcedureCode_id_DownlinkNASTransport;
+  downLinkNasTransportPdu->choice.initiatingMessage->criticality =
+      Ngap_Criticality_ignore;
+  downLinkNasTransportPdu->choice.initiatingMessage->value.present =
+      Ngap_InitiatingMessage__value_PR_DownlinkNASTransport;
 
-  if (downLinkNasTransportPduTypeIE.getProcedureCode() ==
-          Ngap_ProcedureCode_id_DownlinkNASTransport &&
-      downLinkNasTransportPduTypeIE.getTypeOfMessage() ==
-          Ngap_NGAP_PDU_PR_initiatingMessage &&
-      downLinkNasTransportPduTypeIE.getCriticality() ==
-          Ngap_Criticality_ignore) {
-    downLinkNasTransportPduTypeIE.encode2pdu(downLinkNasTransportPdu);
-    downLinkNasTransportIEs =
-        &(downLinkNasTransportPdu->choice.initiatingMessage->value.choice
-              .DownlinkNASTransport);
-  } else {
-    Logger::ngap().warn(
-        "This information doesn't refer to DownlinkNASTransport Message");
-  }
+  downLinkNasTransportIEs = &(downLinkNasTransportPdu->choice.initiatingMessage
+                                  ->value.choice.DownlinkNASTransport);
 }
 
 //------------------------------------------------------------------------------
@@ -138,7 +126,7 @@ void DownLinkNasTransportMsg::setAmfUeNgapId(unsigned long id) {
     return;
   }
 
-  ret = ASN_SEQUENCE_ADD(&downLinkNasTransportIEs->protocolIEs.list, ie);
+  ret = ASN_SEQUENCE_ADD(&downLinkNasTransportIEs->protocolIEs.list, &ie);
   if (ret != 0) Logger::ngap().error("Encode AMF_UE_NGAP_ID IE error");
   // free_wrapper((void**) &ie);
 }

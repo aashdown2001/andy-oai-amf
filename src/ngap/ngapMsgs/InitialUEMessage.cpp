@@ -45,9 +45,9 @@ namespace ngap {
 
 //------------------------------------------------------------------------------
 InitialUEMessageMsg::InitialUEMessageMsg() {
-  initialUEMessagePdu     = nullptr;
-  initialUEMessageIEs     = nullptr;
-  ranUeNgapId             = nullptr;
+  // initialUEMessagePdu     = nullptr;
+  initialUEMessageIEs = nullptr;
+  // ranUeNgapId             = nullptr;
   nasPdu                  = nullptr;
   userLocationInformation = nullptr;
   rRCEstablishmentCause   = nullptr;
@@ -60,54 +60,46 @@ InitialUEMessageMsg::~InitialUEMessageMsg() {}
 
 //------------------------------------------------------------------------------
 void InitialUEMessageMsg::setMessageType() {
-  if (!initialUEMessagePdu)
-    initialUEMessagePdu = (Ngap_NGAP_PDU_t*) calloc(1, sizeof(Ngap_NGAP_PDU_t));
+  ngap_msg::setMessageType(
+      Ngap_NGAP_PDU_PR_initiatingMessage,
+      Ngap_ProcedureCode_id_InitialUEMessage, Ngap_Criticality_ignore);
+  ngap_pdu.choice.initiatingMessage->value.present =
+      Ngap_InitiatingMessage__value_PR_InitialUEMessage;
 
-  MessageType InitialUEMessageMessageTypeIE;
-  InitialUEMessageMessageTypeIE.setProcedureCode(
-      Ngap_ProcedureCode_id_InitialUEMessage);
-  InitialUEMessageMessageTypeIE.setTypeOfMessage(
-      Ngap_NGAP_PDU_PR_initiatingMessage);
-  InitialUEMessageMessageTypeIE.setCriticality(Ngap_Criticality_ignore);
-  InitialUEMessageMessageTypeIE.setValuePresent(
-      Ngap_InitiatingMessage__value_PR_InitialUEMessage);
+  initialUEMessageIEs =
+      &(ngap_pdu.choice.initiatingMessage->value.choice.InitialUEMessage);
 
-  if (InitialUEMessageMessageTypeIE.getProcedureCode() ==
-          Ngap_ProcedureCode_id_InitialUEMessage &&
-      InitialUEMessageMessageTypeIE.getTypeOfMessage() ==
-          Ngap_NGAP_PDU_PR_initiatingMessage &&
-      InitialUEMessageMessageTypeIE.getCriticality() ==
-          Ngap_Criticality_ignore) {
-    InitialUEMessageMessageTypeIE.encode2pdu(initialUEMessagePdu);
-    initialUEMessageIEs = &(initialUEMessagePdu->choice.initiatingMessage->value
-                                .choice.InitialUEMessage);
-  } else {
-    Logger::ngap().warn(
-        "This information doesn't refer to InitialUEMessage message!");
-  }
+  /*
+    MessageType InitialUEMessageMessageTypeIE;
+    InitialUEMessageMessageTypeIE.setProcedureCode(
+        Ngap_ProcedureCode_id_InitialUEMessage);
+    InitialUEMessageMessageTypeIE.setTypeOfMessage(
+        Ngap_NGAP_PDU_PR_initiatingMessage);
+    InitialUEMessageMessageTypeIE.setCriticality(Ngap_Criticality_ignore);
+    InitialUEMessageMessageTypeIE.setValuePresent(
+        Ngap_InitiatingMessage__value_PR_InitialUEMessage);
+
+    if (InitialUEMessageMessageTypeIE.getProcedureCode() ==
+            Ngap_ProcedureCode_id_InitialUEMessage &&
+        InitialUEMessageMessageTypeIE.getTypeOfMessage() ==
+            Ngap_NGAP_PDU_PR_initiatingMessage &&
+        InitialUEMessageMessageTypeIE.getCriticality() ==
+            Ngap_Criticality_ignore) {
+      InitialUEMessageMessageTypeIE.encode2pdu(initialUEMessagePdu);
+      initialUEMessageIEs =
+    &(initialUEMessagePdu->choice.initiatingMessage->value
+                                  .choice.InitialUEMessage);
+    } else {
+      Logger::ngap().warn(
+          "This information doesn't refer to InitialUEMessage message!");
+    }
+    */
 }
 
 //------------------------------------------------------------------------------
 void InitialUEMessageMsg::setRanUENgapID(uint32_t ran_ue_ngap_id) {
-  if (!ranUeNgapId) ranUeNgapId = new RAN_UE_NGAP_ID();
-  ranUeNgapId->setRanUeNgapId(ran_ue_ngap_id);
+  ranUeNgapId.setRanUeNgapId(ran_ue_ngap_id);
 
-  Ngap_InitialUEMessage_IEs_t* ie = (Ngap_InitialUEMessage_IEs_t*) calloc(
-      1, sizeof(Ngap_InitialUEMessage_IEs_t));
-  ie->id            = Ngap_ProtocolIE_ID_id_RAN_UE_NGAP_ID;
-  ie->criticality   = Ngap_Criticality_reject;
-  ie->value.present = Ngap_InitialUEMessage_IEs__value_PR_RAN_UE_NGAP_ID;
-
-  int ret = ranUeNgapId->encode2RAN_UE_NGAP_ID(ie->value.choice.RAN_UE_NGAP_ID);
-  if (!ret) {
-    Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error");
-
-    free_wrapper((void**) &ie);
-    return;
-  }
-
-  ret = ASN_SEQUENCE_ADD(&initialUEMessageIEs->protocolIEs.list, ie);
-  if (ret != 0) Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error");
   // free_wrapper((void**) &ie);
 }
 
@@ -116,23 +108,6 @@ void InitialUEMessageMsg::setNasPdu(uint8_t* nas, size_t sizeofnas) {
   if (!nasPdu) nasPdu = new NAS_PDU();
 
   nasPdu->setNasPdu(nas, sizeofnas);
-
-  Ngap_InitialUEMessage_IEs_t* ie = (Ngap_InitialUEMessage_IEs_t*) calloc(
-      1, sizeof(Ngap_InitialUEMessage_IEs_t));
-  ie->id            = Ngap_ProtocolIE_ID_id_NAS_PDU;
-  ie->criticality   = Ngap_Criticality_reject;
-  ie->value.present = Ngap_InitialUEMessage_IEs__value_PR_NAS_PDU;
-
-  int ret = nasPdu->encode2octetstring(ie->value.choice.NAS_PDU);
-  if (!ret) {
-    Logger::ngap().error("Encode NAS PDU IE error");
-    free_wrapper((void**) &ie);
-    return;
-  }
-
-  ret = ASN_SEQUENCE_ADD(&initialUEMessageIEs->protocolIEs.list, ie);
-  if (ret != 0) Logger::ngap().error("Encode NAS PDU IE error");
-  // free_wrapper((void**) &ie);
 }
 
 //------------------------------------------------------------------------------
@@ -159,15 +134,85 @@ void InitialUEMessageMsg::setUserLocationInfoNR(
   tai_nr->setTAI(plmnId_tai, tac);
   informationNR->setInformationNR(nR_CGI, tai_nr);
   userLocationInformation->setInformation(informationNR);
+}
 
+//------------------------------------------------------------------------------
+void InitialUEMessageMsg::setRRCEstablishmentCause(
+    e_Ngap_RRCEstablishmentCause cause_value) {
+  if (!rRCEstablishmentCause)
+    rRCEstablishmentCause = new RRCEstablishmentCause();
+
+  rRCEstablishmentCause->setRRCEstablishmentCause(cause_value);
+}
+
+//------------------------------------------------------------------------------
+// void InitialUEMessageMsg::set5GS_TMSI(string amfSetId, string amfPointer,
+// string _5g_tmsi);
+void InitialUEMessageMsg::setUeContextRequest(
+    e_Ngap_UEContextRequest ueCtxReq) {
+  if (!uEContextRequest) uEContextRequest = new UEContextRequest();
+
+  uEContextRequest->setUEContextRequest(ueCtxReq);
+}
+
+//------------------------------------------------------------------------------
+void InitialUEMessageMsg::setIEs() {
   Ngap_InitialUEMessage_IEs_t* ie = (Ngap_InitialUEMessage_IEs_t*) calloc(
       1, sizeof(Ngap_InitialUEMessage_IEs_t));
+
+  ie->id            = Ngap_ProtocolIE_ID_id_RAN_UE_NGAP_ID;
+  ie->criticality   = Ngap_Criticality_reject;
+  ie->value.present = Ngap_InitialUEMessage_IEs__value_PR_RAN_UE_NGAP_ID;
+
+  int ret = ranUeNgapId.encode2RAN_UE_NGAP_ID(ie->value.choice.RAN_UE_NGAP_ID);
+  if (!ret) {
+    Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error");
+
+    free_wrapper((void**) &ie);
+    return;
+  }
+
+  ret = ASN_SEQUENCE_ADD(&initialUEMessageIEs->protocolIEs.list, ie);
+  if (ret != 0) Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error");
+
+  ie->id            = Ngap_ProtocolIE_ID_id_UEContextRequest;
+  ie->criticality   = Ngap_Criticality_ignore;
+  ie->value.present = Ngap_InitialUEMessage_IEs__value_PR_UEContextRequest;
+
+  ret = uEContextRequest->encode2UEContextRequest(
+      ie->value.choice.UEContextRequest);
+  if (!ret) {
+    Logger::ngap().error("Encode UEContextRequest IE error");
+    free_wrapper((void**) &ie);
+    return;
+  }
+
+  ret = ASN_SEQUENCE_ADD(&initialUEMessageIEs->protocolIEs.list, ie);
+  if (ret != 0) Logger::ngap().error("Encode UEContextRequest IE error");
+  // free_wrapper((void**) &ie);
+
+  ie->id            = Ngap_ProtocolIE_ID_id_RRCEstablishmentCause;
+  ie->criticality   = Ngap_Criticality_ignore;
+  ie->value.present = Ngap_InitialUEMessage_IEs__value_PR_RRCEstablishmentCause;
+
+  ret = rRCEstablishmentCause->encode2RRCEstablishmentCause(
+      ie->value.choice.RRCEstablishmentCause);
+  if (!ret) {
+    Logger::ngap().error("Encode RRCEstablishmentCause IE error");
+    free_wrapper((void**) &ie);
+    return;
+  }
+
+  ret = ASN_SEQUENCE_ADD(&initialUEMessageIEs->protocolIEs.list, ie);
+  if (ret != 0) Logger::ngap().error("Encode RRCEstablishmentCause IE error");
+  // free_wrapper((void**) &ie);
+
   ie->id          = Ngap_ProtocolIE_ID_id_UserLocationInformation;
   ie->criticality = Ngap_Criticality_reject;
   ie->value.present =
       Ngap_InitialUEMessage_IEs__value_PR_UserLocationInformation;
 
-  int ret = userLocationInformation->encodefromUserLocationInformation(
+  ret = userLocationInformation->encodefromUserLocationInformation(
       &ie->value.choice.UserLocationInformation);
   if (!ret) {
     Logger::ngap().error("Encode UserLocationInformation IE error");
@@ -179,87 +224,47 @@ void InitialUEMessageMsg::setUserLocationInfoNR(
   ret = ASN_SEQUENCE_ADD(&initialUEMessageIEs->protocolIEs.list, ie);
   if (ret != 0) Logger::ngap().error("Encode UserLocationInformation IE error");
   // free_wrapper((void**) &ie);
-}
 
-//------------------------------------------------------------------------------
-void InitialUEMessageMsg::setRRCEstablishmentCause(
-    e_Ngap_RRCEstablishmentCause cause_value) {
-  if (!rRCEstablishmentCause)
-    rRCEstablishmentCause = new RRCEstablishmentCause();
+  ie->id            = Ngap_ProtocolIE_ID_id_NAS_PDU;
+  ie->criticality   = Ngap_Criticality_reject;
+  ie->value.present = Ngap_InitialUEMessage_IEs__value_PR_NAS_PDU;
 
-  rRCEstablishmentCause->setRRCEstablishmentCause(cause_value);
-
-  Ngap_InitialUEMessage_IEs_t* ie = (Ngap_InitialUEMessage_IEs_t*) calloc(
-      1, sizeof(Ngap_InitialUEMessage_IEs_t));
-  ie->id            = Ngap_ProtocolIE_ID_id_RRCEstablishmentCause;
-  ie->criticality   = Ngap_Criticality_ignore;
-  ie->value.present = Ngap_InitialUEMessage_IEs__value_PR_RRCEstablishmentCause;
-
-  int ret = rRCEstablishmentCause->encode2RRCEstablishmentCause(
-      ie->value.choice.RRCEstablishmentCause);
+  ret = nasPdu->encode2octetstring(ie->value.choice.NAS_PDU);
   if (!ret) {
-    Logger::ngap().error("Encode RRCEstablishmentCause IE error");
+    Logger::ngap().error("Encode NAS PDU IE error");
     free_wrapper((void**) &ie);
     return;
   }
 
   ret = ASN_SEQUENCE_ADD(&initialUEMessageIEs->protocolIEs.list, ie);
-  if (ret != 0) Logger::ngap().error("Encode RRCEstablishmentCause IE error");
-  // free_wrapper((void**) &ie);
-}
-
-//------------------------------------------------------------------------------
-// void InitialUEMessageMsg::set5GS_TMSI(string amfSetId, string amfPointer,
-// string _5g_tmsi);
-void InitialUEMessageMsg::setUeContextRequest(
-    e_Ngap_UEContextRequest ueCtxReq) {
-  if (!uEContextRequest) uEContextRequest = new UEContextRequest();
-
-  uEContextRequest->setUEContextRequest(ueCtxReq);
-
-  Ngap_InitialUEMessage_IEs_t* ie = (Ngap_InitialUEMessage_IEs_t*) calloc(
-      1, sizeof(Ngap_InitialUEMessage_IEs_t));
-  ie->id            = Ngap_ProtocolIE_ID_id_UEContextRequest;
-  ie->criticality   = Ngap_Criticality_ignore;
-  ie->value.present = Ngap_InitialUEMessage_IEs__value_PR_UEContextRequest;
-
-  int ret = uEContextRequest->encode2UEContextRequest(
-      ie->value.choice.UEContextRequest);
-  if (!ret) {
-    Logger::ngap().error("Encode UEContextRequest IE error");
-    free_wrapper((void**) &ie);
-    return;
-  }
-
-  ret = ASN_SEQUENCE_ADD(&initialUEMessageIEs->protocolIEs.list, ie);
-  if (ret != 0) Logger::ngap().error("Encode UEContextRequest IE error");
+  if (ret != 0) Logger::ngap().error("Encode NAS PDU IE error");
   // free_wrapper((void**) &ie);
 }
 
 //------------------------------------------------------------------------------
 int InitialUEMessageMsg::encode2buffer(uint8_t* buf, int buf_size) {
-  asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, initialUEMessagePdu);
+  setIEs();
+  asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, &ngap_pdu);
   asn_enc_rval_t er = aper_encode_to_buffer(
-      &asn_DEF_Ngap_NGAP_PDU, NULL, initialUEMessagePdu, buf, buf_size);
+      &asn_DEF_Ngap_NGAP_PDU, NULL, &ngap_pdu, buf, buf_size);
   Logger::ngap().debug("er.encoded( %d )", er.encoded);
   return er.encoded;
 }
 
 //------------------------------------------------------------------------------
-// Decapsulation
 bool InitialUEMessageMsg::decodefrompdu(Ngap_NGAP_PDU_t* ngap_msg_pdu) {
-  initialUEMessagePdu = ngap_msg_pdu;
+  ngap_pdu = *ngap_msg_pdu;
 
-  if (initialUEMessagePdu->present == Ngap_NGAP_PDU_PR_initiatingMessage) {
-    if (initialUEMessagePdu->choice.initiatingMessage &&
-        initialUEMessagePdu->choice.initiatingMessage->procedureCode ==
+  if (ngap_pdu.present == Ngap_NGAP_PDU_PR_initiatingMessage) {
+    if (ngap_pdu.choice.initiatingMessage &&
+        ngap_pdu.choice.initiatingMessage->procedureCode ==
             Ngap_ProcedureCode_id_InitialUEMessage &&
-        initialUEMessagePdu->choice.initiatingMessage->criticality ==
+        ngap_pdu.choice.initiatingMessage->criticality ==
             Ngap_Criticality_ignore &&
-        initialUEMessagePdu->choice.initiatingMessage->value.present ==
+        ngap_pdu.choice.initiatingMessage->value.present ==
             Ngap_InitiatingMessage__value_PR_InitialUEMessage) {
-      initialUEMessageIEs = &initialUEMessagePdu->choice.initiatingMessage
-                                 ->value.choice.InitialUEMessage;
+      initialUEMessageIEs =
+          &ngap_pdu.choice.initiatingMessage->value.choice.InitialUEMessage;
     } else {
       Logger::ngap().error("Check InitialUEMessage message error");
       return false;
@@ -275,15 +280,14 @@ bool InitialUEMessageMsg::decodefrompdu(Ngap_NGAP_PDU_t* ngap_msg_pdu) {
                 Ngap_Criticality_reject &&
             initialUEMessageIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_InitialUEMessage_IEs__value_PR_RAN_UE_NGAP_ID) {
-          ranUeNgapId = new RAN_UE_NGAP_ID();
-          if (!ranUeNgapId->decodefromRAN_UE_NGAP_ID(
+          if (!ranUeNgapId.decodefromRAN_UE_NGAP_ID(
                   initialUEMessageIEs->protocolIEs.list.array[i]
                       ->value.choice.RAN_UE_NGAP_ID)) {
             Logger::ngap().error("Decoded NGAP RAN_UE_NGAP_ID IE error");
             return false;
           }
           Logger::ngap().debug(
-              "Received RanUeNgapId %d ", ranUeNgapId->getRanUeNgapId());
+              "Received RanUeNgapId %d ", ranUeNgapId.getRanUeNgapId());
 
         } else {
           Logger::ngap().error("Decoded NGAP RAN_UE_NGAP_ID IE error");
@@ -390,11 +394,7 @@ bool InitialUEMessageMsg::decodefrompdu(Ngap_NGAP_PDU_t* ngap_msg_pdu) {
 
 //------------------------------------------------------------------------------
 uint32_t InitialUEMessageMsg::getRanUENgapID() {
-  if (ranUeNgapId) {
-    return ranUeNgapId->getRanUeNgapId();
-  } else {
-    return 0;
-  }
+  return ranUeNgapId.getRanUeNgapId();
 }
 
 //------------------------------------------------------------------------------
