@@ -56,7 +56,30 @@ DownLinkNasTransportMsg::DownLinkNasTransportMsg() {
 }
 
 //------------------------------------------------------------------------------
-DownLinkNasTransportMsg::~DownLinkNasTransportMsg() {}
+DownLinkNasTransportMsg::~DownLinkNasTransportMsg() {
+  if (amfUeNgapId) delete (amfUeNgapId);
+  if (ranUeNgapId) delete (ranUeNgapId);
+  if (oldAmfName) delete (oldAmfName);
+  if (ranPagingPriority) delete (ranPagingPriority);
+  if (nasPdu) delete (nasPdu);
+
+  if (indexToRFSP) delete (indexToRFSP);
+
+  if (downLinkNasTransportPdu) {
+    if (downLinkNasTransportPdu->choice.initiatingMessage)
+      free(downLinkNasTransportPdu->choice.initiatingMessage);
+    /*
+                      for (int i = 0; i <
+       downLinkNasTransportPdu->choice.initiatingMessage->value.choice
+              .DownlinkNASTransport.protocolIEs.list.count; i++) {
+                              downLinkNasTransportPdu->choice.initiatingMessage->value.choice
+                                            .DownlinkNASTransport.protocolIEs.list;
+                              downLinkNasTransportIEs->protocolIEs.list.array[i];
+                      }
+    */
+  }
+  if (downLinkNasTransportIEs) free(downLinkNasTransportIEs);
+}
 
 //------------------------------------------------------------------------------
 void DownLinkNasTransportMsg::setMessageType() {
