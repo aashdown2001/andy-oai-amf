@@ -37,7 +37,13 @@ NAS_PDU::NAS_PDU() {
 }
 
 //------------------------------------------------------------------------------
-NAS_PDU::~NAS_PDU() {}
+NAS_PDU::~NAS_PDU() {
+  if (naspdubuffer) {
+    free(naspdubuffer);
+    naspdubuffer = nullptr;
+  }
+  buffersize = -1;
+}
 
 //------------------------------------------------------------------------------
 bool NAS_PDU::encode2octetstring(Ngap_NAS_PDU_t& m_naspdu) {

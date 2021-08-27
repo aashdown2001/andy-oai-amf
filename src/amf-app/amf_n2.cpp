@@ -962,8 +962,10 @@ void amf_n2::handle_itti_message(
     return;
   }
 
-  PduSessionResourceSetupRequestMsg* psrsr =
-      new PduSessionResourceSetupRequestMsg();
+  // PduSessionResourceSetupRequestMsg* psrsr =
+  //    new PduSessionResourceSetupRequestMsg();
+  std::shared_ptr<PduSessionResourceSetupRequestMsg> psrsr =
+      std::make_shared<PduSessionResourceSetupRequestMsg>();
   psrsr->setMessageType();
   psrsr->setAmfUeNgapId(itti_msg.amf_ue_ngap_id);
   psrsr->setRanUeNgapId(itti_msg.ran_ue_ngap_id);

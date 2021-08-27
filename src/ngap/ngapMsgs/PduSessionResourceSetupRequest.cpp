@@ -57,7 +57,35 @@ PduSessionResourceSetupRequestMsg::PduSessionResourceSetupRequestMsg() {
 }
 
 //------------------------------------------------------------------------------
-PduSessionResourceSetupRequestMsg::~PduSessionResourceSetupRequestMsg() {}
+PduSessionResourceSetupRequestMsg::~PduSessionResourceSetupRequestMsg() {
+  if (amfUeNgapId) delete (amfUeNgapId);
+  if (ranUeNgapId) delete (ranUeNgapId);
+  if (ranPagingPriority) delete (ranPagingPriority);
+  if (nasPdu) delete (nasPdu);
+  if (pduSessionResourceSetupRequestList)
+    delete (pduSessionResourceSetupRequestList);
+  if (uEAggregateMaxBitRate) delete (uEAggregateMaxBitRate);
+  if (pduSessionAggregateMaximumBitRate)
+    delete (pduSessionAggregateMaximumBitRate);
+
+  if (pduSessionResourceSetupRequestPdu) {
+    if (pduSessionResourceSetupRequestPdu->choice.initiatingMessage)
+      free(pduSessionResourceSetupRequestPdu->choice.initiatingMessage);
+
+    /*
+                      for (int i = 0; i <
+       pduSessionResourceSetupRequestPdu->choice.initiatingMessage->value.choice
+              .PDUSessionResourceSetupRequest.protocolIEs.list.count; i++) {
+                              pduSessionResourceSetupRequestPdu->choice.initiatingMessage->value.choice
+                                            .PDUSessionResourceSetupRequest.protocolIEs.list;
+
+                      }
+    */
+  }
+
+  pduSessionResourceSetupRequestPdu = nullptr;
+  pduSessionResourceSetupRequestIEs = nullptr;
+}
 //-----------------------------------------------------------------------------
 void PduSessionResourceSetupRequestMsg::setUEAggregateMaxBitRate(
     long bit_rate_downlink, long bit_rate_uplink) {
