@@ -772,8 +772,10 @@ void amf_n2::handle_itti_message(itti_dl_nas_transport& dl_nas_transport) {
   }
   unc.get()->amf_ue_ngap_id = dl_nas_transport.amf_ue_ngap_id;
   set_amf_ue_ngap_id_2_ue_ngap_context(unc.get()->amf_ue_ngap_id, unc);
-  unc.get()->ng_ue_state            = NGAP_UE_CONNECTED;
-  DownLinkNasTransportMsg* ngap_msg = new DownLinkNasTransportMsg();
+  unc.get()->ng_ue_state = NGAP_UE_CONNECTED;
+  // DownLinkNasTransportMsg* ngap_msg = new DownLinkNasTransportMsg();
+  std::shared_ptr<DownLinkNasTransportMsg> ngap_msg =
+      std::make_shared<DownLinkNasTransportMsg>();
   ngap_msg->setMessageType();
   ngap_msg->setAmfUeNgapId(dl_nas_transport.amf_ue_ngap_id);
   ngap_msg->setRanUeNgapId(dl_nas_transport.ran_ue_ngap_id);
