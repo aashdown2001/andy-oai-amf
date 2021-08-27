@@ -84,11 +84,11 @@ class PduSessionResourceSetupRequestMsg : public ngap_msg {
 
   // AMF_UE_NGAP_ID* amfUeNgapId;
   // RAN_UE_NGAP_ID* ranUeNgapId;
-  RANPagingPriority* ranPagingPriority;
-  NAS_PDU* nasPdu;
-  PDUSessionResourceSetupListSUReq* pduSessionResourceSetupRequestList;
-  PduSessionAggregateMaximumBitRate* pduSessionAggregateMaximumBitRate;
-  UEAggregateMaxBitRate* uEAggregateMaxBitRate;
+  RANPagingPriority* ranPagingPriority;  // Optional
+  NAS_PDU* nasPdu;                       // Optional
+  PDUSessionResourceSetupListSUReq
+      pduSessionResourceSetupRequestList;        // Mandatory
+  UEAggregateMaxBitRate* uEAggregateMaxBitRate;  // Optional
 };
 
 }  // namespace ngap

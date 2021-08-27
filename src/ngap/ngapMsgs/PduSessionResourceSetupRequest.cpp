@@ -49,11 +49,10 @@ PduSessionResourceSetupRequestMsg::PduSessionResourceSetupRequestMsg() {
   pduSessionResourceSetupRequestIEs = nullptr;
   // amfUeNgapId                        = nullptr;
   // ranUeNgapId                        = nullptr;
-  ranPagingPriority                  = nullptr;
-  nasPdu                             = nullptr;
-  pduSessionResourceSetupRequestList = nullptr;
-  uEAggregateMaxBitRate              = nullptr;
-  pduSessionAggregateMaximumBitRate  = nullptr;
+  ranPagingPriority = nullptr;
+  nasPdu            = nullptr;
+  // pduSessionResourceSetupRequestList = nullptr;
+  uEAggregateMaxBitRate = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -62,11 +61,9 @@ PduSessionResourceSetupRequestMsg::~PduSessionResourceSetupRequestMsg() {
   // if (ranUeNgapId) delete (ranUeNgapId);
   if (ranPagingPriority) delete (ranPagingPriority);
   if (nasPdu) delete (nasPdu);
-  if (pduSessionResourceSetupRequestList)
-    delete (pduSessionResourceSetupRequestList);
+  //  if (pduSessionResourceSetupRequestList)
+  //   delete (pduSessionResourceSetupRequestList);
   if (uEAggregateMaxBitRate) delete (uEAggregateMaxBitRate);
-  if (pduSessionAggregateMaximumBitRate)
-    delete (pduSessionAggregateMaximumBitRate);
 
   /*
   if (pduSessionResourceSetupRequestPdu) {
@@ -80,11 +77,10 @@ PduSessionResourceSetupRequestMsg::~PduSessionResourceSetupRequestMsg() {
   pduSessionResourceSetupRequestIEs = nullptr;
   // amfUeNgapId                        = nullptr;
   // ranUeNgapId                        = nullptr;
-  ranPagingPriority                  = nullptr;
-  nasPdu                             = nullptr;
-  pduSessionResourceSetupRequestList = nullptr;
-  uEAggregateMaxBitRate              = nullptr;
-  pduSessionAggregateMaximumBitRate  = nullptr;
+  ranPagingPriority = nullptr;
+  nasPdu            = nullptr;
+  // pduSessionResourceSetupRequestList = nullptr;
+  uEAggregateMaxBitRate = nullptr;
 }
 
 void PduSessionResourceSetupRequestMsg::setIEs() {
@@ -183,7 +179,7 @@ void PduSessionResourceSetupRequestMsg::setIEs() {
       Ngap_PDUSessionResourceSetupRequestIEs__value_PR_PDUSessionResourceSetupListSUReq;
 
   ret = pduSessionResourceSetupRequestList
-            ->encode2PDUSessionResourceSetupListSUReq(
+            .encode2PDUSessionResourceSetupListSUReq(
                 &ie->value.choice.PDUSessionResourceSetupListSUReq);
   if (!ret) {
     Logger::ngap().error(
@@ -241,8 +237,6 @@ void PduSessionResourceSetupRequestMsg::setNasPdu(
 //------------------------------------------------------------------------------
 void PduSessionResourceSetupRequestMsg::setPduSessionResourceSetupRequestList(
     std::vector<PDUSessionResourceSetupRequestItem_t> list) {
-  if (!pduSessionResourceSetupRequestList)
-    pduSessionResourceSetupRequestList = new PDUSessionResourceSetupListSUReq();
   PDUSessionResourceSetupItemSUReq* m_pduSessionResourceSetupItemSUReq =
       new PDUSessionResourceSetupItemSUReq[list.size()]();
 
@@ -263,24 +257,8 @@ void PduSessionResourceSetupRequestMsg::setPduSessionResourceSetupRequestList(
         list[i].pduSessionResourceSetupRequestTransfer);
   }
 
-  pduSessionResourceSetupRequestList->setPDUSessionResourceSetupListSUReq(
+  pduSessionResourceSetupRequestList.setPDUSessionResourceSetupListSUReq(
       m_pduSessionResourceSetupItemSUReq, list.size());
-}
-
-//------------------------------------------------------------------------------
-void PduSessionResourceSetupRequestMsg::setPduSessionAggregateMaximumBitRate(
-    long bit_rate_downlink, long bit_rate_uplink) {
-  if (!pduSessionAggregateMaximumBitRate)
-    pduSessionAggregateMaximumBitRate = new PduSessionAggregateMaximumBitRate();
-  pduSessionAggregateMaximumBitRate->setPduSessionAggregateMaximumBitRate(
-      bit_rate_downlink, bit_rate_uplink);
-  Ngap_PDUSessionResourceSetupRequestIEs_t* ie =
-      (Ngap_PDUSessionResourceSetupRequestIEs_t*) calloc(
-          1, sizeof(Ngap_PDUSessionResourceSetupRequestIEs_t));
-  ie->id          = Ngap_ProtocolIE_ID_id_PDUSessionAggregateMaximumBitRate;
-  ie->criticality = Ngap_Criticality_ignore;
-  free_wrapper((void**) &ie);
-  // TODO
 }
 
 //------------------------------------------------------------------------------
@@ -413,10 +391,8 @@ bool PduSessionResourceSetupRequestMsg::decodefrompdu(
             pduSessionResourceSetupRequestIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_PDUSessionResourceSetupRequestIEs__value_PR_PDUSessionResourceSetupListSUReq) {
-          pduSessionResourceSetupRequestList =
-              new PDUSessionResourceSetupListSUReq();
           if (!pduSessionResourceSetupRequestList
-                   ->decodefromPDUSessionResourceSetupListSUReq(
+                   .decodefromPDUSessionResourceSetupListSUReq(
                        &pduSessionResourceSetupRequestIEs->protocolIEs.list
                             .array[i]
                             ->value.choice.PDUSessionResourceSetupListSUReq)) {
@@ -460,10 +436,9 @@ bool PduSessionResourceSetupRequestMsg::getNasPdu(
 //------------------------------------------------------------------------------
 bool PduSessionResourceSetupRequestMsg::getPduSessionResourceSetupRequestList(
     std::vector<PDUSessionResourceSetupRequestItem_t>& list) {
-  if (!pduSessionResourceSetupRequestList) return false;
   PDUSessionResourceSetupItemSUReq* m_pduSessionResourceSetupItemSUReq;
   int num = 0;
-  pduSessionResourceSetupRequestList->getPDUSessionResourceSetupListSUReq(
+  pduSessionResourceSetupRequestList.getPDUSessionResourceSetupListSUReq(
       m_pduSessionResourceSetupItemSUReq, num);
 
   for (int i = 0; i < num; i++) {
