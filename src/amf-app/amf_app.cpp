@@ -377,12 +377,6 @@ void amf_app::handle_itti_message(
   }
 }
 
-// AMF Client response handlers
-//------------------------------------------------------------------------------
-void amf_app::handle_post_sm_context_response_error_400() {
-  Logger::amf_app().error("Post SM context response error 400");
-}
-
 //------------------------------------------------------------------------------
 bool amf_app::generate_5g_guti(
     uint32_t ranid, long amfid, string& mcc, string& mnc, uint32_t& tmsi) {
@@ -514,7 +508,7 @@ void amf_app::add_promise(
 }
 
 //------------------------------------------------------------------------------
-void amf_app::trigger_process_response(uint32_t pid, std::string n2_sm) {
+void amf_app::trigger_process_response(uint32_t pid, std::string& n2_sm) {
   Logger::amf_app().debug(
       "Trigger process response: Set promise with ID %u "
       "to ready",

@@ -2457,6 +2457,7 @@ bool amf_n1::nas_message_cipher_protected(
       nas_algorithms::nas_stream_encrypt_nea1(&stream_cipher, ciphered);
       output_nas = blk2bstr(ciphered, ((stream_cipher.blength + 31) / 32) * 4);
       free(ciphered);
+      return true;
     } break;
 
     case EA2_128_5G: {
@@ -2468,6 +2469,13 @@ bool amf_n1::nas_message_cipher_protected(
       nas_algorithms::nas_stream_encrypt_nea2(&stream_cipher, ciphered);
       output_nas = blk2bstr(ciphered, len);
       free(ciphered);
+      return true;
+    } break;
+
+    default: {
+      Logger::amf_n1().debug(
+          "Unknown Ciphering Algorithm %d", nsc->nas_algs.encryption & 0x0f);
+      return false;
     } break;
   }
   return true;

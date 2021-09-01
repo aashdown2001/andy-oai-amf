@@ -53,18 +53,15 @@ namespace amf_application {
 #define TASK_AMF_APP_PERIODIC_STATISTICS (0)
 
 class amf_app {
- private:
-  amf_profile nf_instance_profile;  // AMF profile
-  std::string amf_instance_id;      // AMF instance id
-  timer_id_t timer_nrf_heartbeat;
-
  public:
   explicit amf_app(const amf_config& amf_cfg);
   amf_app(amf_app const&) = delete;
+
   void operator=(amf_app const&) = delete;
+
   void allRegistredModulesInit(const amf_modules& modules);
   long generate_amf_ue_ngap_id();
-  // itti handlers
+
   void handle_itti_message(itti_nas_signalling_establishment_request& itti_msg);
   void handle_itti_message(itti_n1n2_message_transfer_request& itti_msg);
 
@@ -92,9 +89,7 @@ class amf_app {
   bool get_pdu_sessions_context(
       const string& supi,
       std::vector<std::shared_ptr<pdu_session_context>>& sessions_ctx);
-  // SMF Client response handlers
-  void handle_post_sm_context_response_error_400();
-  // others
+
   bool generate_5g_guti(
       uint32_t ranid, long amfid, std::string& mcc, std::string& mnc,
       uint32_t& tmsi);
@@ -144,6 +139,15 @@ class amf_app {
       uint32_t pid, boost::shared_ptr<boost::promise<uint32_t>>& p);
 
   /*
+   * Store the promise
+   * @param [uint32_t] pid: promise id
+   * @param [boost::shared_ptr<boost::promise<std::string>>&] p: promise
+   * @return void
+   */
+  void add_promise(
+      uint32_t pid, boost::shared_ptr<boost::promise<std::string>>& p);
+
+  /*
    * Remove the promise
    * @param [uint32_t] pid: promise id
    * @return void
@@ -159,14 +163,27 @@ class amf_app {
     return util::uint_uid_generator<uint64_t>::get_instance().get_uid();
   }
 
+  /*
+   * Set the corresponding promise to ready to trigger the response
+   * @param [uint32_t] pid: promise id
+   * @param [uint32_t] http_code: response code
+   * @return void
+   */
   void trigger_process_response(uint32_t pid, uint32_t http_code);
 
-  void add_promise(
-      uint32_t pid, boost::shared_ptr<boost::promise<std::string>>& p);
-  void trigger_process_response(uint32_t pid, std::string n2_sm);
+  /*
+   * Set the corresponding promise to ready to trigger the response
+   * @param [uint32_t] pid: promise id
+   * @param [std::string&] n2_sm: N2 SM
+   * @return void
+   */
+  void trigger_process_response(uint32_t pid, std::string& n2_sm);
 
  private:
-  // context management
+  amf_profile nf_instance_profile;  // AMF profile
+  std::string amf_instance_id;      // AMF instance id
+  timer_id_t timer_nrf_heartbeat;
+
   std::map<long, std::shared_ptr<ue_context>> amf_ue_ngap_id2ue_ctx;
   mutable std::shared_mutex m_amf_ue_ngap_id2ue_ctx;
   std::map<std::string, std::shared_ptr<ue_context>> ue_ctx_key;
