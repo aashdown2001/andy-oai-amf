@@ -57,7 +57,8 @@
 #include <nlohmann/json.hpp>
 #include "ServiceRequest.hpp"
 #include "Record.h"
-
+#include <sys/time.h>
+#include <chrono>
 extern "C" {
 #include "dynamic_memory_check.h"
 }
@@ -69,6 +70,8 @@ using namespace std;
 using namespace nas;
 using namespace oai::amf::model;
 
+extern std::vector<long> delay_nudsf;
+extern std::vector<long> amf_capability;
 extern itti_mw* itti_inst;
 extern amf_n2* amf_n2_inst;
 extern amf_n1* amf_n1_inst;
@@ -84,6 +87,8 @@ uint32_t AMF_TARGET_ran_id_global      = 0;
 sctp_assoc_id_t downlink_sctp_assoc_id = 0;
 sctp_assoc_id_t source_assoc_id        = 0;
 int ncc                                = 0;
+extern std::vector<long> sig_delay_amf_n2;
+
 
 void amf_n2_task(void*);
 extern void octet_stream_2_hex_stream(uint8_t *buf, int len, std::string &out);
@@ -99,6 +104,7 @@ void amf_n2_task(void* args_p) {
   do {
     std::shared_ptr<itti_msg> shared_msg = itti_inst->receive_msg(task_id);
     auto* msg                            = shared_msg.get();
+    struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long t1 = tv1.tv_sec*1000000 +tv1.tv_usec;
     switch (msg->msg_type) {
       case NEW_SCTP_ASSOCIATION: {
         Logger::amf_n2().info("Received NEW_SCTP_ASSOCIATION");
@@ -201,6 +207,8 @@ void amf_n2_task(void* args_p) {
       default:
         Logger::amf_n2().info("No handler for msg type %d", msg->msg_type);
     }
+    struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long t2 = tv2.tv_sec*1000000 +tv2.tv_usec;
+    //long one_time = t2 - t1; amf_capability.push_back(one_time);
   } while (true);
 }
 
@@ -497,6 +505,9 @@ std::size_t callback_udsf(const char *in, std::size_t size, std::size_t num, std
 }
 bool amf_n2::curl_http_client_udsf(std::string remoteUrl,std::string jsonData,std::string http_mothed,nlohmann::json &udsf_response) 
 {
+     struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
+     Logger::amf_n2().debug("dukl_time start %d", start);
+
      Logger::sctp().debug( "Send to UDSF , UDSF URL %s", remoteUrl.c_str());
      bool exist = true;
      curl_global_init(CURL_GLOBAL_ALL);
@@ -529,11 +540,16 @@ bool amf_n2::curl_http_client_udsf(std::string remoteUrl,std::string jsonData,st
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
 
         std::string response = *httpData.get();
-        //Logger::amf_n2().debug("response from udsf =(%d) %s ",response.length(),response.c_str());
+        Logger::amf_n2().debug("response from udsf =(%d) %s ",response.length(),response.c_str());
         nlohmann::json response_data = {};
         Logger::amf_n2().debug("Send message to UDSF, response from UDSF, HTTP Code: %d", httpCode);
         if (static_cast<http_response_codes_e>(httpCode) ==http_response_codes_e::HTTP_RESPONSE_CODE_0) {
             Logger::sctp().info( "Cannot get response when calling %s", remoteUrl.c_str());
+            struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+            Logger::amf_n2().debug("dukl_time end %d", end);
+            Logger::amf_n2().debug("dukl_time go-back http_code=0 udsf %d", end - start);
+	    long one_time = end - start;
+	    //delay_nudsf.push_back(one_time);
             curl_slist_free_all(headers);
             curl_easy_cleanup(curl);
             exist = false;
@@ -541,7 +557,11 @@ bool amf_n2::curl_http_client_udsf(std::string remoteUrl,std::string jsonData,st
         }
         if (static_cast<http_response_codes_e>(httpCode) ==http_response_codes_e::HTTP_RESPONSE_CODE_200_OK) {
             Logger::sctp().info("sending successful when calling %s", remoteUrl.c_str());
-
+            struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+            Logger::amf_n2().debug("dukl_time end %d", end);
+            Logger::amf_n2().debug("dukl_time go-back http_code = 200 udsf %d", end - start);
+	    long one_time = end - start;
+	    //delay_nudsf.push_back(one_time);
             try {
               //response_data = nlohmann::json::parse(response);
               udsf_response = nlohmann::json::parse(response);
@@ -556,6 +576,11 @@ bool amf_n2::curl_http_client_udsf(std::string remoteUrl,std::string jsonData,st
         }
         if (static_cast<http_response_codes_e>(httpCode) ==http_response_codes_e::HTTP_RESPONSE_CODE_201_CREATED) {
             Logger::sctp().info("sending successful when calling %s", remoteUrl.c_str());
+            struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+            Logger::amf_n2().debug("dukl_time end %d", end);
+            Logger::amf_n2().debug("dukl_time go-back http_code = 201 udsf %d", end - start);
+	    long one_time = end - start;
+	    //delay_nudsf.push_back(one_time);
             curl_slist_free_all(headers);
             curl_easy_cleanup(curl);
             return exist;
@@ -690,7 +715,10 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
         Logger::amf_n1().error("No existing nas_context with GUTI %s  ...",guti.c_str());
       }else{
         nc = std::shared_ptr<nas_context>(new nas_context());
+        struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
         nc.get()->nas_context_from_json(udsf_response);
+        struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+	long one_time = end - start; //delay_nudsf.push_back(one_time);
 	is_ran_ue_ngap_id_new = false;
         itti_msg->amf_ue_ngap_id = nc.get()->amf_ue_ngap_id;
         itti_msg->ran_ue_ngap_id = nc.get()->ran_ue_ngap_id;
@@ -704,9 +732,9 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
   nlohmann::json udsf_response;
   std::string record_id, udsf_url;
   if(is_ran_ue_ngap_id_new){
-    record_id = "RECORD_ID=\'" +std::to_string(ran_ue_ngap_id)  + "\'";
+    record_id = "RECORD_ID=\'" +  std::to_string(ran_ue_ngap_id)  + "\'";
   }else{
-    record_id = "RECORD_ID=\'" +std::to_string(nc.get()->ran_ue_ngap_id)  + "\'";
+    record_id = "RECORD_ID=\'" +  std::to_string(nc.get()->ran_ue_ngap_id)  + "\'";
   }
   udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_ngap_context/records/") + record_id ;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
@@ -715,7 +743,10 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
      Logger::amf_n2().error("No existing ue_ngap context with ran_ue_ngap_id .....");
   }else{
     Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+    struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
     unc.get()->ue_ngap_context_from_json(udsf_response);
+    struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+    long one_time = end - start; //delay_nudsf.push_back(one_time);
   }
   set_ran_ue_ngap_id_2_ue_ngap_context(ran_ue_ngap_id, unc);
 
@@ -1095,7 +1126,10 @@ void amf_n2::handle_itti_message(itti_ul_nas_transport& ul_nas_transport) {
     return;
   }
   Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
   gc.get()->gnb_context_from_json(udsf_response);
+  struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+  long one_time = end - start; //delay_nudsf.push_back(one_time);
 
   std::shared_ptr<ue_ngap_context> unc  = std::shared_ptr<ue_ngap_context>(new ue_ngap_context());
 
@@ -1109,7 +1143,10 @@ void amf_n2::handle_itti_message(itti_ul_nas_transport& ul_nas_transport) {
     return;
   }
   Logger::amf_n2().debug("udsf_response_ue_ngap_context: %s", udsf_response_ue_ngap_context.dump().c_str());
+  struct timeval tv3; struct timezone tz3; gettimeofday(&tv3,&tz3); long start3 = tv3.tv_sec*1000000 +tv3.tv_usec;
   unc.get()->ue_ngap_context_from_json(udsf_response_ue_ngap_context);
+  struct timeval tv4; struct timezone tz4; gettimeofday(&tv4,&tz4); long end4 = tv4.tv_sec*1000000 +tv4.tv_usec;
+  one_time = end4 - start3; //delay_nudsf.push_back(one_time);
 
   // std::shared_ptr<gnb_context> gc;
   // if (!is_assoc_id_2_gnb_context(ul_nas_transport.assoc_id)) {
@@ -1197,7 +1234,10 @@ void amf_n2::handle_itti_message(itti_dl_nas_transport& dl_nas_transport) {
  Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
  //printf("---------------std::to_string(unc.get()->gnb_assoc_id) ----------------%s",std::to_string(unc.get()->gnb_assoc_id) );
 
+  struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
   unc.get()->ue_ngap_context_from_json(udsf_response);
+  struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+  long one_time = end - start; //delay_nudsf.push_back(one_time);
   
     std::shared_ptr<gnb_context> gc = std::shared_ptr<gnb_context>(new gnb_context());
 
@@ -1212,7 +1252,10 @@ void amf_n2::handle_itti_message(itti_dl_nas_transport& dl_nas_transport) {
     return;
   }
  Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  struct timeval tv3; struct timezone tz3; gettimeofday(&tv3,&tz3); long start3 = tv3.tv_sec*1000000 +tv3.tv_usec;
   gc.get()->gnb_context_from_json(udsf_response);
+  struct timeval tv4; struct timezone tz4; gettimeofday(&tv4,&tz4); long end4 = tv4.tv_sec*1000000 +tv4.tv_usec;
+  one_time = end4 - start3; //delay_nudsf.push_back(one_time);
  
  /***************hsx add***************/
   /* std::shared_ptr<ue_ngap_context> unc;
@@ -1291,7 +1334,10 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
     return;
   }
   Logger::amf_n2().debug("udsf_response_ue_ngap_context: %s", udsf_response_ue_ngap_context.dump().c_str());
+  struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
   unc.get()->ue_ngap_context_from_json(udsf_response_ue_ngap_context);
+  struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+  long one_time = end - start; //delay_nudsf.push_back(one_time);
 
     std::shared_ptr<gnb_context> gc = std::shared_ptr<gnb_context>(new gnb_context());
   nlohmann::json udsf_response;
@@ -1303,7 +1349,10 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
     return;
   }
   Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  gettimeofday(&tv1,&tz1); start = tv1.tv_sec*1000000 +tv1.tv_usec;
   gc.get()->gnb_context_from_json(udsf_response);
+  gettimeofday(&tv2,&tz2); end = tv2.tv_sec*1000000 +tv2.tv_usec;
+  one_time = end - start; //delay_nudsf.push_back(one_time);
 
 
   InitialContextSetupRequestMsg* msg = new InitialContextSetupRequestMsg();
@@ -1391,9 +1440,12 @@ void amf_n2::handle_itti_message(
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url_ue_ngap_context,"","GET",udsf_response_ue_ngap_context)){
     Logger::amf_n2().error("No existing ue_ngap context with ran_ue_ngap_id ");
     return;
-  }
+  } 
   Logger::amf_n2().debug("udsf_response_ue_ngap_context: %s", udsf_response_ue_ngap_context.dump().c_str());
+  struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
   unc.get()->ue_ngap_context_from_json(udsf_response_ue_ngap_context);
+  struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+  long one_time = end - start; //delay_nudsf.push_back(one_time);
 
     std::shared_ptr<gnb_context> gc = std::shared_ptr<gnb_context>(new gnb_context());
   nlohmann::json udsf_response;
@@ -1406,7 +1458,10 @@ void amf_n2::handle_itti_message(
     return;
   }
   Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  gettimeofday(&tv1,&tz1); start = tv1.tv_sec*1000000 +tv1.tv_usec;
   gc.get()->gnb_context_from_json(udsf_response);
+  gettimeofday(&tv2,&tz2); end = tv2.tv_sec*1000000 +tv2.tv_usec;
+  one_time = end - start; //delay_nudsf.push_back(one_time);
 
   // std::shared_ptr<ue_ngap_context> unc;
   // unc = ran_ue_id_2_ue_ngap_context(itti_msg.ran_ue_ngap_id);
@@ -1465,7 +1520,10 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   }
   else{
      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+      struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
       psc.get()->pdu_session_context_from_json(udsf_response);
+      struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+      long one_time = end - start; //delay_nudsf.push_back(one_time);
      // psc = std::shared_ptr<pdu_session_context>(psc1);
   }
   //***************************stateless
@@ -1498,7 +1556,7 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   Logger::amf_n2().debug(" (%d bytes) \n", encoded_size);
 
   bstring b = blk2bstr(buffer, encoded_size);
-// sctp_s_38412.sctp_send_msg(gc.get()->sctp_assoc_id, unc.get()->sctp_stream_send, b);
+  //sctp_s_38412.sctp_send_msg(gc.get()->sctp_assoc_id, unc.get()->sctp_stream_send, &b);
   sctp_s_38412.curl_http_client_Plugin(gc.get()->sctp_assoc_id, unc.get()->sctp_stream_send, b);
   // free memory
   free_wrapper((void**) &buffer);
@@ -1914,7 +1972,7 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   std::shared_ptr<gnb_context> gc_target;
   gc_target              = gnb_id_2_gnb_context(gnbid->getValue());
   downlink_sctp_assoc_id = gc_target.get()->sctp_assoc_id;
- // sctp_s_38412.sctp_send_msg(gc_target.get()->sctp_assoc_id, 0, &b);
+  //sctp_s_38412.sctp_send_msg(gc_target.get()->sctp_assoc_id, 0, &b);
   sctp_s_38412.curl_http_client_Plugin(gc_target.get()->sctp_assoc_id, 0, b);
 }
 
@@ -2042,7 +2100,7 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
   // ran_ue_id_2_ue_ngap_context(nc.get()->ran_ue_ngap_id);
   // std::shared_ptr<ue_ngap_context> ngc =
   // ran_ue_id_2_ue_ngap_context(ran_id_Global);
-  // sctp_s_38412.sctp_send_msg(ngc.get()->gnb_assoc_id, 0, &b);
+  // //sctp_s_38412.sctp_send_msg(ngc.get()->gnb_assoc_id, 0, &b);
   //sctp_s_38412.sctp_send_msg(unc.get()->gnb_assoc_id, 0, &b);
   sctp_s_38412.curl_http_client_Plugin(unc.get()->gnb_assoc_id, 0, b);
 

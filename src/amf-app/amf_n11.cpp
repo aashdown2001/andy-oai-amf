@@ -45,7 +45,7 @@
 #include "SmContextCreateData.h"
 #include "mime_parser.hpp"
 #include "ue_context.hpp"
-
+#include <sys/time.h>
 extern "C" {
 #include "dynamic_memory_check.h"
 }
@@ -65,6 +65,8 @@ extern amf_n1* amf_n1_inst;
 extern amf_n2* amf_n2_inst;
 extern amf_app* amf_app_inst;
 extern statistics stacs;
+extern std::vector<long> delay_nudsf;
+extern std::vector<long> amf_capability;
 
 extern void msg_str_2_msg_hex(std::string msg, bstring& b);
 extern void convert_string_2_hex(std::string& input, std::string& output);
@@ -108,6 +110,7 @@ void amf_n11_task(void*) {
   do {
     std::shared_ptr<itti_msg> shared_msg = itti_inst->receive_msg(task_id);
     auto* msg                            = shared_msg.get();
+    struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long t1 = tv1.tv_sec*1000000 +tv1.tv_usec;
     switch (msg->msg_type) {
       case SMF_SERVICES_CONSUMER: {
         Logger::amf_n11().info("Running SMF_SERVICES_CONSUMER");
@@ -148,6 +151,8 @@ void amf_n11_task(void*) {
             "Receive unknown message type %d", msg->msg_type);
       }
     }
+    struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long t2 = tv2.tv_sec*1000000 +tv2.tv_usec;
+    //long one_time = t2 - t1; amf_capability.push_back(one_time);
   } while (true);
 }
 
@@ -193,7 +198,10 @@ void amf_n11::handle_itti_message(
   }
   else{
      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+      struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
       nc.get()->nas_context_from_json(udsf_response);
+      struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+      long one_time = end - start; //delay_nudsf.push_back(one_time);
   }
   std::string supi ="imsi-" + nc.get()->imsi ;
   Logger::amf_n11().debug(
@@ -209,7 +217,10 @@ return ;
   }
   else{
      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+      struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
       psc.get()->pdu_session_context_from_json(udsf_response);
+      struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+      long one_time = end - start; //delay_nudsf.push_back(one_time);
   }
 
   // std::shared_ptr<nas_context> nc = std::shared_ptr<nas_context>(new nas_context());
@@ -263,7 +274,10 @@ return ;
   smf_addr        = psc->smf_addr;
   std::string smf_ip_addr, remote_uri;
   std::shared_ptr<pdu_session_context> context = std::shared_ptr<pdu_session_context>(new pdu_session_context());
-   context.get()->pdu_session_context_from_json(udsf_response);
+  struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
+  context.get()->pdu_session_context_from_json(udsf_response);
+  struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+  long one_time = end - start; //delay_nudsf.push_back(one_time);
   //context = supi_to_pdu_ctx(supi);
   // remove http port from the URI if existed
   std::size_t found_port = smf_addr.find(":");
@@ -322,7 +336,10 @@ void amf_n11::handle_itti_message(itti_smf_services_consumer& smf) {
   else{
      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
      psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
+     struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
      psc.get()->pdu_session_context_from_json(udsf_response);
+     struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+     long one_time = end - start; //delay_nudsf.push_back(one_time);
       if(psc.get()->isn2sm_avaliable==false)
       {
         psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
@@ -539,7 +556,7 @@ void amf_n11::handle_pdu_session_initial_request(
 
   // TODO: Remove hardcoded values
    std::string remote_uri =
-      smf_addr  + ":8889/nsmf-pdusession/v2/sm-contexts";
+      smf_addr  + "/nsmf-pdusession/v2/sm-contexts";
   nlohmann::json pdu_session_establishment_request;
   pdu_session_establishment_request["supi"]          = supi.c_str();
   pdu_session_establishment_request["pei"]           = "imei-200000000000001";
@@ -591,7 +608,10 @@ void amf_n11::handle_itti_message(
   }
   else{
      Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+      struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
       psc.get()->pdu_session_context_from_json(udsf_response);
+      struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+      long one_time = end - start; //delay_nudsf.push_back(one_time);
       //psc = std::shared_ptr<pdu_session_context>(psc1);
   }
   //***************************stateless
@@ -705,7 +725,10 @@ void amf_n11::curl_http_client(
   Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
   //psc1->pdu_session_context_from_json(udsf_response);
   //psc = std::shared_ptr<pdu_session_context>(psc1);
+  struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
   psc.get()->pdu_session_context_from_json(udsf_response);
+  struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+  long one_time = end - start; //delay_nudsf.push_back(one_time);
   //***************************stateless
 
   // if (is_supi_to_pdu_ctx(supi)) {

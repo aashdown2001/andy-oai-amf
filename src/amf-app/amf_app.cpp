@@ -43,12 +43,17 @@
 #include "amf_n2.hpp"
 #include "amf_statistics.hpp"
 #include "ngap_app.hpp"
-#include <time.h>
+#include <sys/time.h>
+#include <numeric>
+#include <fstream>
+#include <curl/curl.h>
+#include <nlohmann/json.hpp>
 using namespace ngap;
 using namespace nas;
 //using namespace amf ;
 using namespace amf_application;
 using namespace config;
+
 
 extern void print_buffer(
     const std::string app, const std::string commit, uint8_t* buf, int len);
@@ -59,9 +64,19 @@ amf_n1* amf_n1_inst   = nullptr;
 amf_n11* amf_n11_inst = nullptr;
 extern amf_config amf_cfg;
 extern statistics stacs;
+extern std::vector<long> delay_nudsf;
+extern ofstream timeline;
 
 void amf_app_task(void*);
 uint32_t golbal_tmsi = 1;
+int last_delay_nudsf_size = 0;
+
+std::vector<long> sig_delay_amf_n2;
+std::vector<long> sig_delay_amf_n1;
+std::vector<long> sig_delay_amf_n11;
+std::vector<long> sig_delay_amf_app;
+std::vector<long> amf_capability;
+
 
 //------------------------------------------------------------------------------
 amf_app::amf_app(const amf_config& amf_cfg) {
@@ -98,6 +113,51 @@ void amf_app::allRegistredModulesInit(const amf_modules& modules) {
   Logger::amf_app().info("Initiating all registered modules");
 }
 
+std::size_t callback_plugin(
+  const char* in, std::size_t size, std::size_t num, std::string* out) {
+  const std::size_t totalBytes(size * num);
+  out->append(in, totalBytes);
+  return totalBytes;
+}
+
+void send_algorithm_omf_info_to_plugin(long len,long cap){
+
+  nlohmann::json j_data;
+  j_data["ip_address"] = "10.103.239.116";
+  j_data["current_message_queue_len"] = len;
+  j_data["capability"] = cap;
+  std::string jsonData = j_data.dump();
+
+  curl_global_init(CURL_GLOBAL_ALL);
+  CURL* curl = curl_easy_init();
+  if (curl) {
+    CURLcode res               = {};
+    struct curl_slist* headers = nullptr;
+    headers = curl_slist_append(headers, "content-type: application/json");
+    headers = curl_slist_append(headers, "Expect:");
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_URL, "http://10.103.239.53:38414/nplugin-dr/v1/1/algorithm/omf");
+    curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
+    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, 100);
+
+    // Response information.
+    long httpCode = {0};
+    std::unique_ptr<std::string> httpData(new std::string());
+    std::unique_ptr<std::string> httpHeaderData(new std::string());
+    // Hook up data handling function.
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &callback_plugin);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, httpData.get());
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, httpHeaderData.get());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, jsonData.length());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonData.c_str());
+    res = curl_easy_perform(curl);
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+    if(httpCode!=0)
+      Logger::amf_app().debug("received info: %s",(*httpData.get()).c_str());
+  }
+}
+
 //------------------------------------------------------------------------------
 void amf_app_task(void*) {
   const task_id_t task_id = TASK_AMF_APP;
@@ -110,6 +170,7 @@ void amf_app_task(void*) {
   do {
     std::shared_ptr<itti_msg> shared_msg = itti_inst->receive_msg(task_id);
     auto* msg                            = shared_msg.get();
+    struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long t1 = tv1.tv_sec*1000000 +tv1.tv_usec;
     timer_id_t tid;
     switch (msg->msg_type) {
       case NAS_SIG_ESTAB_REQ: {
@@ -148,12 +209,52 @@ void amf_app_task(void*) {
       case TIME_OUT:
         if (itti_msg_timeout* to = dynamic_cast<itti_msg_timeout*>(msg)) {
           switch (to->arg1_user) {
-            case TASK_AMF_APP_PERIODIC_STATISTICS:
+            case TASK_AMF_APP_PERIODIC_STATISTICS:{
               tid = itti_inst->timer_setup(
                   amf_cfg.statistics_interval, 0, TASK_AMF_APP,
                   TASK_AMF_APP_PERIODIC_STATISTICS, 0);
-              stacs.display();
-              break;
+	      long average_cap = 0;
+	      for(int i=0;i<amf_capability.size();i++){
+	        average_cap += amf_capability[i];
+	      }
+	      if(amf_capability.size() != 0)
+	        average_cap = (double)average_cap/amf_capability.size();
+	      Logger::amf_app().debug("Average processing capability of this AMF instance %d us/msgs",average_cap);
+	      //amf_capability.swap(std::vector<long>());
+              std::vector<long>().swap(amf_capability);
+	      struct timeval tv; struct timezone tz; gettimeofday(&tv,&tz); long start = tv.tv_sec*1000000 +tv.tv_usec;
+	      ofstream tsm("/home/xgcore/total_signaling_msg.txt",ios::app);
+	      tsm << start << "	";
+              tsm << "TASK_AMF_N2	" << itti_inst->itti_task_ctxts[TASK_AMF_N2]->msg_queue.size() << "	";
+              tsm << "TASK_AMF_N1	" << itti_inst->itti_task_ctxts[TASK_AMF_N1]->msg_queue.size() << "	";
+              tsm << "TASK_AMF_N11	" << itti_inst->itti_task_ctxts[TASK_AMF_N11]->msg_queue.size() << "	";
+              tsm << "TASK_AMF_APP	" << itti_inst->itti_task_ctxts[TASK_AMF_APP]->msg_queue.size() << "	";
+              tsm << "capability	" << average_cap << "	"<< std::endl;
+	      send_algorithm_omf_info_to_plugin(itti_inst->itti_task_ctxts[TASK_AMF_N2]->msg_queue.size()+itti_inst->itti_task_ctxts[TASK_AMF_N1]->msg_queue.size()+itti_inst->itti_task_ctxts[TASK_AMF_N11]->msg_queue.size()+itti_inst->itti_task_ctxts[TASK_AMF_APP]->msg_queue.size(),average_cap);
+              //stacs.display();
+	      //double sumValue = accumulate(begin(delay_nudsf), end(delay_nudsf), 0.0);
+	      //double meanValue = sumValue / delay_nudsf.size();
+	      //Logger::amf_app().debug("dukl meanValue %4f", meanValue);
+#if 0
+	      if(delay_nudsf.size() == last_delay_nudsf_size && delay_nudsf.size()!=0){
+	        Logger::amf_app().debug("total time %9f", accumulate(begin(delay_nudsf), end(delay_nudsf), 0.0));
+		timeline.open("/home/xgcore/dukl.txt", ios::out);
+		timeline.setf(ios::fixed, ios::floatfield);
+		timeline.precision(6);
+		if(!timeline.is_open()){
+		  Logger::amf_app().error("cannot open file dukl.txt");
+		}else{
+		  Logger::amf_app().debug("open file dukl.txt");
+		}
+		Logger::amf_app().debug("Recording statics");
+	        for(int i=0; i<delay_nudsf.size();i++){
+		  timeline << delay_nudsf.at(i) << std::endl; 
+		}
+		timeline.close();
+	      }
+	      last_delay_nudsf_size = delay_nudsf.size();
+#endif
+	      }break;
               case TASK_AMF_APP_TIMEOUT_NRF_HEARTBEAT:
                 amf_app_inst->timer_nrf_heartbeat_timeout(
                     to->timer_id, to->arg2_user);
@@ -168,6 +269,8 @@ void amf_app_task(void*) {
       default:
         Logger::amf_app().info("no handler for msg type %d", msg->msg_type);
     }
+    struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long t2 = tv2.tv_sec*1000000 +tv2.tv_usec;
+    //long one_time = t2 - t1; amf_capability.push_back(one_time);
   } while (true);
 }
 
@@ -320,15 +423,18 @@ void amf_app::handle_itti_message(
   std::shared_ptr<ue_context> uc = std::shared_ptr<ue_context>(new ue_context());
   string ue_context_key = "app_ue_ranid_" + to_string(itti_msg.ran_ue_ngap_id) + "-amfid_" + to_string(amf_ue_ngap_id);
   std::string record_id = "amf_ue_ngap_id=\'" + to_string(amf_ue_ngap_id) + "\'";
-  //std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
-  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID=\'" + ue_context_key + "\'";
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
+  //std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID=\'" + ue_context_key + "\'";
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing ue_context with ue_context_key ...");
   }else if(udsf_response.dump().length()<8){
     Logger::amf_n2().error("No existing ue_context with ue_context_key .....");
   }else{
     Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+    struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
     uc.get()->ue_context_from_json(udsf_response);
+    struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+    long one_time = end - start; //delay_nudsf.push_back(one_time);
   }
   set_ran_amf_id_2_ue_context(ue_context_key, uc);
   // Update ue_context
@@ -346,8 +452,8 @@ void amf_app::handle_itti_message(
   //Update ue_context to UDSF
   Logger::amf_app().debug("Update ue_context to UDSF");
   record_id = "amf_ue_ngap_id=\'" + to_string(amf_ue_ngap_id) + "\'";
-  //udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
-  udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID=\'" + ue_context_key + "\'";
+  udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id ;
+  //udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID=\'" + ue_context_key + "\'";
   nlohmann::json udsf_ue_context;
   nlohmann::json  cgi;
   cgi["Content-ID"] = "cgi";
@@ -564,16 +670,19 @@ bool amf_app::generate_5g_guti(
   // uc   = ran_amf_id_2_ue_context(ue_context_key);
    std::shared_ptr<ue_context> uc = std::shared_ptr<ue_context>(new ue_context());
   nlohmann::json udsf_response;
-  std::string record_id = "RECORD_ID=\'" + to_string(amfid) + "\'";
-  //std::string record_id = "RECORD_ID=\'" + ue_context_key + "\'";
-  //std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id;
-  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID=\'" + ue_context_key + "\'";
+  //std::string record_id = "RECORD_ID=\'" + to_string(amfid) + "\'";
+  std::string record_id = "RECORD_ID=\'" + ue_context_key + "\'";
+  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + record_id;
+  //std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("ue_context/records/") + "RECORD_ID=\'" + ue_context_key + "\'";
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing gNG context with assoc_id");
     return false;
   }
   Logger::amf_n2().debug("udsf_response: %s", udsf_response.dump().c_str());
+  struct timeval tv1; struct timezone tz1; gettimeofday(&tv1,&tz1); long start = tv1.tv_sec*1000000 +tv1.tv_usec;
   uc.get()->ue_context_from_json(udsf_response);
+  struct timeval tv2; struct timezone tz2; gettimeofday(&tv2,&tz2); long end = tv2.tv_sec*1000000 +tv2.tv_usec;
+  long one_time = end - start; //delay_nudsf.push_back(one_time);
 
 
 
