@@ -170,6 +170,11 @@ typedef struct {
   bool selected;
 } smf_inst_t;
 
+typedef struct {
+  std::string if_name;
+  std::string addr4;
+  unsigned int port;
+} ausf_if;
 class amf_config {
  public:
   amf_config();
@@ -185,7 +190,8 @@ class amf_config {
   std::string pid_dir;
   interface_cfg_t n2;
   interface_cfg_t n11;
-  interface_cfg_t nausf;
+  //interface_cfg_t nausf;
+  ausf_if nausf;
   itti_cfg_t itti;
   unsigned int statistics_interval;
   std::string AMF_Name;

@@ -197,7 +197,10 @@ int amf_config::load(const std::string& config_file) {
     if (is_Nausf) {
       const Setting& nausf_amf_cfg =
           new_if_cfg[AMF_CONFIG_STRING_INTERFACE_NAUSF];
-      load_interface(nausf_amf_cfg, nausf);
+     // load_interface(nausf_amf_cfg, nausf);
+      nausf_amf_cfg.lookupValue(AMF_CONFIG_STRING_INTERFACE_NAME, nausf.if_name);
+      nausf_amf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, nausf.addr4);
+      nausf_amf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nausf.port);
     }
     const Setting& n11_cfg = new_if_cfg[AMF_CONFIG_STRING_INTERFACE_N11];
     load_interface(n11_cfg, n11);
@@ -461,7 +464,7 @@ void amf_config::display() {
     Logger::config().info(
         "    iface ................: %s", nausf.if_name.c_str());
     Logger::config().info(
-        "    ip ...................: %s", inet_ntoa(nausf.addr4));
+        "    ip ...................: %s", nausf.addr4.c_str());
     Logger::config().info("    port .................: %d", nausf.port);
   } else {
     Logger::config().warn(
