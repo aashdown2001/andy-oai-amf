@@ -59,6 +59,8 @@ namespace config {
 amf_config::amf_config() {
   // TODO:
   is_Nausf = true;
+  is_Nudsf = true;
+  is_Rise = true;
   use_fqdn_dns              = false;
     enable_nf_registration    = false;
   enable_smf_selection      = false;
@@ -201,6 +203,18 @@ int amf_config::load(const std::string& config_file) {
       nausf_amf_cfg.lookupValue(AMF_CONFIG_STRING_INTERFACE_NAME, nausf.if_name);
       nausf_amf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, nausf.addr4);
       nausf_amf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nausf.port);
+    }
+    if (is_Nudsf) {
+      const Setting& nudsf_amf_cfg =
+          new_if_cfg[AMF_CONFIG_STRING_INTERFACE_NUDSF];
+      nudsf_amf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, nudsf.addr4);
+      nudsf_amf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nudsf.port);
+    }
+    if (is_Rise) {
+      const Setting& rise_amf_cfg =
+          new_if_cfg[AMF_CONFIG_STRING_INTERFACE_RISE];
+      rise_amf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, rise.addr4);
+      rise_amf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, rise.port);
     }
     const Setting& n11_cfg = new_if_cfg[AMF_CONFIG_STRING_INTERFACE_N11];
     load_interface(n11_cfg, n11);
@@ -466,6 +480,24 @@ void amf_config::display() {
     Logger::config().info(
         "    ip ...................: %s", nausf.addr4.c_str());
     Logger::config().info("    port .................: %d", nausf.port);
+  } else {
+    Logger::config().warn(
+        "- Not using ausf: Please remove [--no-ausf] using it.");
+  }
+  if (is_Nudsf) {
+    Logger::config().info("- Nudsf Networking:");
+    Logger::config().info(
+        "    ip ...................: %s", nudsf.addr4.c_str());
+    Logger::config().info("    port .................: %d", nudsf.port);
+  } else {
+    Logger::config().warn(
+        "- Not using ausf: Please remove [--no-ausf] using it.");
+  }
+  if (is_Rise) {
+    Logger::config().info("- Rise Networking:");
+    Logger::config().info(
+        "    ip ...................: %s", rise.addr4.c_str());
+    Logger::config().info("    port .................: %d", rise.port);
   } else {
     Logger::config().warn(
         "- Not using ausf: Please remove [--no-ausf] using it.");

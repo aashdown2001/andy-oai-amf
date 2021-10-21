@@ -6,7 +6,9 @@
 #include "pdu_session_context.hpp"
 using namespace amf_application;
 //using namespace ngap;
-
+#include "amf_config.hpp"
+using namespace config;
+extern amf_config amf_cfg;
 extern itti_mw* itti_inst;
 extern amf_n11* amf_n11_inst;
 extern amf_n2* amf_n2_inst;
@@ -39,7 +41,7 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   nlohmann::json udsf_response;
 
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";
-  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+  std::string udsf_url = "http://" + std::string(amf_cfg.nudsf.addr4.c_str())+":" + std::to_string(amf_cfg.nudsf.port)+ "/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
   if(amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
        Logger::amf_server().debug("udsf_response: %s", udsf_response.dump().c_str());
        psc.get()->pdu_session_context_from_json(udsf_response);
@@ -106,7 +108,7 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   nlohmann::json udsf_response;
 
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";
-  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
+  std::string udsf_url = "http://" + std::string(amf_cfg.nudsf.addr4.c_str())+":" + std::to_string(amf_cfg.nudsf.port)+ "/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id;
   if(amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
        Logger::amf_server().debug("udsf_response: %s", udsf_response.dump().c_str());
        psc.get()->pdu_session_context_from_json(udsf_response);

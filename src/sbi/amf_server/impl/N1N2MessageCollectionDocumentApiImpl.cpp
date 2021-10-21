@@ -23,7 +23,9 @@
 #include "pdu_session_context.hpp"
 using namespace amf_application;
 using namespace ngap;
-
+#include "amf_config.hpp"
+using namespace config;
+extern amf_config amf_cfg;
 extern void octet_stream_2_hex_stream(uint8_t *buf, int len, std::string &out);
 extern void msg_str_2_msg_hex(std::string msg, bstring& b);
 extern void convert_string_2_hex(std::string& input, std::string& output);
@@ -94,7 +96,7 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
   nlohmann::json udsf_response;
 
   std::string record_id = "RECORD_ID=\'" +supi  + "\'";
-  std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+  std::string udsf_url = "http://" + std::string(amf_cfg.nudsf.addr4.c_str())+":" + std::to_string(amf_cfg.nudsf.port)+ "/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
   if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
     Logger::amf_n2().error("No existing pdu_session_context with assoc_id ");
   }
@@ -131,7 +133,7 @@ std::shared_ptr<pdu_session_context> psc = std::shared_ptr<pdu_session_context>(
 
 
     record_id = "RECORD_ID=\'" +supi  + "\'";
-    std::string udsf_put_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
+    std::string udsf_put_url = "http://" + std::string(amf_cfg.nudsf.addr4.c_str())+":" + std::to_string(amf_cfg.nudsf.port)+ "/nudsf-dr/v1/amfdata/" + std::string("pdu_session_context/records/") + record_id ;
     nlohmann::json udsf_put_pdu_session_context;
     //nlohmann::json udsf_response;
     udsf_put_pdu_session_context["meta"] ["tags"] = {

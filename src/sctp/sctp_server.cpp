@@ -28,7 +28,7 @@
 
 #include "sctp_server.hpp"
 #include "logger.hpp"
-
+#include "amf_config.hpp"
 #include <nlohmann/json.hpp>
 #include "amf.hpp"
 
@@ -53,6 +53,8 @@ extern "C" {
 
 #include <iostream>
 using namespace std;
+using namespace config;
+extern amf_config amf_cfg;
 namespace sctp {
 
 //------------------------------------------------------------------------------
@@ -449,9 +451,13 @@ void sctp_server::curl_http_client_Plugin(sctp_assoc_id_t assoc_id, sctp_stream_
     json_data["n2_data"] = ngapmsg;
 
 
-    std::string url  = 
-        "http://" + std::string("10.103.239.53") +
-        ":" + std::to_string(38414) + "/nplugin-dr/v1/" +
+    // std::string url  = 
+    //     "http://" + std::string("10.103.239.53") +
+    //     ":" + std::to_string(38414) + "/nplugin-dr/v1/" +
+    //     to_string (assoc_id ) + "/" + to_string (stream) ;
+      std::string url  = 
+        "http://" + std::string(amf_cfg.rise.addr4.c_str()) +
+        ":" + std::to_string(amf_cfg.rise.port) + "/nplugin-dr/v1/" +
         to_string (assoc_id ) + "/" + to_string (stream) ;
 
       Logger::sctp().debug(

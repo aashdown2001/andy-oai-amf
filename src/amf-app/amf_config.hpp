@@ -46,6 +46,8 @@
 #define AMF_CONFIG_STRING_INTERFACES "INTERFACES"
 #define AMF_CONFIG_STRING_INTERFACE_NGAP_AMF "NGAP_AMF"
 #define AMF_CONFIG_STRING_INTERFACE_NAUSF "NAUSF"
+#define AMF_CONFIG_STRING_INTERFACE_NUDSF "NUDSF"
+#define AMF_CONFIG_STRING_INTERFACE_RISE  "RISE"
 
 #define AMF_CONFIG_STRING_INTERFACE_NAME "INTERFACE_NAME"
 #define AMF_CONFIG_STRING_IPV4_ADDRESS "IPV4_ADDRESS"
@@ -175,6 +177,14 @@ typedef struct {
   std::string addr4;
   unsigned int port;
 } ausf_if;
+typedef struct {
+  std::string addr4;
+  unsigned int port;
+} udsf_if;
+typedef struct {
+  std::string addr4;
+  unsigned int port;
+} rise_if;
 class amf_config {
  public:
   amf_config();
@@ -192,6 +202,8 @@ class amf_config {
   interface_cfg_t n11;
   //interface_cfg_t nausf;
   ausf_if nausf;
+  udsf_if nudsf;
+  rise_if rise;
   itti_cfg_t itti;
   unsigned int statistics_interval;
   std::string AMF_Name;
@@ -205,6 +217,8 @@ class amf_config {
   std::vector<smf_inst_t> smf_pool;
 
   bool is_Nausf;
+  bool is_Nudsf;
+  bool is_Rise;
   struct {
     struct in_addr ipv4_addr;
     unsigned int port;

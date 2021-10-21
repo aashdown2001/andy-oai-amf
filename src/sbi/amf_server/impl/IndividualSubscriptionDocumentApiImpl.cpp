@@ -14,8 +14,10 @@
 #include "IndividualSubscriptionDocumentApiImpl.h"
 #include "bstrlib.h"
 #include "amf_n2.hpp"
-
+#include "amf_config.hpp"
 #include <shared_mutex>
+using namespace config;
+extern amf_config amf_cfg;
 using namespace amf_application;
 using namespace ngap;
 extern amf_n2 *amf_n2_inst;
@@ -66,7 +68,7 @@ void IndividualSubscriptionDocumentApiImpl::gnb_message_from_plugin(const std::u
     amf_n2_inst->set_assoc_id_2_gnb_context(assoc_id, gc);
     nlohmann::json udsf_response;
     std::string record_id = "RECORD_ID=\'" +std::to_string(assoc_id)  + "\'";
-    std::string udsf_url = "http://10.103.239.53:7123/nudsf-dr/v1/amfdata/" + std::string("gnb_context/records/") + record_id ;
+    std::string udsf_url = "http://" + std::string(amf_cfg.nudsf.addr4.c_str())+":" + std::to_string(amf_cfg.nudsf.port)+ "/nudsf-dr/v1/amfdata/" + std::string("gnb_context/records/") + record_id ;
     if(!amf_n2_inst->curl_http_client_udsf(udsf_url,"","GET",udsf_response)){
       Logger::amf_n2().error("No existing gNG context with assoc_id ...");
       is_gnb_context_present = false;
