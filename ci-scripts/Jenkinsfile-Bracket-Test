@@ -129,7 +129,7 @@ pipeline {
             sh "git clean -x -d -f > /dev/null 2>&1"
             sh "git fetch --prune > /dev/null 2>&1"
           }
-          sh "mkdir -p archives DS-TEST-RESULTS"
+          sh "mkdir -p archives RESULTS"
           // Verify that the images are available
           try {
             sh 'echo "OAI_AMF_TAG: oai-amf:' + amfTag +'" > archives/oai_amf_image_info.log'
@@ -141,64 +141,13 @@ pipeline {
         }
       }
     }
-    stage ('Deploy AMF-U18') {
-      steps {
-        script {
-          echo '\u2705 \u001B[32mDeploy AMF using Docker-Compose\u001B[0m'
-          // Prepare all needed files for docker-compose
-          // First put all correct tags to test
-          sh 'sed -e "s#AMF_IMAGE_TAG#' + amfTag + '#" ci-scripts/dsTesterDockerCompose/docker-compose.tplt > ci-scripts/dsTesterDockerCompose/docker-compose.yml'
-          dir('ci-scripts/dsTesterDockerCompose') {
-            sh 'docker-compose up -d  > ../../archives/compose_amf_up.log 2>&1'
-            sh 'sleep 100'
-            // Do a check on number of healthy containers
-            // 2 == mysql + amf
-            ret = sh returnStdout: true, script: 'docker-compose ps -a | grep -v unhealthy | grep -c healthy || true'
-            ret = ret.trim()
-            if (ret != '2') {
-              error "Deployment went wrong!"
-            }          
-          }
-        }
-      }
-      post {
-        always {
-          script {
-            // Check status on mysql.
-            try {
-              sh 'docker exec cicd-mysql-svr /bin/bash -c "mysqladmin -u root --password=linux ping" > archives/mysql_status.log 2>&1'
-              sh 'docker inspect --format=\'STATUS: {{.State.Health.Status}}\' cicd-mysql-svr >> archives/mysql_status.log'
-            } catch (Exception e) {
-              sh 'echo "STATUS: KO" >> archives/mysql_status.log'
-            }
-            // Do docker logs to recover the configuration results
-            try {
-              sh 'docker inspect --format=\'STATUS: {{.State.Health.Status}}\' cicd-oai-amf > archives/amf_config.log'
-            } catch (Exception e) {
-              sh 'echo "STATUS: KO" >> archives/amf_config.log'
-            }
-          }
-        }
-        success {
-          script {
-            sh 'echo "DEPLOYMENT: OK" > archives/deployment_status.log'
-            sh 'python3 ./ci-scripts/routeCheck.py --mode=Add --userName=' + dsT_host_user + ' --hostName=' + dsT_host
-          }
-        }
-        unsuccessful {
-          script {
-            sh 'echo "DEPLOYMENT: KO" > archives/deployment_status.log'
-            deployed = false
-          }
-        }
-      }
-    }
-    stage ('Bracket Testing with dsTester') {
+
+    stage ('Deploy AMF-U18 and Bracket Test with DS Tester') {
       when { expression {dsT_host_flag} }
       steps {
         lock (ds_tester_ci_resource) {
           script {
-            echo '\u2705 \u001B[32mTesting with DS Tester\u001B[0m'
+            echo '\u2705 \u001B[32mDeploy AMF-U18 using Docker-Compose and Bracket Testing with DS Tester\u001B[0m'
             if (fileExists("dstester")) {
               sh "rm -Rf dstester > /dev/null 2>&1"
             }
@@ -209,43 +158,23 @@ pipeline {
               ]) {
                 sh "git clone https://${git_username}:${git_token}@github.com/OPENAIRINTERFACE/chasseur.git . > ../git_clone.log 2>&1"
                 sh "git checkout -f " + dsTesterTag + " >> ../git_clone.log 2>&1"
+                // First put all correct tags to test
+                sh 'sed -i -e "s#AMF_TAG#' + amfTag + '#" ./jenkins/suits/dc/bracket/amf-bracket.yaml'
+                // Check the route b/w the container and DSTester n/w and add
+                sh 'python3 ../ci-scripts/routeCheck.py --mode Add --userName ' + dsT_host_user + ' --hostName ' + dsT_host + ' --docker_compose docker-compose/bracket/amf/amf-bracket.tplt'
                 dir ('jenkins') {
                   try {
-                    sh "python3 ./dogmatix-agent.py -f ./suits/dc/amf-bracket.yaml -d true | tee ../../DS-TEST-RESULTS/dsTester_Summary.txt"
+                    sh "python3 ./chasseurdocker.py -f ./suits/dc/bracket/amf-bracket.yaml | tee ../../RESULTS/dsTester_Summary.txt"
                   } catch (Exception e) {
                     currentBuild.result = 'FAILURE'
-                    echo "dsTester Running FAILED"
+                    echo "dsTester FrameWork FAILED"
                   }
                 }
+                sh 'python3 ../ci-scripts/routeCheck.py --mode Delete --userName ' + dsT_host_user + ' --hostName ' + dsT_host + ' --docker_compose docker-compose/bracket/amf/amf-bracket.tplt' 
               }
             }
             sh "python3 ./ci-scripts/toCheckDSTesterResult.py"
           }  
-        }
-      }
-      post {
-        always {
-          script {
-            // Copy the pcap and log from the container
-            sh "mkdir -p archives/pcaps archives/logs"
-            try {
-              sh 'docker cp cicd-oai-amf:/tmp/amf.pcap archives/pcaps/oai_amf.pcap'
-              sh 'docker cp cicd-oai-amf:/tmp/amf.log archives/logs/oai_amf.log'
-            } catch (Exception e) {
-              sh 'echo "Error in copying pcap & log from the container"'
-            }
-          }
-        }
-      }
-    }
-    stage ('Undeploy AMF') {
-      steps {
-        script {
-          echo '\u2705 \u001B[32mUn-Deploy AMF\u001B[0m'
-          sh 'python3 ./ci-scripts/routeCheck.py --mode=Delete --userName=' + dsT_host_user + ' --hostName=' + dsT_host
-          dir('ci-scripts/dsTesterDockerCompose') {
-            sh 'docker-compose down > ../../archives/compose_normal_down.log 2>&1'
-          }
         }
       }
     }
@@ -253,21 +182,11 @@ pipeline {
   post {
     always {
       script {
-        // Get logs if deployment fails
-        if (deployed != true) {
-        sh 'mkdir -p archives/logs'
-        sh 'docker logs cicd-oai-amf > archives/logs/oai_amf.log'
-        }
-        // Remove any leftover containers/networks
-        sh 'python3 ./ci-scripts/routeCheck.py --mode=Delete --userName=' + dsT_host_user + ' --hostName=' + dsT_host
-        dir('ci-scripts/dsTesterDockerCompose') {
-          sh 'docker-compose down > ../../archives/compose_l_down.log 2>&1'
-        }
         // Generating the HTML report
-        sh 'python3 ./ci-scripts/bracketTestHTMLReport.py --job_name=' + JOB_NAME + ' --job_id=' + BUILD_ID + ' --job_url=' + BUILD_URL
+        sh 'python3 ./ci-scripts/bracketTestHTMLReport.py --job_name ' + JOB_NAME + ' --job_id ' + BUILD_ID + ' --job_url ' + BUILD_URL
 
         // Zipping all archived log files
-        sh "zip -r -qq cn5g_amf_docker_logs.zip archives DS-TEST-RESULTS"
+        sh "zip -r -qq cn5g_amf_docker_logs.zip archives RESULTS"
         if (fileExists('cn5g_amf_docker_logs.zip')) {
           archiveArtifacts artifacts: 'cn5g_amf_docker_logs.zip'
         }

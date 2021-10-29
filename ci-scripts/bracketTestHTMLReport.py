@@ -1,30 +1,33 @@
-#/*
-# * Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
-# * contributor license agreements.  See the NOTICE file distributed with
-# * this work for additional information regarding copyright ownership.
-# * The OpenAirInterface Software Alliance licenses this file to You under
-# * the OAI Public License, Version 1.1  (the "License"); you may not use this file
-# * except in compliance with the License.
-# * You may obtain a copy of the License at
-# *
-# *   http://www.openairinterface.org/?page_id=698
-# *
-# * Unless required by applicable law or agreed to in writing, software
-# * distributed under the License is distributed on an "AS IS" BASIS,
-# * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# * See the License for the specific language governing permissions and
-# * limitations under the License.
-# *-------------------------------------------------------------------------------
-# * For more information about the OpenAirInterface (OAI) Software Alliance:
-# *   contact@openairinterface.org
-# */
-#---------------------------------------------------------------------
+"""
+Licensed to the OpenAirInterface (OAI) Software Alliance under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The OpenAirInterface Software Alliance licenses this file to You under
+the OAI Public License, Version 1.1  (the "License"); you may not use this file
+except in compliance with the License.
+You may obtain a copy of the License at
+
+      http://www.openairinterface.org/?page_id=698
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+------------------------------------------------------------------------------
+For more information about the OpenAirInterface (OAI) Software Alliance:
+      contact@openairinterface.org
+
+------------------------------------------------------------------------------
+"""
 
 import os
 import re
 import sys
 import subprocess
 import yaml
+import argparse
+
 
 class HtmlReport():
 	def __init__(self):
@@ -32,6 +35,37 @@ class HtmlReport():
 		self.job_id = ''
 		self.job_url = ''
 		self.job_start_time = 'TEMPLATE_TIME'
+
+	def _parse_args(self) -> argparse.Namespace:
+		"""Parse the command line args
+
+		Returns:
+			argparse.Namespace: the created parser
+		"""
+		parser = argparse.ArgumentParser(description='OAI HTML Report Generation for CI')
+
+		# Jenkins Job name
+		parser.add_argument(
+			'--job_name',
+			action='store',
+			required=True,
+			help='Jenkins Job name',
+		)
+		# Jenkins Job Build ID
+		parser.add_argument(
+			'--job_id',
+			action='store',
+			required=True,
+			help='Jenkins Job Build ID',
+		)
+		# Jenkins Job Build URL
+		parser.add_argument(
+			'--job_url',
+			action='store',
+			required=True,
+			help='Jenkins Job Build URL',
+		)
+		return parser.parse_args()
 
 	def generate(self):
 		cwd = os.getcwd()
@@ -84,22 +118,31 @@ class HtmlReport():
 
 	def deploymentSummaryHeader(self):
 		self.file.write('  <h2>Deployment Summary</h2>\n')
+		passcount = 0
+		failcount = 0
+		restarted = 0
 		cwd = os.getcwd()
-		if os.path.isfile(cwd + '/archives/deployment_status.log'):
-			cmd = 'egrep -c "DEPLOYMENT: OK" archives/deployment_status.log || true'
-			status = False
-			ret = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, encoding='utf-8')
-			if ret.stdout is not None:
-				if ret.stdout.strip() == '1':
-					status = True
-			if status:
-				self.file.write('  <div class="alert alert-success">\n')
-				self.file.write('    <strong>Successful Deployment! <span class="glyphicon glyphicon-warning-sign"></span></strong>\n')
-				self.file.write('  </div>\n')
-			else:
-				self.file.write('  <div class="alert alert-danger">\n')
-				self.file.write('    <strong>Failed Deployment! <span class="glyphicon glyphicon-warning-sign"></span></strong>\n')
-				self.file.write('  </div>\n')
+		if os.path.isfile(cwd + '/RESULTS/dcamf.yaml'):
+			with open(cwd + '/RESULTS/dcamf.yaml') as f:
+				data = yaml.full_load(f)
+				try:
+					passcount = len(data['nf-deployment']['pass'])
+					failcount = len(data['nf-deployment']['fail'])
+				except Exception as e:
+					pass
+				if passcount == 2:
+					self.file.write('  <div class="alert alert-success">\n')
+					self.file.write('    <strong>Successful Deployment! <span class="glyphicon glyphicon-warning-sign"></span></strong>\n')
+					self.file.write('  </div>\n')
+				
+				elif failcount > 0:
+					self.file.write('  <div class="alert alert-danger">\n')
+					self.file.write('    <strong>Failed Deployment! <span class="glyphicon glyphicon-warning-sign"></span></strong>\n')
+					self.file.write('  </div>\n')
+				else:
+					self.file.write('  <div class="alert alert-warning">\n')
+					self.file.write('    <strong>Partial Deployment! <span class="glyphicon glyphicon-warning-sign"></span></strong>\n')
+					self.file.write('  </div>\n')	
 		else:
 			self.file.write('  <div class="alert alert-warning">\n')
 			self.file.write('    <strong>LogFile not available! <span class="glyphicon glyphicon-warning-sign"></span></strong>\n')
@@ -127,10 +170,11 @@ class HtmlReport():
 		if imageInfoPrefix == 'oai_amf':
 			containerName = 'oai-amf'
 			tagPattern = 'OAI_AMF_TAG'
-			statusPrefix = 'amf'
+			statusPrefix = 'cicd-oai-amf'
 		if imageInfoPrefix == 'mysql':
 			containerName = imageInfoPrefix
 			tagPattern = 'N/A'
+			statusPrefix = 'cicd-mysql-svr'
 		if os.path.isfile(cwd + '/archives/' + imageInfoPrefix + '_image_info.log'):
 			usedTag = ''
 			createDate = ''
@@ -155,39 +199,53 @@ class HtmlReport():
 							size = str(sizeInt) + ' MB'
 			imageLog.close()
 			configState = 'KO'
-			cmd = 'egrep -c "STATUS: healthy" archives/' + statusPrefix + '_config.log || true'
-			ret = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, encoding='utf-8')
-			if ret.stdout is not None:
-				if ret.stdout.strip() == '1':
-					configState = 'OK'
-			self.file.write('     <tr>\n')
-			self.file.write('       <td>' + containerName + '</td>\n')
-			self.file.write('       <td>' + usedTag + '</td>\n')
-			self.file.write('       <td>' + createDate + '</td>\n')
-			self.file.write('       <td>' + size + '</td>\n')
-			if configState == 'OK':
-				self.file.write('       <td bgcolor = "DarkGreen"><b><font color="white">' + configState + '</font></b></td>\n')
-			else:
-				self.file.write('       <td bgcolor = "Red"><b><font color="white">' + configState + '</font></b></td>\n')
-			self.file.write('     </tr>\n')
-		else:
-			if imageInfoPrefix == 'mysql':
+			if os.path.isfile(cwd + '/RESULTS/dcamf.yaml'):
+				with open(cwd + '/RESULTS/dcamf.yaml') as f:
+					data = yaml.full_load(f)
+					try:
+						if statusPrefix in data['nf-deployment']['pass']:
+							configState = 'OK'
+						elif statusPrefix in data['nf-deployment']['recovered']:
+							configState = 'RS'
+					except Exception as e:
+						pass
 				self.file.write('     <tr>\n')
 				self.file.write('       <td>' + containerName + '</td>\n')
-				self.file.write('       <td>mysql:5.7</td>\n')
-				self.file.write('       <td>N/A</td>\n')
-				self.file.write('       <td>449MB</td>\n')
-				configState = 'KO'
-				cmd = 'egrep -c "STATUS: healthy" archives/mysql_status.log || true'
-				ret = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, encoding='utf-8')
-				if ret.stdout is not None:
-					if ret.stdout.strip() == '1':
-						configState = 'OK'
+				self.file.write('       <td>' + usedTag + '</td>\n')
+				self.file.write('       <td>' + createDate + '</td>\n')
+				self.file.write('       <td>' + size + '</td>\n')
 				if configState == 'OK':
-					self.file.write('       <td bgcolor = "DarkGreen"><b><font color="white">OK</font></b></td>\n')
+					self.file.write('       <td bgcolor = "DarkGreen"><b><font color="white">' + configState + '</font></b></td>\n')
+				elif configState == 'RS':
+					self.file.write('       <td bgcolor = "Orange"><b><font color="white">' + configState + '</font></b></td>\n')
 				else:
-					self.file.write('       <td bgcolor = "Red"><b><font color="white">KO</font></b></td>\n')
+					self.file.write('       <td bgcolor = "Red"><b><font color="white">' + configState + '</font></b></td>\n')
 				self.file.write('     </tr>\n')
+		else:
+			if imageInfoPrefix == 'mysql':
+				if os.path.isfile(cwd + '/RESULTS/dcamf.yaml'):		
+					self.file.write('     <tr>\n')
+					self.file.write('       <td>' + containerName + '</td>\n')
+					self.file.write('       <td>mysql:5.7</td>\n')
+					self.file.write('       <td>N/A</td>\n')
+					self.file.write('       <td>449MB</td>\n')
+					configState = 'KO'
+					with open(cwd + '/RESULTS/dcamf.yaml') as f:
+						data = yaml.full_load(f)
+						try:
+							if statusPrefix in data['nf-deployment']['pass']:
+								configState = 'OK'
+							elif statusPrefix in data['nf-deployment']['recovered']:
+								configState = 'RS'
+						except Exception as e:
+							pass
+					if configState == 'OK':
+						self.file.write('       <td bgcolor = "DarkGreen"><b><font color="white">OK</font></b></td>\n')
+					elif configState == 'RS':
+						self.file.write('       <td bgcolor = "Orange"><b><font color="white">' + configState + '</font></b></td>\n')
+					else:
+						self.file.write('       <td bgcolor = "Red"><b><font color="white">KO</font></b></td>\n')
+					self.file.write('     </tr>\n')
 			else:
 				self.file.write('     <tr>\n')
 				self.file.write('       <td>' + containerName + '</td>\n')
@@ -201,8 +259,8 @@ class HtmlReport():
 		self.file.write('  <h2>DS Tester Summary</h2>\n')
 		cwd = os.getcwd()
 		finalStatusOK = False
-		if os.path.isfile(cwd + '/DS-TEST-RESULTS/dcamf.yaml'):
-			cmd = f'egrep -c "final-result: pass" DS-TEST-RESULTS/dcamf.yaml || true'
+		if os.path.isfile(cwd + '/RESULTS/dcamf.yaml'):
+			cmd = f'egrep -c "final-result: pass" RESULTS/dcamf.yaml || true'
 			ret = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, encoding='utf-8')
 			if ret.stdout is not None:
 				if ret.stdout.strip() == '1':
@@ -235,9 +293,9 @@ class HtmlReport():
 		self.file.write('      <th>Test Details</th>\n')
 		self.file.write('    </tr>\n')
 		cwd = os.getcwd()
-		if os.path.isfile(cwd + '/DS-TEST-RESULTS/dcamf.yaml'):
-			with open(cwd + '/DS-TEST-RESULTS/dcamf.yaml') as f:
-				data = yaml.load(f)
+		if os.path.isfile(cwd + '/RESULTS/dcamf.yaml'):
+			with open(cwd + '/RESULTS/dcamf.yaml') as f:
+				data = yaml.full_load(f)
 				nScenarios = len(data['scenarios'])
 				for scenario in range(nScenarios):
 					self.file.write('     <tr>\n')
@@ -249,9 +307,19 @@ class HtmlReport():
 					else:
 						self.file.write('      <td bgcolor = "DarkOrange"><b><font color="white">UNKNOW</font></b></td>\n')
 					testDetails = ''
-					for x,y in data['scenarios'][scenario]['conditions'].items():
-						testDetails += str(x) + ': ' + str(y) + '\n'
-						#details += '\n'
+					try:
+						if data['scenarios'][scenario]['conditions']['om_conditions'] and data['scenarios'][scenario]['conditions']['pcap_test']:
+							testDetails += 'Conditions: \n'
+							for x,y in data['scenarios'][scenario]['conditions']['om_conditions'].items():
+								testDetails += '      ' + str(x) + ': ' + str(y) + '\n'
+							testDetails += '\npcap_test: \n'
+							for x,y in data['scenarios'][scenario]['conditions']['pcap_test'].items():
+								testDetails += '      ' + str(x) + ': \n'
+								testDetails += '          ' + str(y) + '\n'
+					except Exception as e:
+						for x,y in data['scenarios'][scenario]['conditions'].items():
+							testDetails += str(x) + ': ' + str(y) + '\n'
+							#details += '\n'
 					self.file.write('     <td><pre>' + testDetails + '</pre></td>\n')
 					self.file.write('    </tr>\n')
 		else:
@@ -259,47 +327,17 @@ class HtmlReport():
 		self.file.write('  </table>\n')
 		self.file.write('  </div>\n')
 
-def Usage():
-	print('----------------------------------------------------------------------------------------------------------------------')
-	print('dsTestGenerateHTMLReport.py')
-	print('   Generate an HTML report for the Jenkins pipeline on oai-cn5g-amf-bt.')
-	print('----------------------------------------------------------------------------------------------------------------------')
-	print('Usage: python3 generateHtmlReport.py [options]')
-	print('  --help  Show this help.')
-	print('---------------------------------------------------------------------------------------------- Mandatory Options -----')
-	print('  --job_name=[Jenkins Job name]')
-	print('  --job_id=[Jenkins Job Build ID]')
-	print('  --job_url=[Jenkins Job Build URL]')
-
 #--------------------------------------------------------------------------------------------------------
 #
 # Start of main
 #
 #--------------------------------------------------------------------------------------------------------
 
-argvs = sys.argv
-argc = len(argvs)
-
 HTML = HtmlReport()
+args = HTML._parse_args()
 
-while len(argvs) > 1:
-	myArgv = argvs.pop(1)
-	if re.match('^\-\-help$', myArgv, re.IGNORECASE):
-		Usage()
-		sys.exit(0)
-	elif re.match('^\-\-job_name=(.+)$', myArgv, re.IGNORECASE):
-		matchReg = re.match('^\-\-job_name=(.+)$', myArgv, re.IGNORECASE)
-		HTML.job_name = matchReg.group(1)
-	elif re.match('^\-\-job_id=(.+)$', myArgv, re.IGNORECASE):
-		matchReg = re.match('^\-\-job_id=(.+)$', myArgv, re.IGNORECASE)
-		HTML.job_id = matchReg.group(1)
-	elif re.match('^\-\-job_url=(.+)$', myArgv, re.IGNORECASE):
-		matchReg = re.match('^\-\-job_url=(.+)$', myArgv, re.IGNORECASE)
-		HTML.job_url = matchReg.group(1)
-	else:
-		sys.exit('Invalid Parameter: ' + myArgv)
-
-if HTML.job_name == '' or HTML.job_id == '' or HTML.job_url == '':
-	sys.exit('Missing Parameter in job description')
+HTML.job_name = args.job_name
+HTML.job_id = args.job_id
+HTML.job_url = args.job_url
 
 HTML.generate()
