@@ -16,6 +16,7 @@
 #include "NonUEN2MessagesCollectionDocumentApiImpl.h"
 #include "NonUEN2MessagesSubscriptionsCollectionDocumentApiImpl.h"
 #include "SubscriptionsCollectionDocumentApiImpl.h"
+#include "DataExposure.h"
 
 #include "TestSignallingApiImpl.h"
 
@@ -65,6 +66,9 @@ class AMFApiServer {
     m_testSignallingApiImpl =
         std::make_shared<TestSignallingApiImpl>(
             m_router, amf_app_inst);
+    m_dataExposure =
+        std::make_shared<DataExposureApi>(
+            m_router);
   }
 
   void init(size_t thr = 1);
@@ -97,4 +101,6 @@ class AMFApiServer {
 
   std::shared_ptr<TestSignallingApiImpl>
       m_testSignallingApiImpl;
+  std::shared_ptr<DataExposureApi>
+      m_dataExposure;
 };

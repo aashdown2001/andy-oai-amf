@@ -2180,11 +2180,14 @@ bool amf_n1::authentication_vectors_from_ausf(
 #endif
 
   Logger::amf_n1().debug("authentication_vectors_from_ausf");
-  std::string ausf_ip =
-      std::string(inet_ntoa(*((struct in_addr *)&amf_cfg.nausf.addr4)));
+  //std::string ausf_ip =
+  //    std::string(inet_ntoa(*((struct in_addr *)&amf_cfg.nausf.addr4)));
   std::string ausf_port = std::to_string(amf_cfg.nausf.port);
+  //printf("ausf ip: %s\n", ausf_ip.c_str());
+  printf("ausf config ip: %s\n", amf_cfg.nausf.addr4.c_str());
+  //ausf_ip = "10.244.2.6";
   std::string remoteUri =
-      ausf_ip + ":" + ausf_port + "/nausf-auth/v1/ue-authentications";
+      "http://" + amf_cfg.nausf.addr4 + ":" + ausf_port + "/nausf-auth/v1/ue-authentications";
   Logger::amf_n1().debug("remote ausf URI: %s",remoteUri.c_str());
   std::string msgBody;
   std::string Response;

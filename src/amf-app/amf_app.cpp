@@ -213,6 +213,8 @@ void amf_app_task(void*) {
               tid = itti_inst->timer_setup(
                   amf_cfg.statistics_interval, 0, TASK_AMF_APP,
                   TASK_AMF_APP_PERIODIC_STATISTICS, 0);
+	      stacs.display();
+#if 0
 	      long average_cap = 0;
 	      for(int i=0;i<amf_capability.size();i++){
 	        average_cap += amf_capability[i];
@@ -235,6 +237,7 @@ void amf_app_task(void*) {
 	      //double sumValue = accumulate(begin(delay_nudsf), end(delay_nudsf), 0.0);
 	      //double meanValue = sumValue / delay_nudsf.size();
 	      //Logger::amf_app().debug("dukl meanValue %4f", meanValue);
+#endif
 #if 0
 	      if(delay_nudsf.size() == last_delay_nudsf_size && delay_nudsf.size()!=0){
 	        Logger::amf_app().debug("total time %9f", accumulate(begin(delay_nudsf), end(delay_nudsf), 0.0));
