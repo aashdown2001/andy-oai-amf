@@ -340,20 +340,24 @@ void amf_n11::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
   std::string smf_api_version = {};
   std::string smf_port        = "80";  // Set to default port number
   if (!psc.get()->smf_available) {
-    if (amf_cfg.support_features.enable_nrf_selection) {
-      if (!discover_smf_from_nsi_info(
-              smf_addr, smf_api_version, smf_port, psc.get()->snssai,
-              psc.get()->plmn, psc.get()->dnn)) {
-        Logger::amf_n11().error("NRF Selection, no NRF candidate is available");
-        return;
-      }
-    } else if (amf_cfg.support_features.enable_smf_selection) {
+    if (amf_cfg.support_features.enable_smf_selection) {
       // use NRF to find suitable SMF based on snssai, plmn and dnn
       if (!discover_smf(
               smf_addr, smf_api_version, smf_port, psc.get()->snssai,
               psc.get()->plmn, psc.get()->dnn)) {
         Logger::amf_n11().error("SMF Selection, no SMF candidate is available");
-        return;
+        // return;
+        if (amf_cfg.support_features.enable_nrf_selection) {
+          // use NSSF to find suitable NRF for SMF discovery based on snssai,
+          // plmn and dnn
+          if (!discover_smf_from_nsi_info(
+                  smf_addr, smf_api_version, smf_port, psc.get()->snssai,
+                  psc.get()->plmn, psc.get()->dnn)) {
+            Logger::amf_n11().error(
+                "NRF Selection, no NRF candidate is available");
+            return;
+          }
+        }
       }
     } else if (!smf_selection_from_configuration(smf_addr, smf_api_version)) {
       Logger::amf_n11().error(
