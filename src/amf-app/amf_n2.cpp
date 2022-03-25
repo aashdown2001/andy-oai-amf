@@ -866,8 +866,8 @@ void amf_n2::handle_itti_message(
     item.s_nssai.sd  = psc.get()->snssai.sD;
   }
 
-  // item.s_nssai.sst = std::to_string(psc.get()->snssai.sST);
-  // item.s_nssai.sd = psc.get()->snssai.sD;
+   item.s_nssai.sst = "1";
+   item.s_nssai.sd = "1";
 
   item.pduSessionResourceSetupRequestTransfer.buf =
       (uint8_t*) bdata(itti_msg.n2sm);

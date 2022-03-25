@@ -2049,14 +2049,14 @@ bool amf_n1::start_security_mode_control_procedure(
 //------------------------------------------------------------------------------
 int amf_n1::security_select_algorithms(
     uint8_t nea, uint8_t nia, uint8_t& amf_nea, uint8_t& amf_nia) {
-  for (int i = 0; i < 8; i++) {
+  for (int i = 1; i < 8; i++) {
     if (nea & (0x80 >> amf_cfg.nas_cfg.prefered_ciphering_algorithm[i])) {
       amf_nea = amf_cfg.nas_cfg.prefered_ciphering_algorithm[i];
       printf("amf_nea: 0x%x\n", amf_nea);
       break;
     }
   }
-  for (int i = 0; i < 8; i++) {
+  for (int i = 1; i < 8; i++) {
     if (nia & (0x80 >> amf_cfg.nas_cfg.prefered_integrity_algorithm[i])) {
       amf_nia = amf_cfg.nas_cfg.prefered_integrity_algorithm[i];
       printf("amf_nia: 0x%x\n", amf_nia);
