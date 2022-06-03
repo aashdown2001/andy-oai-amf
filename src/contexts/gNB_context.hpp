@@ -50,10 +50,14 @@ typedef enum {
   NGAP_RESETING,
   NGAP_READY,
   NGAP_SHUTDOWN
-} amf_ng_gnb_state_t;
+} ng_gnb_state_t;
+
+static const std::vector<std::string> ng_gnb_state_str = {
+    "NGAP_INIT", "NGAP_RESETTING", "NGAP_READY", "NGAP_SHUTDOWN"};
+
 class gnb_context {
  public:
-  amf_ng_gnb_state_t ng_state;
+  ng_gnb_state_t ng_state;
 
   std::string gnb_name;
   long globalRanNodeId;

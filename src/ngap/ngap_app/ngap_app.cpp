@@ -77,6 +77,7 @@ void ngap_app::handle_sctp_new_association(
   Logger::ngap().debug(
       "Ready to handle new NGAP SCTP association request (id %d)", assoc_id);
   std::shared_ptr<gnb_context> gc = {};
+
   if (!is_assoc_id_2_gnb_context(assoc_id)) {
     Logger::ngap().debug(
         "Create a new gNB context with assoc_id (%d)", assoc_id);
@@ -88,6 +89,7 @@ void ngap_app::handle_sctp_new_association(
       Logger::amf_n2().error("Illegal gNB with assoc id (0x%x)", assoc_id);
       return;
     }
+
     if (gc.get()->ng_state == NGAP_RESETING ||
         gc.get()->ng_state == NGAP_SHUTDOWN) {
       Logger::ngap().warn(
@@ -140,7 +142,7 @@ std::shared_ptr<gnb_context> ngap_app::assoc_id_2_gnb_context(
 
 //------------------------------------------------------------------------------
 void ngap_app::set_assoc_id_2_gnb_context(
-    const sctp_assoc_id_t& assoc_id, std::shared_ptr<gnb_context> gc) {
+    const sctp_assoc_id_t& assoc_id, std::shared_ptr<gnb_context>& gc) {
   std::shared_lock lock(m_assoc2gnbContext);
   assoc2gnbContext[assoc_id] = gc;
   return;
@@ -161,7 +163,7 @@ std::shared_ptr<gnb_context> ngap_app::gnb_id_2_gnb_context(
 
 //------------------------------------------------------------------------------
 void ngap_app::set_gnb_id_2_gnb_context(
-    const long& gnb_id, std::shared_ptr<gnb_context> gc) {
+    const long& gnb_id, std::shared_ptr<gnb_context>& gc) {
   std::unique_lock lock(m_gnbid2gnbContext);
   gnbid2gnbContext[gnb_id] = gc;
   return;
