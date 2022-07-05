@@ -900,7 +900,15 @@ bool amf_n11::discover_smf(
             }
             if (sst == snssai.sST) {
               uint32_t input_sd = SD_NO_VALUE;  // Default value
+              Logger::amf_n11().debug("S-NSSAI [SST- %d, SD -%s] is matched for SMF profile", snssai.sST, snssai.sD.c_str());
+              result = true;
+              break;  // NSSAI is included in the list of supported slices
+                        // from SMF
               conv::sd_string_to_int(snssai.sD, input_sd);
+
+
+
+
               if (sd == input_sd) {
                 Logger::amf_n11().debug(
                     "S-NSSAI [SST- %d, SD -%s] is matched for SMF profile",
