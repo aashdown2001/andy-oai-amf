@@ -226,6 +226,8 @@ int NSSAI::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
         length_tmp--;
       } break;
     }
+    //TTN for CU-DU testing
+    if (a.sd == 0) a.sd        = SD_NO_VALUE;
 
     S_NSSAI.insert(S_NSSAI.end(), a);
     a = {0, 0, 0, 0};
