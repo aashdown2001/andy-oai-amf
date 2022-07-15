@@ -46,6 +46,7 @@
 #include "GPRS_Timer_2.hpp"
 #include "GPRS_Timer_3.hpp"
 #include "IMEISV_Request.hpp"
+#include "Ie_Const.hpp"
 #include "LADN_Indication.hpp"
 #include "MA_PDU_Session_Information.hpp"
 #include "MICO_Indication.hpp"

@@ -326,8 +326,8 @@ int RegistrationAccept::encode2buffer(uint8_t* buf, int len) {
   if (!ie_allowed_nssai) {
     Logger::nas_mm().warn("IE ie_allowed_nssai is not available");
   } else {
-    if (int size = ie_allowed_nssai->encode2buffer(
-            buf + encoded_size, len - encoded_size)) {
+    if (int size = ie_allowed_nssai->Encode2Buffer(
+            buf + encoded_size, len - encoded_size, kIeIsOptional)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_allowed_nssai error");
@@ -347,8 +347,8 @@ int RegistrationAccept::encode2buffer(uint8_t* buf, int len) {
   if (!ie_configured_nssai) {
     Logger::nas_mm().warn("IE ie_configured_nssai is not available");
   } else {
-    if (int size = ie_configured_nssai->encode2buffer(
-            buf + encoded_size, len - encoded_size)) {
+    if (int size = ie_configured_nssai->Encode2Buffer(
+            buf + encoded_size, len - encoded_size, kIeIsOptional)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_configured_nssai error");
@@ -585,8 +585,8 @@ int RegistrationAccept::encode2buffer(uint8_t* buf, int len) {
   if (!ie_pending_nssai) {
     Logger::nas_mm().warn("IE ie_pending_nssai is not available");
   } else {
-    if (int size = ie_pending_nssai->encode2buffer(
-            buf + encoded_size, len - encoded_size)) {
+    if (int size = ie_pending_nssai->Encode2Buffer(
+            buf + encoded_size, len - encoded_size, kIeIsOptional)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_pending_nssai error");
@@ -619,7 +619,7 @@ int RegistrationAccept::decodefrombuffer(
   plain_header               = header;
   ie_5gs_registration_result = new _5GS_Registration_Result();
   decoded_size += ie_5gs_registration_result->decodefrombuffer(
-      buf + decoded_size, len - decoded_size, false);
+      buf + decoded_size, len - decoded_size, kIeIsNotOptional);
   Logger::nas_mm().debug("Decoded_size(%d)", decoded_size);
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
@@ -629,7 +629,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0xB)");
         ie_MICO_indicationl = new MICO_Indication();
         decoded_size += ie_MICO_indicationl->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -637,7 +637,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x9)");
         ie_network_slicing_indication = new Network_Slicing_Indication();
         decoded_size += ie_network_slicing_indication->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -645,7 +645,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0xA)");
         ie_nssai_inclusion_mode = new NSSAI_Inclusion_Mode();
         decoded_size += ie_nssai_inclusion_mode->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -653,7 +653,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0xD)");
         ie_non_3gpp_nw_policies = new Non_3GPP_NW_Provided_Policies();
         decoded_size += ie_non_3gpp_nw_policies->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -663,31 +663,34 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x77)");
         ie_5g_guti = new _5GSMobilityIdentity();
         decoded_size += ie_5g_guti->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x15: {
-        Logger::nas_mm().debug("Decoding IEI (0x15)");
+      case kIeiNSSAIAllowed: {
+        Logger::nas_mm().debug(
+            "Decoding IEI Allowed NSSAI (0x%x)", kIeiNSSAIAllowed);
         ie_allowed_nssai = new NSSAI();
-        decoded_size += ie_allowed_nssai->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+        decoded_size += ie_allowed_nssai->DecodeFromBuffer(
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x11: {
-        Logger::nas_mm().debug("Decoding IEI (0x11)");
+      case kIeiRejectedNssaiRa: {
+        Logger::nas_mm().debug(
+            "Decoding IEI Rejected NSSAI (0x%x)", kIeiRejectedNssaiRa);
         ie_rejected_nssai = new Rejected_NSSAI();
         decoded_size += ie_rejected_nssai->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x31: {
-        Logger::nas_mm().debug("Decoding IEI (0x31)");
+      case kIeiNSSAIConfigured: {
+        Logger::nas_mm().debug(
+            "Decoding IEI Configured NSSAI (0x%x)", kIeiNSSAIConfigured);
         ie_configured_nssai = new NSSAI();
-        decoded_size += ie_configured_nssai->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+        decoded_size += ie_configured_nssai->DecodeFromBuffer(
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -695,7 +698,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x21)");
         ie_5gs_network_feature_support = new _5GS_Network_Feature_Support();
         decoded_size += ie_5gs_network_feature_support->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -703,7 +706,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x50)");
         ie_PDU_session_status = new PDU_Session_Status();
         decoded_size += ie_PDU_session_status->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -722,7 +725,7 @@ int RegistrationAccept::decodefrombuffer(
             new PDU_Session_Reactivation_Result_Error_Cause();
         decoded_size +=
             ie_pdu_session_reactivation_result_error_cause->decodefrombuffer(
-                buf + decoded_size, len - decoded_size, true);
+                buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -730,7 +733,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x5E)");
         ie_T3512_value = new GPRS_Timer_3();
         decoded_size += ie_T3512_value->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -739,7 +742,7 @@ int RegistrationAccept::decodefrombuffer(
         ie_Non_3GPP_de_registration_timer_value = new GPRS_Timer_2();
         decoded_size +=
             ie_Non_3GPP_de_registration_timer_value->decodefrombuffer(
-                buf + decoded_size, len - decoded_size, true);
+                buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -747,7 +750,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x16)");
         ie_T3502_value = new GPRS_Timer_2();
         decoded_size += ie_T3502_value->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -755,7 +758,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x73)");
         ie_sor_transparent_container = new SOR_Transparent_Container();
         decoded_size += ie_sor_transparent_container->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -763,7 +766,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x78)");
         ie_eap_message = new EAP_Message();
         decoded_size += ie_eap_message->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -771,7 +774,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x51)");
         ie_negotiated_drx_parameters = new _5GS_DRX_arameters();
         decoded_size += ie_negotiated_drx_parameters->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -779,7 +782,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x60)");
         ie_eps_bearer_context_status = new EPS_Bearer_Context_Status();
         decoded_size += ie_eps_bearer_context_status->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -787,7 +790,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x6E)");
         ie_extended_drx_parameters = new Extended_DRX_Parameters();
         decoded_size += ie_extended_drx_parameters->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -795,7 +798,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x6C)");
         ie_T3447_value = new GPRS_Timer_3();
         decoded_size += ie_T3447_value->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -803,7 +806,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x6B)");
         ie_T3448_value = new GPRS_Timer_3();
         decoded_size += ie_T3448_value->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -811,7 +814,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x6A)");
         ie_T3324_value = new GPRS_Timer_3();
         decoded_size += ie_T3324_value->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -819,15 +822,16 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x67)");
         ie_ue_radio_capability_id = new UE_Radio_Capability_ID();
         decoded_size += ie_ue_radio_capability_id->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x39: {
-        Logger::nas_mm().debug("Decoding IEI (0x39)");
+      case kIeiNSSAIPending: {
+        Logger::nas_mm().debug(
+            "Decoding IEI Pending NSSAI (0x%x)", kIeiNSSAIPending);
         ie_pending_nssai = new NSSAI();
-        decoded_size += ie_pending_nssai->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+        decoded_size += ie_pending_nssai->DecodeFromBuffer(
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -835,7 +839,7 @@ int RegistrationAccept::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x4A)");
         ie_equivalent_plmns = new PLMN_List();
         decoded_size += ie_equivalent_plmns->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

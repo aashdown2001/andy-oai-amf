@@ -31,7 +31,9 @@
 
 #include <stdint.h>
 
-#include "nas_ie_header.hpp"
+#include "Ie_Const.hpp"
+#include "struct.hpp"
+
 namespace nas {
 
 class S_NSSAI {
@@ -40,10 +42,10 @@ class S_NSSAI {
   S_NSSAI(uint8_t iei);
   S_NSSAI(const uint8_t iei, SNSSAI_s snssai);
   ~S_NSSAI();
-  void setS_NSSAI(SNSSAI_s snssai);
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
-  void getValue(SNSSAI_s& snssai);
+  void SetSnssai(SNSSAI_s snssai);
+  int Encode2Buffer(uint8_t* buf, int len, const bool is_option) const;
+  int DecodeFromBuffer(uint8_t* buf, int len, const bool is_option);
+  void GetValue(SNSSAI_s& snssai);
 
  private:
   uint8_t _iei;

@@ -1294,9 +1294,7 @@ void amf_n1::registration_request_handle(
   }
 
   for (auto r : nc.get()->requestedNssai) {
-    Logger::nas_mm().debug(
-        "Requested NSSAI SST (0x%x) SD (0x%x) hplmnSST (0x%x) hplmnSD (%d)",
-        r.sst, r.sd, r.mHplmnSst, r.mHplmnSd);
+    Logger::nas_mm().debug("Requested NSSAI %s", r.ToString().c_str());
   }
 
   nc.get()->ctx_avaliability_ind = true;
@@ -1324,10 +1322,8 @@ void amf_n1::registration_request_handle(
     } else {
       for (auto s : nc.get()->requestedNssai) {
         Logger::amf_n1().debug(
-            "Requested NSSAI inside the NAS container: SST (0x%x) SD (0x%x) "
-            "hplmnSST (0x%x) hplmnSD "
-            "(%d)",
-            s.sst, s.sd, s.mHplmnSst, s.mHplmnSd);
+            "Requested NSSAI inside the NAS container: %s",
+            s.ToString().c_str());
       }
     }
   } else {
@@ -2530,10 +2526,7 @@ void amf_n1::security_mode_complete_handle(
       // Get Requested NSSAI (Optional IE), if provided
       if (registration_request->getRequestedNssai(nc.get()->requestedNssai)) {
         for (auto s : nc.get()->requestedNssai) {
-          Logger::amf_n1().debug(
-              "Requested NSSAI SST (0x%x) SD (0x%x) hplmnSST (0x%x) hplmnSD "
-              "(%d)",
-              s.sst, s.sd, s.mHplmnSst, s.mHplmnSd);
+          Logger::amf_n1().debug("Requested NSSAI %s", s.ToString().c_str());
         }
       } else {
         Logger::amf_n1().debug("No Optional IE RequestedNssai available");
@@ -3166,9 +3159,7 @@ void amf_n1::ul_nas_transport_handle(
   }
 
   Logger::amf_n1().debug(
-      "S_NSSAI for this PDU Session SST (0x%x) SD (0x%x) hplmnSST (0x%x) "
-      "hplmnSD (0x%x)",
-      snssai.sst, snssai.sd, snssai.mHplmnSst, snssai.mHplmnSd);
+      "S_NSSAI for this PDU Session %s", snssai.ToString().c_str());
 
   bstring dnn = bfromcstr("default");
   bstring sm_msg;
@@ -3194,8 +3185,8 @@ void amf_n1::ul_nas_transport_handle(
       itti_msg->pdu_sess_id    = pdu_session_id;
       itti_msg->dnn            = dnn;
       itti_msg->sm_msg         = sm_msg;
-      itti_msg->snssai.sST     = snssai.sst;
-      itti_msg->snssai.sD      = std::to_string(snssai.sd);
+      itti_msg->snssai.sST     = snssai.Sst();
+      itti_msg->snssai.sD      = std::to_string(snssai.Sd());
       itti_msg->plmn.mnc       = plmn.mnc;
       itti_msg->plmn.mcc       = plmn.mcc;
 
@@ -3765,12 +3756,9 @@ void amf_n1::initialize_registration_accept(
   for (auto p : amf_cfg.plmn_list) {
     for (auto s : p.slice_list) {
       SNSSAI_t snssai = {};
-      snssai.sst      = s.sst;
-      snssai.sd       = s.sd;
-      if (snssai.sd == SD_NO_VALUE) {
-        snssai.length = SST_LENGTH;
-      } else {
-        snssai.length = SST_LENGTH + SD_LENGTH;
+      snssai.SetSst(s.sst);
+      if (s.sd) {
+        snssai.SetSd(s.sd);
       }
       nssai.push_back(snssai);
     }
@@ -3817,8 +3805,10 @@ void amf_n1::initialize_registration_accept(
         (p.tac == uc.get()->tai.tac)) {
       for (auto s : p.slice_list) {
         SNSSAI_t snssai = {};
-        snssai.sst      = s.sst;
-        snssai.sd       = s.sd;
+        snssai.SetSst(s.sst);
+        if (s.sd != SD_NO_VALUE) {
+          snssai.SetSd(s.sd);
+        }
         nssai.push_back(snssai);
         // TODO: Check with the requested NSSAI from UE
         /*  for (auto rn : nc.get()->requestedNssai) {
@@ -4066,8 +4056,11 @@ bool amf_n1::reroute_registration_request(
   std::vector<oai::amf::model::Snssai> requested_nssais;
   for (auto s : nc->requestedNssai) {
     oai::amf::model::Snssai nssai = {};
-    nssai.setSst(s.sst);
-    nssai.setSd(std::to_string(s.sd));
+    nssai.setSst(s.Sst());
+    int32_t sd = 0;
+    if (s.Sd(sd)) {
+      nssai.setSd(std::to_string(sd));
+    }
     requested_nssais.push_back(nssai);
   }
   slice_info.setRequestedNssai(requested_nssais);
@@ -4129,8 +4122,9 @@ bool amf_n1::check_requested_nssai(const std::shared_ptr<nas_context>& nc) {
     // Check PLMN/TAC
     if ((uc.get()->tai.mcc.compare(p.mcc) != 0) or
         (uc.get()->tai.mnc.compare(p.mnc) != 0)
-		// or (uc.get()->tai.tac != p.tac)  //TTN:disable this check for CU/DU testing
-		) {
+        // or (uc.get()->tai.tac != p.tac)  //TTN:disable this check for CU/DU
+        // testing
+    ) {
       continue;
     }
 
@@ -4140,11 +4134,11 @@ bool amf_n1::check_requested_nssai(const std::shared_ptr<nas_context>& nc) {
       bool found_nssai = false;
       for (auto s : p.slice_list) {
         std::string sd = std::to_string(s.sd);
-        if (s.sst == n.sst) {
-          if (s.sd == n.sd) {
+        if (s.sst == n.Sst()) {
+          if (s.sd == n.Sd()) {
             found_nssai = true;
             Logger::amf_n1().debug(
-                "Found S-NSSAI (SST %d, SD %d)", s.sst, n.sd);
+                "Found S-NSSAI (SST %d, SD %d)", s.sst, n.Sd());
             break;
           }
         }
@@ -4177,8 +4171,9 @@ bool amf_n1::check_subscribed_nssai(
     // Check PLMN/TAC
     if ((uc.get()->tai.mcc.compare(p.mcc) != 0) or
         (uc.get()->tai.mnc.compare(p.mnc) != 0)
-		//or(uc.get()->tai.tac != p.tac) //TTN:disable this check for CU/DU testing
-		) {
+        // or(uc.get()->tai.tac != p.tac) //TTN:disable this check for CU/DU
+        // testing
+    ) {
       continue;
     }
 
@@ -4193,13 +4188,13 @@ bool amf_n1::check_subscribed_nssai(
       // std::string sd = std::to_string(s.sd);
       // Check with default subscribed NSSAIs
       for (auto n : nssai.getDefaultSingleNssais()) {
-        if (s.sst == n.getSst()) {
+        if (s.Sst() == n.getSst()) {
           uint32_t sd = SD_NO_VALUE;
           conv::sd_string_to_int(n.getSd(), sd);
-          if (sd == s.sd) {
+          if (sd == s.Sd()) {
             common_snssais.push_back(n);
             Logger::amf_n1().debug(
-                "Common S-NSSAI (SST %d, SD %ld)", s.sst, sd);
+                "Common S-NSSAI (SST %d, SD %ld)", s.Sst(), sd);
             break;
           }
         }
@@ -4207,13 +4202,13 @@ bool amf_n1::check_subscribed_nssai(
 
       // check with other subscribed NSSAIs
       for (auto n : nssai.getSingleNssais()) {
-        if (s.sst == n.getSst()) {
+        if (s.Sst() == n.getSst()) {
           uint32_t sd = SD_NO_VALUE;
           conv::sd_string_to_int(n.getSd(), sd);
-          if (sd == s.sd) {
+          if (sd == s.Sd()) {
             common_snssais.push_back(n);
             Logger::amf_n1().debug(
-                "Common S-NSSAI (SST %d, SD %ld)", s.sst, sd);
+                "Common S-NSSAI (SST %d, SD %ld)", s.Sst(), sd);
             break;
           }
         }

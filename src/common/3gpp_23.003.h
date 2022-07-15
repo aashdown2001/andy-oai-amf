@@ -32,6 +32,9 @@
 
 #include <string>
 
+const uint32_t SD_NO_VALUE               = 0xFFFFFF;
+const uint8_t SST_MAX_STANDARDIZED_VALUE = 127;
+
 typedef struct s_nssai  // section 28.4, TS23.003
 {
   uint8_t sST;
@@ -48,7 +51,6 @@ typedef struct s_nssai  // section 28.4, TS23.003
       return false;
     }
   }
-
 } snssai_t;
 
 typedef struct plmn_s {
