@@ -31,6 +31,7 @@
 #include "AmfEventType.h"
 #include "CmInfo.h"
 #include "CommunicationFailure.h"
+#include "LossOfConnectivityReason.h"
 #include <nlohmann/json.hpp>
 
 namespace oai::amf::model {
@@ -175,6 +176,13 @@ class AmfEventReport {
   bool commFailureIsSet() const;
   void unsetCommFailure();
   /// <summary>
+  /// 
+  /// </summary>
+  LossOfConnectivityReason getLossOfConnectReason() const;
+  void setLossOfConnectReason(LossOfConnectivityReason const& value);
+  bool lossOfConnectReasonIsSet() const;
+  void unsetLossOfConnectReason();
+  /// <summary>
   ///
   /// </summary>
   int32_t getNumberOfUes() const;
@@ -230,6 +238,8 @@ class AmfEventReport {
   bool m_ReachabilityIsSet;
   CommunicationFailure m_CommFailure;
   bool m_CommFailureIsSet;
+  LossOfConnectivityReason m_LossOfConnectReason;
+  bool m_LossOfConnectReasonIsSet;
   int32_t m_NumberOfUes;
   bool m_NumberOfUesIsSet;
   std::vector<_5GsUserStateInfo> m_r_5gsUserStateList;

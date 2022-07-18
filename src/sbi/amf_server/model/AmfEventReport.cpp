@@ -41,6 +41,7 @@ AmfEventReport::AmfEventReport() {
   m_CmInfoListIsSet         = false;
   m_ReachabilityIsSet       = false;
   m_CommFailureIsSet        = false;
+  m_LossOfConnectReasonIsSet = false;
   m_NumberOfUes             = 0;
   m_NumberOfUesIsSet        = false;
   m_r_5gsUserStateListIsSet = false;
@@ -256,6 +257,10 @@ bool AmfEventReport::operator==(const AmfEventReport& rhs) const {
        (commFailureIsSet() && rhs.commFailureIsSet() &&
         getCommFailure() == rhs.getCommFailure())) &&
 
+      ((!lossOfConnectReasonIsSet() && !rhs.lossOfConnectReasonIsSet()) ||
+       (lossOfConnectReasonIsSet() && rhs.lossOfConnectReasonIsSet() &&
+        getLossOfConnectReason() == rhs.getLossOfConnectReason())) &&
+
       ((!numberOfUesIsSet() && !rhs.numberOfUesIsSet()) ||
        (numberOfUesIsSet() && rhs.numberOfUesIsSet() &&
         getNumberOfUes() == rhs.getNumberOfUes())) &&
@@ -293,6 +298,7 @@ void to_json(nlohmann::json& j, const AmfEventReport& o) {
     j["cmInfoList"] = o.m_CmInfoList;
   if (o.reachabilityIsSet()) j["reachability"] = o.m_Reachability;
   if (o.commFailureIsSet()) j["commFailure"] = o.m_CommFailure;
+  if (o.lossOfConnectReasonIsSet()) j["lossOfConnectReason"] = o.m_LossOfConnectReason;
   if (o.numberOfUesIsSet()) j["numberOfUes"] = o.m_NumberOfUes;
   if (o.r5gsUserStateListIsSet() || !o.m_r_5gsUserStateList.empty())
     j["5gsUserStateList"] = o.m_r_5gsUserStateList;
@@ -357,6 +363,10 @@ void from_json(const nlohmann::json& j, AmfEventReport& o) {
   if (j.find("commFailure") != j.end()) {
     j.at("commFailure").get_to(o.m_CommFailure);
     o.m_CommFailureIsSet = true;
+  }
+  if (j.find("lossOfConnectReason") != j.end()) {
+    j.at("lossOfConnectReason").get_to(o.m_LossOfConnectReason);
+    o.m_LossOfConnectReasonIsSet = true;
   }
   if (j.find("numberOfUes") != j.end()) {
     j.at("numberOfUes").get_to(o.m_NumberOfUes);
@@ -567,6 +577,19 @@ bool AmfEventReport::commFailureIsSet() const {
 }
 void AmfEventReport::unsetCommFailure() {
   m_CommFailureIsSet = false;
+}
+LossOfConnectivityReason AmfEventReport::getLossOfConnectReason() const {
+    return m_LossOfConnectReason;
+}
+void AmfEventReport::setLossOfConnectReason(LossOfConnectivityReason const& value) {
+    m_LossOfConnectReason = value;
+    m_LossOfConnectReasonIsSet = true;
+}
+bool AmfEventReport::lossOfConnectReasonIsSet() const {
+    return m_LossOfConnectReasonIsSet;
+}
+void AmfEventReport::unsetLossOfConnectReason() {
+    m_LossOfConnectReasonIsSet = false;
 }
 int32_t AmfEventReport::getNumberOfUes() const {
   return m_NumberOfUes;
