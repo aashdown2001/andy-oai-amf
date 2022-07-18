@@ -170,6 +170,11 @@ amf_n1::amf_n1() {
   ee_ue_connectivity_state_connection =
       event_sub.subscribe_ue_connectivity_state(boost::bind(
           &amf_n1::handle_ue_connectivity_state_change, this, _1, _2, _3));
+
+  // EventExposure: subscribe to UE Loss of Connectivity change
+  ee_ue_loss_of_connectivity_connection =
+      event_sub.subscribe_ue_loss_of_connectivity(boost::bind(
+          &amf_n1::handle_ue_loss_of_connectivity_change, this, _1, _2, _3));
 }
 
 //------------------------------------------------------------------------------
@@ -183,6 +188,8 @@ amf_n1::~amf_n1() {
     ee_ue_registration_state_connection.disconnect();
   if (ee_ue_connectivity_state_connection.connected())
     ee_ue_connectivity_state_connection.disconnect();
+  if (ee_ue_loss_of_connectivity_connection.connected())
+    ee_ue_loss_of_connectivity_connection.disconnect();
 }
 
 //------------------------------------------------------------------------------
@@ -3066,10 +3073,23 @@ void amf_n1::ue_initiate_de_registration_handle(
   stacs.display();
 
   string supi = "imsi-" + nc.get()->imsi;
+  // Trigger UE Registration Status Notify
   Logger::amf_n1().debug(
       "Signal the UE Registration State Event notification for SUPI %s",
       supi.c_str());
   event_sub.ue_registration_state(supi, _5GMM_DEREGISTERED, 1);
+
+  // Trigger UE Loss of Connectivity Status Notify
+  Logger::amf_n1().debug(
+      "Signal the UE Loss of Connectivity Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1);
+
+  // Trigger UE Loss of Connectivity Status Notify
+  Logger::amf_n1().debug(
+      "Signal the UE Loss of Connectivity Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_loss_of_connectivity(supi, PURGED, 1);
 
   if (nc.get()->is_stacs_available) {
     stacs.update_5gmm_state(nc.get()->imsi, "5GMM-DEREGISTERED");
@@ -3719,6 +3739,68 @@ void amf_n1::handle_ue_connectivity_state_change(
 }
 
 //------------------------------------------------------------------------------
+void amf_n1::handle_ue_loss_of_connectivity_change(
+    std::string supi, uint8_t status, uint8_t http_version) {
+  Logger::amf_n1().debug(
+      "Send request to SBI to trigger UE Loss of Connectivity (SUPI "
+      "%s )",
+      supi.c_str());
+
+  std::vector<std::shared_ptr<amf_subscription>> subscriptions = {};
+  amf_app_inst->get_ee_subscriptions(
+      amf_event_type_t::LOSS_OF_CONNECTIVITY, subscriptions);
+
+  if (subscriptions.size() > 0) {
+    // Send request to SBI to trigger the notification to the subscribed event
+    Logger::amf_n1().debug(
+        "Send ITTI msg to AMF SBI to trigger the event notification");
+
+    std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg =
+        std::make_shared<itti_sbi_notify_subscribed_event>(
+            TASK_AMF_N1, TASK_AMF_N11);
+
+    itti_msg->http_version = 1;
+
+    for (auto i : subscriptions) {
+      event_notification ev_notif = {};
+      ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
+      ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
+      // ev_notif.set_subs_change_notify_correlation_id(i.get()->notify_uri);
+
+      oai::amf::model::AmfEventReport event_report = {};
+      oai::amf::model::AmfEventType amf_event_type = {};
+      amf_event_type.set_value("LOSS_OF_CONNECTIVITY");
+      event_report.setType(amf_event_type);
+
+      oai::amf::model::AmfEventState amf_event_state = {};
+      amf_event_state.setActive(true);
+      event_report.setState(amf_event_state);
+    
+      oai::amf::model::LossOfConnectivityReason ue_loss_of_connectivity_reason = {};
+      if (status == DEREGISTERED)
+        ue_loss_of_connectivity_reason.set_value("DEREGISTERED");
+      else if (status == MAX_DETECTION_TIME_EXPIRED)
+        ue_loss_of_connectivity_reason.set_value("MAX_DETECTION_TIME_EXPIRED");
+      else if (status == PURGED)
+        ue_loss_of_connectivity_reason.set_value("PURGED");
+
+      event_report.setLossOfConnectReason(ue_loss_of_connectivity_reason);
+      event_report.setSupi(supi);
+      ev_notif.add_report(event_report);
+
+      itti_msg->event_notifs.push_back(ev_notif);
+    }
+
+    int ret = itti_inst->send_msg(itti_msg);
+    if (0 != ret) {
+      Logger::amf_n1().error(
+          "Could not send ITTI message %s to task TASK_AMF_N11",
+          itti_msg->get_msg_name());
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void amf_n1::get_pdu_session_to_be_activated(
     const uint16_t pdu_session_status,
     std::vector<uint8_t>& pdu_session_to_be_activated) {
@@ -3896,6 +3978,13 @@ void amf_n1::mobile_reachable_timer_timeout(
     return;
   }
   set_mobile_reachable_timer_timeout(nc, true);
+
+  // Trigger UE Loss of Connectivity Status Notify
+  string supi = "imsi-" + nc.get()->imsi;
+  Logger::amf_n1().debug(
+      "Signal the UE Loss of Connectivity Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_loss_of_connectivity(supi, MAX_DETECTION_TIME_EXPIRED, 1);
 
   // TODO: Start the implicit de-registration timer
   timer_id_t tid = itti_inst->timer_setup(

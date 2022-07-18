@@ -813,6 +813,17 @@ class amf_n1 {
   void handle_ue_connectivity_state_change(
       std::string supi, uint8_t status, uint8_t http_version);
 
+  /*
+   * Handle the UE Loss of Connectivity Change event to trigger the notification
+   * to the subscribed NFs
+   * @param [std::string] supi: SUPI
+   * @param [uint8_t] status: UE Loss of Connectivity status
+   * @param [uint8_t] http_version: HTTP version (for the notification)
+   * @return void
+   */
+  void handle_ue_loss_of_connectivity_change(
+      std::string supi, uint8_t status, uint8_t http_version);
+
  private:
   /*
    * Handle UE-initiated Deregistration Request message
@@ -981,6 +992,7 @@ class amf_n1 {
   bs2::connection ee_ue_reachability_status_connection;
   bs2::connection ee_ue_registration_state_connection;
   bs2::connection ee_ue_connectivity_state_connection;
+  bs2::connection ee_ue_loss_of_connectivity_connection;
 };
 }  // namespace amf_application
 

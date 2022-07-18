@@ -69,9 +69,16 @@ typedef bs2::signal_type<
     bs2::keywords::mutex_type<bs2::dummy_mutex>>::type
     ue_connectivity_state_sig_t;
 
+// Signal for Loss of Connectivity
+// SUPI, status, HTTP version
+typedef bs2::signal_type<
+    void(std::string, uint8_t, uint8_t),
+    bs2::keywords::mutex_type<bs2::dummy_mutex>>::type
+    ue_loss_of_connectivity_sig_t;
+
 // TODO: Communication-Failure-Report
 // TODO: UEs-In-Area-Report
-// TODO: Loss-of-Connectivity
+
 
 }  // namespace amf_application
 #endif
