@@ -179,6 +179,7 @@ typedef struct SNSSAI_s {
     if (MhplmnSd(mhplmn_sdv)) {
       s.append(fmt::format(" M-HPLMN SD {:#x}", mhplmn_sdv));
     }
+    return s;
   }
 
   int Encode2Buffer(uint8_t* buf, int len, bool is_option = true) const {
