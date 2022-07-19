@@ -170,6 +170,11 @@ amf_n1::amf_n1() {
   ee_ue_connectivity_state_connection =
       event_sub.subscribe_ue_connectivity_state(boost::bind(
           &amf_n1::handle_ue_connectivity_state_change, this, _1, _2, _3));
+
+  // EventExposure: subscribe to UE Communication Failure Report
+  ee_ue_communication_failure_connection =
+      event_sub.subscribe_ue_communication_failure(boost::bind(
+          &amf_n1::handle_ue_communication_failure_change, this, _1, _2, _3));
 }
 
 //------------------------------------------------------------------------------
@@ -183,6 +188,8 @@ amf_n1::~amf_n1() {
     ee_ue_registration_state_connection.disconnect();
   if (ee_ue_connectivity_state_connection.connected())
     ee_ue_connectivity_state_connection.disconnect();
+  if (ee_ue_communication_failure_connection.connected())
+    ee_ue_communication_failure_connection.disconnect();
 }
 
 //------------------------------------------------------------------------------
@@ -3702,6 +3709,61 @@ void amf_n1::handle_ue_connectivity_state_change(
       cm_info.setAccessType(access_type);
       cm_infos.push_back(cm_info);
       event_report.setCmInfoList(cm_infos);
+
+      event_report.setSupi(supi);
+      ev_notif.add_report(event_report);
+
+      itti_msg->event_notifs.push_back(ev_notif);
+    }
+
+    int ret = itti_inst->send_msg(itti_msg);
+    if (0 != ret) {
+      Logger::amf_n1().error(
+          "Could not send ITTI message %s to task TASK_AMF_N11",
+          itti_msg->get_msg_name());
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void amf_n1::handle_ue_communication_failure_change(
+    std::string supi, oai::amf::model::CommunicationFailure comm_failure,
+    uint8_t http_version) {
+  Logger::amf_n1().debug(
+      "Send request to SBI to trigger UE Communication Failure Report (SUPI "
+      "%s )",
+      supi.c_str());
+  std::vector<std::shared_ptr<amf_subscription>> subscriptions = {};
+  amf_app_inst->get_ee_subscriptions(
+      amf_event_type_t::COMMUNICATION_FAILURE_REPORT, subscriptions);
+
+  if (subscriptions.size() > 0) {
+    // Send request to SBI to trigger the notification to the subscribed event
+    Logger::amf_n1().debug(
+        "Send ITTI msg to AMF SBI to trigger the event notification");
+
+    std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg =
+        std::make_shared<itti_sbi_notify_subscribed_event>(
+            TASK_AMF_N1, TASK_AMF_N11);
+
+    itti_msg->http_version = 1;
+
+    for (auto i : subscriptions) {
+      event_notification ev_notif = {};
+      ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
+      ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
+      // ev_notif.set_subs_change_notify_correlation_id(i.get()->notify_uri);
+
+      oai::amf::model::AmfEventReport event_report = {};
+      oai::amf::model::AmfEventType amf_event_type = {};
+      amf_event_type.set_value("COMMUNICATION_FAILURE_REPORT");
+      event_report.setType(amf_event_type);
+
+      oai::amf::model::AmfEventState amf_event_state = {};
+      amf_event_state.setActive(true);
+      event_report.setState(amf_event_state);
+
+      event_report.setCommFailure(comm_failure);
 
       event_report.setSupi(supi);
       ev_notif.add_report(event_report);

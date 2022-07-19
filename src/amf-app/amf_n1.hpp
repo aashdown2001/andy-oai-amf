@@ -813,6 +813,17 @@ class amf_n1 {
   void handle_ue_connectivity_state_change(
       std::string supi, uint8_t status, uint8_t http_version);
 
+  /*
+   * Handle the UE Communication Failure event to trigger the notification to the
+   * subscribed NFs
+   * @param [std::string] supi: SUPI
+   * @param [oai::amf::model::CommunicationFailure] comm_failure: Communication Failure reason
+   * @param [uint8_t] http_version: HTTP version (for the notification)
+   * @return void
+   */
+  void handle_ue_communication_failure_change(
+      std::string supi, oai::amf::model::CommunicationFailure, uint8_t http_version);
+
  private:
   /*
    * Handle UE-initiated Deregistration Request message
@@ -981,6 +992,7 @@ class amf_n1 {
   bs2::connection ee_ue_reachability_status_connection;
   bs2::connection ee_ue_registration_state_connection;
   bs2::connection ee_ue_connectivity_state_connection;
+  bs2::connection ee_ue_communication_failure_connection;
 };
 }  // namespace amf_application
 
