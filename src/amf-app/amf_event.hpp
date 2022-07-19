@@ -90,6 +90,16 @@ class amf_event {
   bs2::connection subscribe_ue_connectivity_state(
       const ue_connectivity_state_sig_t::slot_type& sig);
 
+/*
+   * Subscribe to UE Communication Failure Notification signal
+   * @param [const ue_communication_failure_sig_t::slot_type&] sig: slot_type
+   * parameter
+   * @return boost::signals2::connection: the connection between the signal and
+   * the slot
+   */
+  bs2::connection subscribe_ue_communication_failure(
+      const ue_communication_failure_sig_t::slot_type& sig);
+
  private:
   ue_location_report_sig_t ue_location_report;  // Signal for UE Location Report
   ue_reachability_status_sig_t
@@ -98,5 +108,7 @@ class amf_event {
       ue_registration_state;  // Signal for UE Registration State Report
   ue_connectivity_state_sig_t
       ue_connectivity_state;  // Signal for UE Connectivity State Report
+  ue_communication_failure_sig_t
+      ue_communication_failure;  // Signal for UE Communication Failure Report
 };
 }  // namespace amf_application

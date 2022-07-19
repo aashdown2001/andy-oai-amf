@@ -33,6 +33,7 @@
 #include <boost/signals2.hpp>
 #include <string>
 #include "UserLocation.h"
+#include "CommunicationFailure.h"
 
 namespace bs2 = boost::signals2;
 
@@ -69,7 +70,13 @@ typedef bs2::signal_type<
     bs2::keywords::mutex_type<bs2::dummy_mutex>>::type
     ue_connectivity_state_sig_t;
 
-// TODO: Communication-Failure-Report
+// Signal for Communication Failure Report
+// SUPI, Communication Failure codes, HTTP version
+typedef bs2::signal_type<
+    void(std::string, oai::amf::model::CommunicationFailure, uint8_t),
+    bs2::keywords::mutex_type<bs2::dummy_mutex>>::type
+    ue_communication_failure_sig_t;
+
 // TODO: UEs-In-Area-Report
 // TODO: Loss-of-Connectivity
 
