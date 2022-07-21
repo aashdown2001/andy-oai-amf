@@ -556,6 +556,12 @@ void amf_n1::nas_signalling_establishment_request_handle(
           "Signal the UE Reachability Status Event notification for SUPI %s",
           supi.c_str());
       event_sub.ue_reachability_status(supi, CM_CONNECTED, 1);
+
+      // Trigger UE Connectivity Status Notify
+      Logger::amf_n1().debug(
+          "Signal the UE Connectivity Status Event notification for SUPI %s",
+          supi.c_str());
+      event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
     }
   } else {
     Logger::amf_n1().debug(
@@ -1063,6 +1069,12 @@ void amf_n1::registration_request_handle(
               "%s",
               supi.c_str());
           event_sub.ue_reachability_status(supi, CM_CONNECTED, 1);
+
+          // Trigger UE Connectivity Status Notify
+          Logger::amf_n1().debug(
+              "Signal the UE Connectivity Status Event notification for SUPI %s",
+              supi.c_str());
+          event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
         }
 
         set_supi_2_amf_id("imsi-" + nc.get()->imsi, amf_ue_ngap_id);
@@ -1162,6 +1174,22 @@ void amf_n1::registration_request_handle(
         // Stop Mobile Reachable Timer/Implicit Deregistration Timer
         itti_inst->timer_remove(nc.get()->mobile_reachable_timer);
         itti_inst->timer_remove(nc.get()->implicit_deregistration_timer);
+
+        // Trigger UE Reachability Status Notify
+        if (!nc.get()->imsi.empty()) {
+          string supi = "imsi-" + nc.get()->imsi;
+          Logger::amf_n1().debug(
+              "Signal the UE Reachability Status Event notification for SUPI "
+              "%s",
+              supi.c_str());
+          event_sub.ue_reachability_status(supi, CM_CONNECTED, 1);
+
+          // Trigger UE Connectivity Status Notify
+          Logger::amf_n1().debug(
+              "Signal the UE Connectivity Status Event notification for SUPI %s",
+              supi.c_str());
+          event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
+        }
       }
     } break;
 
@@ -2596,6 +2624,7 @@ void amf_n1::security_mode_complete_handle(
   set_5gmm_state(nc, _5GMM_REGISTERED);
   stacs.display();
 
+  // Trigger UE Registration Status Notify
   string supi = "imsi-" + nc.get()->imsi;
   Logger::amf_n1().debug(
       "Signal the UE Registration State Event notification for SUPI %s",
@@ -3641,7 +3670,7 @@ void amf_n1::handle_ue_registration_state_change(
       rm_info.setRmState(rm_state);
 
       oai::amf::model::AccessType access_type = {};
-      access_type.setValue(AccessType::eAccessType::_3GPP_ACCESS);
+      access_type.setValue(AccessType::eAccessType::_3GPP_ACCESS); // hard-coded
       rm_info.setAccessType(access_type);
 
       rm_infos.push_back(rm_info);
@@ -3704,11 +3733,14 @@ void amf_n1::handle_ue_connectivity_state_change(
       std::vector<oai::amf::model::CmInfo> cm_infos;
       oai::amf::model::CmInfo cm_info   = {};
       oai::amf::model::CmState cm_state = {};
-      cm_state.set_value("CONNECTED");
+      if (status == CM_IDLE)
+        cm_state.set_value("IDLE");
+      else if (status == CM_CONNECTED)
+        cm_state.set_value("CONNECTED");
       cm_info.setCmState(cm_state);
 
       oai::amf::model::AccessType access_type = {};
-      access_type.setValue(AccessType::eAccessType::_3GPP_ACCESS);
+      access_type.setValue(AccessType::eAccessType::_3GPP_ACCESS); // hard-coded
       cm_info.setAccessType(access_type);
       cm_infos.push_back(cm_info);
       event_report.setCmInfoList(cm_infos);
