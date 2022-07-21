@@ -614,8 +614,20 @@ void amf_n11::handle_itti_message(itti_sbi_notify_subscribed_event& itti_msg) {
       if (r.supiIsSet()) {
         report["supi"] = r.getSupi();
       }
+      if (r.locationIsSet()) {
+        report["location"] = r.getLocation(); // get eutraLocation, nrLocation, n3gaLocation?
+      }
+      if (r.rmInfoListIsSet()) {
+        report["rmInfoList"] = r.getRmInfoList();
+      }
+      if (r.cmInfoListIsSet()) {
+        report["cmInfoList"] = r.getCmInfoList();
+      }
       if (r.reachabilityIsSet()) {
         report["reachability"] = r.getReachability().get_value();
+      }
+      if (r.lossOfConnectReasonIsSet()) {
+        report["lossOfConnectReason"] = r.getLossOfConnectReason().get_value();
       }
 
       // timestamp

@@ -775,13 +775,6 @@ void amf_n1::identity_response_handle(
       set_5gmm_state(nc, _5GMM_COMMON_PROCEDURE_INITIATED);
       // stacs.display();
 
-      string supi = "imsi-" + nc.get()->imsi;
-      Logger::amf_n1().debug(
-          "Signal the UE Registration State Event notification for SUPI %s",
-          supi.c_str());
-      event_sub.ue_registration_state(
-          supi, _5GMM_COMMON_PROCEDURE_INITIATED, 1);
-
       nc.get()->is_stacs_available = true;
     }
     // TODO: Trigger UE Location Report
@@ -1103,13 +1096,6 @@ void amf_n1::registration_request_handle(
           stacs.update_ue_info(ueItem);
           set_5gmm_state(nc, _5GMM_COMMON_PROCEDURE_INITIATED);
           // stacs.display();
-
-          string supi = "imsi-" + nc.get()->imsi;
-          Logger::amf_n1().debug(
-              "Signal the UE Registration State Event notification for SUPI %s",
-              supi.c_str());
-          event_sub.ue_registration_state(
-              supi, _5GMM_COMMON_PROCEDURE_INITIATED, 1);
 
           nc.get()->is_stacs_available = true;
         }
@@ -3647,7 +3633,11 @@ void amf_n1::handle_ue_registration_state_change(
       std::vector<oai::amf::model::RmInfo> rm_infos;
       oai::amf::model::RmInfo rm_info   = {};
       oai::amf::model::RmState rm_state = {};
-      rm_state.set_value("REGISTERED");
+
+      if (status == _5GMM_DEREGISTERED)
+        rm_state.set_value("DEREGISTERED");
+      else if (status == _5GMM_REGISTERED)
+        rm_state.set_value("REGISTERED");
       rm_info.setRmState(rm_state);
 
       oai::amf::model::AccessType access_type = {};
