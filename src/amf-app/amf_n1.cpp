@@ -556,12 +556,6 @@ void amf_n1::nas_signalling_establishment_request_handle(
           "Signal the UE Reachability Status Event notification for SUPI %s",
           supi.c_str());
       event_sub.ue_reachability_status(supi, CM_CONNECTED, 1);
-
-      // Trigger UE Connectivity Status Notify
-      Logger::amf_n1().debug(
-          "Signal the UE Connectivity Status Event notification for SUPI %s",
-          supi.c_str());
-      event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
     }
   } else {
     Logger::amf_n1().debug(
@@ -900,6 +894,12 @@ void amf_n1::service_request_handle(
             pdu_session_status =
                 (uint16_t) service_request_nas->getPduSessionStatus();
           }
+          
+          // Trigger UE Connectivity Status Notify
+          Logger::amf_n1().debug(
+              "Signal the UE Connectivity Status Event notification for SUPI %s",
+              supi.c_str());
+          event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
         } break;
 
         default:
@@ -3163,6 +3163,13 @@ void amf_n1::ue_initiate_de_registration_handle(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
   }
+
+  // Trigger UE Connectivity Status Notify
+  Logger::amf_n1().debug(
+      "Signal the UE Connectivity Status Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_connectivity_state(supi, CM_IDLE, 1);
+
 }
 
 //------------------------------------------------------------------------------
@@ -4082,6 +4089,13 @@ void amf_n1::implicit_deregistration_timer_timeout(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg_cxt_release->get_msg_name());
   }
+
+  // Trigger UE Connectivity Status Notify
+  string supi    = "imsi-" + nc.get()->imsi;
+  Logger::amf_n1().debug(
+      "Signal the UE Connectivity Status Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_connectivity_state(supi, CM_IDLE, 1);
 }
 
 //------------------------------------------------------------------------------
