@@ -1069,12 +1069,6 @@ void amf_n1::registration_request_handle(
               "%s",
               supi.c_str());
           event_sub.ue_reachability_status(supi, CM_CONNECTED, 1);
-
-          // Trigger UE Connectivity Status Notify
-          Logger::amf_n1().debug(
-              "Signal the UE Connectivity Status Event notification for SUPI %s",
-              supi.c_str());
-          event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
         }
 
         set_supi_2_amf_id("imsi-" + nc.get()->imsi, amf_ue_ngap_id);
@@ -1183,12 +1177,6 @@ void amf_n1::registration_request_handle(
               "%s",
               supi.c_str());
           event_sub.ue_reachability_status(supi, CM_CONNECTED, 1);
-
-          // Trigger UE Connectivity Status Notify
-          Logger::amf_n1().debug(
-              "Signal the UE Connectivity Status Event notification for SUPI %s",
-              supi.c_str());
-          event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
         }
       }
     } break;
@@ -2630,6 +2618,12 @@ void amf_n1::security_mode_complete_handle(
       "Signal the UE Registration State Event notification for SUPI %s",
       supi.c_str());
   event_sub.ue_registration_state(supi, _5GMM_REGISTERED, 1);
+
+  // Trigger UE Connectivity Status Notify
+  Logger::amf_n1().debug(
+      "Signal the UE Connectivity Status Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
 
   set_guti_2_nas_context(guti, nc);
   nc.get()->is_common_procedure_for_security_mode_control_running = false;
