@@ -824,6 +824,14 @@ class amf_n1 {
   void handle_ue_loss_of_connectivity_change(
       std::string supi, uint8_t status, uint8_t http_version);
 
+  // for Event Handling
+  amf_event event_sub;
+  bs2::connection ee_ue_location_report_connection;
+  bs2::connection ee_ue_reachability_status_connection;
+  bs2::connection ee_ue_registration_state_connection;
+  bs2::connection ee_ue_connectivity_state_connection;
+  bs2::connection ee_ue_loss_of_connectivity_connection;
+
  private:
   /*
    * Handle UE-initiated Deregistration Request message
@@ -985,14 +993,6 @@ class amf_n1 {
   static uint8_t no_random_delta;
   random_state_t random_state;
   database_t* db_desc;
-
-  // for Event Handling
-  amf_event event_sub;
-  bs2::connection ee_ue_location_report_connection;
-  bs2::connection ee_ue_reachability_status_connection;
-  bs2::connection ee_ue_registration_state_connection;
-  bs2::connection ee_ue_connectivity_state_connection;
-  bs2::connection ee_ue_loss_of_connectivity_connection;
 };
 }  // namespace amf_application
 

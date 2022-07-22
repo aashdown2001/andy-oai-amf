@@ -2198,6 +2198,12 @@ void amf_n2::remove_ue_context_with_ran_ue_ngap_id(
     if (nc.get()->is_stacs_available) {
       stacs.update_5gmm_state(nc.get()->imsi, "5GMM-DEREGISTERED");
     }
+    // Trigger UE Loss of Connectivity Status Notify
+    Logger::amf_n1().debug(
+        "Signal the UE Loss of Connectivity Event notification for SUPI %s",
+        supi.c_str());
+    amf_n1_inst->event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1);
+  
 
     amf_n1_inst->remove_imsi_2_nas_context(supi);
     // TODO:  remove_guti_2_nas_context(guti);
@@ -2274,6 +2280,11 @@ void amf_n2::remove_ue_context_with_amf_ue_ngap_id(
     if (nc.get()->is_stacs_available) {
       stacs.update_5gmm_state(nc.get()->imsi, "5GMM-DEREGISTERED");
     }
+    // Trigger UE Loss of Connectivity Status Notify
+    Logger::amf_n1().debug(
+        "Signal the UE Loss of Connectivity Event notification for SUPI %s",
+        supi.c_str());
+    amf_n1_inst->event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1);
 
     amf_n1_inst->remove_imsi_2_nas_context(supi);
     // TODO:  remove_guti_2_nas_context(guti);
