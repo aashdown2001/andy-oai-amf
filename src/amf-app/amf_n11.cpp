@@ -617,6 +617,9 @@ void amf_n11::handle_itti_message(itti_sbi_notify_subscribed_event& itti_msg) {
       if (r.reachabilityIsSet()) {
         report["reachability"] = r.getReachability().get_value();
       }
+      if (r.commFailureIsSet()) {
+        report["commFailure"] = r.getCommFailure();
+      }
 
       // timestamp
       std::time_t time_epoch_ntp = std::time(nullptr);

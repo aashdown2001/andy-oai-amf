@@ -1640,6 +1640,21 @@ void amf_n1::send_registration_reject_msg(
 
   bstring b = blk2bstr(buffer, encoded_size);
   itti_send_dl_nas_buffer_to_task_n2(b, ran_ue_ngap_id, amf_ue_ngap_id);
+
+  // Trigger CommunicationFailure Report notify
+  oai::amf::model::CommunicationFailure comm_failure = {};
+  std::shared_ptr<ue_context> uc = {};
+  if (!find_ue_context(ran_ue_ngap_id, amf_ue_ngap_id, uc)) {
+    Logger::amf_n1().warn("Cannot find the UE context, unable to notify CommunicationFailure Report");
+    return;
+  }
+  string supi = uc.get()->supi;
+  Logger::amf_n1().debug(
+      "Signal the UE CommunicationFailure Report Event notification for SUPI %s",
+      supi.c_str());
+  comm_failure.setNasReleaseCode(std::to_string(cause_value));
+  event_sub.ue_communication_failure(supi, comm_failure, 1);
+
 }
 
 //------------------------------------------------------------------------------
