@@ -3516,6 +3516,10 @@ void amf_n1::handle_ue_location_change(
     itti_msg->http_version = 1;
 
     for (auto i : subscriptions) {
+      // Avoid repeated notifications
+      // TODO: use the anyUE field from the subscription request
+      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+      
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
       ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
@@ -3571,6 +3575,10 @@ void amf_n1::handle_ue_reachability_status_change(
     itti_msg->http_version = 1;
 
     for (auto i : subscriptions) {
+      // Avoid repeated notifications
+      // TODO: use the anyUE field from the subscription request
+      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
       ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
@@ -3631,6 +3639,10 @@ void amf_n1::handle_ue_registration_state_change(
     itti_msg->http_version = 1;
 
     for (auto i : subscriptions) {
+      // Avoid repeated notifications
+      // TODO: use the anyUE field from the subscription request
+      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
       ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
@@ -3698,6 +3710,10 @@ void amf_n1::handle_ue_connectivity_state_change(
     itti_msg->http_version = 1;
 
     for (auto i : subscriptions) {
+      // Avoid repeated notifications
+      // TODO: use the anyUE field from the subscription request
+      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
       ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
@@ -3764,6 +3780,10 @@ void amf_n1::handle_ue_communication_failure_change(
     itti_msg->http_version = 1;
 
     for (auto i : subscriptions) {
+      // Avoid repeated notifications
+      // TODO: use the anyUE field from the subscription request
+      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
       ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
