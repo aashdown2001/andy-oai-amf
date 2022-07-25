@@ -2202,7 +2202,7 @@ void amf_n2::remove_ue_context_with_ran_ue_ngap_id(
     Logger::amf_n1().debug(
         "Signal the UE Loss of Connectivity Event notification for SUPI %s",
         supi.c_str());
-    amf_n1_inst->event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1);
+    amf_n1_inst->event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1, ran_ue_ngap_id, unc.get()->amf_ue_ngap_id);
   
 
     amf_n1_inst->remove_imsi_2_nas_context(supi);
@@ -2284,7 +2284,7 @@ void amf_n2::remove_ue_context_with_amf_ue_ngap_id(
     Logger::amf_n1().debug(
         "Signal the UE Loss of Connectivity Event notification for SUPI %s",
         supi.c_str());
-    amf_n1_inst->event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1);
+    amf_n1_inst->event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1, nc.get()->ran_ue_ngap_id, amf_ue_ngap_id);
 
     amf_n1_inst->remove_imsi_2_nas_context(supi);
     // TODO:  remove_guti_2_nas_context(guti);

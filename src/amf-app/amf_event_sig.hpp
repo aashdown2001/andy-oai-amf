@@ -70,9 +70,10 @@ typedef bs2::signal_type<
     ue_connectivity_state_sig_t;
 
 // Signal for Loss of Connectivity
-// SUPI, status, HTTP version
+// SUPI, status, HTTP version,
+// RAN UE NGAP ID, AMF UE NGAP ID
 typedef bs2::signal_type<
-    void(std::string, uint8_t, uint8_t),
+    void(std::string, uint8_t, uint8_t, uint32_t, long),
     bs2::keywords::mutex_type<bs2::dummy_mutex>>::type
     ue_loss_of_connectivity_sig_t;
 

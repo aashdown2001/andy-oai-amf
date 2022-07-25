@@ -174,7 +174,7 @@ amf_n1::amf_n1() {
   // EventExposure: subscribe to UE Loss of Connectivity change
   ee_ue_loss_of_connectivity_connection =
       event_sub.subscribe_ue_loss_of_connectivity(boost::bind(
-          &amf_n1::handle_ue_loss_of_connectivity_change, this, _1, _2, _3));
+          &amf_n1::handle_ue_loss_of_connectivity_change, this, _1, _2, _3, _4, _5));
 }
 
 //------------------------------------------------------------------------------
@@ -3092,13 +3092,13 @@ void amf_n1::ue_initiate_de_registration_handle(
   Logger::amf_n1().debug(
       "Signal the UE Loss of Connectivity Event notification for SUPI %s",
       supi.c_str());
-  event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1);
+  event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
 
   // Trigger UE Loss of Connectivity Status Notify
   Logger::amf_n1().debug(
       "Signal the UE Loss of Connectivity Event notification for SUPI %s",
       supi.c_str());
-  event_sub.ue_loss_of_connectivity(supi, PURGED, 1);
+  event_sub.ue_loss_of_connectivity(supi, PURGED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
 
   if (nc.get()->is_stacs_available) {
     stacs.update_5gmm_state(nc.get()->imsi, "5GMM-DEREGISTERED");
@@ -3763,7 +3763,8 @@ void amf_n1::handle_ue_connectivity_state_change(
 
 //------------------------------------------------------------------------------
 void amf_n1::handle_ue_loss_of_connectivity_change(
-    std::string supi, uint8_t status, uint8_t http_version) {
+    std::string supi, uint8_t status, uint8_t http_version,
+    uint32_t ran_ue_ngap_id, long amf_ue_ngap_id) {
   Logger::amf_n1().debug(
       "Send request to SBI to trigger UE Loss of Connectivity (SUPI "
       "%s )",
@@ -3808,6 +3809,8 @@ void amf_n1::handle_ue_loss_of_connectivity_change(
         ue_loss_of_connectivity_reason.set_value("PURGED");
 
       event_report.setLossOfConnectReason(ue_loss_of_connectivity_reason);
+      event_report.setRanUeNgapId(ran_ue_ngap_id);
+      event_report.setAmfUeNgapId(amf_ue_ngap_id);
       event_report.setSupi(supi);
       ev_notif.add_report(event_report);
 
@@ -4007,7 +4010,7 @@ void amf_n1::mobile_reachable_timer_timeout(
   Logger::amf_n1().debug(
       "Signal the UE Loss of Connectivity Event notification for SUPI %s",
       supi.c_str());
-  event_sub.ue_loss_of_connectivity(supi, MAX_DETECTION_TIME_EXPIRED, 1);
+  event_sub.ue_loss_of_connectivity(supi, MAX_DETECTION_TIME_EXPIRED, 1, nc.get()->ran_ue_ngap_id, amf_ue_ngap_id);
 
   // TODO: Start the implicit de-registration timer
   timer_id_t tid = itti_inst->timer_setup(

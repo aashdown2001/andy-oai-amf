@@ -629,6 +629,12 @@ void amf_n11::handle_itti_message(itti_sbi_notify_subscribed_event& itti_msg) {
       if (r.lossOfConnectReasonIsSet()) {
         report["lossOfConnectReason"] = r.getLossOfConnectReason().get_value();
       }
+      if (r.ranUeNgapIdIsSet()) {
+        report["ranUeNgapId"] = r.getRanUeNgapId();
+      }
+      if (r.amfUeNgapIdIsSet()) {
+        report["amfUeNgapId"] = r.getAmfUeNgapId();
+      }
 
       // timestamp
       std::time_t time_epoch_ntp = std::time(nullptr);
