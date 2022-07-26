@@ -73,7 +73,7 @@ amf_config::amf_config() {
   nssf_addr.api_version                   = "v1";
   instance                                = 0;
   n2                                      = {};
-  n11                                     = {};
+  sbi                                     = {};
   sbi_api_version                         = "v1";
   sbi_http2_port                          = 8080;
   statistics_interval                     = 0;
@@ -343,19 +343,19 @@ int amf_config::load(const std::string& config_file) {
         new_if_cfg[AMF_CONFIG_STRING_INTERFACE_NGAP_AMF];
     load_interface(n2_amf_cfg, n2);
 
-    // N11
-    const Setting& n11_cfg = new_if_cfg[AMF_CONFIG_STRING_INTERFACE_N11];
-    load_interface(n11_cfg, n11);
+    // SBI
+    const Setting& sbi_cfg = new_if_cfg[AMF_CONFIG_STRING_INTERFACE_SBI];
+    load_interface(sbi_cfg, sbi);
 
     // SBI API VERSION
-    if (!(n11_cfg.lookupValue(
+    if (!(sbi_cfg.lookupValue(
             AMF_CONFIG_STRING_API_VERSION, sbi_api_version))) {
       Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
       throw(AMF_CONFIG_STRING_API_VERSION "failed");
     }
 
     // HTTP2 port
-    if (!(n11_cfg.lookupValue(
+    if (!(sbi_cfg.lookupValue(
             AMF_CONFIG_STRING_SBI_HTTP2_PORT, sbi_http2_port))) {
       Logger::amf_app().error(AMF_CONFIG_STRING_SBI_HTTP2_PORT "failed");
       throw(AMF_CONFIG_STRING_SBI_HTTP2_PORT "failed");
@@ -363,7 +363,7 @@ int amf_config::load(const std::string& config_file) {
 
     // SMF
     const Setting& smf_addr_pool =
-        n11_cfg[AMF_CONFIG_STRING_SMF_INSTANCES_POOL];
+        sbi_cfg[AMF_CONFIG_STRING_SMF_INSTANCES_POOL];
     int count = smf_addr_pool.getLength();
     for (int i = 0; i < count; i++) {
       const Setting& smf_addr_item = smf_addr_pool[i];
@@ -755,10 +755,10 @@ void amf_config::display() {
   Logger::config().info("    Port ..................: %d", n2.port);
 
   Logger::config().info("- SBI Networking:");
-  Logger::config().info("    Iface .................: %s", n11.if_name.c_str());
+  Logger::config().info("    Iface .................: %s", sbi.if_name.c_str());
   Logger::config().info(
-      "    IP Addr ...............: %s", inet_ntoa(n11.addr4));
-  Logger::config().info("    Port ..................: %d", n11.port);
+      "    IP Addr ...............: %s", inet_ntoa(sbi.addr4));
+  Logger::config().info("    Port ..................: %d", sbi.port);
   Logger::config().info("    HTTP2 port ............: %d", sbi_http2_port);
   Logger::config().info(
       "    API version............: %s", sbi_api_version.c_str());
@@ -916,9 +916,9 @@ std::string amf_config::get_amf_n1n2_message_subscribe_uri(
   if (support_features.use_http2) {
     sbi_port = sbi_http2_port;
   } else {
-    sbi_port = n11.port;
+    sbi_port = sbi.port;
   }
-  return std::string(inet_ntoa(*((struct in_addr*) &n11.addr4))) + ":" +
+  return std::string(inet_ntoa(*((struct in_addr*) &sbi.addr4))) + ":" +
          std::to_string(sbi_port) + NAMF_COMMUNICATION_BASE + sbi_api_version +
          "/ue-contexts/" + ue_cxt_id + "/n1-n2-messages/subscriptions";
 }
@@ -982,8 +982,8 @@ void amf_config::to_json(nlohmann::json& json_data) const {
   json_data["auth_para"] = auth_para.to_json();
 
   json_data["n2"]                    = n2.to_json();
-  json_data["n11"]                   = n11.to_json();
-  json_data["n11"]["sbi_http2_port"] = sbi_http2_port;
+  json_data["sbi"]                   = sbi.to_json();
+  json_data["sbi"]["sbi_http2_port"] = sbi_http2_port;
 
   json_data["support_features"] = support_features.to_json();
 
@@ -1060,8 +1060,8 @@ bool amf_config::from_json(nlohmann::json& json_data) {
     if (json_data.find("n2") != json_data.end()) {
       n2.from_json(json_data["n2"]);
     }
-    if (json_data.find("n11") != json_data.end()) {
-      n11.from_json(json_data["n11"]);
+    if (json_data.find("sbi") != json_data.end()) {
+      sbi.from_json(json_data["sbi"]);
     }
 
     if (json_data.find("sbi_http2_port") != json_data.end()) {

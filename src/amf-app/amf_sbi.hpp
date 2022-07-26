@@ -35,7 +35,6 @@
 
 #include "AuthenticationInfo.h"
 #include "UEAuthenticationCtx.h"
-#include "itti_msg_n11.hpp"
 #include "itti_msg_sbi.hpp"
 #include "pdu_session_context.hpp"
 

@@ -58,7 +58,7 @@
 #include "amf_n2.hpp"
 #include "comUt.hpp"
 #include "itti.hpp"
-#include "itti_msg_n11.hpp"
+#include "itti_msg_sbi.hpp"
 #include "itti_msg_n2.hpp"
 #include "logger.hpp"
 #include "nas_algorithms.hpp"
@@ -1772,7 +1772,7 @@ bool amf_n1::get_authentication_vectors_from_ausf(
   uint8_t http_version = 1;
   if (amf_cfg.support_features.use_http2) http_version = 2;
 
-  //TODO: use ITTI to send message between N1 and SBI
+  // TODO: use ITTI to send message between N1 and SBI
   if (amf_sbi_inst->send_ue_authentication_request(
           authenticationinfo, ueauthenticationctx, http_version)) {
     unsigned char* r5gauthdata_rand = conv::format_string_as_hex(
@@ -4657,7 +4657,7 @@ void amf_n1::send_n1_message_notity(
     const std::shared_ptr<nas_context>& nc,
     const std::string& target_amf) const {
   Logger::amf_n1().debug(
-      "Send a request to N11 to send N1 Message Notify to the target AMF");
+      "Send a request to SBI to send N1 Message Notify to the target AMF");
 
   std::shared_ptr<itti_sbi_n1_message_notify> itti_msg =
       std::make_shared<itti_sbi_n1_message_notify>(TASK_AMF_N1, TASK_AMF_SBI);

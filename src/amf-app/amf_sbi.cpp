@@ -492,7 +492,7 @@ void amf_sbi::handle_pdu_session_initial_request(
   else
     smf_ip_addr = smf_addr;
   // provide http2 port if enabled
-  std::string amf_port = to_string(amf_cfg.n11.port);
+  std::string amf_port = to_string(amf_cfg.sbi.port);
   if (amf_cfg.support_features.use_http2)
     amf_port = to_string(amf_cfg.sbi_http2_port);
 
@@ -518,7 +518,7 @@ void amf_sbi::handle_pdu_session_initial_request(
   pdu_session_establishment_request["anType"] = "3GPP_ACCESS";  // TODO
   pdu_session_establishment_request["smContextStatusUri"] =
       "http://" +
-      std::string(inet_ntoa(*((struct in_addr*) &amf_cfg.n11.addr4))) + ":" +
+      std::string(inet_ntoa(*((struct in_addr*) &amf_cfg.sbi.addr4))) + ":" +
       amf_port + "/nsmf-pdusession/callback/" + supi + "/" +
       std::to_string(psc.get()->pdu_session_id);
 
@@ -1107,7 +1107,7 @@ void amf_sbi::curl_http_client(
     curl_easy_setopt(curl, CURLOPT_URL, remote_uri.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, CURL_TIMEOUT_MS);
-    curl_easy_setopt(curl, CURLOPT_INTERFACE, amf_cfg.n11.if_name.c_str());
+    curl_easy_setopt(curl, CURLOPT_INTERFACE, amf_cfg.sbi.if_name.c_str());
 
     if (http_version == 2) {
       curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
@@ -1376,7 +1376,7 @@ void amf_sbi::curl_http_client(
     curl_easy_setopt(curl, CURLOPT_URL, remote_uri.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, CURL_TIMEOUT_MS);
-    curl_easy_setopt(curl, CURLOPT_INTERFACE, amf_cfg.n11.if_name.c_str());
+    curl_easy_setopt(curl, CURLOPT_INTERFACE, amf_cfg.sbi.if_name.c_str());
 
     if (http_version == 2) {
       curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
@@ -1520,7 +1520,7 @@ void amf_sbi::curl_http_client(
 
     curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, CURL_TIMEOUT_MS);
     curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1);
-    curl_easy_setopt(curl, CURLOPT_INTERFACE, amf_cfg.n11.if_name.c_str());
+    curl_easy_setopt(curl, CURLOPT_INTERFACE, amf_cfg.sbi.if_name.c_str());
 
     if (http_version == 2) {
       curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);

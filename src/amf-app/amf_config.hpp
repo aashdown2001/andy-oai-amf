@@ -59,7 +59,7 @@
 #define AMF_CONFIG_STRING_PPID "PPID"
 #define AMF_CONFIG_STRING_SBI_HTTP2_PORT "HTTP2_PORT"
 
-#define AMF_CONFIG_STRING_INTERFACE_N11 "N11"
+#define AMF_CONFIG_STRING_INTERFACE_SBI "SBI"
 #define AMF_CONFIG_STRING_SMF_INSTANCES_POOL "SMF_INSTANCES_POOL"
 #define AMF_CONFIG_STRING_SMF_INSTANCE_ID "SMF_INSTANCE_ID"
 #define AMF_CONFIG_STRING_SMF_INSTANCE_PORT "PORT"
@@ -481,7 +481,7 @@ class amf_config {
   unsigned int instance;
   std::string pid_dir;
   interface_cfg_t n2;
-  interface_cfg_t n11;
+  interface_cfg_t sbi;
   itti_cfg_t itti;
   std::string sbi_api_version;
   unsigned int sbi_http2_port;

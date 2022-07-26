@@ -34,7 +34,7 @@
 #include "amf_n1.hpp"
 #include "amf_sbi.hpp"
 #include "itti.hpp"
-#include "itti_msg_n11.hpp"
+#include "itti_msg_sbi.hpp"
 #include "itti_msg_n2.hpp"
 #include "logger.hpp"
 #include "nas_context.hpp"
