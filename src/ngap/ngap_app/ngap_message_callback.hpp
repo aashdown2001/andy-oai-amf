@@ -205,7 +205,8 @@ int ngap_amf_handle_ue_radio_cap_indication(
   UeRadioCapabilityInfoIndicationMsg* ueRadioCap =
       new UeRadioCapabilityInfoIndicationMsg();
   if (!ueRadioCap->decodeFromPdu(message_p)) {
-    Logger::ngap().error("Decoding UEContextReleaseRequest message error");
+    Logger::ngap().error(
+        "Decoding UE Radio Capability Indication message error");
     return RETURNerror;
   }
   itti_ue_radio_capability_indication* itti_msg =

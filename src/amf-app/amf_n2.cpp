@@ -1359,7 +1359,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_complete& itti_msg) {
   uint32_t ran_ue_ngap_id      = itti_msg.ueCtxRelCmpl->getRanUeNgapId();
 
   // Change UE status from CM-CONNECTED to CM-IDLE
-  std::shared_ptr<nas_context> nc;
+  std::shared_ptr<nas_context> nc = {};
   if (amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
     nc = amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id);
   else {
