@@ -15,7 +15,7 @@
 #include "itti.hpp"
 
 #include "amf_app.hpp"
-#include "amf_n11.hpp"
+#include "amf_sbi.hpp"
 #include "pdu_session_context.hpp"
 #include "conversions.hpp"
 #include "comUt.hpp"

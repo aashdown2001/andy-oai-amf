@@ -48,7 +48,7 @@
 #include "amf_app.hpp"
 #include "amf_config.hpp"
 #include "amf_n1.hpp"
-#include "amf_n11.hpp"
+#include "amf_sbi.hpp"
 #include "amf_statistics.hpp"
 #include "comUt.hpp"
 #include "itti.hpp"
@@ -1605,10 +1605,10 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
 
       Logger::amf_n2().debug(
           "Sending ITTI to trigger PDUSessionUpdateSMContextRequest to SMF to "
-          "task TASK_AMF_N11");
+          "task TASK_AMF_SBI");
       std::shared_ptr<itti_nsmf_pdusession_update_sm_context> itti_msg =
           std::make_shared<itti_nsmf_pdusession_update_sm_context>(
-              TASK_NGAP, TASK_AMF_N11);
+              TASK_NGAP, TASK_AMF_SBI);
 
       itti_msg->pdu_session_id = pduSessionIDValue;
       itti_msg->n2sm =
@@ -1623,7 +1623,7 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
       int ret = itti_inst->send_msg(itti_msg);
       if (0 != ret) {
         Logger::ngap().error(
-            "Could not send ITTI message %s to task TASK_AMF_N11",
+            "Could not send ITTI message %s to task TASK_AMF_SBI",
             itti_msg->get_msg_name());
       }
     }
@@ -1766,10 +1766,10 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
 
     Logger::amf_n2().debug(
         "Sending ITTI to trigger PDUSessionUpdateSMContextRequest to SMF to "
-        "task TASK_AMF_N11");
+        "task TASK_AMF_SBI");
     std::shared_ptr<itti_nsmf_pdusession_update_sm_context> itti_msg =
         std::make_shared<itti_nsmf_pdusession_update_sm_context>(
-            TASK_NGAP, TASK_AMF_N11);
+            TASK_NGAP, TASK_AMF_SBI);
 
     itti_msg->pdu_session_id = pdu_session_resource.pduSessionId;
     itti_msg->n2sm           = blk2bstr(
@@ -1785,7 +1785,7 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::ngap().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
   }
@@ -1931,11 +1931,11 @@ void amf_n2::handle_itti_message(itti_handover_notify& itti_msg) {
 
       Logger::amf_n2().debug(
           "Sending ITTI to trigger PDUSessionUpdateSMContextRequest to SMF to "
-          "task TASK_AMF_N11");
+          "task TASK_AMF_SBI");
 
       std::shared_ptr<itti_nsmf_pdusession_update_sm_context> itti_n11_msg =
           std::make_shared<itti_nsmf_pdusession_update_sm_context>(
-              TASK_NGAP, TASK_AMF_N11);
+              TASK_NGAP, TASK_AMF_SBI);
 
       itti_n11_msg->pdu_session_id = pdu_session.get()->pdu_session_id;
 
@@ -1952,7 +1952,7 @@ void amf_n2::handle_itti_message(itti_handover_notify& itti_msg) {
       int ret = itti_inst->send_msg(itti_n11_msg);
       if (0 != ret) {
         Logger::ngap().error(
-            "Could not send ITTI message %s to task TASK_AMF_N11",
+            "Could not send ITTI message %s to task TASK_AMF_SBI",
             itti_n11_msg->get_msg_name());
       }
     }

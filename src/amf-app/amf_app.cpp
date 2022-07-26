@@ -37,7 +37,7 @@
 #include "DLNASTransport.hpp"
 #include "amf_config.hpp"
 #include "amf_n1.hpp"
-#include "amf_n11.hpp"
+#include "amf_sbi.hpp"
 #include "amf_n2.hpp"
 #include "amf_statistics.hpp"
 #include "itti.hpp"
@@ -56,7 +56,7 @@ extern amf_app* amf_app_inst;
 extern itti_mw* itti_inst;
 amf_n2* amf_n2_inst   = nullptr;
 amf_n1* amf_n1_inst   = nullptr;
-amf_n11* amf_n11_inst = nullptr;
+amf_sbi* amf_sbi_inst = nullptr;
 extern amf_config amf_cfg;
 extern statistics stacs;
 
@@ -82,7 +82,7 @@ amf_app::amf_app(const amf_config& amf_cfg)
     amf_n1_inst = new amf_n1();
     amf_n2_inst =
         new amf_n2(std::string(inet_ntoa(amf_cfg.n2.addr4)), amf_cfg.n2.port);
-    amf_n11_inst = new amf_n11();
+    amf_sbi_inst = new amf_sbi();
   } catch (std::exception& e) {
     Logger::amf_app().error("Cannot create AMF APP: %s", e.what());
     throw;
@@ -1076,18 +1076,18 @@ void amf_app::trigger_nf_registration_request() {
   Logger::amf_app().debug(
       "Send ITTI msg to N11 task to trigger the registration request to NRF");
 
-  std::shared_ptr<itti_n11_register_nf_instance_request> itti_msg =
-      std::make_shared<itti_n11_register_nf_instance_request>(
-          TASK_AMF_APP, TASK_AMF_N11);
+  std::shared_ptr<itti_sbi_register_nf_instance_request> itti_msg =
+      std::make_shared<itti_sbi_register_nf_instance_request>(
+          TASK_AMF_APP, TASK_AMF_SBI);
   itti_msg->profile = nf_instance_profile;
 
-  amf_n11_inst->register_nf_instance(itti_msg);
+  amf_sbi_inst->register_nf_instance(itti_msg);
   /*
 
   int ret           = itti_inst->send_msg(itti_msg);
   if (RETURNok != ret) {
     Logger::amf_app().error(
-        "Could not send ITTI message %s to task TASK_AMF_N11",
+        "Could not send ITTI message %s to task TASK_AMF_SBI",
         itti_msg->get_msg_name());
   }
   */
@@ -1098,14 +1098,14 @@ void amf_app::trigger_nf_deregistration() const {
   Logger::amf_app().debug(
       "Send ITTI msg to N11 task to trigger the deregistration request to NRF");
 
-  std::shared_ptr<itti_n11_deregister_nf_instance> itti_msg =
-      std::make_shared<itti_n11_deregister_nf_instance>(
-          TASK_AMF_APP, TASK_AMF_N11);
+  std::shared_ptr<itti_sbi_deregister_nf_instance> itti_msg =
+      std::make_shared<itti_sbi_deregister_nf_instance>(
+          TASK_AMF_APP, TASK_AMF_SBI);
   itti_msg->amf_instance_id = amf_instance_id;
   int ret                   = itti_inst->send_msg(itti_msg);
   if (RETURNok != ret) {
     Logger::amf_app().error(
-        "Could not send ITTI message %s to task TASK_AMF_N11",
+        "Could not send ITTI message %s to task TASK_AMF_SBI",
         itti_msg->get_msg_name());
   }
 }
