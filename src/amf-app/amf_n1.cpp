@@ -2982,7 +2982,8 @@ void amf_n1::ue_initiate_de_registration_handle(
 
   if (uc.get() != nullptr) {
     if (uc->get_pdu_sessions_context(sessions_ctx)) {
-      // Send Nsmf_PDUSession_ReleaseSMContext to SMF to release the PDU session
+      // Send Nsmf_PDUSession_ReleaseSMContext to SMF to release all existing
+      // PDU sessions
 
       std::map<uint32_t, boost::shared_future<uint32_t>> smf_responses;
       for (auto session : sessions_ctx) {
@@ -3043,7 +3044,7 @@ void amf_n1::ue_initiate_de_registration_handle(
   Logger::amf_n1().debug("De-registration Type 0x%x", deregType);
 
   // If UE switch-off, don't need to send Deregistration Accept
-  if ((deregType & 0b00001000) == 0) {
+  if ((deregType & DEREGISTRATION_TYPE_MASK) == 0) {
     // Prepare DeregistrationAccept
     auto dereg_accept = std::make_unique<DeregistrationAccept>();
     dereg_accept->setHeader(PLAIN_5GS_MSG);

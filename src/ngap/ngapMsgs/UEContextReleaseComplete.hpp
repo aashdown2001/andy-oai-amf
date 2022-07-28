@@ -57,7 +57,6 @@ class UEContextReleaseCompleteMsg : public NgapUEMessage {
   UserLocationInformation* userLocationInformation;  // Optional
   // TODO: Information on Recommended Cells and RAN Nodes for Paging (Optional)
   PDUSessionResourceListCxtRelCpl* pduSessionResourceListCxtRelCpl;  // Optional
-
   // TODO: Criticality Diagnostics (Optional)
 };
 

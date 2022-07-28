@@ -44,7 +44,6 @@
 // using namespace oai::amf::model;
 using namespace amf_application;
 
-
 class itti_msg_n11 : public itti_msg {
  public:
   itti_msg_n11(
@@ -99,17 +98,28 @@ class itti_nsmf_pdusession_update_sm_context : public itti_msg_n11 {
   itti_nsmf_pdusession_update_sm_context(
       const task_id_t origin, const task_id_t destination)
       : itti_msg_n11(NSMF_PDU_SESSION_UPDATE_SM_CTX, origin, destination) {
-    is_n2sm_set = false;
-    promise_id  = 0;
+    supi           = {};
+    pdu_session_id = 0;
+    // n2sm = {};
+    is_n2sm_set    = false;
+    n2sm_info_type = {};
+    ran_ue_ngap_id = 0;
+    amf_ue_ngap_id = 0;
+    promise_id     = 0;
+    ho_state       = {};
+    up_cnx_state   = {};
   }
   itti_nsmf_pdusession_update_sm_context(
       const itti_nsmf_pdusession_update_sm_context& i)
       : itti_msg_n11(i) {
+    supi           = i.supi;
     pdu_session_id = i.pdu_session_id;
     n2sm           = i.n2sm;
     is_n2sm_set    = i.is_n2sm_set;
     n2sm_info_type = i.n2sm_info_type;
     promise_id     = i.promise_id;
+    ho_state       = i.ho_state;
+    up_cnx_state   = i.up_cnx_state;
   }
 
  public:
@@ -118,10 +128,11 @@ class itti_nsmf_pdusession_update_sm_context : public itti_msg_n11 {
   bstring n2sm;
   bool is_n2sm_set;
   std::string n2sm_info_type;
-  uint32_t ran_ue_ngap_id;
-  long amf_ue_ngap_id;
+  // uint32_t ran_ue_ngap_id;
+  // long amf_ue_ngap_id;
   uint32_t promise_id;
   std::string ho_state;
+  std::string up_cnx_state;
 };
 
 class itti_nsmf_pdusession_release_sm_context : public itti_msg_n11 {
@@ -145,8 +156,6 @@ class itti_nsmf_pdusession_release_sm_context : public itti_msg_n11 {
   std::string context_location;
 };
 
-
-
 class itti_sbi_msg : public itti_msg {
  public:
   itti_sbi_msg(
@@ -161,7 +170,6 @@ class itti_sbi_msg : public itti_msg {
     destination = dest;
   }
 };
-
 
 //-----------------------------------------------------------------------------
 class itti_sbi_register_nf_instance_request : public itti_sbi_msg {
@@ -282,11 +290,10 @@ class itti_sbi_nf_instance_discovery : public itti_sbi_msg {
   uint32_t promise_id;
 };
 
-
 //-----------------------------------------------------------------------------
 class itti_sbi_n1_message_notify : public itti_sbi_msg {
  public:
-	itti_sbi_n1_message_notify(const task_id_t orig, const task_id_t dest)
+  itti_sbi_n1_message_notify(const task_id_t orig, const task_id_t dest)
       : itti_sbi_msg(SBI_N1_MESSAGE_NOTIFY, orig, dest), http_version(1) {}
   const char* get_msg_name() { return "SBI_N1_MESSAGE_NOTIFY"; };
 
@@ -295,15 +302,6 @@ class itti_sbi_n1_message_notify : public itti_sbi_msg {
   std::string supi;
   bstring registration_request;
 };
-
-
-
-
-
-
-
-
-
 
 //-----------------------------------------------------------------------------
 class itti_sbi_event_exposure_request : public itti_sbi_msg {

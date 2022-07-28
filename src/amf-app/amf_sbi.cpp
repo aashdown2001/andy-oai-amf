@@ -287,6 +287,11 @@ void amf_sbi::handle_itti_message(
     pdu_session_update_request["hoState"] = "COMPLETED";
   }
 
+  // For Deactivation of User Plane connectivity
+  if (itti_msg.up_cnx_state.compare("DEACTIVATED") == 0) {
+    pdu_session_update_request["upCnxState"] = "DEACTIVATED";
+  }
+
   std::string json_part = pdu_session_update_request.dump();
 
   uint8_t http_version = 1;
@@ -1244,9 +1249,11 @@ void amf_sbi::curl_http_client(
         return;
       }
 
-      // For N2 HO
-      bool is_ho_procedure       = false;
       std::string promise_result = {};
+
+      bool is_ho_procedure              = false;
+      bool is_up_deactivation_procedure = false;
+      // For N2 HO
       if (response_data.find("hoState") != response_data.end()) {
         is_ho_procedure = true;
 
@@ -1259,8 +1266,20 @@ void amf_sbi::curl_http_client(
           promise_result = n1sm;  // actually, N2 SM Info
         }
       }
+
+      if (response_data.find("upCnxState") != response_data.end()) {
+        std::string up_cnx_state = {};
+        response_data.at("upCnxState").get_to(up_cnx_state);
+        if (up_cnx_state.compare("DEACTIVATED") == 0) {
+          is_up_deactivation_procedure = true;
+          if (response_data.find("pduSessionId") != response_data.end())
+            response_data.at("pduSessionId").get_to(promise_result);
+        }
+      }
+
       // Notify to the result
-      if ((promise_id > 0) and (is_ho_procedure)) {
+      if ((promise_id > 0) and
+          (is_ho_procedure or is_up_deactivation_procedure)) {
         amf_app_inst->trigger_process_response(promise_id, promise_result);
         curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
