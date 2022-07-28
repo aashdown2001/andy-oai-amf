@@ -826,6 +826,16 @@ class amf_n1 {
   void handle_ue_loss_of_connectivity_change(
       std::string supi, uint8_t status, uint8_t http_version,
       uint32_t ran_ue_ngap_id, long amf_ue_ngap_id);
+  /*
+   * Handle the UE Communication Failure event to trigger the notification to the
+   * subscribed NFs
+   * @param [std::string] supi: SUPI
+   * @param [oai::amf::model::CommunicationFailure] comm_failure: Communication Failure reason
+   * @param [uint8_t] http_version: HTTP version (for the notification)
+   * @return void
+   */
+  void handle_ue_communication_failure_change(
+      std::string supi, oai::amf::model::CommunicationFailure, uint8_t http_version);
 
   // for Event Handling
   amf_event event_sub;
@@ -834,6 +844,7 @@ class amf_n1 {
   bs2::connection ee_ue_registration_state_connection;
   bs2::connection ee_ue_connectivity_state_connection;
   bs2::connection ee_ue_loss_of_connectivity_connection;
+
 
  private:
   /*

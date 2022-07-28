@@ -56,3 +56,8 @@ bs2::connection amf_event::subscribe_ue_loss_of_connectivity(
     const ue_loss_of_connectivity_sig_t::slot_type& sig) {
   return ue_loss_of_connectivity.connect(sig);
 }
+//------------------------------------------------------------------------------
+bs2::connection amf_event::subscribe_ue_communication_failure(
+    const ue_communication_failure_sig_t::slot_type& sig) {
+  return ue_communication_failure.connect(sig);
+}

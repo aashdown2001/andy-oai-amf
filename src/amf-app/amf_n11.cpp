@@ -634,6 +634,8 @@ void amf_n11::handle_itti_message(itti_sbi_notify_subscribed_event& itti_msg) {
       }
       if (r.amfUeNgapIdIsSet()) {
         report["amfUeNgapId"] = r.getAmfUeNgapId();
+      if (r.commFailureIsSet()) {
+        report["commFailure"] = r.getCommFailure();
       }
 
       // timestamp
