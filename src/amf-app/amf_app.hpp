@@ -37,7 +37,7 @@
 #include "amf_module_from_config.hpp"
 #include "amf_profile.hpp"
 #include "itti.hpp"
-#include "itti_msg_n11.hpp"
+#include "itti_msg_sbi.hpp"
 #include "itti_msg_amf_app.hpp"
 #include "ue_context.hpp"
 #include "amf_subscription.hpp"
@@ -92,9 +92,9 @@ class amf_app {
   std::map<uint32_t, boost::shared_ptr<boost::promise<std::string>>>
       curl_handle_responses_n2_sm;
 
-  mutable std::shared_mutex m_curl_handle_responses_n11;
+  mutable std::shared_mutex m_curl_handle_responses_sbi;
   std::map<uint32_t, boost::shared_ptr<boost::promise<nlohmann::json>>>
-      curl_handle_responses_n11;
+      curl_handle_responses_sbi;
 
   util::uint_generator<uint32_t> n1n2sub_id_generator;
   std::map<
@@ -458,14 +458,14 @@ class amf_app {
   void generate_amf_profile();
 
   /*
-   * Send request to N11 task to trigger NF instance registration to NRF
+   * Send request to SBI task to trigger NF instance registration to NRF
    * @param [void]
    * @return void
    */
   void trigger_nf_registration_request();
 
   /*
-   * Send request to N11 task to trigger NF instance deregistration to NRF
+   * Send request to SBI task to trigger NF instance deregistration to NRF
    * @param [void]
    * @return void
    */

@@ -32,9 +32,9 @@
 #include "PduSessionResourceModifyResponse.hpp"
 #include "amf_app.hpp"
 #include "amf_n1.hpp"
-#include "amf_n11.hpp"
+#include "amf_sbi.hpp"
 #include "itti.hpp"
-#include "itti_msg_n11.hpp"
+#include "itti_msg_sbi.hpp"
 #include "itti_msg_n2.hpp"
 #include "logger.hpp"
 #include "nas_context.hpp"
@@ -166,9 +166,9 @@ int ngap_amf_handle_initial_context_setup_response(
       transferIe, list[0].pduSessionResourceSetupResponseTransfer.size);
 
   Logger::ngap().debug(
-      "Sending ITTI Initial Context Setup Response to TASK_AMF_N11");
+      "Sending ITTI Initial Context Setup Response to TASK_AMF_SBI");
   itti_nsmf_pdusession_update_sm_context* itti_msg =
-      new itti_nsmf_pdusession_update_sm_context(TASK_NGAP, TASK_AMF_N11);
+      new itti_nsmf_pdusession_update_sm_context(TASK_NGAP, TASK_AMF_SBI);
   itti_msg->pdu_session_id = list[0].pduSessionId;
   itti_msg->n2sm           = n2sm;
   itti_msg->is_n2sm_set    = true;
@@ -181,7 +181,7 @@ int ngap_amf_handle_initial_context_setup_response(
   int ret = itti_inst->send_msg(i);
   if (0 != ret) {
     Logger::ngap().error(
-        "Could not send ITTI message %s to task TASK_AMF_N11",
+        "Could not send ITTI message %s to task TASK_AMF_SBI",
         i->get_msg_name());
   }
   return 0;
@@ -205,7 +205,8 @@ int ngap_amf_handle_ue_radio_cap_indication(
   UeRadioCapabilityInfoIndicationMsg* ueRadioCap =
       new UeRadioCapabilityInfoIndicationMsg();
   if (!ueRadioCap->decodeFromPdu(message_p)) {
-    Logger::ngap().error("Decoding UEContextReleaseRequest message error");
+    Logger::ngap().error(
+        "Decoding UE Radio Capability Indication message error");
     return RETURNerror;
   }
   itti_ue_radio_capability_indication* itti_msg =
@@ -310,10 +311,10 @@ int ngap_amf_handle_pdu_session_resource_release_response(
   bstring n2sm = blk2bstr(
       transferIe, list[0].pduSessionResourceReleaseResponseTransfer.size);
   Logger::ngap().debug(
-      "Sending ITTI PDUSessionResourceReleaseResponse to TASK_AMF_N11");
+      "Sending ITTI PDUSessionResourceReleaseResponse to TASK_AMF_SBI");
 
   itti_nsmf_pdusession_update_sm_context* itti_msg =
-      new itti_nsmf_pdusession_update_sm_context(TASK_NGAP, TASK_AMF_N11);
+      new itti_nsmf_pdusession_update_sm_context(TASK_NGAP, TASK_AMF_SBI);
   itti_msg->pdu_session_id = list[0].pduSessionId;
   itti_msg->n2sm           = n2sm;
   itti_msg->is_n2sm_set    = true;
@@ -326,7 +327,7 @@ int ngap_amf_handle_pdu_session_resource_release_response(
   int ret = itti_inst->send_msg(i);
   if (0 != ret) {
     Logger::ngap().error(
-        "Could not send ITTI message %s to task TASK_AMF_N11",
+        "Could not send ITTI message %s to task TASK_AMF_SBI",
         i->get_msg_name());
   }
   return 0;
@@ -359,7 +360,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
     bstring n2sm = blk2bstr(
         transferIe, list[0].pduSessionResourceSetupResponseTransfer.size);
     itti_nsmf_pdusession_update_sm_context* itti_msg =
-        new itti_nsmf_pdusession_update_sm_context(TASK_NGAP, TASK_AMF_N11);
+        new itti_nsmf_pdusession_update_sm_context(TASK_NGAP, TASK_AMF_SBI);
     long amf_ue_ngap_id = pduresp->getAmfUeNgapId();
     if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id)) {
       Logger::ngap().error(
@@ -381,7 +382,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
     int ret = itti_inst->send_msg(i);
     if (0 != ret) {
       Logger::ngap().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           i->get_msg_name());
     }
     return 0;
@@ -495,11 +496,11 @@ int ngap_amf_handle_pdu_session_resource_modify_response(
         buf, response_item.pduSessionResourceModifyResponseTransfer.size);
     Logger::ngap().debug(
         "Sending ITTI PDUSessionResourceModifyResponseTransfer to "
-        "TASK_AMF_N11");
+        "TASK_AMF_SBI");
 
     std::shared_ptr<itti_nsmf_pdusession_update_sm_context> itti_msg =
         std::make_shared<itti_nsmf_pdusession_update_sm_context>(
-            TASK_NGAP, TASK_AMF_N11);
+            TASK_NGAP, TASK_AMF_SBI);
     itti_msg->pdu_session_id = response_item.pduSessionId;
     itti_msg->n2sm           = n2sm;
     itti_msg->is_n2sm_set    = true;
@@ -510,7 +511,7 @@ int ngap_amf_handle_pdu_session_resource_modify_response(
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::ngap().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
   }

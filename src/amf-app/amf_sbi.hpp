@@ -19,15 +19,15 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_n11.hpp
+/*! \file amf_sbi.hpp
  \brief
  \author Keliang DU (BUPT), Tien-Thinh NGUYEN (EURECOM)
  \date 2020
  \email: contact@openairinterface.org
  */
 
-#ifndef _AMF_N11_H_
-#define _AMF_N11_H_
+#ifndef _AMF_SBI_H_
+#define _AMF_SBI_H_
 
 #include <map>
 #include <shared_mutex>
@@ -35,7 +35,6 @@
 
 #include "AuthenticationInfo.h"
 #include "UEAuthenticationCtx.h"
-#include "itti_msg_n11.hpp"
 #include "itti_msg_sbi.hpp"
 #include "pdu_session_context.hpp"
 
@@ -45,10 +44,10 @@
 
 namespace amf_application {
 
-class amf_n11 {
+class amf_sbi {
  public:
-  amf_n11();
-  ~amf_n11();
+  amf_sbi();
+  ~amf_sbi();
 
   /*
    * Handle ITTI message (Nsmf_PDUSessionCreateSMContext) to create a new PDU
@@ -90,34 +89,34 @@ class amf_n11 {
 
   /*
    * Handle ITTI message to get the Slice Selection Subscription Data from UDM
-   * @param [itti_n11_slice_selection_subscription_data&]: ITTI message
+   * @param [itti_sbi_slice_selection_subscription_data&]: ITTI message
    * @return void
    */
   void handle_itti_message(
-      itti_n11_slice_selection_subscription_data& itti_msg);
+      itti_sbi_slice_selection_subscription_data& itti_msg);
 
   /*
    * Handle ITTI message to get the Network Slice Selection Information from
    * NSSF
-   * @param [itti_n11_network_slice_selection_information&]: ITTI message
+   * @param [itti_sbi_network_slice_selection_information&]: ITTI message
    * @return void
    */
   void handle_itti_message(
-      itti_n11_network_slice_selection_information& itti_msg);
+      itti_sbi_network_slice_selection_information& itti_msg);
 
   /*
    * Handle ITTI message to reroute N1 message to the targer AMF
-   * @param [itti_n11_n1_message_notify&]: ITTI message
+   * @param [itti_sbi_n1_message_notify&]: ITTI message
    * @return void
    */
-  void handle_itti_message(itti_n11_n1_message_notify& itti_msg);
+  void handle_itti_message(itti_sbi_n1_message_notify& itti_msg);
 
   /*
    * Handle ITTI message to discover NF instance information from NRF
-   * @param [itti_n11_nf_instance_discovery&]: ITTI message
+   * @param [itti_sbi_nf_instance_discovery&]: ITTI message
    * @return void
    */
-  void handle_itti_message(itti_n11_nf_instance_discovery& itti_msg);
+  void handle_itti_message(itti_sbi_nf_instance_discovery& itti_msg);
 
   /*
    * Handle request to create a new PDU Session
@@ -151,11 +150,11 @@ class amf_n11 {
 
   /*
    * Handle ITTI message to register to NRF
-   * @param [itti_n11_register_nf_instance_request&]: ITTI message
+   * @param [itti_sbi_register_nf_instance_request&]: ITTI message
    * @return void
    */
   void register_nf_instance(
-      std::shared_ptr<itti_n11_register_nf_instance_request> msg);
+      std::shared_ptr<itti_sbi_register_nf_instance_request> msg);
 
   /*
    * Send the request to update PDU session context at SMF

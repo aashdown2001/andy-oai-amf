@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file 3gpp_ts24501.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _3GPP_TS_24501_H_
 #define _3GPP_TS_24501_H_
 
@@ -187,5 +180,7 @@ static const std::vector<std::string> nas_ciphering_algorithm_list_e2str = {
 #define PDU_SESSION_RELEASE_REJECT 0b11010010
 #define PDU_SESSION_RELEASE_COMMAND 0b11010011
 #define PDU_SESSION_RELEASE_COMPLETE 0b11010100
+
+#define DEREGISTRATION_TYPE_MASK 0b00001000
 
 #endif

@@ -37,7 +37,7 @@
 #include "DLNASTransport.hpp"
 #include "amf_config.hpp"
 #include "amf_n1.hpp"
-#include "amf_n11.hpp"
+#include "amf_sbi.hpp"
 #include "amf_n2.hpp"
 #include "amf_statistics.hpp"
 #include "itti.hpp"
@@ -56,7 +56,7 @@ extern amf_app* amf_app_inst;
 extern itti_mw* itti_inst;
 amf_n2* amf_n2_inst   = nullptr;
 amf_n1* amf_n1_inst   = nullptr;
-amf_n11* amf_n11_inst = nullptr;
+amf_sbi* amf_sbi_inst = nullptr;
 extern amf_config amf_cfg;
 extern statistics stacs;
 
@@ -82,7 +82,7 @@ amf_app::amf_app(const amf_config& amf_cfg)
     amf_n1_inst = new amf_n1();
     amf_n2_inst =
         new amf_n2(std::string(inet_ntoa(amf_cfg.n2.addr4)), amf_cfg.n2.port);
-    amf_n11_inst = new amf_n11();
+    amf_sbi_inst = new amf_sbi();
   } catch (std::exception& e) {
     Logger::amf_app().error("Cannot create AMF APP: %s", e.what());
     throw;
@@ -1018,7 +1018,7 @@ void amf_app::generate_amf_profile() {
   nf_instance_profile.set_nf_priority(1);
   nf_instance_profile.set_nf_capacity(100);
   nf_instance_profile.delete_nf_ipv4_addresses();
-  nf_instance_profile.add_nf_ipv4_addresses(amf_cfg.n11.addr4);
+  nf_instance_profile.add_nf_ipv4_addresses(amf_cfg.sbi.addr4);
 
   // NF services
   nf_service_t nf_service        = {};
@@ -1032,9 +1032,9 @@ void amf_app::generate_amf_profile() {
   nf_service.nf_service_status = "REGISTERED";
   // IP Endpoint
   ip_endpoint_t endpoint = {};
-  endpoint.ipv4_address  = amf_cfg.n11.addr4;
+  endpoint.ipv4_address  = amf_cfg.sbi.addr4;
   endpoint.transport     = "TCP";
-  endpoint.port          = amf_cfg.n11.port;
+  endpoint.port          = amf_cfg.sbi.port;
   nf_service.ip_endpoints.push_back(endpoint);
 
   nf_instance_profile.delete_nf_services();
@@ -1067,27 +1067,28 @@ std::string amf_app::get_nf_instance() const {
 
 //---------------------------------------------------------------------------------------------
 void amf_app::register_to_nrf() {
-  // send request to N11 to send NF registration to NRF
+  // send request to SBI to send NF registration to NRF
   trigger_nf_registration_request();
 }
 
 //------------------------------------------------------------------------------
 void amf_app::trigger_nf_registration_request() {
   Logger::amf_app().debug(
-      "Send ITTI msg to N11 task to trigger the registration request to NRF");
+      "Send ITTI msg to SBI task to trigger the registration request to NRF");
 
-  std::shared_ptr<itti_n11_register_nf_instance_request> itti_msg =
-      std::make_shared<itti_n11_register_nf_instance_request>(
-          TASK_AMF_APP, TASK_AMF_N11);
+  std::shared_ptr<itti_sbi_register_nf_instance_request> itti_msg =
+      std::make_shared<itti_sbi_register_nf_instance_request>(
+          TASK_AMF_APP, TASK_AMF_SBI);
   itti_msg->profile = nf_instance_profile;
 
-  amf_n11_inst->register_nf_instance(itti_msg);
+  // TODO: use ITTI to send message between N1 and SBI
+  amf_sbi_inst->register_nf_instance(itti_msg);
   /*
 
   int ret           = itti_inst->send_msg(itti_msg);
   if (RETURNok != ret) {
     Logger::amf_app().error(
-        "Could not send ITTI message %s to task TASK_AMF_N11",
+        "Could not send ITTI message %s to task TASK_AMF_SBI",
         itti_msg->get_msg_name());
   }
   */
@@ -1096,16 +1097,16 @@ void amf_app::trigger_nf_registration_request() {
 //------------------------------------------------------------------------------
 void amf_app::trigger_nf_deregistration() const {
   Logger::amf_app().debug(
-      "Send ITTI msg to N11 task to trigger the deregistration request to NRF");
+      "Send ITTI msg to SBI task to trigger the deregistration request to NRF");
 
-  std::shared_ptr<itti_n11_deregister_nf_instance> itti_msg =
-      std::make_shared<itti_n11_deregister_nf_instance>(
-          TASK_AMF_APP, TASK_AMF_N11);
+  std::shared_ptr<itti_sbi_deregister_nf_instance> itti_msg =
+      std::make_shared<itti_sbi_deregister_nf_instance>(
+          TASK_AMF_APP, TASK_AMF_SBI);
   itti_msg->amf_instance_id = amf_instance_id;
   int ret                   = itti_inst->send_msg(itti_msg);
   if (RETURNok != ret) {
     Logger::amf_app().error(
-        "Could not send ITTI message %s to task TASK_AMF_N11",
+        "Could not send ITTI message %s to task TASK_AMF_SBI",
         itti_msg->get_msg_name());
   }
 }
@@ -1129,8 +1130,8 @@ void amf_app::add_promise(
 void amf_app::add_promise(
     const uint32_t pid,
     const boost::shared_ptr<boost::promise<nlohmann::json>>& p) {
-  std::unique_lock lock(m_curl_handle_responses_n11);
-  curl_handle_responses_n11.emplace(pid, p);
+  std::unique_lock lock(m_curl_handle_responses_sbi);
+  curl_handle_responses_sbi.emplace(pid, p);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -1170,10 +1171,10 @@ void amf_app::trigger_process_response(
       "Trigger process response: Set promise with ID %u "
       "to ready",
       pid);
-  std::unique_lock lock(m_curl_handle_responses_n11);
-  if (curl_handle_responses_n11.count(pid) > 0) {
-    curl_handle_responses_n11[pid]->set_value(json_data);
+  std::unique_lock lock(m_curl_handle_responses_sbi);
+  if (curl_handle_responses_sbi.count(pid) > 0) {
+    curl_handle_responses_sbi[pid]->set_value(json_data);
     // Remove this promise from list
-    curl_handle_responses_n11.erase(pid);
+    curl_handle_responses_sbi.erase(pid);
   }
 }
