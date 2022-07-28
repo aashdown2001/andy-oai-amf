@@ -32,6 +32,12 @@
 
 #include <string>
 
+const uint32_t SD_NO_VALUE               = 0xFFFFFF;
+const uint8_t SST_MAX_STANDARDIZED_VALUE = 127;
+
+const uint8_t SST_LENGTH = 1;
+const uint8_t SD_LENGTH  = 3;
+
 typedef struct s_nssai  // section 28.4, TS23.003
 {
   uint8_t sST;
