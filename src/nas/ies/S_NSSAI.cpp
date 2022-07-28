@@ -173,7 +173,7 @@ std::string S_NSSAI::ToString() {
 
 //------------------------------------------------------------------------------
 int S_NSSAI::encode2buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding S_NSSAI");
+  Logger::nas_mm().debug("Encoding S-NSSAI");
   if (len < length) {
     Logger::nas_mm().error("len is less than %d", length);
     return 0;
@@ -202,7 +202,7 @@ int S_NSSAI::encode2buffer(uint8_t* buf, int len) {
   if (mapped_hplmn_sd_.has_value())
     ENCODE_U24(buf + encoded_size, mapped_hplmn_sd_.value(), encoded_size);
 
-  Logger::nas_mm().debug("encoded S_NSSAI len (%d)", encoded_size);
+  Logger::nas_mm().debug("Encoded S-NSSAI len (%d)", encoded_size);
   return encoded_size;
 }
 
@@ -273,7 +273,7 @@ int S_NSSAI::decodefrombuffer(uint8_t* buf, int len, const bool is_option) {
     } break;
   }
 
-  Logger::nas_mm().debug("Decoded NSSAI %s", ToString().c_str());
-  Logger::nas_mm().debug("Decoded S_NSSAI len (%d)", decoded_size);
+  Logger::nas_mm().debug("Decoded S-NSSAI %s", ToString().c_str());
+  Logger::nas_mm().debug("Decoded S-NSSAI len (%d)", decoded_size);
   return decoded_size;
 }

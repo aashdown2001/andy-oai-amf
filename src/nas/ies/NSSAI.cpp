@@ -221,10 +221,7 @@ int NSSAI::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
   }
 
   for (int i = 0; i < S_NSSAIs.size(); i++) {
-    Logger::nas_mm().debug(
-        "Decoded NSSAI SST (0x%x) SD (0x%x) hplmnSST (0x%x) hplmnSD (%d)",
-        S_NSSAIs.at(i).sst, S_NSSAIs.at(i).sd, S_NSSAIs.at(i).mHplmnSst,
-        S_NSSAIs.at(i).mHplmnSd);
+    Logger::nas_mm().debug("Decoded NSSAI %s", S_NSSAIs.at(i).ToString());
   }
   Logger::nas_mm().debug("Decoded NSSAI len (%d)", decoded_size);
   return decoded_size;

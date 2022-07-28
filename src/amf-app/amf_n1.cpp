@@ -1294,9 +1294,7 @@ void amf_n1::registration_request_handle(
   }
 
   for (auto r : nc.get()->requestedNssai) {
-    Logger::nas_mm().debug(
-        "Requested NSSAI SST (0x%x) SD (0x%x) hplmnSST (0x%x) hplmnSD (%d)",
-        r.sst, r.sd, r.mHplmnSst, r.mHplmnSd);
+    Logger::nas_mm().debug("Requested NSSAI: %s", r.ToString());
   }
 
   nc.get()->ctx_avaliability_ind = true;
@@ -1324,10 +1322,7 @@ void amf_n1::registration_request_handle(
     } else {
       for (auto s : nc.get()->requestedNssai) {
         Logger::amf_n1().debug(
-            "Requested NSSAI inside the NAS container: SST (0x%x) SD (0x%x) "
-            "hplmnSST (0x%x) hplmnSD "
-            "(%d)",
-            s.sst, s.sd, s.mHplmnSst, s.mHplmnSd);
+            "Requested NSSAI inside the NAS container: %s", s.ToString());
       }
     }
   } else {
@@ -2531,10 +2526,7 @@ void amf_n1::security_mode_complete_handle(
       // Get Requested NSSAI (Optional IE), if provided
       if (registration_request->getRequestedNssai(nc.get()->requestedNssai)) {
         for (auto s : nc.get()->requestedNssai) {
-          Logger::amf_n1().debug(
-              "Requested NSSAI SST (0x%x) SD (0x%x) hplmnSST (0x%x) hplmnSD "
-              "(%d)",
-              s.sst, s.sd, s.mHplmnSst, s.mHplmnSd);
+          Logger::amf_n1().debug("Requested NSSAI: %s", s.ToString());
         }
       } else {
         Logger::amf_n1().debug("No Optional IE RequestedNssai available");
@@ -3167,10 +3159,7 @@ void amf_n1::ul_nas_transport_handle(
       snssai = nc.get()->requestedNssai[0];
   }
 
-  Logger::amf_n1().debug(
-      "S_NSSAI for this PDU Session SST (0x%x) SD (0x%x) hplmnSST (0x%x) "
-      "hplmnSD (0x%x)",
-      snssai.sst, snssai.sd, snssai.mHplmnSst, snssai.mHplmnSd);
+  Logger::amf_n1().debug("S_NSSAI for this PDU Session %s", snssai.ToString());
 
   bstring dnn = bfromcstr("default");
   bstring sm_msg;
