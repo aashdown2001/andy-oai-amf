@@ -1,0 +1,9 @@
+# CODEOWNERS  
+src/contexts:
+ - Keliang DU, BUPT
+ - Tien Thinh NGUYEN, Eurecom
+
+ AMF-APP (src/amf-app)
+ - Keliang DU, BUPT
+ - Tien Thinh NGUYEN, Eurecom
+ - Shivam Gandhi, KCL 
