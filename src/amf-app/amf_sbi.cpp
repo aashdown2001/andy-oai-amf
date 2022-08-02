@@ -22,25 +22,25 @@
 #include "amf_sbi.hpp"
 
 #include <curl/curl.h>
+
 #include <nlohmann/json.hpp>
 
-#include "3gpp_ts24501.hpp"
 #include "3gpp_29.500.h"
 #include "3gpp_29.502.h"
-
+#include "3gpp_ts24501.hpp"
+#include "AmfEventReport.h"
 #include "amf.hpp"
 #include "amf_app.hpp"
 #include "amf_config.hpp"
-#include "AmfEventReport.h"
 #include "amf_n1.hpp"
-#include "conversions.hpp"
 #include "comUt.hpp"
-#include "ue_context.hpp"
+#include "conversions.hpp"
 #include "fqdn.hpp"
 #include "itti.hpp"
 #include "itti_msg_amf_app.hpp"
 #include "mime_parser.hpp"
 #include "nas_context.hpp"
+#include "ue_context.hpp"
 
 extern "C" {
 #include "dynamic_memory_check.h"

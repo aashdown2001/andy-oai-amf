@@ -26,16 +26,17 @@
  */
 #include "conversions.hpp"
 
-#include "amf.hpp"
-#include "logger.hpp"
-
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+
 #include <boost/algorithm/string.hpp>
+
+#include "amf.hpp"
+#include "logger.hpp"
 
 static const char hex_to_ascii_table[16] = {
     '0', '1', '2', '3', '4', '5', '6', '7',

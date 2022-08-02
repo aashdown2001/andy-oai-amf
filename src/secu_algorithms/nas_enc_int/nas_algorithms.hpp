@@ -46,8 +46,8 @@
 
 #include "authentication_algorithms_with_5gaka.hpp"
 extern "C" {
-#include "snow3g.h"
 #include "conversions.h"
+#include "snow3g.h"
 }
 
 #define SECU_DIRECTION_UPLINK 0

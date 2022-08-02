@@ -22,6 +22,9 @@
 #ifndef _AMF_SBI_H_
 #define _AMF_SBI_H_
 
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <map>
 #include <shared_mutex>
 #include <string>
@@ -30,10 +33,6 @@
 #include "UEAuthenticationCtx.h"
 #include "itti_msg_sbi.hpp"
 #include "pdu_session_context.hpp"
-
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
 
 namespace amf_application {
 

@@ -29,9 +29,9 @@
 #define __AMF_HPP
 
 #include "3gpp_23.003.h"
-#include "string.h"
 #include "inttypes.h"
 #include "stdio.h"
+#include "string.h"
 
 // for CURL
 constexpr auto CURL_MIME_BOUNDARY = "----Boundary";

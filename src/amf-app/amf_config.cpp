@@ -27,15 +27,15 @@
 #include <iostream>
 #include <libconfig.h++>
 
-#include "3gpp_ts24501.hpp"
 #include "3gpp_29.502.h"
+#include "3gpp_ts24501.hpp"
 #include "amf_app.hpp"
+#include "conversions.hpp"
+#include "fqdn.hpp"
 #include "if.hpp"
 #include "logger.hpp"
 #include "string.hpp"
 #include "thread_sched.hpp"
-#include "fqdn.hpp"
-#include "conversions.hpp"
 
 extern "C" {
 #include <arpa/inet.h>

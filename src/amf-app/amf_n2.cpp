@@ -21,9 +21,17 @@
 
 #include "amf_n2.hpp"
 
+#include <boost/chrono.hpp>
+#include <boost/chrono/chrono.hpp>
+#include <boost/chrono/duration.hpp>
+#include <boost/chrono/system_clocks.hpp>
+
+#include "3gpp_24.501.h"
 #include "DefaultPagingDRX.hpp"
 #include "DownlinkNasTransport.hpp"
+#include "HandoverPreparationFailure.hpp"
 #include "InitialContextSetupRequest.hpp"
+#include "NGResetAck.hpp"
 #include "NGSetupFailure.hpp"
 #include "NGSetupResponse.hpp"
 #include "Ngap_Cause.h"
@@ -31,13 +39,12 @@
 #include "Ngap_CauseRadioNetwork.h"
 #include "Ngap_TimeToWait.h"
 #include "PDUSessionResourceHandoverCommandTransfer.hpp"
+#include "Paging.hpp"
+#include "PduSessionResourceModifyRequest.hpp"
 #include "PduSessionResourceReleaseCommand.hpp"
 #include "PduSessionResourceSetupRequest.hpp"
-#include "PduSessionResourceModifyRequest.hpp"
-#include "UEContextReleaseCommand.hpp"
-#include "HandoverPreparationFailure.hpp"
-#include "Paging.hpp"
 #include "RerouteNASRequest.hpp"
+#include "UEContextReleaseCommand.hpp"
 #include "amf_app.hpp"
 #include "amf_config.hpp"
 #include "amf_n1.hpp"
@@ -48,13 +55,6 @@
 #include "itti_msg_amf_app.hpp"
 #include "logger.hpp"
 #include "sctp_server.hpp"
-#include "3gpp_24.501.h"
-#include "NGResetAck.hpp"
-
-#include <boost/chrono.hpp>
-#include <boost/chrono/chrono.hpp>
-#include <boost/chrono/duration.hpp>
-#include <boost/chrono/system_clocks.hpp>
 
 extern "C" {
 #include "dynamic_memory_check.h"

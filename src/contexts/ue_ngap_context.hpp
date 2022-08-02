@@ -26,8 +26,8 @@
 
 #include <map>
 
-#include "gNB_context.hpp"
 #include "amf.hpp"
+#include "gNB_context.hpp"
 
 using namespace sctp;
 typedef enum {

@@ -26,19 +26,19 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
+#include <boost/algorithm/string.hpp>
 #include <libconfig.h++>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
-#include <boost/algorithm/string.hpp>
 
-#include "amf_config.hpp"
 #include "amf.hpp"
+#include "amf_config.hpp"
+#include "common_defs.h"
 #include "if.hpp"
+#include "pdu_session_context.hpp"
 #include "string.hpp"
 #include "thread_sched.hpp"
-#include "common_defs.h"
-#include "pdu_session_context.hpp"
 
 #define AMF_CONFIG_STRING_AMF_CONFIG "AMF"
 #define AMF_CONFIG_STRING_PID_DIRECTORY "PID_DIRECTORY"

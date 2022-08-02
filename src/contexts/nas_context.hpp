@@ -27,10 +27,10 @@
 #include <string>
 
 #include "authentication_algorithms_with_5gaka.hpp"
+#include "itti.hpp"
 #include "nas_security_context.hpp"
 #include "security_def.hpp"
 #include "struct.hpp"
-#include "itti.hpp"
 
 typedef enum {
   _5GMM_STATE_MIN     = 0,

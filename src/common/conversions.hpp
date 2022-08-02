@@ -31,15 +31,14 @@
 #include <netinet/in.h>
 #include <stdint.h>
 
-#include <string>
-
 #include <iostream>
+#include <string>
 
 #include "bstrlib.h"
 
 extern "C" {
-#include "dynamic_memory_check.h"
 #include "OCTET_STRING.h"
+#include "dynamic_memory_check.h"
 }
 
 /* Used to format an uint32_t containing an ipv4 address */

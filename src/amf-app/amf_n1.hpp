@@ -29,22 +29,22 @@
 #include <map>
 #include <shared_mutex>
 
-#include "3gpp_ts24501.hpp"
 #include "3gpp_29.503.h"
+#include "3gpp_ts24501.hpp"
+#include "AuthorizedNetworkSliceInfo.h"
+#include "Nssai.h"
+#include "RegistrationAccept.hpp"
+#include "SliceInfoForRegistration.h"
 #include "amf.hpp"
+#include "amf_event.hpp"
 #include "amf_statistics.hpp"
 #include "bstrlib.h"
+#include "itti.hpp"
 #include "itti_msg_n1.hpp"
 #include "mysql_db.hpp"
 #include "nas_context.hpp"
 #include "pdu_session_context.hpp"
-#include "amf_event.hpp"
-#include "RegistrationAccept.hpp"
 #include "ue_context.hpp"
-#include "itti.hpp"
-#include "SliceInfoForRegistration.h"
-#include "AuthorizedNetworkSliceInfo.h"
-#include "Nssai.h"
 
 namespace amf_application {
 

@@ -20,11 +20,11 @@
  */
 
 #include "amf_module_from_config.hpp"
-#include "common_defs.h"
 
 #include <iostream>
 #include <string>
 
+#include "common_defs.h"
 #include "logger.hpp"
 
 namespace config {

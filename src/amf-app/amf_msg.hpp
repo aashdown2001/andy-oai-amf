@@ -22,10 +22,10 @@
 #ifndef FILE_AMF_MSG_HPP_SEEN
 #define FILE_AMF_MSG_HPP_SEEN
 
-#include "amf.hpp"
 #include "3gpp_29.518.h"
-#include "amf_profile.hpp"
 #include "AmfEventReport.h"
+#include "amf.hpp"
+#include "amf_profile.hpp"
 
 namespace amf_application {
 
