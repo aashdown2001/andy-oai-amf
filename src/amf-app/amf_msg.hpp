@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_msg.hpp
- \brief
- \author
- \company
- \date 2021
- \email:
- */
 #ifndef FILE_AMF_MSG_HPP_SEEN
 #define FILE_AMF_MSG_HPP_SEEN
 

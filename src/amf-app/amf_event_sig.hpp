@@ -19,14 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_event_sig.hpp
- \brief
- \author  Shivam Gandhi (KCL), Tien-Thinh NGUYEN (EURECOM)
- \company
- \date 2021
- \email: contact@openairinterface.org
- */
-
 #ifndef FILE_SMF_EVENT_SIG_HPP_SEEN
 #define FILE_SMF_EVENT_SIG_HPP_SEEN
 
