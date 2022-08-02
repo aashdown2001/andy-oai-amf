@@ -51,6 +51,7 @@ bool fqdn::resolve(
       return true;
     }
   } catch (std::exception& e) {
+    // TODO: Remove this line so that AMF can re-try several times
     throw std::runtime_error(
         "Cannot resolve a DNS name " + std::string(e.what()));
     return false;

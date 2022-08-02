@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_sbi.cpp
- \brief
- \author Keliang DU (BUPT), Tien-Thinh NGUYEN (EURECOM)
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "amf_sbi.hpp"
 
 #include <curl/curl.h>
@@ -33,6 +26,7 @@
 
 #include "3gpp_ts24501.hpp"
 #include "3gpp_29.500.h"
+#include "3gpp_29.502.h"
 
 #include "amf.hpp"
 #include "amf_app.hpp"
@@ -238,34 +232,12 @@ void amf_sbi::handle_itti_message(
     return;
   }
 
-  std::string smf_addr        = {};
-  std::string smf_port        = {};
-  std::string smf_api_version = {};
-
-  if (!psc.get()->smf_available) {
-    Logger::amf_sbi().error("No SMF is available for this PDU session");
-  } else {
-    smf_addr        = psc->smf_addr;
-    smf_port        = psc->smf_port;
-    smf_api_version = psc->smf_api_version;
+  std::string remote_uri = {};
+  if (!amf_cfg.get_smf_pdu_session_context_uri(psc, remote_uri)) {
+    Logger::amf_sbi().error("Could not find Nsmf_PDUSession URI");
+    return;
   }
-
-  std::string smf_ip_addr = {};
-  std::string remote_uri  = {};
-
-  // remove http port from the URI if existed
-  std::size_t found_port = smf_addr.find(":");
-  if (found_port != std::string::npos)
-    smf_ip_addr = smf_addr.substr(0, found_port - 1);
-  else
-    smf_ip_addr = smf_addr;
-
-  std::size_t found = psc.get()->smf_context_location.find(smf_ip_addr);
-  if (found != std::string::npos)
-    remote_uri = psc.get()->smf_context_location + "/modify";
-  else
-    remote_uri =
-        smf_addr + ":" + smf_port + psc.get()->smf_context_location + "/modify";
+  remote_uri += NSMF_PDU_SESSION_MODIFY;
 
   Logger::amf_sbi().debug("SMF URI: %s", remote_uri.c_str());
 
@@ -377,7 +349,7 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
   std::string smf_addr        = {};
   std::string smf_api_version = {};
   std::string smf_port        = "80";  // Set to default port number
-  if (!psc.get()->smf_available) {
+  if (!psc.get()->smf_info.info_available) {
     if (amf_cfg.support_features.enable_smf_selection) {
       // Get NRF URI
       std::string nrf_uri = {};
@@ -403,13 +375,14 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
     }
 
     // store smf info to be used with this PDU session
-    psc.get()->smf_available = true;
-    psc->smf_addr            = smf_addr;
-    psc->smf_port            = smf_port;
-    psc->smf_api_version     = smf_api_version;
+    psc.get()->smf_info.info_available = true;
+    psc->smf_info.addr                 = smf_addr;
+    psc->smf_info.port                 = smf_port;
+    psc->smf_info.api_version          = smf_api_version;
   } else {
-    smf_addr        = psc->smf_addr;
-    smf_api_version = psc->smf_api_version;
+    smf_addr             = psc->smf_info.addr;
+    smf_api_version      = psc->smf_info.api_version;
+    std::string smf_port = psc->smf_info.port;
   }
 
   switch (smf.req_type & 0x07) {
@@ -432,8 +405,7 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
     default: {
       // send Nsmf_PDUSession_UpdateSM_Context to SMF e.g., for PDU Session
       // release request
-      send_pdu_session_update_sm_context_request(
-          supi, psc, smf_addr, smf.sm_msg, dnn);
+      send_pdu_session_update_sm_context_request(supi, psc, smf.sm_msg, dnn);
     }
   }
 }
@@ -441,26 +413,19 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
 //------------------------------------------------------------------------------
 void amf_sbi::send_pdu_session_update_sm_context_request(
     const std::string& supi, std::shared_ptr<pdu_session_context>& psc,
-    const std::string& smf_addr, bstring sm_msg, const std::string& dnn) {
+    bstring sm_msg, const std::string& dnn) {
   Logger::amf_sbi().debug(
       "Send PDU Session Update SM Context Request to SMF (SUPI %s, PDU Session "
       "ID %d, %s)",
-      supi.c_str(), psc.get()->pdu_session_id, smf_addr.c_str());
+      supi.c_str(), psc.get()->pdu_session_id,
+      psc.get()->smf_info.addr.c_str());
 
-  std::string smf_ip_addr = {};
-  std::string remote_uri  = {};
-  // remove http port from the URI if existed
-  std::size_t found_port = smf_addr.find(":");
-  if (found_port != std::string::npos)
-    smf_ip_addr = smf_addr.substr(0, found_port - 1);
-  else
-    smf_ip_addr = smf_addr;
-
-  std::size_t found = psc.get()->smf_context_location.find(smf_ip_addr);
-  if (found != std::string::npos)
-    remote_uri = psc.get()->smf_context_location + "/modify";
-  else
-    remote_uri = smf_addr + psc.get()->smf_context_location + "/modify";
+  std::string remote_uri = {};
+  if (!amf_cfg.get_smf_pdu_session_context_uri(psc, remote_uri)) {
+    Logger::amf_sbi().error("Could not find Nsmf_PDUSession URI");
+    return;
+  }
+  remote_uri += NSMF_PDU_SESSION_MODIFY;
 
   Logger::amf_sbi().debug("SMF URI: %s", remote_uri.c_str());
 
@@ -489,21 +454,16 @@ void amf_sbi::handle_pdu_session_initial_request(
       "Handle PDU Session Establishment Request (SUPI %s, PDU Session ID %d)",
       supi.c_str(), psc.get()->pdu_session_id);
 
-  // remove http port from the URI if existed
-  std::string smf_ip_addr = {};
-  std::size_t found_port  = smf_addr.find(":");
-  if (found_port != std::string::npos)
-    smf_ip_addr = smf_addr.substr(0, found_port);
-  else
-    smf_ip_addr = smf_addr;
-  // provide http2 port if enabled
+  // Provide http2 port if enabled
   std::string amf_port = to_string(amf_cfg.sbi.port);
   if (amf_cfg.support_features.use_http2)
     amf_port = to_string(amf_cfg.sbi_http2_port);
 
-  // TODO: Remove hardcoded values
-  std::string remote_uri = smf_ip_addr + ":" + smf_port + "/nsmf-pdusession/" +
-                           smf_api_version + "/sm-contexts";
+  std::string remote_uri =
+      amf_cfg.get_smf_pdu_session_base_uri(smf_addr, smf_port, smf_api_version);
+
+  Logger::amf_sbi().debug("SMF URI: %s", remote_uri.c_str());
+
   nlohmann::json pdu_session_establishment_request;
   pdu_session_establishment_request["supi"]          = supi.c_str();
   pdu_session_establishment_request["pei"]           = "imei-200000000000001";
@@ -559,18 +519,14 @@ void amf_sbi::handle_itti_message(
     return;
   }
 
-  string smf_addr             = {};
-  std::string smf_api_version = {};
-  std::string remote_uri      = {};
-
-  if (!psc.get()->smf_available) {
-    Logger::amf_sbi().error("No SMF is available for this PDU session");
-  } else {
-    smf_addr        = psc->smf_addr;
-    smf_api_version = psc->smf_api_version;
+  std::string remote_uri = {};
+  if (!amf_cfg.get_smf_pdu_session_context_uri(psc, remote_uri)) {
+    Logger::amf_sbi().error("Could not find Nsmf_PDUSession URI");
+    return;
   }
+  remote_uri += NSMF_PDU_SESSION_RELEASE;
+  Logger::amf_sbi().debug("SMF URI: %s", remote_uri.c_str());
 
-  remote_uri = psc.get()->smf_context_location + "/release";
   nlohmann::json pdu_session_release_request;
   pdu_session_release_request["supi"]          = itti_msg.supi.c_str();
   pdu_session_release_request["dnn"]           = psc.get()->dnn.c_str();
@@ -585,10 +541,6 @@ void amf_sbi::handle_itti_message(
 
   nlohmann::json response_json = {};
   uint32_t response_code       = 0;
-
-  // curl_http_client(
-  //     remote_uri, json_part, "", "", itti_msg.supi,
-  //     psc.get()->pdu_session_id, http_version);
 
   curl_http_client(
       remote_uri, "POST", msg_body, response_json, response_code, http_version);
@@ -623,7 +575,7 @@ void amf_sbi::handle_itti_message(itti_sbi_notify_subscribed_event& itti_msg) {
         report["reachability"] = r.getReachability().get_value();
       }
 
-      // timestamp
+      // Timestamp
       std::time_t time_epoch_ntp = std::time(nullptr);
       uint64_t tv_ntp            = time_epoch_ntp + SECONDS_SINCE_FIRST_EPOCH;
       report["timeStamp"]        = std::to_string(tv_ntp);
@@ -1233,7 +1185,7 @@ void amf_sbi::curl_http_client(
               location_pos + 10, crlf_pos - (location_pos + 10));
           Logger::amf_sbi().info(
               "Location of the created SMF context: %s", location.c_str());
-          psc.get()->smf_context_location = location;
+          psc.get()->smf_info.context_location = location;
         }
       }
 

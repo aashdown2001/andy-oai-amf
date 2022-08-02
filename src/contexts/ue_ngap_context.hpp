@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file ue_ngap_context.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _UE_NGAP_CONTEXT_H_
 #define _UE_NGAP_CONTEXT_H_
 

@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_n1.cpp
- \brief
- \author Keliang DU (BUPT), Tien-Thinh NGUYEN (EURECOM)
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "amf_n1.hpp"
 
 #include <curl/curl.h>
@@ -2998,7 +2991,7 @@ void amf_n1::ue_initiate_de_registration_handle(
         itti_msg->supi             = uc->supi;
         itti_msg->pdu_session_id   = session->pdu_session_id;
         itti_msg->promise_id       = promise_id;
-        itti_msg->context_location = session->smf_context_location;
+        itti_msg->context_location = session->smf_info.context_location;
 
         int ret = itti_inst->send_msg(itti_msg);
         if (0 != ret) {

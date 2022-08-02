@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_n1.hpp
- \brief
- \author Keliang DU (BUPT), Tien-Thinh NGUYEN (EURECOM)
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _AMF_N1_H_
 #define _AMF_N1_H_
 

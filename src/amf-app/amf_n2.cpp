@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_n2.cpp
- \brief
- \author Keliang DU (BUPT), Tien-Thinh NGUYEN (EURECOM)
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "amf_n2.hpp"
 
 #include "DefaultPagingDRX.hpp"
@@ -182,7 +175,7 @@ void amf_n2_task(void* args_p) {
             dynamic_cast<itti_ue_radio_capability_indication*>(msg);
         amf_n2_inst->handle_itti_message(ref(*m));
       } break;
-      case HANDOVER_REQUIRED: {
+      case HANDOVER_REQUIRED_MSG: {
         Logger::amf_n2().info("Received HANDOVER_REQUIRED message, handling");
         itti_handover_required* m = dynamic_cast<itti_handover_required*>(msg);
         if (!amf_n2_inst->handle_itti_message(ref(*m)))

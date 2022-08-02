@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file ue_context.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _UE_CONTEXT_H_
 #define _UE_CONTEXT_H_
 
@@ -69,8 +62,7 @@ class ue_context {
   Tai_t tai;
   std::string supi;
   uint32_t tmsi;
-  // pdu session id <-> pdu_session_contex: map stores all pdu sessions for this
-  // UE
+  // pdu session id <-> pdu_session_contex
   std::map<std::uint8_t, std::shared_ptr<pdu_session_context>> pdu_sessions;
   mutable std::shared_mutex m_pdu_session;
 };

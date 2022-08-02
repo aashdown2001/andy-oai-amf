@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_config.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _AMF_CONFIG_H_
 #define _AMF_CONFIG_H_
 
@@ -45,6 +38,7 @@
 #include "string.hpp"
 #include "thread_sched.hpp"
 #include "common_defs.h"
+#include "pdu_session_context.hpp"
 
 #define AMF_CONFIG_STRING_AMF_CONFIG "AMF"
 #define AMF_CONFIG_STRING_PID_DIRECTORY "PID_DIRECTORY"
@@ -124,7 +118,7 @@ using namespace libconfig;
 
 namespace config {
 
-typedef struct {
+typedef struct auth_conf_s {
   std::string mysql_server;
   std::string mysql_user;
   std::string mysql_pass;
@@ -148,7 +142,7 @@ typedef struct {
     this->random       = json_data["random"].get<std::string>();
   }
 
-} auth_conf;
+} auth_conf_t;
 
 typedef struct interface_cfg_s {
   std::string if_name;
@@ -458,6 +452,28 @@ class amf_config {
   std::string get_ausf_ue_authentications_uri();
 
   /*
+   * Get the URI of SMF PDU Session Service
+   * @param [const std::shared_ptr<pdu_session_context>&] psc: pointer to the
+   * PDU Session Context
+   * @param [std::string&] smf_uri: based URI of Nsmf_PDUSession Services
+   * @return true if can get the URI. otherwise false
+   */
+  bool get_smf_pdu_session_context_uri(
+      const std::shared_ptr<pdu_session_context>& psc, std::string& smf_uri);
+
+  /*
+   * Get the URI of SMF Services
+   * @param [const std::string&] smf_addr: SMF's Addr in String representation
+   * @param [const std::string&] smf_port: SMF's port in String representation
+   * @param [const std::string&] smf_api_version: SMF's API version in String
+   * representation
+   * @return URI in string format
+   */
+  std::string get_smf_pdu_session_base_uri(
+      const std::string& smf_addr, const std::string& smf_port,
+      const std::string& smf_api_version);
+
+  /*
    * Display the AMF configuration parameters
    * @param void
    * @return void
@@ -493,7 +509,7 @@ class amf_config {
   unsigned int relative_amf_capacity;
   std::vector<plmn_item_t> plmn_list;
   std::string is_emergency_support;
-  auth_conf auth_para;
+  auth_conf_t auth_para;
   nas_conf_t nas_cfg;
   std::vector<smf_inst_t> smf_pool;
 

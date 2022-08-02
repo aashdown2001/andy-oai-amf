@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_sbi.hpp
- \brief
- \author Keliang DU (BUPT), Tien-Thinh NGUYEN (EURECOM)
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _AMF_SBI_H_
 #define _AMF_SBI_H_
 
@@ -161,14 +154,13 @@ class amf_sbi {
    * @param [const std::string&] supi: SUPI
    * @param [std::shared_ptr<pdu_session_context>&] psc: Pointer to the PDU
    * Session Context
-   * @param [const std::string&] smf_addr: SMF's Address
    * @param [bstring] sm_msg: SM message
    * @param [const std::string&] dnn: DNN
    * @return void
    */
   void send_pdu_session_update_sm_context_request(
       const std::string& supi, std::shared_ptr<pdu_session_context>& psc,
-      const std::string& smf_addr, bstring sm_msg, const std::string& dnn);
+      bstring sm_msg, const std::string& dnn);
 
   /*
    * Select SMF from the configuration file

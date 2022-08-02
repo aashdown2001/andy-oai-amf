@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file gNB_context.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _GNB_CONTEXT_H_
 #define _GNB_CONTEXT_H_
 

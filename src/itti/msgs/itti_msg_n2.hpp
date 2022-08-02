@@ -246,7 +246,7 @@ class itti_ue_radio_capability_indication : public itti_msg_n2 {
 class itti_handover_required : public itti_msg_n2 {
  public:
   itti_handover_required(const task_id_t origin, const task_id_t destination)
-      : itti_msg_n2(HANDOVER_REQUIRED, origin, destination) {
+      : itti_msg_n2(HANDOVER_REQUIRED_MSG, origin, destination) {
     handoverReq = nullptr;
   }
   itti_handover_required(const itti_handover_required& i) : itti_msg_n2(i) {}
