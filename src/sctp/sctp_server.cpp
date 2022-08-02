@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file sctp_server.cpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "sctp_server.hpp"
 
 #include "logger.hpp"

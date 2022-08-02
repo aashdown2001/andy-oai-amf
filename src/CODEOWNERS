@@ -9,8 +9,8 @@ src/amf-app
  - Shivam Gandhi, KCL 
 
 src/itti
- - Lionel GAUTHIER
- 
+ - Lionel GAUTHIER, Eurecom
+ - Tien Thinh NGUYEN, Eurecom
 src/common
  - Sebastien ROUX, Eurecom  
  - Lionel Gauthier, Eurecom
@@ -19,5 +19,11 @@ src/common
 
  Secu_algorithms
  - Kharbach Othmane
- - GAUTHIER Lionel
- - Keliang DU
+ - GAUTHIER Lionel, Eurecom
+ - Keliang DU, Bupt
+
+SCTP
+ - Keliang DU, Bupt
+ 
+ NAS/NGAP/SBI/UTILS: To be updated
+ 

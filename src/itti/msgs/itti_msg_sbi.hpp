@@ -19,14 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*
- *  itti_sbi_msg.hpp
- *
- *  Date: 2021
- *  Company KCL
- *  Author: shivam.gandhi@kcl.ac.uk
- */
-
 #ifndef ITTI_MSG_SBI_HPP_INCLUDED_
 #define ITTI_MSG_SBI_HPP_INCLUDED_
 
