@@ -19,27 +19,20 @@
  *      contact@openairinterface.org
  */
 
-/*! \file conversions.hpp
- \brief
- \author Sebastien ROUX, Lionel Gauthier
- \company Eurecom
- \email: lionel.gauthier@eurecom.fr
- */
-
 #ifndef FILE_CONVERSIONS_HPP_SEEN
 #define FILE_CONVERSIONS_HPP_SEEN
+
 #include <netinet/in.h>
 #include <stdint.h>
 
-#include <string>
-
 #include <iostream>
+#include <string>
 
 #include "bstrlib.h"
 
 extern "C" {
-#include "dynamic_memory_check.h"
 #include "OCTET_STRING.h"
+#include "dynamic_memory_check.h"
 }
 
 /* Used to format an uint32_t containing an ipv4 address */

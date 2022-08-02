@@ -19,27 +19,18 @@
  *      contact@openairinterface.org
  */
 
-/*
- *  itti_sbi_msg.hpp
- *
- *  Date: 2021
- *  Company KCL
- *  Author: shivam.gandhi@kcl.ac.uk
- */
-
 #ifndef ITTI_MSG_SBI_HPP_INCLUDED_
 #define ITTI_MSG_SBI_HPP_INCLUDED_
 
-#include "itti_msg.hpp"
-#include "pistache/http.h"
-#include "amf_msg.hpp"
 #include "N1MessageNotification.h"
+#include "SliceInfoForRegistration.h"
 #include "UeN1N2InfoSubscriptionCreateData.h"
 #include "amf.hpp"
+#include "amf_msg.hpp"
 #include "amf_profile.hpp"
 #include "bstrlib.h"
 #include "itti_msg.hpp"
-#include "SliceInfoForRegistration.h"
+#include "pistache/http.h"
 
 // using namespace oai::amf::model;
 using namespace amf_application;

@@ -19,36 +19,27 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_app.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _AMF_APP_H_
 #define _AMF_APP_H_
 
+#include <boost/thread.hpp>
+#include <boost/thread/future.hpp>
 #include <map>
 #include <shared_mutex>
 #include <string>
 
-#include "amf_config.hpp"
-#include "amf_module_from_config.hpp"
-#include "amf_profile.hpp"
-#include "itti.hpp"
-#include "itti_msg_sbi.hpp"
-#include "itti_msg_amf_app.hpp"
-#include "ue_context.hpp"
-#include "amf_subscription.hpp"
-#include "itti_msg_sbi.hpp"
-#include "amf_msg.hpp"
 #include "ProblemDetails.h"
 #include "UeN1N2InfoSubscriptionCreateData.h"
-
+#include "amf_config.hpp"
+#include "amf_module_from_config.hpp"
+#include "amf_msg.hpp"
+#include "amf_profile.hpp"
+#include "amf_subscription.hpp"
+#include "itti.hpp"
+#include "itti_msg_amf_app.hpp"
+#include "itti_msg_sbi.hpp"
+#include "ue_context.hpp"
 #include "uint_generator.hpp"
-#include <boost/thread.hpp>
-#include <boost/thread/future.hpp>
 
 using namespace config;
 

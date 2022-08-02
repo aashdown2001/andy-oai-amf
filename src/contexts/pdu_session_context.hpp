@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file pdu_session_context.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _PDU_SESSION_CONTEXT_H_
 #define _PDU_SESSION_CONTEXT_H_
 
@@ -33,6 +26,14 @@
 
 #include "amf.hpp"
 #include "bstrlib.h"
+
+typedef struct smf_context_info_s {
+  bool info_available;
+  std::string addr;
+  std::string port;
+  std::string api_version;
+  std::string context_location;
+} smf_context_info_t;
 
 class pdu_session_context {
  public:
@@ -48,14 +49,10 @@ class pdu_session_context {
   bstring n1sm;
   bool isn1sm_avaliable;
   std::string dnn;
-  std::string smf_addr;
-  std::string smf_port;
-  std::string smf_api_version;
-  bool smf_available;
-  std::string location;
+  smf_context_info_t smf_info;
   snssai_t snssai;
   plmn_t plmn;
-  std::string smf_context_location;
+
   bool is_ho_accepted;
 };
 

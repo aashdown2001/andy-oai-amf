@@ -18,12 +18,7 @@
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
-/*! \file itti_msg.hpp
- \brief
- \author  Lionel GAUTHIER
- \date 2018
- \email: lionel.gauthier@eurecom.fr
- */
+
 #ifndef SRC_ITTI_ITTI_MSG_HPP_INCLUDED_
 #define SRC_ITTI_ITTI_MSG_HPP_INCLUDED_
 
@@ -101,7 +96,7 @@ typedef enum {
   SBI_N1_MESSAGE_NOTIFICATION,
   SBI_N1N2_MESSAGE_SUBSCRIBE,
   SBI_N1N2_MESSAGE_UNSUBSCRIBE,
-  HANDOVER_REQUIRED,
+  HANDOVER_REQUIRED_MSG,
   HANDOVER_REQUEST_ACK,
   HANDOVER_NOTIFY,
   UPLINK_RAN_STATUS_TRANSFER,

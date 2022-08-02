@@ -19,19 +19,15 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_n1.cpp
- \brief
- \author Keliang DU (BUPT), Tien-Thinh NGUYEN (EURECOM)
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "amf_n1.hpp"
 
 #include <curl/curl.h>
 
 #include <bitset>
 
+#include "3gpp_24.501.h"
+#include "AmfEventReport.h"
+#include "AmfEventType.h"
 #include "AuthenticationFailure.hpp"
 #include "AuthenticationInfo.h"
 #include "AuthenticationRequest.hpp"
@@ -46,27 +42,23 @@
 #include "RegistrationReject.hpp"
 #include "RegistrationRequest.hpp"
 #include "SecurityModeCommand.hpp"
-#include "ServiceAccept.hpp"
 #include "SecurityModeComplete.hpp"
+#include "ServiceAccept.hpp"
 #include "ServiceRequest.hpp"
 #include "String2Value.hpp"
 #include "UEAuthenticationCtx.h"
 #include "ULNASTransport.hpp"
 #include "amf_app.hpp"
 #include "amf_config.hpp"
-#include "amf_sbi.hpp"
 #include "amf_n2.hpp"
+#include "amf_sbi.hpp"
 #include "comUt.hpp"
 #include "itti.hpp"
-#include "itti_msg_sbi.hpp"
 #include "itti_msg_n2.hpp"
+#include "itti_msg_sbi.hpp"
 #include "logger.hpp"
 #include "nas_algorithms.hpp"
-#include "comUt.hpp"
-#include "3gpp_24.501.h"
 #include "sha256.hpp"
-#include "AmfEventReport.h"
-#include "AmfEventType.h"
 
 extern "C" {
 #include "bstrlib.h"
@@ -2998,7 +2990,7 @@ void amf_n1::ue_initiate_de_registration_handle(
         itti_msg->supi             = uc->supi;
         itti_msg->pdu_session_id   = session->pdu_session_id;
         itti_msg->promise_id       = promise_id;
-        itti_msg->context_location = session->smf_context_location;
+        itti_msg->context_location = session->smf_info.context_location;
 
         int ret = itti_inst->send_msg(itti_msg);
         if (0 != ret) {
@@ -3735,7 +3727,8 @@ void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept) {
   registration_accept->setHeader(PLAIN_5GS_MSG);
   registration_accept->set_5GS_Registration_Result(
-      false, false, false, 0x01);  // 3GPP Access
+      false, false, false,
+      0x01);  // 3GPP Access
   registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
 
   std::vector<p_tai_t> tai_list;
@@ -3776,7 +3769,8 @@ void amf_n1::initialize_registration_accept(
     const std::shared_ptr<nas_context>& nc) {
   registration_accept->setHeader(PLAIN_5GS_MSG);
   registration_accept->set_5GS_Registration_Result(
-      false, false, false, 0x01);  // 3GPP Access
+      false, false, false,
+      0x01);  // 3GPP Access
   registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
 
   // Find UE Context
