@@ -3,7 +3,21 @@ src/contexts:
  - Keliang DU, BUPT
  - Tien Thinh NGUYEN, Eurecom
 
- AMF-APP (src/amf-app)
+src/amf-app
  - Keliang DU, BUPT
  - Tien Thinh NGUYEN, Eurecom
  - Shivam Gandhi, KCL 
+
+src/itti
+ - Lionel GAUTHIER
+ 
+src/common
+ - Sebastien ROUX, Eurecom  
+ - Lionel Gauthier, Eurecom
+ - Tien Thinh NGUYEN, Eurecom
+ - Keliang DU, BUPT
+
+ Secu_algorithms
+ - Kharbach Othmane
+ - GAUTHIER Lionel
+ - Keliang DU

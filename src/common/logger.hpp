@@ -19,12 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file logger.hpp
- \brief
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef __LOGGER_H
 #define __LOGGER_H
 

@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file comUt.cpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "comUt.hpp"
 
 #include "logger.hpp"

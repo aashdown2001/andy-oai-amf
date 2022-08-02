@@ -19,12 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file logger.cpp
- \brief
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "logger.hpp"
 
 #include <iostream>

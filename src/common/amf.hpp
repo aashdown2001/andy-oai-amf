@@ -19,12 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf.hpp
- \brief
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef __AMF_HPP
 #define __AMF_HPP
 

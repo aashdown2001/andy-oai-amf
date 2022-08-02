@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_app.cpp
- \brief
- \author  Keliang DU (BUPT), Tien-Thinh NGUYEN (EURECOM)
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "amf_app.hpp"
 
 #include <boost/uuid/random_generator.hpp>

@@ -19,12 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file 3gpp_29.503.h
- \brief
- \author Tien Thinh NGUYEN
- \company Eurecom
- \email: tien-thinh.nguyen@eurecom.fr
- */
 #ifndef FILE_3GPP_29_503_SEEN
 #define FILE_3GPP_29_503_SEEN
 
