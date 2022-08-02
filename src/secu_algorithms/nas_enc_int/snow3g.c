@@ -19,12 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file snow3g.c
- \brief
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "snow3g.h"
 
 #include <stdint.h>
