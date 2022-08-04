@@ -44,7 +44,7 @@ class PDUSessionResourceListCxtRelCpl {
       std::vector<PDUSessionResourceItemCxtRelCpl>& list);
 
   bool encode2PDUSessionResourceListCxtRelCpl(
-      Ngap_PDUSessionResourceListCxtRelCpl_t* pduSessionResourceListCxtRelCpl);
+      Ngap_PDUSessionResourceListCxtRelCpl_t& pduSessionResourceListCxtRelCpl);
 
   bool decodefromPDUSessionResourceListCxtRelCpl(
       const Ngap_PDUSessionResourceListCxtRelCpl_t&

@@ -32,25 +32,31 @@ PDUSessionResourceListCxtRelCpl::~PDUSessionResourceListCxtRelCpl() {}
 //------------------------------------------------------------------------------
 void PDUSessionResourceListCxtRelCpl::setPDUSessionResourceListCxtRelCpl(
     const std::vector<PDUSessionResourceItemCxtRelCpl>& list) {
-  cxtRelCplList = list;
+  cxtRelCplList.clear();
+  for (auto i : list) {
+    cxtRelCplList.push_back(i);
+  }
 }
 
 //------------------------------------------------------------------------------
 void PDUSessionResourceListCxtRelCpl::getPDUSessionResourceListCxtRelCpl(
     std::vector<PDUSessionResourceItemCxtRelCpl>& list) {
-  list = cxtRelCplList;
+  list.clear();
+  for (auto i : cxtRelCplList) {
+    list.push_back(i);
+  }
 }
 
 //------------------------------------------------------------------------------
 bool PDUSessionResourceListCxtRelCpl::encode2PDUSessionResourceListCxtRelCpl(
-    Ngap_PDUSessionResourceListCxtRelCpl_t* pduSessionResourceListCxtRelCpl) {
+    Ngap_PDUSessionResourceListCxtRelCpl_t& pduSessionResourceListCxtRelCpl) {
   for (auto& cxtRelCpl : cxtRelCplList) {
     Ngap_PDUSessionResourceItemCxtRelCpl_t* item =
         (Ngap_PDUSessionResourceItemCxtRelCpl_t*) calloc(
             1, sizeof(Ngap_PDUSessionResourceItemCxtRelCpl_t));
     if (!item) return false;
     if (!cxtRelCpl.encode2PDUSessionResourceItemCxtRelCpl(item)) return false;
-    if (ASN_SEQUENCE_ADD(&pduSessionResourceListCxtRelCpl->list, item) != 0)
+    if (ASN_SEQUENCE_ADD(&pduSessionResourceListCxtRelCpl.list, item) != 0)
       return false;
   }
   return true;
