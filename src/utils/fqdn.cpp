@@ -20,9 +20,11 @@
  */
 
 #include "fqdn.hpp"
-#include "logger.hpp"
+
 #include <boost/asio.hpp>
 #include <iostream>
+
+#include "logger.hpp"
 
 bool fqdn::resolve(
     const std::string& host_name, std::string& address, uint32_t& port,
@@ -51,6 +53,7 @@ bool fqdn::resolve(
       return true;
     }
   } catch (std::exception& e) {
+    // TODO: Remove this line so that AMF can re-try several times
     throw std::runtime_error(
         "Cannot resolve a DNS name " + std::string(e.what()));
     return false;

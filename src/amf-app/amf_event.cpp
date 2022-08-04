@@ -19,16 +19,9 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_event.cpp
- \brief
- \author  Shivam Gandhi (KCL), Tien-Thinh NGUYEN (EURECOM)
- \company
- \date 2021
- \email: contact@openairinterface.org
- */
-
 #include "amf_event.hpp"
 using namespace amf_application;
+
 //------------------------------------------------------------------------------
 bs2::connection amf_event::subscribe_ue_location_report(
     const ue_location_report_sig_t::slot_type& sig) {

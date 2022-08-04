@@ -150,6 +150,66 @@ void UEContextReleaseCompleteMsg::getUserLocationInfoNR(
 }
 
 //------------------------------------------------------------------------------
+void UEContextReleaseCompleteMsg::setPduSessionResourceCxtRelCplList(
+    const std::vector<PDUSessionResourceCxtRelCplItem_t>& list) {
+  std::vector<PDUSessionResourceItemCxtRelCpl> cxtRelCplList;
+  for (int i = 0; i < list.size(); i++) {
+    PDUSessionResourceItemCxtRelCpl item = {};
+    PDUSessionID pDUSessionID            = {};
+    pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+
+    item.setPDUSessionResourceItemCxtRelCpl(pDUSessionID);
+    cxtRelCplList.push_back(item);
+  }
+
+  pduSessionResourceListCxtRelCpl->setPDUSessionResourceListCxtRelCpl(
+      cxtRelCplList);
+
+  Ngap_UEContextReleaseComplete_IEs* ie =
+      (Ngap_UEContextReleaseComplete_IEs*) calloc(
+          1, sizeof(Ngap_UEContextReleaseComplete_IEs));
+
+  ie->id          = Ngap_ProtocolIE_ID_id_PDUSessionResourceListCxtRelCpl;
+  ie->criticality = Ngap_Criticality_reject;
+  ie->value.present =
+      Ngap_UEContextReleaseComplete_IEs__value_PR_PDUSessionResourceListCxtRelCpl;
+
+  int ret =
+      pduSessionResourceListCxtRelCpl->encode2PDUSessionResourceListCxtRelCpl(
+          &ie->value.choice.PDUSessionResourceListCxtRelCpl);
+  if (!ret) {
+    Logger::ngap().error(
+        "Encode NGAP PDUSessionResourceReleasedListRelRes IE error");
+    free_wrapper((void**) &ie);
+    return;
+  }
+  ret = ASN_SEQUENCE_ADD(&ies->protocolIEs.list, ie);
+  if (ret != 0)
+    Logger::ngap().error(
+        "Encode NGAP PDUSessionResourceReleasedListRelRes IE error");
+}
+
+//------------------------------------------------------------------------------
+bool UEContextReleaseCompleteMsg::getPduSessionResourceCxtRelCplList(
+    std::vector<PDUSessionResourceCxtRelCplItem_t>& list) {
+  std::vector<PDUSessionResourceItemCxtRelCpl> cxtRelCplList;
+  pduSessionResourceListCxtRelCpl->getPDUSessionResourceListCxtRelCpl(
+      cxtRelCplList);
+
+  for (auto& item : cxtRelCplList) {
+    PDUSessionResourceCxtRelCplItem_t rel = {};
+    PDUSessionID pDUSessionID             = {};
+
+    item.getPDUSessionResourceItemCxtRelCpl(pDUSessionID);
+    pDUSessionID.getPDUSessionID(rel.pduSessionId);
+
+    list.push_back(rel);
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool UEContextReleaseCompleteMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
   ngapPdu = ngapMsgPdu;
   if (ngapPdu->present == Ngap_NGAP_PDU_PR_successfulOutcome) {
@@ -208,7 +268,28 @@ bool UEContextReleaseCompleteMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
       } break;
         // TODO: User Location Information
         // TODO: Information on Recommended Cells and RAN Nodes for Paging
-        // TODO: PDU Session Resource List
+      case Ngap_ProtocolIE_ID_id_PDUSessionResourceListCxtRelCpl: {
+        if (ies->protocolIEs.list.array[i]->criticality ==
+                Ngap_Criticality_reject &&
+            ies->protocolIEs.list.array[i]->value.present ==
+                Ngap_UEContextReleaseComplete_IEs__value_PR_PDUSessionResourceListCxtRelCpl) {
+          pduSessionResourceListCxtRelCpl =
+              new PDUSessionResourceListCxtRelCpl();
+          if (!pduSessionResourceListCxtRelCpl
+                   ->decodefromPDUSessionResourceListCxtRelCpl(
+                       ies->protocolIEs.list.array[i]
+                           ->value.choice.PDUSessionResourceListCxtRelCpl)) {
+            Logger::ngap().error(
+                "Decode NGAP PDUSessionResourceListCxtRelCpl IE error");
+            return false;
+          }
+        } else {
+          Logger::ngap().error(
+              "Decode NGAP PDUSessionResourceListCxtRelCpl IE error");
+          return false;
+        }
+
+      } break;
         // TODO: Criticality Diagnostics
 
       default: {

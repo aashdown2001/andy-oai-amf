@@ -19,19 +19,13 @@
  *      contact@openairinterface.org
  */
 
-/*! \file sctp_server.cpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "sctp_server.hpp"
 
 #include "logger.hpp"
 extern "C" {
 #include <arpa/inet.h>
 #include <errno.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/sctp.h>
 #include <pthread.h>
@@ -39,10 +33,9 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
-#include <netdb.h>
 
 #include "bstrlib.h"
 }

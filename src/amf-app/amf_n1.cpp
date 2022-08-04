@@ -19,19 +19,15 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_n1.cpp
- \brief
- \author Keliang DU (BUPT), Tien-Thinh NGUYEN (EURECOM)
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "amf_n1.hpp"
 
 #include <curl/curl.h>
 
 #include <bitset>
 
+#include "3gpp_24.501.h"
+#include "AmfEventReport.h"
+#include "AmfEventType.h"
 #include "AuthenticationFailure.hpp"
 #include "AuthenticationInfo.h"
 #include "AuthenticationRequest.hpp"
@@ -46,27 +42,23 @@
 #include "RegistrationReject.hpp"
 #include "RegistrationRequest.hpp"
 #include "SecurityModeCommand.hpp"
-#include "ServiceAccept.hpp"
 #include "SecurityModeComplete.hpp"
+#include "ServiceAccept.hpp"
 #include "ServiceRequest.hpp"
 #include "String2Value.hpp"
 #include "UEAuthenticationCtx.h"
 #include "ULNASTransport.hpp"
 #include "amf_app.hpp"
 #include "amf_config.hpp"
-#include "amf_n11.hpp"
 #include "amf_n2.hpp"
+#include "amf_sbi.hpp"
 #include "comUt.hpp"
 #include "itti.hpp"
-#include "itti_msg_n11.hpp"
 #include "itti_msg_n2.hpp"
+#include "itti_msg_sbi.hpp"
 #include "logger.hpp"
 #include "nas_algorithms.hpp"
-#include "comUt.hpp"
-#include "3gpp_24.501.h"
 #include "sha256.hpp"
-#include "AmfEventReport.h"
-#include "AmfEventType.h"
 
 extern "C" {
 #include "bstrlib.h"
@@ -79,7 +71,7 @@ using namespace config;
 
 extern itti_mw* itti_inst;
 extern amf_n1* amf_n1_inst;
-extern amf_n11* amf_n11_inst;
+extern amf_sbi* amf_sbi_inst;
 extern amf_config amf_cfg;
 extern amf_app* amf_app_inst;
 extern amf_n2* amf_n2_inst;
@@ -1309,9 +1301,7 @@ void amf_n1::registration_request_handle(
   }
 
   for (auto r : nc.get()->requestedNssai) {
-    Logger::nas_mm().debug(
-        "Requested NSSAI SST (0x%x) SD (0x%x) hplmnSST (0x%x) hplmnSD (%d)",
-        r.sst, r.sd, r.mHplmnSst, r.mHplmnSd);
+    Logger::nas_mm().debug("Requested NSSAI: %s", r.ToString());
   }
 
   nc.get()->ctx_avaliability_ind = true;
@@ -1339,10 +1329,7 @@ void amf_n1::registration_request_handle(
     } else {
       for (auto s : nc.get()->requestedNssai) {
         Logger::amf_n1().debug(
-            "Requested NSSAI inside the NAS container: SST (0x%x) SD (0x%x) "
-            "hplmnSST (0x%x) hplmnSD "
-            "(%d)",
-            s.sst, s.sd, s.mHplmnSst, s.mHplmnSd);
+            "Requested NSSAI inside the NAS container: %s", s.ToString());
       }
     }
   } else {
@@ -1802,7 +1789,8 @@ bool amf_n1::get_authentication_vectors_from_ausf(
   uint8_t http_version = 1;
   if (amf_cfg.support_features.use_http2) http_version = 2;
 
-  if (amf_n11_inst->send_ue_authentication_request(
+  // TODO: use ITTI to send message between N1 and SBI
+  if (amf_sbi_inst->send_ue_authentication_request(
           authenticationinfo, ueauthenticationctx, http_version)) {
     unsigned char* r5gauthdata_rand = conv::format_string_as_hex(
         ueauthenticationctx.getR5gAuthData().getRand());
@@ -1880,7 +1868,7 @@ bool amf_n1::_5g_aka_confirmation_from_ausf(
   uint32_t response_code = 0;
   if (amf_cfg.support_features.use_http2) http_version = 2;
 
-  amf_n11_inst->curl_http_client(
+  amf_sbi_inst->curl_http_client(
       remoteUri, "PUT", msgBody, response, response_code, http_version);
 
   free_wrapper((void**) &resStar_s);
@@ -2560,10 +2548,7 @@ void amf_n1::security_mode_complete_handle(
       // Get Requested NSSAI (Optional IE), if provided
       if (registration_request->getRequestedNssai(nc.get()->requestedNssai)) {
         for (auto s : nc.get()->requestedNssai) {
-          Logger::amf_n1().debug(
-              "Requested NSSAI SST (0x%x) SD (0x%x) hplmnSST (0x%x) hplmnSD "
-              "(%d)",
-              s.sst, s.sd, s.mHplmnSst, s.mHplmnSd);
+          Logger::amf_n1().debug("Requested NSSAI: %s", s.ToString());
         }
       } else {
         Logger::amf_n1().debug("No Optional IE RequestedNssai available");
@@ -3018,13 +3003,14 @@ void amf_n1::ue_initiate_de_registration_handle(
 
   if (uc.get() != nullptr) {
     if (uc->get_pdu_sessions_context(sessions_ctx)) {
-      // Send Nsmf_PDUSession_ReleaseSMContext to SMF to release the PDU session
+      // Send Nsmf_PDUSession_ReleaseSMContext to SMF to release all existing
+      // PDU sessions
 
       std::map<uint32_t, boost::shared_future<uint32_t>> smf_responses;
       for (auto session : sessions_ctx) {
         std::shared_ptr<itti_nsmf_pdusession_release_sm_context> itti_msg =
             std::make_shared<itti_nsmf_pdusession_release_sm_context>(
-                TASK_AMF_N1, TASK_AMF_N11);
+                TASK_AMF_N1, TASK_AMF_SBI);
 
         // Generate a promise and associate this promise to the ITTI message
         uint32_t promise_id = amf_app_inst->generate_promise_id();
@@ -3041,12 +3027,12 @@ void amf_n1::ue_initiate_de_registration_handle(
         itti_msg->supi             = uc->supi;
         itti_msg->pdu_session_id   = session->pdu_session_id;
         itti_msg->promise_id       = promise_id;
-        itti_msg->context_location = session->smf_context_location;
+        itti_msg->context_location = session->smf_info.context_location;
 
         int ret = itti_inst->send_msg(itti_msg);
         if (0 != ret) {
           Logger::amf_n1().error(
-              "Could not send ITTI message %s to task TASK_AMF_N11",
+              "Could not send ITTI message %s to task TASK_AMF_SBI",
               itti_msg->get_msg_name());
         }
       }
@@ -3079,7 +3065,7 @@ void amf_n1::ue_initiate_de_registration_handle(
   Logger::amf_n1().debug("De-registration Type 0x%x", deregType);
 
   // If UE switch-off, don't need to send Deregistration Accept
-  if ((deregType & 0b00001000) == 0) {
+  if ((deregType & DEREGISTRATION_TYPE_MASK) == 0) {
     // Prepare DeregistrationAccept
     auto dereg_accept = std::make_unique<DeregistrationAccept>();
     dereg_accept->setHeader(PLAIN_5GS_MSG);
@@ -3222,10 +3208,7 @@ void amf_n1::ul_nas_transport_handle(
       snssai = nc.get()->requestedNssai[0];
   }
 
-  Logger::amf_n1().debug(
-      "S_NSSAI for this PDU Session SST (0x%x) SD (0x%x) hplmnSST (0x%x) "
-      "hplmnSD (0x%x)",
-      snssai.sst, snssai.sd, snssai.mHplmnSst, snssai.mHplmnSd);
+  Logger::amf_n1().debug("S_NSSAI for this PDU Session %s", snssai.ToString());
 
   bstring dnn = bfromcstr("default");
   bstring sm_msg;
@@ -3244,7 +3227,7 @@ void amf_n1::ul_nas_transport_handle(
 
       std::shared_ptr<itti_nsmf_pdusession_create_sm_context> itti_msg =
           std::make_shared<itti_nsmf_pdusession_create_sm_context>(
-              TASK_AMF_N1, TASK_AMF_N11);
+              TASK_AMF_N1, TASK_AMF_SBI);
       itti_msg->ran_ue_ngap_id = ran_ue_ngap_id;
       itti_msg->amf_ue_ngap_id = amf_ue_ngap_id;
       itti_msg->req_type       = request_type;
@@ -3259,7 +3242,7 @@ void amf_n1::ul_nas_transport_handle(
       int ret = itti_inst->send_msg(itti_msg);
       if (0 != ret) {
         Logger::amf_n1().error(
-            "Could not send ITTI message %s to task TASK_AMF_N11",
+            "Could not send ITTI message %s to task TASK_AMF_SBI",
             itti_msg->get_msg_name());
       }
 
@@ -3546,7 +3529,7 @@ void amf_n1::handle_ue_location_change(
 
     std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg =
         std::make_shared<itti_sbi_notify_subscribed_event>(
-            TASK_AMF_N1, TASK_AMF_N11);
+            TASK_AMF_N1, TASK_AMF_SBI);
 
     itti_msg->http_version = 1;
 
@@ -3580,7 +3563,7 @@ void amf_n1::handle_ue_location_change(
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::amf_n1().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
   }
@@ -3605,7 +3588,7 @@ void amf_n1::handle_ue_reachability_status_change(
 
     std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg =
         std::make_shared<itti_sbi_notify_subscribed_event>(
-            TASK_AMF_N1, TASK_AMF_N11);
+            TASK_AMF_N1, TASK_AMF_SBI);
 
     itti_msg->http_version = 1;
 
@@ -3644,7 +3627,7 @@ void amf_n1::handle_ue_reachability_status_change(
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::amf_n1().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
   }
@@ -3669,7 +3652,7 @@ void amf_n1::handle_ue_registration_state_change(
 
     std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg =
         std::make_shared<itti_sbi_notify_subscribed_event>(
-            TASK_AMF_N1, TASK_AMF_N11);
+            TASK_AMF_N1, TASK_AMF_SBI);
 
     itti_msg->http_version = 1;
 
@@ -3719,7 +3702,7 @@ void amf_n1::handle_ue_registration_state_change(
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::amf_n1().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
   }
@@ -3744,7 +3727,7 @@ void amf_n1::handle_ue_connectivity_state_change(
 
     std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg =
         std::make_shared<itti_sbi_notify_subscribed_event>(
-            TASK_AMF_N1, TASK_AMF_N11);
+            TASK_AMF_N1, TASK_AMF_SBI);
 
     itti_msg->http_version = 1;
 
@@ -3792,7 +3775,7 @@ void amf_n1::handle_ue_connectivity_state_change(
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::amf_n1().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
   }
@@ -3951,7 +3934,8 @@ void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept) {
   registration_accept->setHeader(PLAIN_5GS_MSG);
   registration_accept->set_5GS_Registration_Result(
-      false, false, false, 0x01);  // 3GPP Access
+      false, false, false,
+      0x01);  // 3GPP Access
   registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
 
   std::vector<p_tai_t> tai_list;
@@ -3992,7 +3976,8 @@ void amf_n1::initialize_registration_accept(
     const std::shared_ptr<nas_context>& nc) {
   registration_accept->setHeader(PLAIN_5GS_MSG);
   registration_accept->set_5GS_Registration_Result(
-      false, false, false, 0x01);  // 3GPP Access
+      false, false, false,
+      0x01);  // 3GPP Access
   registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
 
   // Find UE Context
@@ -4154,14 +4139,14 @@ void amf_n1::implicit_deregistration_timer_timeout(
   for (auto p : pdu_sessions) {
     std::shared_ptr<itti_nsmf_pdusession_release_sm_context> itti_msg =
         std::make_shared<itti_nsmf_pdusession_release_sm_context>(
-            TASK_AMF_N1, TASK_AMF_N11);
+            TASK_AMF_N1, TASK_AMF_SBI);
     itti_msg->supi           = uc->supi;
     itti_msg->pdu_session_id = p->pdu_session_id;
 
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::amf_n1().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
   }
@@ -4507,9 +4492,9 @@ bool amf_n1::get_slice_selection_subscription_data(
       return false;
     }
 
-    std::shared_ptr<itti_n11_slice_selection_subscription_data> itti_msg =
-        std::make_shared<itti_n11_slice_selection_subscription_data>(
-            TASK_AMF_N1, TASK_AMF_N11);
+    std::shared_ptr<itti_sbi_slice_selection_subscription_data> itti_msg =
+        std::make_shared<itti_sbi_slice_selection_subscription_data>(
+            TASK_AMF_N1, TASK_AMF_SBI);
 
     // Generate a promise and associate this promise to the ITTI message
     uint32_t promise_id = amf_app_inst->generate_promise_id();
@@ -4529,7 +4514,7 @@ bool amf_n1::get_slice_selection_subscription_data(
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::amf_n1().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
 
@@ -4649,9 +4634,9 @@ bool amf_n1::get_network_slice_selection(
 
   if (amf_cfg.support_features.enable_external_nssf) {
     // Get Authorized Network Slice Info from an  external NSSF
-    std::shared_ptr<itti_n11_network_slice_selection_information> itti_msg =
-        std::make_shared<itti_n11_network_slice_selection_information>(
-            TASK_AMF_N1, TASK_AMF_N11);
+    std::shared_ptr<itti_sbi_network_slice_selection_information> itti_msg =
+        std::make_shared<itti_sbi_network_slice_selection_information>(
+            TASK_AMF_N1, TASK_AMF_SBI);
 
     // Generate a promise and associate this promise to the ITTI message
     uint32_t promise_id = amf_app_inst->generate_promise_id();
@@ -4675,7 +4660,7 @@ bool amf_n1::get_network_slice_selection(
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::amf_n1().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
 
@@ -4776,9 +4761,9 @@ bool amf_n1::get_target_amf(
     }
 
     // Get list of AMF candidates from NRF
-    std::shared_ptr<itti_n11_nf_instance_discovery> itti_msg =
-        std::make_shared<itti_n11_nf_instance_discovery>(
-            TASK_AMF_N1, TASK_AMF_N11);
+    std::shared_ptr<itti_sbi_nf_instance_discovery> itti_msg =
+        std::make_shared<itti_sbi_nf_instance_discovery>(
+            TASK_AMF_N1, TASK_AMF_SBI);
 
     // Generate a promise and associate this promise to the ITTI message
     uint32_t promise_id = amf_app_inst->generate_promise_id();
@@ -4799,7 +4784,7 @@ bool amf_n1::get_target_amf(
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::amf_n1().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
 
@@ -4877,10 +4862,10 @@ void amf_n1::send_n1_message_notity(
     const std::shared_ptr<nas_context>& nc,
     const std::string& target_amf) const {
   Logger::amf_n1().debug(
-      "Send a request to N11 to send N1 Message Notify to the target AMF");
+      "Send a request to SBI to send N1 Message Notify to the target AMF");
 
-  std::shared_ptr<itti_n11_n1_message_notify> itti_msg =
-      std::make_shared<itti_n11_n1_message_notify>(TASK_AMF_N1, TASK_AMF_N11);
+  std::shared_ptr<itti_sbi_n1_message_notify> itti_msg =
+      std::make_shared<itti_sbi_n1_message_notify>(TASK_AMF_N1, TASK_AMF_SBI);
 
   itti_msg->http_version = 1;
   if (nc->registration_request_is_set) {
@@ -4892,7 +4877,7 @@ void amf_n1::send_n1_message_notity(
   int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::amf_n1().error(
-        "Could not send ITTI message %s to task TASK_AMF_N11",
+        "Could not send ITTI message %s to task TASK_AMF_SBI",
         itti_msg->get_msg_name());
   }
 }

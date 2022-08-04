@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file mysql_db.cpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "amf_config.hpp"
 #include "amf_n1.hpp"
 #include "logger.hpp"

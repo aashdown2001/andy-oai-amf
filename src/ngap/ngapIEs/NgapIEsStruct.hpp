@@ -147,6 +147,10 @@ typedef struct {
 } PDUSessionResourceReleasedItem_t;
 
 typedef struct {
+  uint8_t pduSessionId;
+} PDUSessionResourceCxtRelCplItem_t;
+
+typedef struct {
   std::string ip_address;
   uint32_t gtp_teid;
 } GtpTunnel_t;

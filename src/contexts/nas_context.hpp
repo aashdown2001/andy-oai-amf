@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file nas_context.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _AMF_NAS_CONTEXT_H_
 #define _AMF_NAS_CONTEXT_H_
 
@@ -34,10 +27,10 @@
 #include <string>
 
 #include "authentication_algorithms_with_5gaka.hpp"
+#include "itti.hpp"
 #include "nas_security_context.hpp"
 #include "security_def.hpp"
 #include "struct.hpp"
-#include "itti.hpp"
 
 typedef enum {
   _5GMM_STATE_MIN     = 0,
@@ -59,8 +52,8 @@ static const std::vector<std::string> _5gmm_state_e2str = {
 
 typedef enum { CM_IDLE = 0, CM_CONNECTED } cm_state_t;
 
-static const std::vector<std::string> cm_state_e2str = {"CM_IDLE",
-                                                        "CM_CONNECTED"};
+static const std::vector<std::string> cm_state_e2str = {
+    "CM_IDLE", "CM_CONNECTED"};
 
 typedef enum {
   DEREGISTERED = 0,

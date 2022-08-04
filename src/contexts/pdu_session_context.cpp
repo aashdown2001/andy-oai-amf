@@ -19,18 +19,10 @@
  *      contact@openairinterface.org
  */
 
-/*! \file pdu_session_context.cpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "pdu_session_context.hpp"
 
 //------------------------------------------------------------------------------
 pdu_session_context::pdu_session_context() {
-  smf_available    = false;
   isn2sm_avaliable = false;
   isn1sm_avaliable = false;
   ran_ue_ngap_id   = 0;
@@ -40,11 +32,14 @@ pdu_session_context::pdu_session_context() {
   // bstring n2sm;
   isn2sm_avaliable = false;
   // bstring n1sm;
-  isn1sm_avaliable = false;
-  smf_available    = false;
-  snssai           = {};
-  plmn             = {};
-  is_ho_accepted   = false;
+  isn1sm_avaliable        = false;
+  smf_info.info_available = false;
+  smf_info.addr           = {};
+  smf_info.api_version    = "v1";
+  smf_info.port           = "80";
+  snssai                  = {};
+  plmn                    = {};
+  is_ho_accepted          = false;
 }
 
 //------------------------------------------------------------------------------

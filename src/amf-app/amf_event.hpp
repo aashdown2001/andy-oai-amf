@@ -19,14 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_event.hpp
- \brief
- \author  Shivam Gandhi (KCL), Tien-Thinh NGUYEN (EURECOM)
- \company
- \date 2021
- \email: contact@openairinterface.org
- */
-
 #include <boost/signals2.hpp>
 namespace bs2 = boost::signals2;
 

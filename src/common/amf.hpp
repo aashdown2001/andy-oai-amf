@@ -19,19 +19,13 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf.hpp
- \brief
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef __AMF_HPP
 #define __AMF_HPP
 
 #include "3gpp_23.003.h"
-#include "string.h"
 #include "inttypes.h"
 #include "stdio.h"
+#include "string.h"
 
 // for CURL
 constexpr auto CURL_MIME_BOUNDARY = "----Boundary";
@@ -68,9 +62,6 @@ constexpr uint64_t SECONDS_SINCE_FIRST_EPOCH = 2208988800;
 
 #define NAS_MESSAGE_DOWNLINK 1
 #define NAS_MESSAGE_UPLINK 0
-
-const uint32_t SD_NO_VALUE               = 0xFFFFFF;
-const uint8_t SST_MAX_STANDARDIZED_VALUE = 127;
 
 typedef enum {
   PlainNasMsg                                              = 0x0,
