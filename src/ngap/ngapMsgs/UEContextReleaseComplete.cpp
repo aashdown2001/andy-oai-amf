@@ -155,10 +155,6 @@ void UEContextReleaseCompleteMsg::setPduSessionResourceCxtRelCplList(
     const std::vector<PDUSessionResourceCxtRelCplItem_t>& list) {
   PDUSessionResourceListCxtRelCpl m_pduSessionResourceListCxtRelCpl = {};
 
-  // if (pduSessionResourceListCxtRelCpl)
-  //	PDUSessionResourceListCxtRelCpl* pduSessionResourceListCxtRelCpl = new
-  // PDUSessionResourceListCxtRelCpl();
-
   std::vector<PDUSessionResourceItemCxtRelCpl> cxtRelCplList;
 
   for (int i = 0; i < list.size(); i++) {
@@ -217,13 +213,10 @@ bool UEContextReleaseCompleteMsg::getPduSessionResourceCxtRelCplList(
   for (auto& item : cxtRelCplList) {
     PDUSessionResourceCxtRelCplItem_t rel = {};
     PDUSessionID pDUSessionID             = {};
-
     item.getPDUSessionResourceItemCxtRelCpl(pDUSessionID);
     pDUSessionID.getPDUSessionID(rel.pduSessionId);
-
     list.push_back(rel);
   }
-
   return true;
 }
 
@@ -291,11 +284,8 @@ bool UEContextReleaseCompleteMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_reject &&
             ies->protocolIEs.list.array[i]->value.present ==
                 Ngap_UEContextReleaseComplete_IEs__value_PR_PDUSessionResourceListCxtRelCpl) {
-          // pduSessionResourceListCxtRelCpl =
-          //     new PDUSessionResourceListCxtRelCpl();
           PDUSessionResourceListCxtRelCpl m_pduSessionResourceListCxtRelCpl =
               {};
-
           if (!m_pduSessionResourceListCxtRelCpl
                    .decodefromPDUSessionResourceListCxtRelCpl(
                        ies->protocolIEs.list.array[i]
@@ -307,7 +297,6 @@ bool UEContextReleaseCompleteMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
           pduSessionResourceListCxtRelCpl =
               std::optional<PDUSessionResourceListCxtRelCpl>{
                   m_pduSessionResourceListCxtRelCpl};
-
         } else {
           Logger::ngap().error(
               "Decode NGAP PDUSessionResourceListCxtRelCpl IE error");
