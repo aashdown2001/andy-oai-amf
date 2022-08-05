@@ -1335,7 +1335,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
     ueCtxRelCmd->setCauseRadioNetwork(
         (e_Ngap_CauseRadioNetwork) itti_msg.cause.getValue());
   }
-
+  
   uint8_t buffer[BUFFER_SIZE_256];
   int encoded_size = ueCtxRelCmd->encode2Buffer(buffer, BUFFER_SIZE_256);
 
@@ -1343,6 +1343,84 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
   sctp_s_38412.sctp_send_msg(
       gc.get()->sctp_assoc_id, unc.get()->sctp_stream_send, &b);
   return;
+
+  /*
+   * Send ITTI to N11 SBI, notify CommunicationFailure Report, RAN Cause
+   */
+  std::shared_ptr<nas_context> nc = {};
+  if (amf_n1_inst->is_amf_ue_id_2_nas_context(itti_msg.amf_ue_ngap_id))
+    nc = amf_n1_inst->amf_ue_id_2_nas_context(itti_msg.amf_ue_ngap_id);
+  else {
+    Logger::amf_n2().warn(
+        "Could not notify RAN caused CommunicationFailure."
+        "No existing nas_context with amf_ue_ngap_id(" AMF_UE_NGAP_ID_FMT
+        ")",
+        itti_msg.amf_ue_ngap_id);
+        return;
+  }
+  string supi = "imsi-" + nc.get()->imsi;
+
+  Logger::amf_n2().debug(
+      "Send request to SBI to trigger UE Communication Failure Report (SUPI "
+      "%s )",
+      supi.c_str());
+  std::vector<std::shared_ptr<amf_subscription>> subscriptions = {};
+  amf_app_inst->get_ee_subscriptions(
+      amf_event_type_t::COMMUNICATION_FAILURE_REPORT, subscriptions);
+
+  if (subscriptions.size() > 0) {
+    // Send request to SBI to trigger the notification to the subscribed event
+    Logger::amf_n1().debug(
+        "Send ITTI msg to AMF SBI to trigger the event notification");
+
+    std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg_ev =
+        std::make_shared<itti_sbi_notify_subscribed_event>(
+            TASK_AMF_N2, TASK_AMF_SBI);
+
+    itti_msg_ev->http_version = 1;
+
+    for (auto i : subscriptions) {
+      // Avoid repeated notifications
+      // TODO: use the anyUE field from the subscription request
+      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+
+      event_notification ev_notif = {};
+      ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
+      ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
+      // ev_notif.set_subs_change_notify_correlation_id(i.get()->notify_uri);
+
+      oai::amf::model::AmfEventReport event_report = {};
+      oai::amf::model::AmfEventType amf_event_type = {};
+      amf_event_type.set_value("COMMUNICATION_FAILURE_REPORT");
+      event_report.setType(amf_event_type);
+
+      oai::amf::model::AmfEventState amf_event_state = {};
+      amf_event_state.setActive(true);
+      event_report.setState(amf_event_state);
+
+      oai::amf::model::CommunicationFailure comm_failure = {};
+
+      NgApCause ngap_cause = {};
+      ngap_cause.setGroup(itti_msg.cause.getChoiceOfCause());
+      ngap_cause.setValue(itti_msg.cause.getValue());
+      comm_failure.setRanReleaseCode(ngap_cause);
+
+      event_report.setCommFailure(comm_failure);
+
+      event_report.setSupi(supi);
+      ev_notif.add_report(event_report);
+
+      itti_msg_ev->event_notifs.push_back(ev_notif);
+    }
+
+    int ret = itti_inst->send_msg(itti_msg_ev);
+    if (0 != ret) {
+      Logger::amf_n2().error(
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
+          itti_msg_ev->get_msg_name());
+    }
+  }
+
 }
 
 //------------------------------------------------------------------------------
@@ -2282,6 +2360,12 @@ void amf_n2::remove_ue_context_with_ran_ue_ngap_id(
     if (nc.get()->is_stacs_available) {
       stacs.update_5gmm_state(nc.get()->imsi, "5GMM-DEREGISTERED");
     }
+    // Trigger UE Loss of Connectivity Status Notify
+    Logger::amf_n1().debug(
+        "Signal the UE Loss of Connectivity Event notification for SUPI %s",
+        supi.c_str());
+    amf_n1_inst->event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1, ran_ue_ngap_id, unc.get()->amf_ue_ngap_id);
+  
 
     amf_n1_inst->remove_imsi_2_nas_context(supi);
     // TODO:  remove_guti_2_nas_context(guti);
@@ -2358,6 +2442,11 @@ void amf_n2::remove_ue_context_with_amf_ue_ngap_id(
     if (nc.get()->is_stacs_available) {
       stacs.update_5gmm_state(nc.get()->imsi, "5GMM-DEREGISTERED");
     }
+    // Trigger UE Loss of Connectivity Status Notify
+    Logger::amf_n1().debug(
+        "Signal the UE Loss of Connectivity Event notification for SUPI %s",
+        supi.c_str());
+    amf_n1_inst->event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1, nc.get()->ran_ue_ngap_id, amf_ue_ngap_id);
 
     amf_n1_inst->remove_imsi_2_nas_context(supi);
     // TODO:  remove_guti_2_nas_context(guti);

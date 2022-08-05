@@ -162,6 +162,15 @@ amf_n1::amf_n1() {
   ee_ue_connectivity_state_connection =
       event_sub.subscribe_ue_connectivity_state(boost::bind(
           &amf_n1::handle_ue_connectivity_state_change, this, _1, _2, _3));
+
+  // EventExposure: subscribe to UE Loss of Connectivity change
+  ee_ue_loss_of_connectivity_connection =
+      event_sub.subscribe_ue_loss_of_connectivity(boost::bind(
+          &amf_n1::handle_ue_loss_of_connectivity_change, this, _1, _2, _3, _4, _5));
+  // EventExposure: subscribe to UE Communication Failure Report
+  ee_ue_communication_failure_connection =
+      event_sub.subscribe_ue_communication_failure(boost::bind(
+          &amf_n1::handle_ue_communication_failure_change, this, _1, _2, _3));
 }
 
 //------------------------------------------------------------------------------
@@ -175,6 +184,10 @@ amf_n1::~amf_n1() {
     ee_ue_registration_state_connection.disconnect();
   if (ee_ue_connectivity_state_connection.connected())
     ee_ue_connectivity_state_connection.disconnect();
+  if (ee_ue_loss_of_connectivity_connection.connected())
+    ee_ue_loss_of_connectivity_connection.disconnect();
+  if (ee_ue_communication_failure_connection.connected())
+    ee_ue_communication_failure_connection.disconnect();
 }
 
 //------------------------------------------------------------------------------
@@ -760,13 +773,6 @@ void amf_n1::identity_response_handle(
       set_5gmm_state(nc, _5GMM_COMMON_PROCEDURE_INITIATED);
       // stacs.display();
 
-      string supi = "imsi-" + nc.get()->imsi;
-      Logger::amf_n1().debug(
-          "Signal the UE Registration State Event notification for SUPI %s",
-          supi.c_str());
-      event_sub.ue_registration_state(
-          supi, _5GMM_COMMON_PROCEDURE_INITIATED, 1);
-
       nc.get()->is_stacs_available = true;
     }
     // TODO: Trigger UE Location Report
@@ -886,6 +892,12 @@ void amf_n1::service_request_handle(
             pdu_session_status =
                 (uint16_t) service_request_nas->getPduSessionStatus();
           }
+          
+          // Trigger UE Connectivity Status Notify
+          Logger::amf_n1().debug(
+              "Signal the UE Connectivity Status Event notification for SUPI %s",
+              supi.c_str());
+          event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
         } break;
 
         default:
@@ -1089,13 +1101,6 @@ void amf_n1::registration_request_handle(
           set_5gmm_state(nc, _5GMM_COMMON_PROCEDURE_INITIATED);
           // stacs.display();
 
-          string supi = "imsi-" + nc.get()->imsi;
-          Logger::amf_n1().debug(
-              "Signal the UE Registration State Event notification for SUPI %s",
-              supi.c_str());
-          event_sub.ue_registration_state(
-              supi, _5GMM_COMMON_PROCEDURE_INITIATED, 1);
-
           nc.get()->is_stacs_available = true;
         }
       }
@@ -1161,6 +1166,16 @@ void amf_n1::registration_request_handle(
         // Stop Mobile Reachable Timer/Implicit Deregistration Timer
         itti_inst->timer_remove(nc.get()->mobile_reachable_timer);
         itti_inst->timer_remove(nc.get()->implicit_deregistration_timer);
+
+        // Trigger UE Reachability Status Notify
+        if (!nc.get()->imsi.empty()) {
+          string supi = "imsi-" + nc.get()->imsi;
+          Logger::amf_n1().debug(
+              "Signal the UE Reachability Status Event notification for SUPI "
+              "%s",
+              supi.c_str());
+          event_sub.ue_reachability_status(supi, CM_CONNECTED, 1);
+        }
       }
     } break;
 
@@ -1620,6 +1635,21 @@ void amf_n1::send_registration_reject_msg(
 
   bstring b = blk2bstr(buffer, encoded_size);
   itti_send_dl_nas_buffer_to_task_n2(b, ran_ue_ngap_id, amf_ue_ngap_id);
+
+  // Trigger CommunicationFailure Report notify
+  oai::amf::model::CommunicationFailure comm_failure = {};
+  std::shared_ptr<ue_context> uc = {};
+  if (!find_ue_context(ran_ue_ngap_id, amf_ue_ngap_id, uc)) {
+    Logger::amf_n1().warn("Cannot find the UE context, unable to notify CommunicationFailure Report");
+    return;
+  }
+  string supi = uc.get()->supi;
+  Logger::amf_n1().debug(
+      "Signal the UE CommunicationFailure Report Event notification for SUPI %s",
+      supi.c_str());
+  comm_failure.setNasReleaseCode(std::to_string(cause_value));
+  event_sub.ue_communication_failure(supi, comm_failure, 1);
+
 }
 
 //------------------------------------------------------------------------------
@@ -2588,11 +2618,18 @@ void amf_n1::security_mode_complete_handle(
   set_5gmm_state(nc, _5GMM_REGISTERED);
   stacs.display();
 
+  // Trigger UE Registration Status Notify
   string supi = "imsi-" + nc.get()->imsi;
   Logger::amf_n1().debug(
       "Signal the UE Registration State Event notification for SUPI %s",
       supi.c_str());
   event_sub.ue_registration_state(supi, _5GMM_REGISTERED, 1);
+
+  // Trigger UE Connectivity Status Notify
+  Logger::amf_n1().debug(
+      "Signal the UE Connectivity Status Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
 
   set_guti_2_nas_context(guti, nc);
   nc.get()->is_common_procedure_for_security_mode_control_running = false;
@@ -3052,10 +3089,23 @@ void amf_n1::ue_initiate_de_registration_handle(
   stacs.display();
 
   string supi = "imsi-" + nc.get()->imsi;
+  // Trigger UE Registration Status Notify
   Logger::amf_n1().debug(
       "Signal the UE Registration State Event notification for SUPI %s",
       supi.c_str());
   event_sub.ue_registration_state(supi, _5GMM_DEREGISTERED, 1);
+
+  // Trigger UE Loss of Connectivity Status Notify
+  Logger::amf_n1().debug(
+      "Signal the UE Loss of Connectivity Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
+
+  // Trigger UE Loss of Connectivity Status Notify
+  Logger::amf_n1().debug(
+      "Signal the UE Loss of Connectivity Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_loss_of_connectivity(supi, PURGED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
 
   if (nc.get()->is_stacs_available) {
     stacs.update_5gmm_state(nc.get()->imsi, "5GMM-DEREGISTERED");
@@ -3114,6 +3164,13 @@ void amf_n1::ue_initiate_de_registration_handle(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
   }
+
+  // Trigger UE Connectivity Status Notify
+  Logger::amf_n1().debug(
+      "Signal the UE Connectivity Status Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_connectivity_state(supi, CM_IDLE, 1);
+
 }
 
 //------------------------------------------------------------------------------
@@ -3477,6 +3534,10 @@ void amf_n1::handle_ue_location_change(
     itti_msg->http_version = 1;
 
     for (auto i : subscriptions) {
+      // Avoid repeated notifications
+      // TODO: use the anyUE field from the subscription request
+      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+      
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
       ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
@@ -3532,6 +3593,10 @@ void amf_n1::handle_ue_reachability_status_change(
     itti_msg->http_version = 1;
 
     for (auto i : subscriptions) {
+      // Avoid repeated notifications
+      // TODO: use the anyUE field from the subscription request
+      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
       ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
@@ -3592,6 +3657,10 @@ void amf_n1::handle_ue_registration_state_change(
     itti_msg->http_version = 1;
 
     for (auto i : subscriptions) {
+      // Avoid repeated notifications
+      // TODO: use the anyUE field from the subscription request
+      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
       ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
@@ -3610,11 +3679,15 @@ void amf_n1::handle_ue_registration_state_change(
       std::vector<oai::amf::model::RmInfo> rm_infos;
       oai::amf::model::RmInfo rm_info   = {};
       oai::amf::model::RmState rm_state = {};
-      rm_state.set_value("REGISTERED");
+
+      if (status == _5GMM_DEREGISTERED)
+        rm_state.set_value("DEREGISTERED");
+      else if (status == _5GMM_REGISTERED)
+        rm_state.set_value("REGISTERED");
       rm_info.setRmState(rm_state);
 
       oai::amf::model::AccessType access_type = {};
-      access_type.setValue(AccessType::eAccessType::_3GPP_ACCESS);
+      access_type.setValue(AccessType::eAccessType::_3GPP_ACCESS); // hard-coded
       rm_info.setAccessType(access_type);
 
       rm_infos.push_back(rm_info);
@@ -3659,6 +3732,10 @@ void amf_n1::handle_ue_connectivity_state_change(
     itti_msg->http_version = 1;
 
     for (auto i : subscriptions) {
+      // Avoid repeated notifications
+      // TODO: use the anyUE field from the subscription request
+      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
       ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
@@ -3677,11 +3754,14 @@ void amf_n1::handle_ue_connectivity_state_change(
       std::vector<oai::amf::model::CmInfo> cm_infos;
       oai::amf::model::CmInfo cm_info   = {};
       oai::amf::model::CmState cm_state = {};
-      cm_state.set_value("CONNECTED");
+      if (status == CM_IDLE)
+        cm_state.set_value("IDLE");
+      else if (status == CM_CONNECTED)
+        cm_state.set_value("CONNECTED");
       cm_info.setCmState(cm_state);
 
       oai::amf::model::AccessType access_type = {};
-      access_type.setValue(AccessType::eAccessType::_3GPP_ACCESS);
+      access_type.setValue(AccessType::eAccessType::_3GPP_ACCESS); // hard-coded
       cm_info.setAccessType(access_type);
       cm_infos.push_back(cm_info);
       event_report.setCmInfoList(cm_infos);
@@ -3700,6 +3780,133 @@ void amf_n1::handle_ue_connectivity_state_change(
     }
   }
 }
+
+//------------------------------------------------------------------------------
+void amf_n1::handle_ue_communication_failure_change(
+    std::string supi, oai::amf::model::CommunicationFailure comm_failure,
+    uint8_t http_version) {
+  Logger::amf_n1().debug(
+      "Send request to SBI to trigger UE Communication Failure Report (SUPI "
+      "%s )",
+      supi.c_str());
+  std::vector<std::shared_ptr<amf_subscription>> subscriptions = {};
+  amf_app_inst->get_ee_subscriptions(
+      amf_event_type_t::COMMUNICATION_FAILURE_REPORT, subscriptions);
+
+  if (subscriptions.size() > 0) {
+    // Send request to SBI to trigger the notification to the subscribed event
+    Logger::amf_n1().debug(
+        "Send ITTI msg to AMF SBI to trigger the event notification");
+
+    std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg =
+        std::make_shared<itti_sbi_notify_subscribed_event>(
+            TASK_AMF_N1, TASK_AMF_SBI);
+
+    itti_msg->http_version = 1;
+
+    for (auto i : subscriptions) {
+      // Avoid repeated notifications
+      // TODO: use the anyUE field from the subscription request
+      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+
+      event_notification ev_notif = {};
+      ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
+      ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
+      // ev_notif.set_subs_change_notify_correlation_id(i.get()->notify_uri);
+
+      oai::amf::model::AmfEventReport event_report = {};
+      oai::amf::model::AmfEventType amf_event_type = {};
+      amf_event_type.set_value("COMMUNICATION_FAILURE_REPORT");
+      event_report.setType(amf_event_type);
+
+      oai::amf::model::AmfEventState amf_event_state = {};
+      amf_event_state.setActive(true);
+      event_report.setState(amf_event_state);
+
+      event_report.setCommFailure(comm_failure);
+
+      event_report.setSupi(supi);
+      ev_notif.add_report(event_report);
+
+      itti_msg->event_notifs.push_back(ev_notif);
+    }
+
+    int ret = itti_inst->send_msg(itti_msg);
+    if (0 != ret) {
+      Logger::amf_n1().error(
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
+          itti_msg->get_msg_name());
+    }
+  }
+}
+
+
+//------------------------------------------------------------------------------
+void amf_n1::handle_ue_loss_of_connectivity_change(
+    std::string supi, uint8_t status, uint8_t http_version,
+    uint32_t ran_ue_ngap_id, long amf_ue_ngap_id) {
+  Logger::amf_n1().debug(
+      "Send request to SBI to trigger UE Loss of Connectivity (SUPI "
+      "%s )",
+      supi.c_str());
+
+  std::vector<std::shared_ptr<amf_subscription>> subscriptions = {};
+  amf_app_inst->get_ee_subscriptions(
+      amf_event_type_t::LOSS_OF_CONNECTIVITY, subscriptions);
+
+  if (subscriptions.size() > 0) {
+    // Send request to SBI to trigger the notification to the subscribed event
+    Logger::amf_n1().debug(
+        "Send ITTI msg to AMF SBI to trigger the event notification");
+
+    std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg =
+        std::make_shared<itti_sbi_notify_subscribed_event>(
+            TASK_AMF_N1, TASK_AMF_SBI);
+
+    itti_msg->http_version = 1;
+
+    for (auto i : subscriptions) {
+      event_notification ev_notif = {};
+      ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
+      ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
+      // ev_notif.set_subs_change_notify_correlation_id(i.get()->notify_uri);
+
+      oai::amf::model::AmfEventReport event_report = {};
+      oai::amf::model::AmfEventType amf_event_type = {};
+      amf_event_type.set_value("LOSS_OF_CONNECTIVITY");
+      event_report.setType(amf_event_type);
+
+      oai::amf::model::AmfEventState amf_event_state = {};
+      amf_event_state.setActive(true);
+      event_report.setState(amf_event_state);
+    
+      oai::amf::model::LossOfConnectivityReason ue_loss_of_connectivity_reason = {};
+      if (status == DEREGISTERED)
+        ue_loss_of_connectivity_reason.set_value("DEREGISTERED");
+      else if (status == MAX_DETECTION_TIME_EXPIRED)
+        ue_loss_of_connectivity_reason.set_value("MAX_DETECTION_TIME_EXPIRED");
+      else if (status == PURGED)
+        ue_loss_of_connectivity_reason.set_value("PURGED");
+
+      event_report.setLossOfConnectReason(ue_loss_of_connectivity_reason);
+      event_report.setRanUeNgapId(ran_ue_ngap_id);
+      event_report.setAmfUeNgapId(amf_ue_ngap_id);
+      event_report.setSupi(supi);
+      ev_notif.add_report(event_report);
+
+      itti_msg->event_notifs.push_back(ev_notif);
+    }
+
+    int ret = itti_inst->send_msg(itti_msg);
+    if (0 != ret) {
+      Logger::amf_n1().error(
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
+          itti_msg->get_msg_name());
+    }
+  }
+}
+
+
 
 //------------------------------------------------------------------------------
 void amf_n1::get_pdu_session_to_be_activated(
@@ -3882,6 +4089,13 @@ void amf_n1::mobile_reachable_timer_timeout(
   }
   set_mobile_reachable_timer_timeout(nc, true);
 
+  // Trigger UE Loss of Connectivity Status Notify
+  string supi = "imsi-" + nc.get()->imsi;
+  Logger::amf_n1().debug(
+      "Signal the UE Loss of Connectivity Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_loss_of_connectivity(supi, MAX_DETECTION_TIME_EXPIRED, 1, nc.get()->ran_ue_ngap_id, amf_ue_ngap_id);
+
   // TODO: Start the implicit de-registration timer
   timer_id_t tid = itti_inst->timer_setup(
       IMPLICIT_DEREGISTRATION_TIMER_MIN * 60, 0, TASK_AMF_N1,
@@ -3956,6 +4170,13 @@ void amf_n1::implicit_deregistration_timer_timeout(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg_cxt_release->get_msg_name());
   }
+
+  // Trigger UE Connectivity Status Notify
+  string supi    = "imsi-" + nc.get()->imsi;
+  Logger::amf_n1().debug(
+      "Signal the UE Connectivity Status Event notification for SUPI %s",
+      supi.c_str());
+  event_sub.ue_connectivity_state(supi, CM_IDLE, 1);
 }
 
 //------------------------------------------------------------------------------

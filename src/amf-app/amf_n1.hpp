@@ -806,6 +806,40 @@ class amf_n1 {
   void handle_ue_connectivity_state_change(
       std::string supi, uint8_t status, uint8_t http_version);
 
+  /*
+   * Handle the UE Loss of Connectivity Change event to trigger the notification
+   * to the subscribed NFs
+   * @param [std::string] supi: SUPI
+   * @param [uint8_t] status: UE Loss of Connectivity status
+   * @param [uint8_t] http_version: HTTP version (for the notification)
+   * @param [uint32_t] ran_ue_ngap_id: RAN UE NGAP ID
+   * @param [long] amf_ue_ngap_id: AMF UE NGAP ID
+   * @return void
+   */
+  void handle_ue_loss_of_connectivity_change(
+      std::string supi, uint8_t status, uint8_t http_version,
+      uint32_t ran_ue_ngap_id, long amf_ue_ngap_id);
+  /*
+   * Handle the UE Communication Failure event to trigger the notification to the
+   * subscribed NFs
+   * @param [std::string] supi: SUPI
+   * @param [oai::amf::model::CommunicationFailure] comm_failure: Communication Failure reason
+   * @param [uint8_t] http_version: HTTP version (for the notification)
+   * @return void
+   */
+  void handle_ue_communication_failure_change(
+      std::string supi, oai::amf::model::CommunicationFailure, uint8_t http_version);
+
+  // for Event Handling
+  amf_event event_sub;
+  bs2::connection ee_ue_location_report_connection;
+  bs2::connection ee_ue_reachability_status_connection;
+  bs2::connection ee_ue_registration_state_connection;
+  bs2::connection ee_ue_connectivity_state_connection;
+  bs2::connection ee_ue_loss_of_connectivity_connection;
+  bs2::connection ee_ue_communication_failure_connection;
+
+
  private:
   /*
    * Handle UE-initiated Deregistration Request message
@@ -967,13 +1001,6 @@ class amf_n1 {
   static uint8_t no_random_delta;
   random_state_t random_state;
   database_t* db_desc;
-
-  // for Event Handling
-  amf_event event_sub;
-  bs2::connection ee_ue_location_report_connection;
-  bs2::connection ee_ue_reachability_status_connection;
-  bs2::connection ee_ue_registration_state_connection;
-  bs2::connection ee_ue_connectivity_state_connection;
 };
 }  // namespace amf_application
 

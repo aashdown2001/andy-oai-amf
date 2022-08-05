@@ -41,6 +41,9 @@ AmfEventReport::AmfEventReport() {
   m_CmInfoListIsSet         = false;
   m_ReachabilityIsSet       = false;
   m_CommFailureIsSet        = false;
+  m_LossOfConnectReasonIsSet = false;
+  m_RanUeNgapIdIsSet        = false;
+  m_AmfUeNgapIdIsSet        = false;
   m_NumberOfUes             = 0;
   m_NumberOfUesIsSet        = false;
   m_r_5gsUserStateListIsSet = false;
@@ -256,6 +259,18 @@ bool AmfEventReport::operator==(const AmfEventReport& rhs) const {
        (commFailureIsSet() && rhs.commFailureIsSet() &&
         getCommFailure() == rhs.getCommFailure())) &&
 
+      ((!lossOfConnectReasonIsSet() && !rhs.lossOfConnectReasonIsSet()) ||
+       (lossOfConnectReasonIsSet() && rhs.lossOfConnectReasonIsSet() &&
+        getLossOfConnectReason() == rhs.getLossOfConnectReason())) &&
+
+      ((!ranUeNgapIdIsSet() && !rhs.ranUeNgapIdIsSet()) ||
+       (ranUeNgapIdIsSet() && rhs.ranUeNgapIdIsSet() &&
+        getRanUeNgapId() == rhs.getRanUeNgapId())) &&
+
+      ((!amfUeNgapIdIsSet() && !rhs.amfUeNgapIdIsSet()) ||
+       (amfUeNgapIdIsSet() && rhs.amfUeNgapIdIsSet() &&
+        getAmfUeNgapId() == rhs.getAmfUeNgapId())) &&
+
       ((!numberOfUesIsSet() && !rhs.numberOfUesIsSet()) ||
        (numberOfUesIsSet() && rhs.numberOfUesIsSet() &&
         getNumberOfUes() == rhs.getNumberOfUes())) &&
@@ -293,6 +308,9 @@ void to_json(nlohmann::json& j, const AmfEventReport& o) {
     j["cmInfoList"] = o.m_CmInfoList;
   if (o.reachabilityIsSet()) j["reachability"] = o.m_Reachability;
   if (o.commFailureIsSet()) j["commFailure"] = o.m_CommFailure;
+  if (o.lossOfConnectReasonIsSet()) j["lossOfConnectReason"] = o.m_LossOfConnectReason;
+  if (o.ranUeNgapIdIsSet()) j["ranUeNgapId"] = o.m_RanUeNgapId;
+  if (o.amfUeNgapIdIsSet()) j["amfUeNgapId"] = o.m_AmfUeNgapId;
   if (o.numberOfUesIsSet()) j["numberOfUes"] = o.m_NumberOfUes;
   if (o.r5gsUserStateListIsSet() || !o.m_r_5gsUserStateList.empty())
     j["5gsUserStateList"] = o.m_r_5gsUserStateList;
@@ -357,6 +375,18 @@ void from_json(const nlohmann::json& j, AmfEventReport& o) {
   if (j.find("commFailure") != j.end()) {
     j.at("commFailure").get_to(o.m_CommFailure);
     o.m_CommFailureIsSet = true;
+  }
+  if (j.find("lossOfConnectReason") != j.end()) {
+    j.at("lossOfConnectReason").get_to(o.m_LossOfConnectReason);
+    o.m_LossOfConnectReasonIsSet = true;
+  }
+  if (j.find("ranUeNgapId") != j.end()) {
+    j.at("ranUeNgapId").get_to(o.m_RanUeNgapId);
+    o.m_RanUeNgapIdIsSet = true;
+  }
+  if (j.find("amfUeNgapId") != j.end()) {
+    j.at("amfUeNgapId").get_to(o.m_AmfUeNgapId);
+    o.m_AmfUeNgapIdIsSet = true;
   }
   if (j.find("numberOfUes") != j.end()) {
     j.at("numberOfUes").get_to(o.m_NumberOfUes);
@@ -567,6 +597,45 @@ bool AmfEventReport::commFailureIsSet() const {
 }
 void AmfEventReport::unsetCommFailure() {
   m_CommFailureIsSet = false;
+}
+LossOfConnectivityReason AmfEventReport::getLossOfConnectReason() const {
+    return m_LossOfConnectReason;
+}
+void AmfEventReport::setLossOfConnectReason(LossOfConnectivityReason const& value) {
+    m_LossOfConnectReason = value;
+    m_LossOfConnectReasonIsSet = true;
+}
+bool AmfEventReport::lossOfConnectReasonIsSet() const {
+    return m_LossOfConnectReasonIsSet;
+}
+void AmfEventReport::unsetLossOfConnectReason() {
+    m_LossOfConnectReasonIsSet = false;
+}
+uint32_t AmfEventReport::getRanUeNgapId() const {
+  return m_RanUeNgapId;
+}
+void AmfEventReport::setRanUeNgapId(uint32_t const value) {
+  m_RanUeNgapId      = value;
+  m_RanUeNgapIdIsSet = true;
+}
+bool AmfEventReport::ranUeNgapIdIsSet() const {
+  return m_RanUeNgapIdIsSet;
+}
+void AmfEventReport::unsetRanUeNgapId() {
+  m_RanUeNgapIdIsSet = false;
+}
+long AmfEventReport::getAmfUeNgapId() const {
+  return m_AmfUeNgapId;
+}
+void AmfEventReport::setAmfUeNgapId(long const value) {
+  m_AmfUeNgapId      = value;
+  m_AmfUeNgapIdIsSet = true;
+}
+bool AmfEventReport::amfUeNgapIdIsSet() const {
+  return m_AmfUeNgapIdIsSet;
+}
+void AmfEventReport::unsetAmfUeNgapId() {
+  m_AmfUeNgapIdIsSet = false;
 }
 int32_t AmfEventReport::getNumberOfUes() const {
   return m_NumberOfUes;

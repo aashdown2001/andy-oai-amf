@@ -55,6 +55,18 @@ typedef enum { CM_IDLE = 0, CM_CONNECTED } cm_state_t;
 static const std::vector<std::string> cm_state_e2str = {
     "CM_IDLE", "CM_CONNECTED"};
 
+typedef enum {
+  DEREGISTERED = 0,
+  MAX_DETECTION_TIME_EXPIRED,
+  PURGED
+} loss_of_connectivity_status_t;
+
+static const std::vector<std::string> loss_of_connectivity_status_e2str = {
+  "DEREGISTERED",
+  "MAX_DETECTION_TIME_EXPIRED",
+  "PURGED"
+};
+
 class nas_context {
  public:
   nas_context();
