@@ -572,7 +572,8 @@ void amf_sbi::handle_itti_message(itti_sbi_notify_subscribed_event& itti_msg) {
         report["supi"] = r.getSupi();
       }
       if (r.locationIsSet()) {
-        report["location"] = r.getLocation(); // get eutraLocation, nrLocation, n3gaLocation?
+        report["location"] =
+            r.getLocation();  // get eutraLocation, nrLocation, n3gaLocation?
       }
       if (r.rmInfoListIsSet()) {
         report["rmInfoList"] = r.getRmInfoList();

@@ -1,6 +1,7 @@
 /**
  * Namf_EventExposure
- * AMF Event Exposure Service © 2022, 3GPP Organizational Partners (ARIB, ATIS, CCSA, ETSI, TSDSI, TTA, TTC). All rights reserved. 
+ * AMF Event Exposure Service © 2022, 3GPP Organizational Partners (ARIB, ATIS,
+ * CCSA, ETSI, TSDSI, TTA, TTC). All rights reserved.
  *
  * The version of the OpenAPI document: 1.1.7
  *
@@ -12,7 +13,7 @@
 /*
  * LossOfConnectivityReason.h
  *
- * 
+ *
  */
 
 #ifndef LossOfConnectivityReason_H_
@@ -24,43 +25,43 @@
 namespace oai::amf::model {
 
 /// <summary>
-/// 
+///
 /// </summary>
-class  LossOfConnectivityReason {
-public:
-    LossOfConnectivityReason();
-    virtual ~LossOfConnectivityReason() = default;
+class LossOfConnectivityReason {
+ public:
+  LossOfConnectivityReason();
+  virtual ~LossOfConnectivityReason() = default;
 
-    /// <summary>
-    /// Validate the current data in the model. Throws a ValidationException on
-    /// failure.
-    /// </summary>
-    void validate() const;
+  /// <summary>
+  /// Validate the current data in the model. Throws a ValidationException on
+  /// failure.
+  /// </summary>
+  void validate() const;
 
-    /// <summary>
-    /// Validate the current data in the model. Returns false on error and writes
-    /// an error message into the given stringstream.
-    /// </summary>
-    bool validate(std::stringstream& msg) const;
+  /// <summary>
+  /// Validate the current data in the model. Returns false on error and writes
+  /// an error message into the given stringstream.
+  /// </summary>
+  bool validate(std::stringstream& msg) const;
 
-    bool operator==(const LossOfConnectivityReason& rhs) const;
-    bool operator!=(const LossOfConnectivityReason& rhs) const;
+  bool operator==(const LossOfConnectivityReason& rhs) const;
+  bool operator!=(const LossOfConnectivityReason& rhs) const;
 
-    /////////////////////////////////////////////
-    /// LossOfConnectivityReason members
+  /////////////////////////////////////////////
+  /// LossOfConnectivityReason members
 
-    void set_value(std::string value);
-    void get_value(std::string& value) const;
-    std::string get_value() const;
+  void set_value(std::string value);
+  void get_value(std::string& value) const;
+  std::string get_value() const;
 
-    friend void to_json(nlohmann::json& j, const LossOfConnectivityReason& o);
-    friend void from_json(const nlohmann::json& j, LossOfConnectivityReason& o);
+  friend void to_json(nlohmann::json& j, const LossOfConnectivityReason& o);
+  friend void from_json(const nlohmann::json& j, LossOfConnectivityReason& o);
 
-protected:
-    std::string value;
-    // Helper overload for validate. Used when one model stores another model and
-    // calls it's validate.
-    bool validate(std::stringstream& msg, const std::string& pathPrefix) const;
+ protected:
+  std::string value;
+  // Helper overload for validate. Used when one model stores another model and
+  // calls it's validate.
+  bool validate(std::stringstream& msg, const std::string& pathPrefix) const;
 };
 
 }  // namespace oai::amf::model

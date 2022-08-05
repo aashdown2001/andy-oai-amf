@@ -1,6 +1,7 @@
 /**
  * Namf_EventExposure
- * AMF Event Exposure Service © 2022, 3GPP Organizational Partners (ARIB, ATIS, CCSA, ETSI, TSDSI, TTA, TTC). All rights reserved. 
+ * AMF Event Exposure Service © 2022, 3GPP Organizational Partners (ARIB, ATIS,
+ * CCSA, ETSI, TSDSI, TTA, TTC). All rights reserved.
  *
  * The version of the OpenAPI document: 1.1.7
  *
@@ -8,8 +9,6 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-
-
 
 #include "LossOfConnectivityReason.h"
 #include "Helpers.h"
@@ -40,13 +39,15 @@ bool LossOfConnectivityReason::validate(
   return success;
 }
 
-bool LossOfConnectivityReason::operator==(const LossOfConnectivityReason& rhs) const {
+bool LossOfConnectivityReason::operator==(
+    const LossOfConnectivityReason& rhs) const {
   return true;  // TODO
 
   ;
 }
 
-bool LossOfConnectivityReason::operator!=(const LossOfConnectivityReason& rhs) const {
+bool LossOfConnectivityReason::operator!=(
+    const LossOfConnectivityReason& rhs) const {
   return !(*this == rhs);
 }
 

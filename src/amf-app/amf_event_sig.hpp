@@ -81,6 +81,5 @@ typedef bs2::signal_type<
 
 // TODO: UEs-In-Area-Report
 
-
 }  // namespace amf_application
 #endif

@@ -166,7 +166,8 @@ amf_n1::amf_n1() {
   // EventExposure: subscribe to UE Loss of Connectivity change
   ee_ue_loss_of_connectivity_connection =
       event_sub.subscribe_ue_loss_of_connectivity(boost::bind(
-          &amf_n1::handle_ue_loss_of_connectivity_change, this, _1, _2, _3, _4, _5));
+          &amf_n1::handle_ue_loss_of_connectivity_change, this, _1, _2, _3, _4,
+          _5));
   // EventExposure: subscribe to UE Communication Failure Report
   ee_ue_communication_failure_connection =
       event_sub.subscribe_ue_communication_failure(boost::bind(
@@ -892,10 +893,11 @@ void amf_n1::service_request_handle(
             pdu_session_status =
                 (uint16_t) service_request_nas->getPduSessionStatus();
           }
-          
+
           // Trigger UE Connectivity Status Notify
           Logger::amf_n1().debug(
-              "Signal the UE Connectivity Status Event notification for SUPI %s",
+              "Signal the UE Connectivity Status Event notification for SUPI "
+              "%s",
               supi.c_str());
           event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
         } break;
@@ -1638,18 +1640,20 @@ void amf_n1::send_registration_reject_msg(
 
   // Trigger CommunicationFailure Report notify
   oai::amf::model::CommunicationFailure comm_failure = {};
-  std::shared_ptr<ue_context> uc = {};
+  std::shared_ptr<ue_context> uc                     = {};
   if (!find_ue_context(ran_ue_ngap_id, amf_ue_ngap_id, uc)) {
-    Logger::amf_n1().warn("Cannot find the UE context, unable to notify CommunicationFailure Report");
+    Logger::amf_n1().warn(
+        "Cannot find the UE context, unable to notify CommunicationFailure "
+        "Report");
     return;
   }
   string supi = uc.get()->supi;
   Logger::amf_n1().debug(
-      "Signal the UE CommunicationFailure Report Event notification for SUPI %s",
+      "Signal the UE CommunicationFailure Report Event notification for SUPI "
+      "%s",
       supi.c_str());
   comm_failure.setNasReleaseCode(std::to_string(cause_value));
   event_sub.ue_communication_failure(supi, comm_failure, 1);
-
 }
 
 //------------------------------------------------------------------------------
@@ -3099,13 +3103,15 @@ void amf_n1::ue_initiate_de_registration_handle(
   Logger::amf_n1().debug(
       "Signal the UE Loss of Connectivity Event notification for SUPI %s",
       supi.c_str());
-  event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
+  event_sub.ue_loss_of_connectivity(
+      supi, DEREGISTERED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
 
   // Trigger UE Loss of Connectivity Status Notify
   Logger::amf_n1().debug(
       "Signal the UE Loss of Connectivity Event notification for SUPI %s",
       supi.c_str());
-  event_sub.ue_loss_of_connectivity(supi, PURGED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
+  event_sub.ue_loss_of_connectivity(
+      supi, PURGED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
 
   if (nc.get()->is_stacs_available) {
     stacs.update_5gmm_state(nc.get()->imsi, "5GMM-DEREGISTERED");
@@ -3170,7 +3176,6 @@ void amf_n1::ue_initiate_de_registration_handle(
       "Signal the UE Connectivity Status Event notification for SUPI %s",
       supi.c_str());
   event_sub.ue_connectivity_state(supi, CM_IDLE, 1);
-
 }
 
 //------------------------------------------------------------------------------
@@ -3536,8 +3541,10 @@ void amf_n1::handle_ue_location_change(
     for (auto i : subscriptions) {
       // Avoid repeated notifications
       // TODO: use the anyUE field from the subscription request
-      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
-      
+      if (i.get()->supi_is_set &&
+          std::strcmp(i.get()->supi.c_str(), supi.c_str()))
+        continue;
+
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
       ev_notif.set_notify_uri(i.get()->notify_uri);  // Direct subscription
@@ -3595,7 +3602,9 @@ void amf_n1::handle_ue_reachability_status_change(
     for (auto i : subscriptions) {
       // Avoid repeated notifications
       // TODO: use the anyUE field from the subscription request
-      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+      if (i.get()->supi_is_set &&
+          std::strcmp(i.get()->supi.c_str(), supi.c_str()))
+        continue;
 
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
@@ -3659,7 +3668,9 @@ void amf_n1::handle_ue_registration_state_change(
     for (auto i : subscriptions) {
       // Avoid repeated notifications
       // TODO: use the anyUE field from the subscription request
-      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+      if (i.get()->supi_is_set &&
+          std::strcmp(i.get()->supi.c_str(), supi.c_str()))
+        continue;
 
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
@@ -3687,7 +3698,8 @@ void amf_n1::handle_ue_registration_state_change(
       rm_info.setRmState(rm_state);
 
       oai::amf::model::AccessType access_type = {};
-      access_type.setValue(AccessType::eAccessType::_3GPP_ACCESS); // hard-coded
+      access_type.setValue(
+          AccessType::eAccessType::_3GPP_ACCESS);  // hard-coded
       rm_info.setAccessType(access_type);
 
       rm_infos.push_back(rm_info);
@@ -3734,7 +3746,9 @@ void amf_n1::handle_ue_connectivity_state_change(
     for (auto i : subscriptions) {
       // Avoid repeated notifications
       // TODO: use the anyUE field from the subscription request
-      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+      if (i.get()->supi_is_set &&
+          std::strcmp(i.get()->supi.c_str(), supi.c_str()))
+        continue;
 
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
@@ -3761,7 +3775,8 @@ void amf_n1::handle_ue_connectivity_state_change(
       cm_info.setCmState(cm_state);
 
       oai::amf::model::AccessType access_type = {};
-      access_type.setValue(AccessType::eAccessType::_3GPP_ACCESS); // hard-coded
+      access_type.setValue(
+          AccessType::eAccessType::_3GPP_ACCESS);  // hard-coded
       cm_info.setAccessType(access_type);
       cm_infos.push_back(cm_info);
       event_report.setCmInfoList(cm_infos);
@@ -3807,7 +3822,9 @@ void amf_n1::handle_ue_communication_failure_change(
     for (auto i : subscriptions) {
       // Avoid repeated notifications
       // TODO: use the anyUE field from the subscription request
-      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+      if (i.get()->supi_is_set &&
+          std::strcmp(i.get()->supi.c_str(), supi.c_str()))
+        continue;
 
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
@@ -3839,7 +3856,6 @@ void amf_n1::handle_ue_communication_failure_change(
     }
   }
 }
-
 
 //------------------------------------------------------------------------------
 void amf_n1::handle_ue_loss_of_connectivity_change(
@@ -3879,8 +3895,9 @@ void amf_n1::handle_ue_loss_of_connectivity_change(
       oai::amf::model::AmfEventState amf_event_state = {};
       amf_event_state.setActive(true);
       event_report.setState(amf_event_state);
-    
-      oai::amf::model::LossOfConnectivityReason ue_loss_of_connectivity_reason = {};
+
+      oai::amf::model::LossOfConnectivityReason ue_loss_of_connectivity_reason =
+          {};
       if (status == DEREGISTERED)
         ue_loss_of_connectivity_reason.set_value("DEREGISTERED");
       else if (status == MAX_DETECTION_TIME_EXPIRED)
@@ -3905,8 +3922,6 @@ void amf_n1::handle_ue_loss_of_connectivity_change(
     }
   }
 }
-
-
 
 //------------------------------------------------------------------------------
 void amf_n1::get_pdu_session_to_be_activated(
@@ -4094,7 +4109,9 @@ void amf_n1::mobile_reachable_timer_timeout(
   Logger::amf_n1().debug(
       "Signal the UE Loss of Connectivity Event notification for SUPI %s",
       supi.c_str());
-  event_sub.ue_loss_of_connectivity(supi, MAX_DETECTION_TIME_EXPIRED, 1, nc.get()->ran_ue_ngap_id, amf_ue_ngap_id);
+  event_sub.ue_loss_of_connectivity(
+      supi, MAX_DETECTION_TIME_EXPIRED, 1, nc.get()->ran_ue_ngap_id,
+      amf_ue_ngap_id);
 
   // TODO: Start the implicit de-registration timer
   timer_id_t tid = itti_inst->timer_setup(
@@ -4172,7 +4189,7 @@ void amf_n1::implicit_deregistration_timer_timeout(
   }
 
   // Trigger UE Connectivity Status Notify
-  string supi    = "imsi-" + nc.get()->imsi;
+  string supi = "imsi-" + nc.get()->imsi;
   Logger::amf_n1().debug(
       "Signal the UE Connectivity Status Event notification for SUPI %s",
       supi.c_str());
