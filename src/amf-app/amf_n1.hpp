@@ -837,6 +837,7 @@ class amf_n1 {
   bs2::connection ee_ue_registration_state_connection;
   bs2::connection ee_ue_connectivity_state_connection;
   bs2::connection ee_ue_loss_of_connectivity_connection;
+  bs2::connection ee_ue_communication_failure_connection;
 
 
  private:

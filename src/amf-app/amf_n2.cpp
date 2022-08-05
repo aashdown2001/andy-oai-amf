@@ -1375,7 +1375,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
 
     std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg_ev =
         std::make_shared<itti_sbi_notify_subscribed_event>(
-            TASK_AMF_N2, TASK_AMF_N11);
+            TASK_AMF_N2, TASK_AMF_SBI);
 
     itti_msg_ev->http_version = 1;
 
@@ -1416,7 +1416,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
     int ret = itti_inst->send_msg(itti_msg_ev);
     if (0 != ret) {
       Logger::amf_n2().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg_ev->get_msg_name());
     }
   }

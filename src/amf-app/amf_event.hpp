@@ -98,7 +98,6 @@ class amf_event {
   bs2::connection subscribe_ue_communication_failure(
       const ue_communication_failure_sig_t::slot_type& sig);
 
- private:
   ue_location_report_sig_t ue_location_report;  // Signal for UE Location Report
   ue_reachability_status_sig_t
       ue_reachability_status;  // Signal for UE Reachability Report

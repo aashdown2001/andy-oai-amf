@@ -3800,7 +3800,7 @@ void amf_n1::handle_ue_communication_failure_change(
 
     std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg =
         std::make_shared<itti_sbi_notify_subscribed_event>(
-            TASK_AMF_N1, TASK_AMF_N11);
+            TASK_AMF_N1, TASK_AMF_SBI);
 
     itti_msg->http_version = 1;
 
@@ -3834,7 +3834,7 @@ void amf_n1::handle_ue_communication_failure_change(
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::amf_n1().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
   }
@@ -3861,7 +3861,7 @@ void amf_n1::handle_ue_loss_of_connectivity_change(
 
     std::shared_ptr<itti_sbi_notify_subscribed_event> itti_msg =
         std::make_shared<itti_sbi_notify_subscribed_event>(
-            TASK_AMF_N1, TASK_AMF_N11);
+            TASK_AMF_N1, TASK_AMF_SBI);
 
     itti_msg->http_version = 1;
 
@@ -3900,7 +3900,7 @@ void amf_n1::handle_ue_loss_of_connectivity_change(
     int ret = itti_inst->send_msg(itti_msg);
     if (0 != ret) {
       Logger::amf_n1().error(
-          "Could not send ITTI message %s to task TASK_AMF_N11",
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
     }
   }
