@@ -19,34 +19,34 @@
 namespace oai::amf::model {
 
 AmfEventReport::AmfEventReport() {
-  m_TimeStamp               = "";
-  m_SubscriptionId          = "";
-  m_SubscriptionIdIsSet     = false;
-  m_AnyUe                   = false;
-  m_AnyUeIsSet              = false;
-  m_Supi                    = "";
-  m_SupiIsSet               = false;
-  m_AreaListIsSet           = false;
-  m_RefId                   = 0;
-  m_RefIdIsSet              = false;
-  m_Gpsi                    = "";
-  m_GpsiIsSet               = false;
-  m_Pei                     = "";
-  m_PeiIsSet                = false;
-  m_LocationIsSet           = false;
-  m_Timezone                = "";
-  m_TimezoneIsSet           = false;
-  m_AccessTypeListIsSet     = false;
-  m_RmInfoListIsSet         = false;
-  m_CmInfoListIsSet         = false;
-  m_ReachabilityIsSet       = false;
-  m_CommFailureIsSet        = false;
+  m_TimeStamp                = "";
+  m_SubscriptionId           = "";
+  m_SubscriptionIdIsSet      = false;
+  m_AnyUe                    = false;
+  m_AnyUeIsSet               = false;
+  m_Supi                     = "";
+  m_SupiIsSet                = false;
+  m_AreaListIsSet            = false;
+  m_RefId                    = 0;
+  m_RefIdIsSet               = false;
+  m_Gpsi                     = "";
+  m_GpsiIsSet                = false;
+  m_Pei                      = "";
+  m_PeiIsSet                 = false;
+  m_LocationIsSet            = false;
+  m_Timezone                 = "";
+  m_TimezoneIsSet            = false;
+  m_AccessTypeListIsSet      = false;
+  m_RmInfoListIsSet          = false;
+  m_CmInfoListIsSet          = false;
+  m_ReachabilityIsSet        = false;
+  m_CommFailureIsSet         = false;
   m_LossOfConnectReasonIsSet = false;
-  m_RanUeNgapIdIsSet        = false;
-  m_AmfUeNgapIdIsSet        = false;
-  m_NumberOfUes             = 0;
-  m_NumberOfUesIsSet        = false;
-  m_r_5gsUserStateListIsSet = false;
+  m_RanUeNgapIdIsSet         = false;
+  m_AmfUeNgapIdIsSet         = false;
+  m_NumberOfUes              = 0;
+  m_NumberOfUesIsSet         = false;
+  m_r_5gsUserStateListIsSet  = false;
 }
 
 void AmfEventReport::validate() const {
@@ -308,7 +308,8 @@ void to_json(nlohmann::json& j, const AmfEventReport& o) {
     j["cmInfoList"] = o.m_CmInfoList;
   if (o.reachabilityIsSet()) j["reachability"] = o.m_Reachability;
   if (o.commFailureIsSet()) j["commFailure"] = o.m_CommFailure;
-  if (o.lossOfConnectReasonIsSet()) j["lossOfConnectReason"] = o.m_LossOfConnectReason;
+  if (o.lossOfConnectReasonIsSet())
+    j["lossOfConnectReason"] = o.m_LossOfConnectReason;
   if (o.ranUeNgapIdIsSet()) j["ranUeNgapId"] = o.m_RanUeNgapId;
   if (o.amfUeNgapIdIsSet()) j["amfUeNgapId"] = o.m_AmfUeNgapId;
   if (o.numberOfUesIsSet()) j["numberOfUes"] = o.m_NumberOfUes;
@@ -599,17 +600,18 @@ void AmfEventReport::unsetCommFailure() {
   m_CommFailureIsSet = false;
 }
 LossOfConnectivityReason AmfEventReport::getLossOfConnectReason() const {
-    return m_LossOfConnectReason;
+  return m_LossOfConnectReason;
 }
-void AmfEventReport::setLossOfConnectReason(LossOfConnectivityReason const& value) {
-    m_LossOfConnectReason = value;
-    m_LossOfConnectReasonIsSet = true;
+void AmfEventReport::setLossOfConnectReason(
+    LossOfConnectivityReason const& value) {
+  m_LossOfConnectReason      = value;
+  m_LossOfConnectReasonIsSet = true;
 }
 bool AmfEventReport::lossOfConnectReasonIsSet() const {
-    return m_LossOfConnectReasonIsSet;
+  return m_LossOfConnectReasonIsSet;
 }
 void AmfEventReport::unsetLossOfConnectReason() {
-    m_LossOfConnectReasonIsSet = false;
+  m_LossOfConnectReasonIsSet = false;
 }
 uint32_t AmfEventReport::getRanUeNgapId() const {
   return m_RanUeNgapId;

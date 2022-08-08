@@ -1335,7 +1335,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
     ueCtxRelCmd->setCauseRadioNetwork(
         (e_Ngap_CauseRadioNetwork) itti_msg.cause.getValue());
   }
-  
+
   uint8_t buffer[BUFFER_SIZE_256];
   int encoded_size = ueCtxRelCmd->encode2Buffer(buffer, BUFFER_SIZE_256);
 
@@ -1353,10 +1353,9 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
   else {
     Logger::amf_n2().warn(
         "Could not notify RAN caused CommunicationFailure."
-        "No existing nas_context with amf_ue_ngap_id(" AMF_UE_NGAP_ID_FMT
-        ")",
+        "No existing nas_context with amf_ue_ngap_id(" AMF_UE_NGAP_ID_FMT ")",
         itti_msg.amf_ue_ngap_id);
-        return;
+    return;
   }
   string supi = "imsi-" + nc.get()->imsi;
 
@@ -1382,7 +1381,9 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
     for (auto i : subscriptions) {
       // Avoid repeated notifications
       // TODO: use the anyUE field from the subscription request
-      if (i.get()->supi_is_set && std::strcmp(i.get()->supi.c_str(), supi.c_str())) continue;
+      if (i.get()->supi_is_set &&
+          std::strcmp(i.get()->supi.c_str(), supi.c_str()))
+        continue;
 
       event_notification ev_notif = {};
       ev_notif.set_notify_correlation_id(i.get()->notify_correlation_id);
@@ -1420,7 +1421,6 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
           itti_msg_ev->get_msg_name());
     }
   }
-
 }
 
 //------------------------------------------------------------------------------
@@ -2364,8 +2364,8 @@ void amf_n2::remove_ue_context_with_ran_ue_ngap_id(
     Logger::amf_n1().debug(
         "Signal the UE Loss of Connectivity Event notification for SUPI %s",
         supi.c_str());
-    amf_n1_inst->event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1, ran_ue_ngap_id, unc.get()->amf_ue_ngap_id);
-  
+    amf_n1_inst->event_sub.ue_loss_of_connectivity(
+        supi, DEREGISTERED, 1, ran_ue_ngap_id, unc.get()->amf_ue_ngap_id);
 
     amf_n1_inst->remove_imsi_2_nas_context(supi);
     // TODO:  remove_guti_2_nas_context(guti);
@@ -2446,7 +2446,8 @@ void amf_n2::remove_ue_context_with_amf_ue_ngap_id(
     Logger::amf_n1().debug(
         "Signal the UE Loss of Connectivity Event notification for SUPI %s",
         supi.c_str());
-    amf_n1_inst->event_sub.ue_loss_of_connectivity(supi, DEREGISTERED, 1, nc.get()->ran_ue_ngap_id, amf_ue_ngap_id);
+    amf_n1_inst->event_sub.ue_loss_of_connectivity(
+        supi, DEREGISTERED, 1, nc.get()->ran_ue_ngap_id, amf_ue_ngap_id);
 
     amf_n1_inst->remove_imsi_2_nas_context(supi);
     // TODO:  remove_guti_2_nas_context(guti);

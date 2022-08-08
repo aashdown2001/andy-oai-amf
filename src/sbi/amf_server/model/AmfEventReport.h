@@ -176,7 +176,7 @@ class AmfEventReport {
   bool commFailureIsSet() const;
   void unsetCommFailure();
   /// <summary>
-  /// 
+  ///
   /// </summary>
   LossOfConnectivityReason getLossOfConnectReason() const;
   void setLossOfConnectReason(LossOfConnectivityReason const& value);

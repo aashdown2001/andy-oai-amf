@@ -88,7 +88,7 @@ class amf_event {
 
   bs2::connection subscribe_ue_loss_of_connectivity(
       const ue_loss_of_connectivity_sig_t::slot_type& sig);
-/*
+  /*
    * Subscribe to UE Communication Failure Notification signal
    * @param [const ue_communication_failure_sig_t::slot_type&] sig: slot_type
    * parameter
