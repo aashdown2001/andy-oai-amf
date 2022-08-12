@@ -81,18 +81,23 @@ RUN ldconfig && \
 #---------------------------------------------------------------------
 # TARGET IMAGE
 #---------------------------------------------------------------------
-FROM registry.access.redhat.com/ubi8/ubi:latest as oai-amf
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest as oai-amf
 ENV TZ=Europe/Paris
 # We install some debug tools for the moment in addition of mandatory libraries
-RUN yum update -y && \
-    yum install -y --enablerepo="ubi-8-codeready-builder" \
+RUN microdnf update -y && \
+    microdnf install -y \
       tzdata \
       libasan \
+      lksctp-tools \
       procps-ng \
       psmisc \
       net-tools \
-      libevent && \
-    yum clean all -y && \
+      libicu \
+      boost \
+      libevent \
+      mysql-libs \
+      libconfig && \
+    microdnf clean all -y && \
     rm -rf /var/cache/yum /var/cache/dnf
 
 # Copying executable and generated libraries
@@ -103,24 +108,9 @@ COPY --from=oai-amf-builder \
     ./
 
 COPY --from=oai-amf-builder \
-    /usr/lib64/libconfig++.so.9 \
-    /usr/lib64/libboost_system.so.1.66.0 \
     /usr/local/lib64/libpistache.so.0 \
     /usr/local/lib/libnghttp2_asio.so \
     /usr/local/lib/libnghttp2_asio.so.1 \
-    /usr/lib64/mysql/libmysqlclient.so.21 \
-    /usr/lib64/libsctp.so.1 \
-    /usr/local/lib64/libcpprest.so.2.10 \
-    /usr/lib64/libboost_random.so.1.66.0 \
-    /usr/lib64/libboost_thread.so.1.66.0 \
-    /usr/lib64/libboost_filesystem.so.1.66.0 \
-    /usr/lib64/libboost_chrono.so.1.66.0 \
-    /usr/lib64/libboost_atomic.so.1.66.0 \
-    /usr/lib64/libboost_date_time.so.1.66.0 \
-    /usr/lib64/libboost_regex.so.1.66.0 \
-    /usr/lib64/libicudata.so.60 \
-    /usr/lib64/libicui18n.so.60 \
-    /usr/lib64/libicuuc.so.60 \
     /usr/lib64/
 
 RUN ldconfig && \

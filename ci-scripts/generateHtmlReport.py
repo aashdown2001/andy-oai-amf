@@ -469,8 +469,8 @@ class HtmlReport():
 				pistache_build_status = False
 				json_build_start = False
 				json_build_status = False
-				cpprest_build_start = False
-				cpprest_build_status = False
+				nghttp2_build_start = False
+				nghttp2_build_status = False
 				base_image = False
 				with open(cwd + '/archives/' + logFileName, 'r') as logfile:
 					for line in logfile:
@@ -490,12 +490,12 @@ class HtmlReport():
 							result = re.search('distro libs installation complete', line)
 							if result is not None:
 								package_install = True
-							result = re.search('Starting to install cpprestsdk', line)
+							result = re.search('Starting to install nghttp2', line)
 							if result is not None:
-								cpprest_build_start = True
-							result = re.search('cpprestsdk installation complete', line)
-							if result is not None and cpprest_build_start:
-								cpprest_build_status = True
+								nghttp2_build_start = True
+							result = re.search('nghttp2 installation complete', line)
+							if result is not None and nghttp2_build_start:
+								nghttp2_build_status = True
 							result = re.search('Starting to install spdlog', line)
 							if result is not None:
 								spdlog_build_start = True
@@ -532,11 +532,11 @@ class HtmlReport():
 				else:
 					cell_msg += '   ** Packages Installation: KO\n'
 				if base_image:
-					cell_msg += '   ** cpprestsdk Installation: N/A\n'
-				elif cpprest_build_status:
-					cell_msg += '   ** cpprestsdk Installation: OK\n'
+					cell_msg += '   ** nghttp2-asio Installation: N/A\n'
+				elif nghttp2_build_status:
+					cell_msg += '   ** nghttp2-asio Installation: OK\n'
 				else:
-					cell_msg += '   ** cpprestsdk Installation: KO\n'
+					cell_msg += '   ** nghttp2-asio Installation: KO\n'
 				if base_image:
 					cell_msg += '   ** spdlog Installation: N/A\n'
 				elif spdlog_build_status:
