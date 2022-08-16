@@ -1079,16 +1079,14 @@ ngap_message_decoded_callback messages_callback[][3] = {
 //------------------------------------------------------------------------------
 void ngap_sctp_shutdown(const sctp_assoc_id_t assoc_id) {
   Logger::ngap().debug("Sending ITTI SCTP Shutdown event to TASK_AMF_N2");
+  auto itti_msg = std::make_shared<itti_ng_shutdown>(TASK_NGAP, TASK_AMF_N2);
+  itti_msg->assoc_id = assoc_id;
 
-  itti_ng_shutdown* itti_msg = new itti_ng_shutdown(TASK_NGAP, TASK_AMF_N2);
-  itti_msg->assoc_id         = assoc_id;
-  std::shared_ptr<itti_ng_shutdown> i =
-      std::shared_ptr<itti_ng_shutdown>(itti_msg);
-  int ret = itti_inst->send_msg(i);
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
   return;
 }
