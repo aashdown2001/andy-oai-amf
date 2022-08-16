@@ -68,6 +68,15 @@ RUN apt-get update && \
       libldap-2.?-? \
       libconfig++9v5 \
       libsctp1 \
+      librtmp1 \
+      libpsl5 \
+# Ubuntu 18/20 --> mysqlclient20, Ubuntu22 --> mysqlclient21
+      libmysqlclient2? \
+      libsqlite3-? \
+      libcurl4-gnutls-dev \
+# Ubuntu 18 --> boost62/65 -> will remove both
+# Ubuntu 20 --> boost67/71 -> will remove 67
+# Ubuntu 22 --> boost74
       libboost-thread1.??.0 \
       libboost-chrono1.??.0 \
   && rm -rf /var/lib/apt/lists/* \
@@ -82,23 +91,16 @@ COPY --from=oai-amf-builder \
     /openair-amf/scripts/entrypoint.sh \
     ./
 
-WORKDIR /usr/lib/x86_64-linux-gnu
-COPY --from=oai-amf-builder \
-    /usr/lib/x86_64-linux-gnu/libmysqlclient.so.* \
-    /usr/lib/x86_64-linux-gnu/libsqlite3.so.0 \
-    /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so.4 \
-    /usr/lib/x86_64-linux-gnu/librtmp.so.1 \
-    /usr/lib/x86_64-linux-gnu/libpsl.so.5 \
-    ./
-
 WORKDIR /usr/local/lib
 COPY --from=oai-amf-builder \
+# Copying only the packages built from source
     /usr/local/lib/libnghttp2.so.14 \
     /usr/local/lib/libnghttp2_asio.so.1 \
+    /usr/local/lib/libpistache.so \
+# Ubuntu 18 --> boost 67 will be copied
     /usr/lib/libboost_system.so.1.* \
     /usr/lib/libboost_thread.so.1.* \
     /usr/lib/libboost_chrono.so.1.* \
-    /usr/local/lib/libpistache.so \
     ./
 
 RUN ldconfig && \
