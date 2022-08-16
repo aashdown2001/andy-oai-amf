@@ -95,6 +95,7 @@ RUN microdnf update -y && \
       libicu \
       boost \
       libevent \
+      findutils \
       mysql-libs \
       libconfig && \
     microdnf clean all -y && \
