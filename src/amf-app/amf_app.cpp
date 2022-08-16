@@ -37,6 +37,7 @@
 #include "amf_sbi.hpp"
 #include "amf_statistics.hpp"
 #include "comUt.hpp"
+#include "conversions.hpp"
 #include "itti.hpp"
 #include "ngap_app.hpp"
 

@@ -25,7 +25,6 @@
 #include <thread>
 
 #include "common_defs.h"
-#include "endpoint.hpp"
 
 extern "C" {
 #include <netinet/in.h>

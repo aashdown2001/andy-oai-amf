@@ -51,6 +51,7 @@
 #include "amf_sbi.hpp"
 #include "amf_statistics.hpp"
 #include "comUt.hpp"
+#include "conversions.hpp"
 #include "itti.hpp"
 #include "itti_msg_amf_app.hpp"
 #include "logger.hpp"

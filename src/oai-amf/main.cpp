@@ -35,6 +35,7 @@
 #include "amf_config.hpp"
 #include "amf_module_from_config.hpp"
 #include "amf_statistics.hpp"
+#include "conversions.hpp"
 #include "itti.hpp"
 #include "logger.hpp"
 #include "ngap_app.hpp"
