@@ -47,7 +47,6 @@ RUN rm -f /etc/rhsm-host && \
         diffutils \
         file \
         gcc-c++ \
-        cmake3 \
         ninja-build \
         boost-devel \
         openssl-devel \
