@@ -94,6 +94,7 @@ WORKDIR /openair-amf/bin
 COPY --from=oai-amf-builder \
     /openair-amf/build/amf/build/oai_amf \
     /openair-amf/scripts/entrypoint.sh \
+    /openair-amf/scripts/healthcheck.sh \
     ./
 
 WORKDIR /usr/local/lib
@@ -119,6 +120,11 @@ WORKDIR /openair-amf
 
 # expose ports
 EXPOSE 80/tcp 9090/tcp 38412/sctp
+# healthcheck
+HEALTHCHECK --interval=10s \
+            --timeout=15s \
+            --retries=6 \
+    CMD /openair-amf/bin/healthcheck.sh
 
 ENTRYPOINT ["/bin/bash","/openair-amf/bin/entrypoint.sh"]
 CMD ["/openair-amf/bin/oai_amf", "-c", "/openair-amf/etc/amf.conf", "-o"]
