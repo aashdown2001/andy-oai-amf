@@ -124,7 +124,7 @@ class statistics {
    */
   uint32_t get_number_connected_gnbs() const;
 
- public:
+ private:
   uint32_t gNB_connected;
   uint32_t UE_connected;
   uint32_t UE_registred;

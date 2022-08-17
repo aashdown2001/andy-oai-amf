@@ -183,4 +183,6 @@ static const std::vector<std::string> nas_ciphering_algorithm_list_e2str = {
 
 #define DEREGISTRATION_TYPE_MASK 0b00001000
 
+#define NAS_MESSAGE_MIN_LENGTH 3
+
 #endif

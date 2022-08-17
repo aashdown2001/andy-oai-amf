@@ -77,6 +77,7 @@ class nf_profile : public std::enable_shared_from_this<nf_profile> {
     return *this;
   }
   // nf_profile(nf_profile &b) = delete;
+  virtual ~nf_profile() {}
 
   /*
    * Set NF instance ID

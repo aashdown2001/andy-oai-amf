@@ -137,12 +137,20 @@ void amf_n1_task(void*) {
 }
 
 //------------------------------------------------------------------------------
-amf_n1::amf_n1() {
+amf_n1::amf_n1()
+    : m_amfueid2nas_context(), m_nas_context(), m_guti2nas_context() {
   if (itti_inst->create_task(TASK_AMF_N1, amf_n1_task, nullptr)) {
     Logger::amf_n1().error("Cannot create task TASK_AMF_N1");
     throw std::runtime_error("Cannot create task TASK_AMF_N1");
   }
-  Logger::amf_n1().startup("amf_n1 started");
+  amfueid2nas_context = {};
+  imsi2nas_context    = {};
+  supi2amfId          = {};
+  supi2ranId          = {};
+  guti2nas_context    = {};
+  random_state        = {};
+  db_desc             = {};
+  db_desc.db_conn     = nullptr;
 
   // EventExposure: subscribe to UE Location Report
   ee_ue_location_report_connection = event_sub.subscribe_ue_location_report(
@@ -172,6 +180,8 @@ amf_n1::amf_n1() {
   ee_ue_communication_failure_connection =
       event_sub.subscribe_ue_communication_failure(boost::bind(
           &amf_n1::handle_ue_communication_failure_change, this, _1, _2, _3));
+
+  Logger::amf_n1().startup("amf_n1 started");
 }
 
 //------------------------------------------------------------------------------
@@ -773,9 +783,16 @@ void amf_n1::identity_response_handle(
       stacs.update_ue_info(ueItem);
       set_5gmm_state(nc, _5GMM_COMMON_PROCEDURE_INITIATED);
       // stacs.display();
-
       nc.get()->is_stacs_available = true;
     }
+
+    set_5gmm_state(nc, _5GMM_COMMON_PROCEDURE_INITIATED);
+
+    string supi = "imsi-" + nc.get()->imsi;
+    Logger::amf_n1().debug(
+        "Signal the UE Registration State Event notification for SUPI %s",
+        supi.c_str());
+    event_sub.ue_registration_state(supi, _5GMM_COMMON_PROCEDURE_INITIATED, 1);
     // TODO: Trigger UE Location Report
 
     run_registration_procedure(nc);
@@ -819,7 +836,7 @@ void amf_n1::service_request_handle(
   }
 
   set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
-  nas_secu_ctx* secu = nc.get()->security_ctx;
+  nas_secu_ctx* secu = nc.get()->security_ctx;  // TODO: remove naked ptr
   if (!secu) {
     Logger::amf_n1().error("No Security Context found");
     return;
@@ -871,7 +888,12 @@ void amf_n1::service_request_handle(
     // Get PDU Session Status from NAS Message Container if available
     bstring plain_msg;
     if (service_request->getNasMessageContainer(plain_msg)) {
-      uint8_t* buf_nas     = (uint8_t*) bdata(plain_msg);
+      if (blength(plain_msg) < NAS_MESSAGE_MIN_LENGTH) {
+        Logger::amf_n1().debug("NAS message too short!");
+        return;
+      }
+
+      uint8_t* buf_nas     = (uint8_t*) bdata(plain_msg);  // TODO
       uint8_t message_type = *(buf_nas + 2);
       Logger::amf_n1().debug("NAS message type 0x%x", message_type);
 
@@ -1160,7 +1182,7 @@ void amf_n1::registration_request_handle(
         nc.get()->serving_network            = snn;
         nc.get()->is_5g_guti_present         = true;
         nc.get()->to_be_register_by_new_suci = true;
-        nc.get()->ngKsi                      = 100 & 0xf;
+        nc.get()->ngKsi = 100 & 0xf;  // TODO: remove hardcoded value
         // nc.get()->imsi =
         // set_supi_2_amf_id("imsi-" + nc.get()->imsi, amf_ue_ngap_id);
         // set_supi_2_ran_id("imsi-" + nc.get()->imsi, ran_ue_ngap_id);
@@ -1727,14 +1749,12 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context>& nc) {
 }
 
 //------------------------------------------------------------------------------
-// Get authentication vectors either from AUSF(UDM) or from AMF (generate
-// locally)
 bool amf_n1::auth_vectors_generator(std::shared_ptr<nas_context>& nc) {
   Logger::amf_n1().debug("Start to generate Authentication Vectors");
   if (amf_cfg.support_features.enable_external_ausf) {
     // get authentication vectors from AUSF
     if (!get_authentication_vectors_from_ausf(nc)) return false;
-  } else {
+  } else {  // Generate locally
     authentication_vectors_generator_in_udm(nc);
     authentication_vectors_generator_in_ausf(nc);
     Logger::amf_n1().debug("Deriving kamf");
@@ -1751,14 +1771,15 @@ bool amf_n1::auth_vectors_generator(std::shared_ptr<nas_context>& nc) {
 bool amf_n1::get_authentication_vectors_from_ausf(
     std::shared_ptr<nas_context>& nc) {
   Logger::amf_n1().debug("Get Authentication Vectors from AUSF");
+  // TODO: remove naked ptr
 
   UEAuthenticationCtx ueauthenticationctx = {};
   AuthenticationInfo authenticationinfo   = {};
   authenticationinfo.setSupiOrSuci(nc.get()->imsi);
   authenticationinfo.setServingNetworkName(nc.get()->serving_network);
   ResynchronizationInfo resynchronizationInfo = {};
-  uint8_t auts_len                            = blength(nc.get()->auts);
-  uint8_t* auts_value                 = (uint8_t*) bdata(nc.get()->auts);
+  uint8_t auts_len    = blength(nc.get()->auts);           // TODO
+  uint8_t* auts_value = (uint8_t*) bdata(nc.get()->auts);  // TODO
   std::string authenticationinfo_auts = {};
   std::string authenticationinfo_rand = {};
   if (auts_value) {
@@ -1839,6 +1860,7 @@ bool amf_n1::get_authentication_vectors_from_ausf(
 bool amf_n1::_5g_aka_confirmation_from_ausf(
     std::shared_ptr<nas_context>& nc, bstring resStar) {
   Logger::amf_n1().debug("5G AKA Confirmation from AUSF");
+  // TODO: remove naked ptr
   std::string remoteUri = nc.get()->Href;
 
   std::string msgBody        = {};
@@ -1904,9 +1926,9 @@ bool amf_n1::_5g_aka_confirmation_from_ausf(
 //------------------------------------------------------------------------------
 bool amf_n1::authentication_vectors_generator_in_ausf(
     std::shared_ptr<nas_context>& nc) {  // A.5, 3gpp ts33.501
+                                         // TODO: remove naked ptr
   Logger::amf_n1().debug(
-      "Generate Authentication Vectors in AUSF");  // Actually, done locally in
-                                                   // AMF
+      "Generate Authentication Vectors in AUSF (locally in AMF)");
   uint8_t inputString[MAX_5GS_AUTH_VECTORS][40];
   uint8_t* xresStar[MAX_5GS_AUTH_VECTORS];
   uint8_t* rand[MAX_5GS_AUTH_VECTORS];
@@ -1932,7 +1954,9 @@ bool amf_n1::authentication_vectors_generator_in_ausf(
 //------------------------------------------------------------------------------
 bool amf_n1::authentication_vectors_generator_in_udm(
     std::shared_ptr<nas_context>& nc) {
-  Logger::amf_n1().debug("Generate Authentication Vectors");
+  // TODO: remove naked ptr
+  Logger::amf_n1().debug(
+      "Generate Authentication Vectors in UDM (locally in AMF)");
   uint8_t* sqn        = nullptr;
   uint8_t* auts       = (uint8_t*) bdata(nc.get()->auts);
   _5G_HE_AV_t* vector = nc.get()->_5g_he_av;
