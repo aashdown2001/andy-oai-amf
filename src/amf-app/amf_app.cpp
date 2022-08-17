@@ -27,6 +27,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "3gpp_29.500.h"
 #include "DLNASTransport.hpp"
 #include "GlobalRanNodeId.h"
 #include "RegistrationContextContainer.h"
@@ -322,7 +323,7 @@ void amf_app::handle_itti_message(
   } else {
     Logger::amf_app().info("Handle ITTI N1N2 Message Transfer Request");
     // Encode DL NAS TRANSPORT message(NAS message)
-    DLNASTransport* dl = new DLNASTransport();
+    auto dl = std::make_unique<DLNASTransport>();
     dl->setHeader(PLAIN_5GS_MSG);
     dl->setPayload_Container_Type(N1_SM_INFORMATION);
     dl->setPayload_Container(
@@ -334,8 +335,9 @@ void amf_app::handle_itti_message(
     comUt::print_buffer("amf_app", "n1n2 transfer", nas, encoded_size);
     bstring dl_nas = blk2bstr(nas, encoded_size);
 
-    itti_downlink_nas_transfer* dl_msg =
-        new itti_downlink_nas_transfer(TASK_AMF_APP, TASK_AMF_N1);
+    std::shared_ptr<itti_downlink_nas_transfer> dl_msg =
+        std::make_shared<itti_downlink_nas_transfer>(TASK_AMF_APP, TASK_AMF_N1);
+
     dl_msg->dl_nas = dl_nas;
     if (!itti_msg.is_n2sm_set) {
       dl_msg->is_n2sm_set = false;
@@ -347,13 +349,12 @@ void amf_app::handle_itti_message(
     }
     amf_n1_inst->supi_2_amf_id(itti_msg.supi, dl_msg->amf_ue_ngap_id);
     amf_n1_inst->supi_2_ran_id(itti_msg.supi, dl_msg->ran_ue_ngap_id);
-    std::shared_ptr<itti_downlink_nas_transfer> i =
-        std::shared_ptr<itti_downlink_nas_transfer>(dl_msg);
-    int ret = itti_inst->send_msg(i);
+
+    int ret = itti_inst->send_msg(dl_msg);
     if (0 != ret) {
       Logger::amf_app().error(
           "Could not send ITTI message %s to task TASK_AMF_N1",
-          i->get_msg_name());
+          dl_msg->get_msg_name());
     }
   }
 }
@@ -361,15 +362,11 @@ void amf_app::handle_itti_message(
 //------------------------------------------------------------------------------
 void amf_app::handle_itti_message(
     itti_nas_signalling_establishment_request& itti_msg) {
-  // 1. Generate amf_ue_ngap_id
-  // 2. Create UE Context and store related information information
-  // 3. Send nas-pdu to task_amf_n1
+  long amf_ue_ngap_id            = 0;
+  std::shared_ptr<ue_context> uc = {};
 
-  long amf_ue_ngap_id = 0;
-  std::shared_ptr<ue_context> uc;
-
-  // Check UE Context with 5g-s-tmsi
-  if ((amf_ue_ngap_id = itti_msg.amf_ue_ngap_id) == -1) {
+  // Generate amf_ue_ngap_id
+  if ((amf_ue_ngap_id = itti_msg.amf_ue_ngap_id) == INVALID_AMF_UE_NGAP_ID) {
     amf_ue_ngap_id = generate_amf_ue_ngap_id();
   }
 
@@ -396,6 +393,7 @@ void amf_app::handle_itti_message(
     amf_n2_inst->set_amf_ue_ngap_id_2_ue_ngap_context(amf_ue_ngap_id, unc);
   }
 
+  // Create UE Context and store related information information
   if (uc.get() == nullptr) {
     Logger::amf_app().error(
         "Failed to create ue_context with ran_amf_id %s",
@@ -422,8 +420,10 @@ void amf_app::handle_itti_message(
       Logger::amf_app().debug("Receiving GUTI %s", guti.c_str());
     }
 
-    itti_uplink_nas_data_ind* itti_n1_msg =
-        new itti_uplink_nas_data_ind(TASK_AMF_APP, TASK_AMF_N1);
+    // Send NAS PDU to task_amf_n1 for further processing
+    std::shared_ptr<itti_uplink_nas_data_ind> itti_n1_msg =
+        std::make_shared<itti_uplink_nas_data_ind>(TASK_AMF_APP, TASK_AMF_N1);
+
     itti_n1_msg->amf_ue_ngap_id              = amf_ue_ngap_id;
     itti_n1_msg->ran_ue_ngap_id              = itti_msg.ran_ue_ngap_id;
     itti_n1_msg->is_nas_signalling_estab_req = true;
@@ -434,13 +434,12 @@ void amf_app::handle_itti_message(
     if (is_guti_valid) {
       itti_n1_msg->guti = guti;
     }
-    std::shared_ptr<itti_uplink_nas_data_ind> i =
-        std::shared_ptr<itti_uplink_nas_data_ind>(itti_n1_msg);
-    int ret = itti_inst->send_msg(i);
+
+    int ret = itti_inst->send_msg(itti_n1_msg);
     if (0 != ret) {
       Logger::amf_app().error(
           "Could not send ITTI message %s to task TASK_AMF_N1",
-          i->get_msg_name());
+          itti_n1_msg->get_msg_name());
     }
   }
 }
@@ -536,12 +535,12 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
   }
 */
 
-  long amf_ue_ngap_id = -1;
+  long amf_ue_ngap_id = INVALID_AMF_UE_NGAP_ID;
   // Generate AMF UE NGAP ID if necessary
   if (!uc.get()) {  // No UE context existed
     amf_ue_ngap_id = generate_amf_ue_ngap_id();
   } else {
-    if ((amf_ue_ngap_id = uc->amf_ue_ngap_id) == -1) {
+    if ((amf_ue_ngap_id = uc->amf_ue_ngap_id) == INVALID_AMF_UE_NGAP_ID) {
       amf_ue_ngap_id = generate_amf_ue_ngap_id();
     }
   }
@@ -620,8 +619,9 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
 
   // Step 5. Trigger the procedure following RegistrationRequest
 
-  itti_uplink_nas_data_ind* itti_n1_msg =
-      new itti_uplink_nas_data_ind(TASK_AMF_APP, TASK_AMF_N1);
+  std::shared_ptr<itti_uplink_nas_data_ind> itti_n1_msg =
+      std::make_shared<itti_uplink_nas_data_ind>(TASK_AMF_APP, TASK_AMF_N1);
+
   itti_n1_msg->amf_ue_ngap_id              = amf_ue_ngap_id;
   itti_n1_msg->ran_ue_ngap_id              = ran_ue_ngap_id;
   itti_n1_msg->is_nas_signalling_estab_req = true;
@@ -630,13 +630,11 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
   itti_n1_msg->mnc                         = ran_node_id.getPlmnId().getMnc();
   itti_n1_msg->is_guti_valid               = false;
 
-  std::shared_ptr<itti_uplink_nas_data_ind> i =
-      std::shared_ptr<itti_uplink_nas_data_ind>(itti_n1_msg);
-  int ret = itti_inst->send_msg(i);
+  int ret = itti_inst->send_msg(itti_n1_msg);
   if (0 != ret) {
     Logger::amf_app().error(
         "Could not send ITTI message %s to task TASK_AMF_N1",
-        i->get_msg_name());
+        itti_n1_msg->get_msg_name());
   }
 
   return;
@@ -672,8 +670,9 @@ void amf_app::handle_itti_message(itti_sbi_n1n2_message_subscribe& itti_msg) {
 
   nlohmann::json response_data      = {};
   response_data["createdData"]      = created_data;
-  response_data["httpResponseCode"] = 201;  // TODO:
-  response_data["location"]         = location;
+  response_data["httpResponseCode"] = static_cast<uint32_t>(
+      http_response_codes_e::HTTP_RESPONSE_CODE_201_CREATED);
+  response_data["location"] = location;
 
   // Notify to the result
   if (itti_msg.promise_id > 0) {
@@ -693,9 +692,11 @@ void amf_app::handle_itti_message(itti_sbi_n1n2_message_unsubscribe& itti_msg) {
   nlohmann::json response_data = {};
   if (remove_n1n2_message_subscription(
           itti_msg.ue_cxt_id, itti_msg.subscription_id)) {
-    response_data["httpResponseCode"] = 204;  // TODO:
+    response_data["httpResponseCode"] = static_cast<uint32_t>(
+        http_response_codes_e::HTTP_RESPONSE_CODE_204_NO_CONTENT);
   } else {
-    response_data["httpResponseCode"]               = 400;  // TODO:
+    response_data["httpResponseCode"] = static_cast<uint32_t>(
+        http_response_codes_e::HTTP_RESPONSE_CODE_BAD_REQUEST);
     oai::amf::model::ProblemDetails problem_details = {};
     // TODO set problem_details
     to_json(response_data["ProblemDetails"], problem_details);
@@ -721,9 +722,11 @@ void amf_app::handle_itti_message(itti_sbi_amf_configuration& itti_msg) {
   if (read_amf_configuration(response_data["content"])) {
     Logger::amf_app().debug(
         "AMF configuration:\n %s", response_data["content"].dump().c_str());
-    response_data["httpResponseCode"] = 200;  // TODO:
+    response_data["httpResponseCode"] =
+        static_cast<uint32_t>(http_response_codes_e::HTTP_RESPONSE_CODE_200_OK);
   } else {
-    response_data["httpResponseCode"]               = 400;  // TODO:
+    response_data["httpResponseCode"] = static_cast<uint32_t>(
+        http_response_codes_e::HTTP_RESPONSE_CODE_BAD_REQUEST);
     oai::amf::model::ProblemDetails problem_details = {};
     // TODO set problem_details
     to_json(response_data["ProblemDetails"], problem_details);
@@ -750,7 +753,8 @@ void amf_app::handle_itti_message(itti_sbi_update_amf_configuration& itti_msg) {
   if (update_amf_configuration(response_data["content"])) {
     Logger::amf_app().debug(
         "AMF configuration:\n %s", response_data["content"].dump().c_str());
-    response_data["httpResponseCode"] = 200;  // TODO:
+    response_data["httpResponseCode"] =
+        static_cast<uint32_t>(http_response_codes_e::HTTP_RESPONSE_CODE_200_OK);
 
     // Update AMF profile
     generate_amf_profile();
@@ -762,7 +766,8 @@ void amf_app::handle_itti_message(itti_sbi_update_amf_configuration& itti_msg) {
       register_to_nrf();
 
   } else {
-    response_data["httpResponseCode"]               = 400;  // TODO:
+    response_data["httpResponseCode"] = static_cast<uint32_t>(
+        http_response_codes_e::HTTP_RESPONSE_CODE_BAD_REQUEST);
     oai::amf::model::ProblemDetails problem_details = {};
     // TODO set problem_details
     to_json(response_data["ProblemDetails"], problem_details);
@@ -925,8 +930,8 @@ bool amf_app::handle_nf_status_notification(
       "Handle a NF status notification from NRF (HTTP version "
       "%d)",
       msg->http_version);
-  // TODO
-  http_code = 204;  // HTTP_STATUS_CODE_204_NO_CONTENT;
+  http_code = static_cast<uint32_t>(
+      http_response_codes_e::HTTP_RESPONSE_CODE_204_NO_CONTENT);
   return true;
 }
 

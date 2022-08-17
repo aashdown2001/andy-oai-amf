@@ -227,11 +227,13 @@ void amf_n2_task(void* args_p) {
 
 //------------------------------------------------------------------------------
 amf_n2::amf_n2(const std::string& address, const uint16_t port_num)
-    : ngap_app(address, port_num) {
+    : ngap_app(address, port_num), m_ranid2uecontext(), m_amfueid2uecontext() {
   if (itti_inst->create_task(TASK_AMF_N2, amf_n2_task, nullptr)) {
     Logger::amf_n2().error("Cannot create task TASK_AMF_N2");
     throw std::runtime_error("Cannot create task TASK_AMF_N2");
   }
+  ranid2uecontext   = {};
+  amfueid2uecontext = {};
   Logger::amf_n2().startup("amf_n2 started");
 }
 
@@ -411,17 +413,17 @@ void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
   Logger::amf_n2().debug("Encoding NG_SETUP_RESPONSE ...");
   // encode NG SETUP RESPONSE message with information stored in configuration
   // file and send_msg
-  uint8_t* buffer = (uint8_t*) calloc(1, BUFFER_SIZE_1024);
-  NGSetupResponseMsg ngSetupResp;
+  uint8_t* buffer                = (uint8_t*) calloc(1, BUFFER_SIZE_1024);
+  NGSetupResponseMsg ngSetupResp = {};
   ngSetupResp.setAMFName(amf_cfg.amf_name);
-  std::vector<struct GuamiItem_s> guami_list;
+  std::vector<GuamiItem_t> guami_list;
   for (int i = 0; i < amf_cfg.guami_list.size(); i++) {
-    struct GuamiItem_s tmp;
-    tmp.mcc        = amf_cfg.guami_list[i].mcc;
-    tmp.mnc        = amf_cfg.guami_list[i].mnc;
-    tmp.regionID   = amf_cfg.guami_list[i].regionID;
-    tmp.AmfSetID   = amf_cfg.guami_list[i].AmfSetID;
-    tmp.AmfPointer = amf_cfg.guami_list[i].AmfPointer;
+    GuamiItem_t tmp = {};
+    tmp.mcc         = amf_cfg.guami_list[i].mcc;
+    tmp.mnc         = amf_cfg.guami_list[i].mnc;
+    tmp.regionID    = amf_cfg.guami_list[i].regionID;
+    tmp.AmfSetID    = amf_cfg.guami_list[i].AmfSetID;
+    tmp.AmfPointer  = amf_cfg.guami_list[i].AmfPointer;
     guami_list.push_back(tmp);
   }
   ngSetupResp.setGUAMIList(guami_list);
@@ -429,13 +431,13 @@ void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
   ngSetupResp.setRelativeAmfCapacity(amf_cfg.relative_amf_capacity);
   std::vector<PlmnSliceSupport_t> plmn_list;
   for (int i = 0; i < amf_cfg.plmn_list.size(); i++) {
-    PlmnSliceSupport_t tmp;
-    tmp.mcc = amf_cfg.plmn_list[i].mcc;
-    tmp.mnc = amf_cfg.plmn_list[i].mnc;
+    PlmnSliceSupport_t tmp = {};
+    tmp.mcc                = amf_cfg.plmn_list[i].mcc;
+    tmp.mnc                = amf_cfg.plmn_list[i].mnc;
     for (int j = 0; j < amf_cfg.plmn_list[i].slice_list.size(); j++) {
-      S_Nssai s_tmp;
-      s_tmp.sst = std::to_string(amf_cfg.plmn_list[i].slice_list[j].sst);
-      s_tmp.sd  = std::to_string(amf_cfg.plmn_list[i].slice_list[j].sd);
+      S_Nssai s_tmp = {};
+      s_tmp.sst     = std::to_string(amf_cfg.plmn_list[i].slice_list[j].sst);
+      s_tmp.sd      = std::to_string(amf_cfg.plmn_list[i].slice_list[j].sd);
       tmp.slice_list.push_back(s_tmp);
     }
     plmn_list.push_back(tmp);
@@ -717,7 +719,7 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
   }
 
   itti_msg->ran_ue_ngap_id = ran_ue_ngap_id;
-  itti_msg->amf_ue_ngap_id = -1;
+  itti_msg->amf_ue_ngap_id = INVALID_AMF_UE_NGAP_ID;
 
   int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {

@@ -857,7 +857,8 @@ bool amf_sbi::discover_smf(
       "NFDiscovery, response from NRF, json data: \n %s",
       response_data.dump().c_str());
 
-  if (response_code != 200) {
+  if (static_cast<http_response_codes_e>(response_code) !=
+      http_response_codes_e::HTTP_RESPONSE_CODE_200_OK) {
     Logger::amf_sbi().warn("NFDiscovery, could not get response from NRF");
     result = false;
   } else {
@@ -1001,8 +1002,10 @@ bool amf_sbi::send_ue_authentication_request(
   Logger::amf_sbi().debug(
       "UE Authentication, response from AUSF, HTTP Code: %d", response_code);
 
-  if ((response_code == 200) or
-      (response_code == 201)) {  // TODO: remove hardcoded value
+  if ((static_cast<http_response_codes_e>(response_code) ==
+       http_response_codes_e::HTTP_RESPONSE_CODE_200_OK) or
+      (static_cast<http_response_codes_e>(response_code) ==
+       http_response_codes_e::HTTP_RESPONSE_CODE_201_CREATED)) {
     Logger::amf_sbi().debug(
         "UE Authentication, response from AUSF\n, %s ",
         response_data.dump().c_str());
@@ -1652,7 +1655,8 @@ bool amf_sbi::get_nrf_uri(
         "NS Selection, response from NSSF, json data: \n %s",
         response_data.dump().c_str());
 
-    if (response_code != 200) {
+    if (static_cast<http_response_codes_e>(response_code) !=
+        http_response_codes_e::HTTP_RESPONSE_CODE_200_OK) {
       Logger::amf_sbi().warn("NS Selection, could not get response from NSSF");
       result = false;
     } else {

@@ -123,7 +123,7 @@ class nas_context {
   uint8_t kamf[MAX_5GS_AUTH_VECTORS][32];
   security_context_t _security;
 
-  nas_secu_ctx* security_ctx;
+  nas_secu_ctx* security_ctx;  // TODO: avoid using naked ptr
 
   bool is_current_security_available;
 
