@@ -66,21 +66,20 @@ int ngap_amf_handle_ng_setup_request(
     Logger::ngap().error("Decoding NGSetupRequest message error");
     return RETURNerror;
   }
-  // after decoding, need free(message_p)
-  itti_ng_setup_request* itti_msg =
-      new itti_ng_setup_request(TASK_NGAP, TASK_AMF_N2);
+
+  auto itti_msg =
+      std::make_shared<itti_ng_setup_request>(TASK_NGAP, TASK_AMF_N2);
   itti_msg->assoc_id   = assoc_id;
   itti_msg->stream     = stream;
   itti_msg->ngSetupReq = ngSetupReq;
-  std::shared_ptr<itti_ng_setup_request> i =
-      std::shared_ptr<itti_ng_setup_request>(itti_msg);
-  int ret = itti_inst->send_msg(i);
+
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -89,26 +88,25 @@ int ngap_amf_handle_initial_ue_message(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Initial UE Message to TASK_AMF_N2");
   asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, message_p);
-  // decode INITIAL_UE_MESSAGE
   InitialUEMessageMsg* initUeMsg = new InitialUEMessageMsg();
   if (!initUeMsg->decodeFromPdu(message_p)) {
     Logger::ngap().error("Decoding InitialUEMessage error");
     return RETURNerror;
   }
-  itti_initial_ue_message* init_ue_msg =
-      new itti_initial_ue_message(TASK_NGAP, TASK_AMF_N2);
-  init_ue_msg->assoc_id  = assoc_id;
-  init_ue_msg->stream    = stream;
-  init_ue_msg->initUeMsg = initUeMsg;
-  std::shared_ptr<itti_initial_ue_message> i =
-      std::shared_ptr<itti_initial_ue_message>(init_ue_msg);
-  int ret = itti_inst->send_msg(i);
+
+  auto itti_msg =
+      std::make_shared<itti_initial_ue_message>(TASK_NGAP, TASK_AMF_N2);
+  itti_msg->assoc_id  = assoc_id;
+  itti_msg->stream    = stream;
+  itti_msg->initUeMsg = initUeMsg;
+
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -123,20 +121,19 @@ int ngap_amf_handle_uplink_nas_transport(
     Logger::ngap().error("Decoding UplinkNasTransport message error");
     return RETURNerror;
   }
-  itti_ul_nas_transport* itti_ul_nas =
-      new itti_ul_nas_transport(TASK_NGAP, TASK_AMF_N2);
-  itti_ul_nas->assoc_id = assoc_id;
-  itti_ul_nas->stream   = stream;
-  itti_ul_nas->ulNas    = uplinkNasT;
-  std::shared_ptr<itti_ul_nas_transport> i =
-      std::shared_ptr<itti_ul_nas_transport>(itti_ul_nas);
-  int ret = itti_inst->send_msg(i);
+
+  auto itti_msg =
+      std::make_shared<itti_ul_nas_transport>(TASK_NGAP, TASK_AMF_N2);
+  itti_msg->assoc_id = assoc_id;
+  itti_msg->stream   = stream;
+  itti_msg->ulNas    = uplinkNasT;
+  int ret            = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -158,7 +155,7 @@ int ngap_amf_handle_initial_context_setup_response(
     return 0;
   }
 
-  uint8_t transferIe[500];
+  uint8_t transferIe[BUFFER_SIZE_512];  // TODO: remove hardcoded value
   memcpy(
       transferIe, list[0].pduSessionResourceSetupResponseTransfer.buf,
       list[0].pduSessionResourceSetupResponseTransfer.size);
@@ -167,8 +164,8 @@ int ngap_amf_handle_initial_context_setup_response(
 
   Logger::ngap().debug(
       "Sending ITTI Initial Context Setup Response to TASK_AMF_SBI");
-  itti_nsmf_pdusession_update_sm_context* itti_msg =
-      new itti_nsmf_pdusession_update_sm_context(TASK_NGAP, TASK_AMF_SBI);
+  auto itti_msg = std::make_shared<itti_nsmf_pdusession_update_sm_context>(
+      TASK_NGAP, TASK_AMF_SBI);
   itti_msg->pdu_session_id = list[0].pduSessionId;
   itti_msg->n2sm           = n2sm;
   itti_msg->is_n2sm_set    = true;
@@ -176,15 +173,13 @@ int ngap_amf_handle_initial_context_setup_response(
   itti_msg->amf_ue_ngap_id = initCtxResp->getAmfUeNgapId();
   itti_msg->ran_ue_ngap_id = initCtxResp->getRanUeNgapId();
 
-  std::shared_ptr<itti_nsmf_pdusession_update_sm_context> i =
-      std::shared_ptr<itti_nsmf_pdusession_update_sm_context>(itti_msg);
-  int ret = itti_inst->send_msg(i);
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_SBI",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -193,7 +188,8 @@ int ngap_amf_handle_initial_context_setup_failure(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI Initial Context Setup Failure to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -209,20 +205,19 @@ int ngap_amf_handle_ue_radio_cap_indication(
         "Decoding UE Radio Capability Indication message error");
     return RETURNerror;
   }
-  itti_ue_radio_capability_indication* itti_msg =
-      new itti_ue_radio_capability_indication(TASK_NGAP, TASK_AMF_N2);
+
+  auto itti_msg = std::make_shared<itti_ue_radio_capability_indication>(
+      TASK_NGAP, TASK_AMF_N2);
   itti_msg->assoc_id   = assoc_id;
   itti_msg->stream     = stream;
   itti_msg->ueRadioCap = ueRadioCap;
-  std::shared_ptr<itti_ue_radio_capability_indication> i =
-      std::shared_ptr<itti_ue_radio_capability_indication>(itti_msg);
-  int ret = itti_inst->send_msg(i);
+  int ret              = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -236,20 +231,20 @@ int ngap_amf_handle_ue_context_release_request(
     Logger::ngap().error("Decoding UEContextReleaseRequest message error");
     return RETURNerror;
   }
-  itti_ue_context_release_request* itti_msg =
-      new itti_ue_context_release_request(TASK_NGAP, TASK_AMF_N2);
+
+  auto itti_msg =
+      std::make_shared<itti_ue_context_release_request>(TASK_NGAP, TASK_AMF_N2);
   itti_msg->assoc_id = assoc_id;
   itti_msg->stream   = stream;
   itti_msg->ueCtxRel = ueCtxRelReq;
-  std::shared_ptr<itti_ue_context_release_request> i =
-      std::shared_ptr<itti_ue_context_release_request>(itti_msg);
-  int ret = itti_inst->send_msg(i);
+
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -264,20 +259,20 @@ int ngap_amf_handle_ue_context_release_complete(
     Logger::ngap().error("Decoding UEContextReleaseComplete message error");
     return RETURNerror;
   }
-  itti_ue_context_release_complete* itti_msg =
-      new itti_ue_context_release_complete(TASK_NGAP, TASK_AMF_N2);
+
+  auto itti_msg = std::make_shared<itti_ue_context_release_complete>(
+      TASK_NGAP, TASK_AMF_N2);
   itti_msg->assoc_id     = assoc_id;
   itti_msg->stream       = stream;
   itti_msg->ueCtxRelCmpl = ueCtxRelCmpl;
-  std::shared_ptr<itti_ue_context_release_complete> i =
-      std::shared_ptr<itti_ue_context_release_complete>(itti_msg);
-  int ret = itti_inst->send_msg(i);
+
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -304,7 +299,7 @@ int ngap_amf_handle_pdu_session_resource_release_response(
     return RETURNerror;
   }
   // TODO: add the full list
-  uint8_t transferIe[500];
+  uint8_t transferIe[BUFFER_SIZE_512];
   memcpy(
       transferIe, list[0].pduSessionResourceReleaseResponseTransfer.buf,
       list[0].pduSessionResourceReleaseResponseTransfer.size);
@@ -313,8 +308,9 @@ int ngap_amf_handle_pdu_session_resource_release_response(
   Logger::ngap().debug(
       "Sending ITTI PDUSessionResourceReleaseResponse to TASK_AMF_SBI");
 
-  itti_nsmf_pdusession_update_sm_context* itti_msg =
-      new itti_nsmf_pdusession_update_sm_context(TASK_NGAP, TASK_AMF_SBI);
+  auto itti_msg = std::make_shared<itti_nsmf_pdusession_update_sm_context>(
+      TASK_NGAP, TASK_AMF_SBI);
+
   itti_msg->pdu_session_id = list[0].pduSessionId;
   itti_msg->n2sm           = n2sm;
   itti_msg->is_n2sm_set    = true;
@@ -322,15 +318,13 @@ int ngap_amf_handle_pdu_session_resource_release_response(
   itti_msg->amf_ue_ngap_id = pduresp->getAmfUeNgapId();
   itti_msg->ran_ue_ngap_id = pduresp->getRanUeNgapId();
 
-  std::shared_ptr<itti_nsmf_pdusession_update_sm_context> i =
-      std::shared_ptr<itti_nsmf_pdusession_update_sm_context>(itti_msg);
-  int ret = itti_inst->send_msg(i);
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_SBI",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -353,7 +347,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
     // return RETURNerror;
   } else {
     // TODO: for multiple PDU Sessions
-    uint8_t transferIe[500];
+    uint8_t transferIe[BUFFER_SIZE_512];
     memcpy(
         transferIe, list[0].pduSessionResourceSetupResponseTransfer.buf,
         list[0].pduSessionResourceSetupResponseTransfer.size);
@@ -379,6 +373,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
 
     std::shared_ptr<itti_nsmf_pdusession_update_sm_context> i =
         std::shared_ptr<itti_nsmf_pdusession_update_sm_context>(itti_msg);
+
     int ret = itti_inst->send_msg(i);
     if (0 != ret) {
       Logger::ngap().error(
@@ -412,6 +407,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
          Ngap_Cause_PR_radioNetwork) &&
         (UnSuccessfultransfer->getCause() ==
          Ngap_CauseRadioNetwork_multiple_PDU_session_ID_instances)) {
+      // TODO:
       /*Logger::ngap().debug("Sending itti pdu session resource release command
        to TASK_AMF_N2"); itti_pdu_session_resource_release_command * itti_msg =
        new itti_pdu_session_resource_release_command(TASK_NGAP, TASK_AMF_N2);
@@ -445,6 +441,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
       Logger::ngap().debug(
           "Receive pdu session resource setup response fail (multi pdu session "
           "id),set pdu session context isn2sm_avaliable = false");
+      // TODO:
       /*Logger::ngap().debug("Sending itti ue context release command to
        TASK_AMF_N2"); itti_ue_context_release_command * itti_msg = new
        itti_ue_context_release_command(TASK_AMF_N1, TASK_AMF_N2);
@@ -460,7 +457,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
       return 0;
     }
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -498,9 +495,8 @@ int ngap_amf_handle_pdu_session_resource_modify_response(
         "Sending ITTI PDUSessionResourceModifyResponseTransfer to "
         "TASK_AMF_SBI");
 
-    std::shared_ptr<itti_nsmf_pdusession_update_sm_context> itti_msg =
-        std::make_shared<itti_nsmf_pdusession_update_sm_context>(
-            TASK_NGAP, TASK_AMF_SBI);
+    auto itti_msg = std::make_shared<itti_nsmf_pdusession_update_sm_context>(
+        TASK_NGAP, TASK_AMF_SBI);
     itti_msg->pdu_session_id = response_item.pduSessionId;
     itti_msg->n2sm           = n2sm;
     itti_msg->is_n2sm_set    = true;
@@ -518,7 +514,7 @@ int ngap_amf_handle_pdu_session_resource_modify_response(
 
   // TODO:for PDUSessionResourceFailedToModifyListModRes
   // TODO: process User Location Information if available
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -526,7 +522,8 @@ int ngap_amf_handle_error_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI NGAP Error Indication to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -534,7 +531,8 @@ int ngap_amf_configuration_update(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI AMF Configuration Update to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -542,7 +540,8 @@ int amf_status_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI AMF Status Indication to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -550,7 +549,8 @@ int cell_traffic_trace(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Cell Traffic Trace to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -558,7 +558,8 @@ int deactivate_trace(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Deactivate Trace to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -566,7 +567,8 @@ int downlink_nas_transport(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Downlink NAS Transport to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -575,7 +577,8 @@ int downlink_non_UEassociated_nrppa_transport(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI Downlink Non UEAssociated NRPPA Transport to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -584,7 +587,8 @@ int downlink_ran_configuration_transfer(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI Downlink RAN Configuration Transfer to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -593,7 +597,8 @@ int downlink_ran_status_transfer(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI Downlink RAN Status Transfer to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -602,7 +607,8 @@ int downlink_ue_associated_nappa_transport(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI Downlink UE Associated NAPPA Transport to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -610,7 +616,8 @@ int handover_cancel(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Handover Cancel to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -624,20 +631,20 @@ int handover_preparation(
     Logger::ngap().error("Decoding HandoverRequired message error");
     return RETURNerror;
   }
-  itti_handover_required* itti_handover_requ =
-      new itti_handover_required(TASK_NGAP, TASK_AMF_N2);
-  itti_handover_requ->assoc_id    = assoc_id;
-  itti_handover_requ->stream      = stream;
-  itti_handover_requ->handoverReq = handover_required;
-  std::shared_ptr<itti_handover_required> i =
-      std::shared_ptr<itti_handover_required>(itti_handover_requ);
-  int ret = itti_inst->send_msg(i);
+  auto itti_msg =
+      std::make_shared<itti_handover_required>(TASK_NGAP, TASK_AMF_N2);
+
+  itti_msg->assoc_id    = assoc_id;
+  itti_msg->stream      = stream;
+  itti_msg->handoverReq = handover_required;
+
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -651,20 +658,20 @@ int handover_notification(
     Logger::ngap().error("Decoding HandoverNotify message error");
     return RETURNerror;
   }
-  itti_handover_notify* itti_handover_NOTIFY =
-      new itti_handover_notify(TASK_NGAP, TASK_AMF_N2);
-  itti_handover_NOTIFY->assoc_id       = assoc_id;
-  itti_handover_NOTIFY->stream         = stream;
-  itti_handover_NOTIFY->handovernotify = handoverNotify;
-  std::shared_ptr<itti_handover_notify> i =
-      std::shared_ptr<itti_handover_notify>(itti_handover_NOTIFY);
-  int ret = itti_inst->send_msg(i);
+  auto itti_msg =
+      std::make_shared<itti_handover_notify>(TASK_NGAP, TASK_AMF_N2);
+
+  itti_msg->assoc_id       = assoc_id;
+  itti_msg->stream         = stream;
+  itti_msg->handovernotify = handoverNotify;
+
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -679,20 +686,20 @@ int handover_resource_allocation(
     Logger::ngap().error("Decoding Handover Request Acknowledge message error");
     return RETURNerror;
   }
-  itti_handover_request_Ack* itti_handover_requ_Ack =
-      new itti_handover_request_Ack(TASK_NGAP, TASK_AMF_N2);
-  itti_handover_requ_Ack->assoc_id           = assoc_id;
-  itti_handover_requ_Ack->stream             = stream;
-  itti_handover_requ_Ack->handoverrequestAck = handoverRequestAck;
-  std::shared_ptr<itti_handover_request_Ack> i =
-      std::shared_ptr<itti_handover_request_Ack>(itti_handover_requ_Ack);
-  int ret = itti_inst->send_msg(i);
+
+  auto itti_msg =
+      std::make_shared<itti_handover_request_Ack>(TASK_NGAP, TASK_AMF_N2);
+  itti_msg->assoc_id           = assoc_id;
+  itti_msg->stream             = stream;
+  itti_msg->handoverrequestAck = handoverRequestAck;
+
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -701,7 +708,8 @@ int location_reporting_control(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI Location Reporting Control to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -710,7 +718,8 @@ int location_reporting_failure_indication(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI Location Reporting Failure Indication to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -718,7 +727,8 @@ int location_report(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Location Report to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -727,7 +737,8 @@ int nas_non_delivery_indication(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI NAS Non Delivery Indication to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -743,19 +754,18 @@ int ng_reset(
     return RETURNerror;
   }
 
-  itti_ng_reset* itti_msg          = new itti_ng_reset(TASK_NGAP, TASK_AMF_N2);
-  itti_msg->assoc_id               = assoc_id;
-  itti_msg->stream                 = stream;
-  itti_msg->ngReset                = ngReset;
-  std::shared_ptr<itti_ng_reset> i = std::shared_ptr<itti_ng_reset>(itti_msg);
-  int ret                          = itti_inst->send_msg(i);
+  auto itti_msg      = std::make_shared<itti_ng_reset>(TASK_NGAP, TASK_AMF_N2);
+  itti_msg->assoc_id = assoc_id;
+  itti_msg->stream   = stream;
+  itti_msg->ngReset  = ngReset;
+  int ret            = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
 
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -763,7 +773,8 @@ int overload_start(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Overload Start to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -771,7 +782,8 @@ int overload_stop(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Overload Stop to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -779,7 +791,8 @@ int paging(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Paging to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -787,7 +800,8 @@ int ngap_amf_handle_path_switch_request(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Path Switch Request to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -796,7 +810,8 @@ int pdu_session_resource_modify_indication(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI PDU Session Resource Modify Indication to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -805,7 +820,8 @@ int pdu_session_resource_notify(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI PDU Session Resource Notify to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -813,7 +829,8 @@ int private_message(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Private Message to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -821,7 +838,8 @@ int pws_cancel(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI PWS Cancel to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -829,7 +847,8 @@ int pws_failure_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI PWS Failure Indication to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -837,7 +856,8 @@ int pws_restart_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI PWS Restart Indication to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -845,7 +865,8 @@ int ran_configuration_update(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI RAN Configuration Update to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -853,7 +874,8 @@ int reroute_nas_request(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Reroute NAS Request to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -862,7 +884,8 @@ int rrc_inactive_transition_report(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI RRC Inactive Transition Report to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -870,7 +893,8 @@ int trace_failure_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Trace Failure Indication to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -878,7 +902,8 @@ int trace_start(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Trace Start to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -886,7 +911,8 @@ int ue_context_modification(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI UE Context Modification to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -894,7 +920,8 @@ int ue_radio_capability_check(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI UE Radio Capability Check to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -902,7 +929,8 @@ int ue_tnla_binding_release(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI UE TNLA Binding Release to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -911,7 +939,8 @@ int uplink_non_ue_associated_nrppa_transport(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI Uplink Non UE Associated NRPPA Transport to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -920,7 +949,8 @@ int uplink_ran_configuration_transfer(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI Uplink RAN Configuration Transfer to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -937,20 +967,20 @@ int uplink_ran_status_transfer(
     Logger::ngap().error("Decoding Uplink RAN Status Transfer message error");
     return RETURNerror;
   }
-  itti_uplink_ran_status_transfer* itti_uplinkran_sta_tran =
-      new itti_uplink_ran_status_transfer(TASK_NGAP, TASK_AMF_N2);
-  itti_uplinkran_sta_tran->assoc_id          = assoc_id;
-  itti_uplinkran_sta_tran->stream            = stream;
-  itti_uplinkran_sta_tran->uplinkrantransfer = Uplinkranstatustransfer;
-  std::shared_ptr<itti_uplink_ran_status_transfer> i =
-      std::shared_ptr<itti_uplink_ran_status_transfer>(itti_uplinkran_sta_tran);
-  int ret = itti_inst->send_msg(i);
+
+  auto itti_msg =
+      std::make_shared<itti_uplink_ran_status_transfer>(TASK_NGAP, TASK_AMF_N2);
+  itti_msg->assoc_id          = assoc_id;
+  itti_msg->stream            = stream;
+  itti_msg->uplinkrantransfer = Uplinkranstatustransfer;
+
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
-  return 0;
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -959,7 +989,8 @@ int uplink_ue_associated_nrppa_transport(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI Uplink UE Associated NRPPA Transport to TASK_AMF_N2");
-  return 0;
+  // TODO:
+  return RETURNok;
 }
 
 //------------------------------------------------------------------------------
@@ -1080,15 +1111,14 @@ ngap_message_decoded_callback messages_callback[][3] = {
 void ngap_sctp_shutdown(const sctp_assoc_id_t assoc_id) {
   Logger::ngap().debug("Sending ITTI SCTP Shutdown event to TASK_AMF_N2");
 
-  itti_ng_shutdown* itti_msg = new itti_ng_shutdown(TASK_NGAP, TASK_AMF_N2);
-  itti_msg->assoc_id         = assoc_id;
-  std::shared_ptr<itti_ng_shutdown> i =
-      std::shared_ptr<itti_ng_shutdown>(itti_msg);
-  int ret = itti_inst->send_msg(i);
+  auto itti_msg = std::make_shared<itti_ng_shutdown>(TASK_NGAP, TASK_AMF_N2);
+  itti_msg->assoc_id = assoc_id;
+
+  int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
-        i->get_msg_name());
+        itti_msg->get_msg_name());
   }
   return;
 }

@@ -42,6 +42,8 @@ constexpr auto CURL_MIME_BOUNDARY = "----Boundary";
 #define GNB_UE_NGAP_ID_FMT "%" PRIu32
 #define AMF_UE_NGAP_ID_FMT "%" PRIu64
 
+constexpr long INVALID_AMF_UE_NGAP_ID = -1;
+
 // Event Subscription IDs)
 typedef uint32_t evsub_id_t;
 #define EVSUB_ID_FMT "0x%" PRIx32
