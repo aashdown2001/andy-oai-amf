@@ -64,6 +64,16 @@ void ngap_app::handle_receive(
       ngap_msg_pdu->present);
   asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, ngap_msg_pdu);
 
+  if ((ngap_msg_pdu->choice.initiatingMessage->procedureCode >
+       (NGAP_PROCEDURE_CODE_MAX_VALUE - 1)) or
+      (ngap_msg_pdu->present > NGAP_PRESENT_MAX_VALUE)) {
+    Logger::ngap().error(
+        "Invalid procedure code %d or present %d",
+        ngap_msg_pdu->choice.initiatingMessage->procedureCode,
+        ngap_msg_pdu->present);
+    return;
+  }
+
   // Handle the message
   (*messages_callback[ngap_msg_pdu->choice.initiatingMessage->procedureCode]
                      [ngap_msg_pdu->present - 1])(
@@ -76,18 +86,14 @@ void ngap_app::handle_sctp_new_association(
     sctp_stream_id_t outstreams) {
   Logger::ngap().debug(
       "Ready to handle new NGAP SCTP association request (id %d)", assoc_id);
+
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(assoc_id)) {
+  if (!is_assoc_id_2_gnb_context(assoc_id, gc)) {
     Logger::ngap().debug(
         "Create a new gNB context with assoc_id (%d)", assoc_id);
     gc = std::shared_ptr<gnb_context>(new gnb_context());
     set_assoc_id_2_gnb_context(assoc_id, gc);
   } else {
-    gc = assoc_id_2_gnb_context(assoc_id);
-    if (gc.get() == nullptr) {
-      Logger::amf_n2().error("Illegal gNB with assoc id (0x%x)", assoc_id);
-      return;
-    }
     if (gc.get()->ng_state == NGAP_RESETING ||
         gc.get()->ng_state == NGAP_SHUTDOWN) {
       Logger::ngap().warn(
@@ -98,16 +104,18 @@ void ngap_app::handle_sctp_new_association(
       Logger::ngap().debug("Update gNB context with assoc id (%d)", assoc_id);
     }
   }
+
   if (gc.get() == nullptr) {
     Logger::ngap().error(
         "Failed to create gNB context for assoc_id (%d)", assoc_id);
-  } else {
-    gc.get()->sctp_assoc_id    = assoc_id;
-    gc.get()->instreams        = instreams;
-    gc.get()->outstreams       = outstreams;
-    gc.get()->next_sctp_stream = 1;
-    gc.get()->ng_state         = NGAP_INIT;
-  }
+    return;
+  };
+
+  gc.get()->sctp_assoc_id    = assoc_id;
+  gc.get()->instreams        = instreams;
+  gc.get()->outstreams       = outstreams;
+  gc.get()->next_sctp_stream = 1;
+  gc.get()->ng_state         = NGAP_INIT;
 }
 
 //------------------------------------------------------------------------------
@@ -139,6 +147,17 @@ std::shared_ptr<gnb_context> ngap_app::assoc_id_2_gnb_context(
 }
 
 //------------------------------------------------------------------------------
+bool ngap_app::is_assoc_id_2_gnb_context(
+    const sctp_assoc_id_t& assoc_id, std::shared_ptr<gnb_context>& gc) {
+  std::shared_lock lock(m_assoc2gnbContext);
+  if (assoc2gnbContext.count(assoc_id) > 0) {
+    gc = assoc2gnbContext.at(assoc_id);
+    if (gc.get() != nullptr) return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void ngap_app::set_assoc_id_2_gnb_context(
     const sctp_assoc_id_t& assoc_id, std::shared_ptr<gnb_context> gc) {
   std::shared_lock lock(m_assoc2gnbContext);
@@ -161,7 +180,7 @@ std::shared_ptr<gnb_context> ngap_app::gnb_id_2_gnb_context(
 
 //------------------------------------------------------------------------------
 void ngap_app::set_gnb_id_2_gnb_context(
-    const long& gnb_id, std::shared_ptr<gnb_context> gc) {
+    const long& gnb_id, const std::shared_ptr<gnb_context>& gc) {
   std::unique_lock lock(m_gnbid2gnbContext);
   gnbid2gnbContext[gnb_id] = gc;
   return;

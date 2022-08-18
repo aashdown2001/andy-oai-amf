@@ -410,10 +410,12 @@ int sctp_server::sctp_send_msg(
       "with ppid %d",
       assoc_desc->sd, sctp_assoc_id, bdata(*payload), blength(*payload), stream,
       assoc_desc->ppid);
+
+  // Set timetolive to 100ms
   if (sctp_sendmsg(
           assoc_desc->sd, (const void*) bdata(*payload),
           (size_t) blength(*payload), NULL, 0, htonl(assoc_desc->ppid), 0,
-          stream, 0, 0) < 0) {
+          stream, 100, 0) < 0) {
     Logger::sctp().error(
         "[Socket %d] Send stream %u, ppid %u, len %u failed (%s, %d)",
         assoc_desc->sd, stream, htonl(assoc_desc->ppid), blength(*payload),
