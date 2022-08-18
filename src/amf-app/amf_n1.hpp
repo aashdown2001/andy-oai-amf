@@ -146,6 +146,15 @@ class amf_n1 {
   bool is_amf_ue_id_2_nas_context(const long& amf_ue_ngap_id) const;
 
   /*
+   * Verify if a UE NAS context associated with an AMF UE NGAP ID exist
+   * @param [const long& ] amf_ue_ngap_id: AMF UE NGAP ID
+   * @param [std::shared_ptr<nas_context>&] nc: pointer to UE NAS context
+   * @return true if UE NAS context exist, otherwise false
+   */
+  bool is_amf_ue_id_2_nas_context(
+      const long& amf_ue_ngap_id, std::shared_ptr<nas_context>& nc) const;
+
+  /*
    * Get UE NAS context associated with an AMF UE NGAP ID
    * @param [const long& ] amf_ue_ngap_id: AMF UE NGAP ID
    * @return shared pointer to the UE NAS context
