@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _RAN_UE_NGAP_ID_H_
 #define _RAN_UE_NGAP_ID_H_
 

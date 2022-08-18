@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _SUPPORTED_TA_LIST_H_
 #define _SUPPORTED_TA_LIST_H_
 

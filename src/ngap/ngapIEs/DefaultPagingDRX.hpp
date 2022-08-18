@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _DEFAULT_PAGING_DRX_H_
 #define _DEFAULT_PAGING_DRX_H_
 
