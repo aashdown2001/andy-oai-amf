@@ -19,14 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_http2-server.cpp
- \brief
- \author  Tien-Thinh NGUYEN
- \company Eurecom
- \date 2021
- \email: tien-thinh.nguyen@eurecom.fr
- */
-
 #include "amf-http2-server.hpp"
 #include <string>
 #include <boost/algorithm/string.hpp>

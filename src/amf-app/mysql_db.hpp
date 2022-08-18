@@ -39,7 +39,6 @@ typedef struct {
 } mysql_auth_info_t;
 
 typedef struct {
-  // mysql reference connector object
   MYSQL* db_conn;
   std::string server;
   std::string user;
