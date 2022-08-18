@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author
- \date 2021
- \email: contact@openairinterface.org
- */
-
 #include "ResetType.hpp"
 extern "C" {
 #include "dynamic_memory_check.h"

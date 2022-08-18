@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "BroadcastPLMNItem.hpp"
 
 #include "PlmnId.hpp"

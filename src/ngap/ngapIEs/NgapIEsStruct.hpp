@@ -19,12 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
 #ifndef _NGAPIESSTRUCT_H_
 #define _NGAPIESSTRUCT_H_
 

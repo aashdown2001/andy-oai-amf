@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author
- \date 2021
- \email: contact@openairinterface.org
- */
-
 #ifndef _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_ITEM_H_
 #define _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_ITEM_H_
 

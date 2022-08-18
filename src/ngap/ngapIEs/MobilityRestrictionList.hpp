@@ -19,12 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  niuxiansheng-niu, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
 #ifndef _MOBILITY_RESTRICTION_LIST_H_
 #define _MOBILITYRESTRICTION_LIST_H_
 #include "PlmnId.hpp"

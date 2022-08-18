@@ -24,6 +24,13 @@ src/common
 
 SCTP
  - Keliang DU, Bupt
- 
- NAS/NGAP/SBI/UTILS: To be updated
+
+NGAP 
+ - Keliang DU, Bupt
+ - Tien Thinh NGUYEN, Eurecom
+SBI
+ - Keliang DU, Bupt
+ - Tien Thinh NGUYEN, Eurecom
+  
+ NAS/UTILS: To be updated
  
