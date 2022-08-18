@@ -54,22 +54,22 @@ namespace config {
 //------------------------------------------------------------------------------
 amf_config::amf_config() {
   nrf_addr.ipv4_addr.s_addr               = INADDR_ANY;
-  nrf_addr.port                           = 80;
-  nrf_addr.api_version                    = "v1";
+  nrf_addr.port                           = DEFAULT_HTTP1_PORT;
+  nrf_addr.api_version                    = DEFAULT_SBI_API_VERSION;
   ausf_addr.ipv4_addr.s_addr              = INADDR_ANY;
-  ausf_addr.port                          = 80;
-  ausf_addr.api_version                   = "v1";
+  ausf_addr.port                          = DEFAULT_HTTP1_PORT;
+  ausf_addr.api_version                   = DEFAULT_SBI_API_VERSION;
   udm_addr.ipv4_addr.s_addr               = INADDR_ANY;
-  udm_addr.port                           = 80;
-  udm_addr.api_version                    = "v1";
+  udm_addr.port                           = DEFAULT_HTTP1_PORT;
+  udm_addr.api_version                    = DEFAULT_SBI_API_VERSION;
   nssf_addr.ipv4_addr.s_addr              = INADDR_ANY;
-  nssf_addr.port                          = 80;
-  nssf_addr.api_version                   = "v1";
+  nssf_addr.port                          = DEFAULT_HTTP1_PORT;
+  nssf_addr.api_version                   = DEFAULT_SBI_API_VERSION;
   instance                                = 0;
   n2                                      = {};
   sbi                                     = {};
-  sbi_api_version                         = "v1";
-  sbi_http2_port                          = 8080;
+  sbi_api_version                         = DEFAULT_SBI_API_VERSION;
+  sbi_http2_port                          = DEFAULT_HTTP2_PORT;
   statistics_interval                     = 0;
   guami                                   = {};
   guami_list                              = {};
@@ -460,7 +460,8 @@ int amf_config::load(const std::string& config_file) {
         }
         nrf_addr.port = nrf_port;
         //
-        nrf_addr.api_version = "v1";  // TODO: get API version
+        nrf_addr.api_version =
+            DEFAULT_SBI_API_VERSION;  // TODO: get API version
       }
     }
 
@@ -508,8 +509,9 @@ int amf_config::load(const std::string& config_file) {
             Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
             throw(AMF_CONFIG_STRING_PORT "failed");
           }
-          ausf_addr.port        = ausf_port;
-          ausf_addr.api_version = "v1";  // TODO: get API version
+          ausf_addr.port = ausf_port;
+          ausf_addr.api_version =
+              DEFAULT_SBI_API_VERSION;  // TODO: get API version
         }
       }
     }
@@ -552,9 +554,10 @@ int amf_config::load(const std::string& config_file) {
           IPV4_STR_ADDR_TO_INADDR(
               util::trim(address).c_str(), udm_ipv4_addr,
               "BAD IPv4 ADDRESS FORMAT FOR UDM !");
-          udm_addr.ipv4_addr   = udm_ipv4_addr;
-          udm_addr.port        = udm_port;
-          udm_addr.api_version = "v1";  // TODO: get API version
+          udm_addr.ipv4_addr = udm_ipv4_addr;
+          udm_addr.port      = udm_port;
+          udm_addr.api_version =
+              DEFAULT_SBI_API_VERSION;  // TODO: get API version
         }
       }
     }
@@ -596,9 +599,10 @@ int amf_config::load(const std::string& config_file) {
           IPV4_STR_ADDR_TO_INADDR(
               util::trim(address).c_str(), nssf_ipv4_addr,
               "BAD IPv4 ADDRESS FORMAT FOR NSSF !");
-          nssf_addr.ipv4_addr   = nssf_ipv4_addr;
-          nssf_addr.port        = nssf_port;
-          nssf_addr.api_version = "v1";  // TODO: get API version
+          nssf_addr.ipv4_addr = nssf_ipv4_addr;
+          nssf_addr.port      = nssf_port;
+          nssf_addr.api_version =
+              DEFAULT_SBI_API_VERSION;  // TODO: get API version
         }
       }
     }

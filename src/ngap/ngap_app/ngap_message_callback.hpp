@@ -32,14 +32,11 @@
 #include "PduSessionResourceModifyResponse.hpp"
 #include "amf_app.hpp"
 #include "amf_n1.hpp"
-#include "amf_sbi.hpp"
-#include "itti.hpp"
 #include "itti_msg_sbi.hpp"
 #include "itti_msg_n2.hpp"
 #include "logger.hpp"
 #include "nas_context.hpp"
 #include "pdu_session_context.hpp"
-#include "sctp_server.hpp"
 
 using namespace sctp;
 using namespace ngap;
@@ -54,6 +51,9 @@ typedef int (*ngap_message_decoded_callback)(
     struct Ngap_NGAP_PDU* message_p);
 
 typedef void (*ngap_event_callback)(const sctp_assoc_id_t assoc_id);
+
+constexpr uint8_t NGAP_PROCEDURE_CODE_MAX_VALUE = 55;
+constexpr uint8_t NGAP_PRESENT_MAX_VALUE        = 3;
 
 //------------------------------------------------------------------------------
 int ngap_amf_handle_ng_setup_request(
@@ -83,10 +83,29 @@ int ngap_amf_handle_ng_setup_request(
 }
 
 //------------------------------------------------------------------------------
+int ngap_handle_ng_setup_response(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling NG Setup Response (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int ngap_handle_ng_setup_failure(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling NG Setup Failure (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
 int ngap_amf_handle_initial_ue_message(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Initial UE Message to TASK_AMF_N2");
+
   asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, message_p);
   InitialUEMessageMsg* initUeMsg = new InitialUEMessageMsg();
   if (!initUeMsg->decodeFromPdu(message_p)) {
@@ -137,16 +156,27 @@ int ngap_amf_handle_uplink_nas_transport(
 }
 
 //------------------------------------------------------------------------------
+int ngap_handle_initial_context_setup_request(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling Initial Context Setup Request (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
 int ngap_amf_handle_initial_context_setup_response(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Handling Initial Context Setup Response");
+
   InitialContextSetupResponseMsg* initCtxResp =
       new InitialContextSetupResponseMsg();
   if (!initCtxResp->decodeFromPdu(message_p)) {
     Logger::ngap().error("Decoding InitialContextSetupResponse message error");
     return RETURNerror;
   }
+
   std::vector<PDUSessionResourceSetupResponseItem_t> list;
   if (!initCtxResp->getPduSessionResourceSetupResponseList(list)) {
     Logger::ngap().debug(
@@ -155,7 +185,7 @@ int ngap_amf_handle_initial_context_setup_response(
     return 0;
   }
 
-  uint8_t transferIe[BUFFER_SIZE_512];  // TODO: remove hardcoded value
+  uint8_t transferIe[BUFFER_SIZE_512];
   memcpy(
       transferIe, list[0].pduSessionResourceSetupResponseTransfer.buf,
       list[0].pduSessionResourceSetupResponseTransfer.size);
@@ -198,6 +228,7 @@ int ngap_amf_handle_ue_radio_cap_indication(
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI UE Radio Capability Indication to TASK_AMF_N2");
+
   UeRadioCapabilityInfoIndicationMsg* ueRadioCap =
       new UeRadioCapabilityInfoIndicationMsg();
   if (!ueRadioCap->decodeFromPdu(message_p)) {
@@ -248,6 +279,15 @@ int ngap_amf_handle_ue_context_release_request(
 }
 
 //------------------------------------------------------------------------------
+int ngap_handle_ue_context_release_command(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling UE Context Release Command (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
 int ngap_amf_handle_ue_context_release_complete(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
@@ -276,10 +316,20 @@ int ngap_amf_handle_ue_context_release_complete(
 }
 
 //------------------------------------------------------------------------------
+int ngap_handle_pdu_session_resource_release_command(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug(
+      "Handling PDU Session Resource Release Command (AMF->AN)");
+  // TODO
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
 int ngap_amf_handle_pdu_session_resource_release_response(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Handle PDU Session Resource Setup Release Response");
+  Logger::ngap().debug("Handle PDU Session Resource Release Response");
 
   PduSessionResourceReleaseResponseMsg* pduresp =
       new PduSessionResourceReleaseResponseMsg();
@@ -298,6 +348,7 @@ int ngap_amf_handle_pdu_session_resource_release_response(
         "getPduSessionResourceReleasedList IE error");
     return RETURNerror;
   }
+
   // TODO: add the full list
   uint8_t transferIe[BUFFER_SIZE_512];
   memcpy(
@@ -328,10 +379,20 @@ int ngap_amf_handle_pdu_session_resource_release_response(
 }
 
 //------------------------------------------------------------------------------
+int ngap_handle_pdu_session_resource_setup_request(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling PDU Session Resource Setup Request");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
 int ngap_amf_handle_pdu_session_resource_setup_response(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Handle PDU Session Resource Setup Response");
+
   PduSessionResourceSetupResponseMsg* pduresp =
       new PduSessionResourceSetupResponseMsg();
   if (!pduresp->decodeFromPdu(message_p)) {
@@ -339,6 +400,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
         "Decoding PduSessionResourceSetupResponseMsg message error");
     return RETURNerror;
   }
+
   std::vector<PDUSessionResourceSetupResponseItem_t> list;
   if (!pduresp->getPduSessionResourceSetupResponseList(list)) {
     Logger::ngap().error(
@@ -355,14 +417,13 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
         transferIe, list[0].pduSessionResourceSetupResponseTransfer.size);
     itti_nsmf_pdusession_update_sm_context* itti_msg =
         new itti_nsmf_pdusession_update_sm_context(TASK_NGAP, TASK_AMF_SBI);
-    long amf_ue_ngap_id = pduresp->getAmfUeNgapId();
-    if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id)) {
+    long amf_ue_ngap_id              = pduresp->getAmfUeNgapId();
+    std::shared_ptr<nas_context> nct = {};
+    if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nct)) {
       Logger::ngap().error(
           "No UE NAS context with amf_ue_ngap_id (0x%x)", amf_ue_ngap_id);
       return RETURNerror;
     }
-    std::shared_ptr<nas_context> nct =
-        amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id);
     itti_msg->supi           = "imsi-" + nct.get()->imsi;
     itti_msg->pdu_session_id = list[0].pduSessionId;
     itti_msg->n2sm           = n2sm;
@@ -392,7 +453,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
   } else {
     PduSessionResourceSetupUnSuccessfulTransferIE* UnSuccessfultransfer =
         new PduSessionResourceSetupUnSuccessfulTransferIE();
-    uint8_t buffer[500];
+    uint8_t buffer[BUFFER_SIZE_512];
     memcpy(
         buffer, list_fail[0].pduSessionResourceSetupUnsuccessfulTransfer.buf,
         list_fail[0].pduSessionResourceSetupUnsuccessfulTransfer.size);
@@ -420,16 +481,15 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
        }*/
       long amf_ue_ngap_id = pduresp->getAmfUeNgapId();
 
-      if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id)) {
+      std::shared_ptr<nas_context> nct = {};
+      if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nct)) {
         Logger::ngap().error(
             "No UE NAS context with amf_ue_ngap_id (0x%x)", amf_ue_ngap_id);
         return RETURNerror;
       }
 
-      std::shared_ptr<nas_context> nct =
-          amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id);
-      string supi = "imsi-" + nct.get()->imsi;
-      std::shared_ptr<pdu_session_context> psc;
+      string supi                              = "imsi-" + nct.get()->imsi;
+      std::shared_ptr<pdu_session_context> psc = {};
       if (amf_app_inst->find_pdu_session_context(
               supi, list_fail[0].pduSessionId, psc)) {
         if (psc.get() == nullptr) {
@@ -457,6 +517,15 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
       return 0;
     }
   }
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int ngap_handle_pdu_session_resource_modify_request(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling PDU Session Resource Modify Request");
+  // TODO:
   return RETURNok;
 }
 
@@ -530,7 +599,27 @@ int ngap_amf_handle_error_indication(
 int ngap_amf_configuration_update(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending ITTI AMF Configuration Update to TASK_AMF_N2");
+  Logger::ngap().debug("Handling AMF Configuration Update");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int ngap_amf_configuration_update_ack(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug(
+      "Sending ITTI AMF Configuration Update ACK to TASK_AMF_N2");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int ngap_amf_configuration_update_failure(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug(
+      "Sending ITTI AMF Configuration Update Failure to TASK_AMF_N2");
   // TODO:
   return RETURNok;
 }
@@ -621,10 +710,20 @@ int handover_cancel(
 }
 
 //------------------------------------------------------------------------------
+int handover_cancel_ack(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling Handover Cancel Ack (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
 int handover_preparation(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI Handover Preparation to TASK_AMF_N2");
+
   asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, message_p);
   HandoverRequiredMsg* handover_required = new HandoverRequiredMsg();
   if (!handover_required->decodeFromPdu(message_p)) {
@@ -644,6 +743,24 @@ int handover_preparation(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
   }
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int handover_command(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling Handover Command (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int handover_preparation_failure(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling Handover Preparation failure (AMF->AN)");
+  // TODO:
   return RETURNok;
 }
 
@@ -675,11 +792,13 @@ int handover_notification(
 }
 
 //------------------------------------------------------------------------------
-int handover_resource_allocation(
+int handover_request(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
-      "Sending ITTI Handover Resource Allocation to TASK_AMF_N2");
+      "Sending ITTI Handover Resource Allocation (HandoverRequest) to "
+      "TASK_AMF_N2");
+
   asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, message_p);
   HandoverRequestAck* handoverRequestAck = new HandoverRequestAck();
   if (!handoverRequestAck->decodeFromPdu(message_p)) {
@@ -699,6 +818,24 @@ int handover_resource_allocation(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
   }
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int handover_request_ack(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling Handover Request Ack (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int handover_failure(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling Handover Failure (AMF->AN)");
+  // TODO:
   return RETURNok;
 }
 
@@ -805,11 +942,39 @@ int ngap_amf_handle_path_switch_request(
 }
 
 //------------------------------------------------------------------------------
+int ngap_handle_path_switch_request_ack(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling Path Switch Request Ack (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int ngap_handle_path_switch_request_failure(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling Path Switch Request Failure (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
 int pdu_session_resource_modify_indication(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug(
       "Sending ITTI PDU Session Resource Modify Indication to TASK_AMF_N2");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int pdu_session_resource_modify_confirm(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug(
+      "Handling PDU Session Resource Modify Confirm (AMF->AN)");
   // TODO:
   return RETURNok;
 }
@@ -834,10 +999,19 @@ int private_message(
 }
 
 //------------------------------------------------------------------------------
-int pws_cancel(
+int pws_cancel_request(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending ITTI PWS Cancel to TASK_AMF_N2");
+  Logger::ngap().debug("Handling PWS Cancel Request (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int pws_cancel_response(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Sending ITTI PWS Cancel Response to TASK_AMF_N2");
   // TODO:
   return RETURNok;
 }
@@ -865,6 +1039,24 @@ int ran_configuration_update(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Sending ITTI RAN Configuration Update to TASK_AMF_N2");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int ran_configuration_update_ack(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling RAN Configuration Update Ack (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int ran_configuration_update_failure(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling RAN Configuration Update Failure (AMF->AN)");
   // TODO:
   return RETURNok;
 }
@@ -907,19 +1099,49 @@ int trace_start(
 }
 
 //------------------------------------------------------------------------------
-int ue_context_modification(
+int ue_context_modification_request(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending ITTI UE Context Modification to TASK_AMF_N2");
+  Logger::ngap().debug("Handling UE Context Modification Request (AMF->AN)");
   // TODO:
   return RETURNok;
 }
 
 //------------------------------------------------------------------------------
-int ue_radio_capability_check(
+int ue_context_modification_response(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending ITTI UE Radio Capability Check to TASK_AMF_N2");
+  Logger::ngap().debug(
+      "Sending ITTI UE Context Modification Response to TASK_AMF_N2");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int ue_context_modification_failure(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug(
+      "Sending ITTI UE Context Modification Failure to TASK_AMF_N2");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int ue_radio_capability_check_request(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling UE Radio Capability Check Request (AMF->AN)");
+  // TODO:
+  return RETURNok;
+}
+
+//------------------------------------------------------------------------------
+int ue_radio_capability_check_response(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug(
+      "Sending ITTI UE Radio Capability Check Response to TASK_AMF_N2");
   // TODO:
   return RETURNok;
 }
@@ -994,117 +1216,106 @@ int uplink_ue_associated_nrppa_transport(
 }
 
 //------------------------------------------------------------------------------
-ngap_message_decoded_callback messages_callback[][3] = {
-    {ngap_amf_configuration_update, ngap_amf_configuration_update,
-     ngap_amf_configuration_update}, /*0 AMFConfigurationUpdate*/
-    {amf_status_indication, amf_status_indication,
-     amf_status_indication}, /*1 AMFStatusIndication*/
-    {cell_traffic_trace, cell_traffic_trace,
-     cell_traffic_trace}, /*2 CellTrafficTrace*/
-    {deactivate_trace, deactivate_trace,
-     deactivate_trace}, /*3 DeactivateTrace*/
-    {downlink_nas_transport, downlink_nas_transport,
-     downlink_nas_transport}, /*4 DownlinkNASTransport*/
-    {downlink_non_UEassociated_nrppa_transport,
-     downlink_non_UEassociated_nrppa_transport,
-     downlink_non_UEassociated_nrppa_transport}, /*5
-                                                    DownlinkNonUEAssociatedNRPPaTransport*/
-    {downlink_ran_configuration_transfer, downlink_ran_configuration_transfer,
-     downlink_ran_configuration_transfer}, /*6
-                                              DownlinkRANConfigurationTransfer*/
-    {downlink_ran_status_transfer, downlink_ran_status_transfer,
-     downlink_ran_status_transfer}, /*7 DownlinkRANStatusTransfer*/
-    {downlink_ue_associated_nappa_transport,
-     downlink_ue_associated_nappa_transport,
-     downlink_ue_associated_nappa_transport}, /*8
-                                                 DownlinkUEAssociatedNRPPaTransport*/
-    {ngap_amf_handle_error_indication, 0,
-     0},  // 9 {ngap_amf_handle_error_indication,0,0}, /*ErrorIndication*/
-    {handover_cancel, handover_cancel, handover_cancel}, /*10 HandoverCancel*/
-    {handover_notification, handover_notification,
-     handover_notification}, /*11 HandoverNotification*/
-    {handover_preparation, handover_preparation,
-     handover_preparation}, /*12 HandoverPreparation*/
-    {handover_resource_allocation, handover_resource_allocation,
-     handover_resource_allocation}, /*13 HandoverResourceAllocation*/
-    {0, ngap_amf_handle_initial_context_setup_response,
-     ngap_amf_handle_initial_context_setup_failure}, /*InitialContextSetup*/
-    {ngap_amf_handle_initial_ue_message, 0,
-     0},  // 15 {ngap_amf_handle_initial_ue_message,0,0}, /*InitialUEMessage*/
-    {location_reporting_control, location_reporting_control,
-     location_reporting_control}, /*16 LocationReportingControl*/
-    {location_reporting_failure_indication,
-     location_reporting_failure_indication,
-     location_reporting_failure_indication},             /*17
-                                                            LocationReportingFailureIndication*/
-    {location_report, location_report, location_report}, /*18 LocationReport*/
-    {nas_non_delivery_indication, nas_non_delivery_indication,
-     nas_non_delivery_indication},            /*19 NASNonDeliveryIndication*/
-    {ng_reset, ng_reset, ng_reset},           /*20 NGReset*/
-    {ngap_amf_handle_ng_setup_request, 0, 0}, /*21 NGSetup*/
-    {overload_start, overload_start, overload_start}, /*OverloadStart*/
-    {overload_stop, overload_stop, overload_stop},    /*OverloadStop*/
-    {paging, paging, paging},                         /*Paging*/
-    {ngap_amf_handle_path_switch_request, ngap_amf_handle_path_switch_request,
-     ngap_amf_handle_path_switch_request}, /*PathSwitchRequest*/
-    {0, ngap_amf_handle_pdu_session_resource_modify_response,
-     0}, /*PDUSessionResourceModify*/
-    {pdu_session_resource_modify_indication,
-     pdu_session_resource_modify_indication,
-     pdu_session_resource_modify_indication}, /*PDUSessionResourceModifyIndication*/
-    {0, ngap_amf_handle_pdu_session_resource_release_response,
-     0}, /*PDUSessionResourceRelease*/
-    {0, ngap_amf_handle_pdu_session_resource_setup_response,
-     0}, /*PDUSessionResourceSetup*/
-    {pdu_session_resource_notify, pdu_session_resource_notify,
-     pdu_session_resource_notify}, /*PDUSessionResourceNotify*/
-    {private_message, private_message, private_message}, /*PrivateMessage*/
-    {pws_cancel, pws_cancel, pws_cancel},                /*PWSCancel*/
-    {pws_failure_indication, pws_failure_indication,
-     pws_failure_indication}, /*PWSFailureIndication*/
-    {pws_restart_indication, pws_restart_indication,
-     pws_restart_indication}, /*PWSRestartIndication*/
-    {ran_configuration_update, ran_configuration_update,
-     ran_configuration_update}, /*RANConfigurationUpdate*/
-    {reroute_nas_request, reroute_nas_request,
-     reroute_nas_request}, /*RerouteNASRequest*/
-    {rrc_inactive_transition_report, rrc_inactive_transition_report,
-     rrc_inactive_transition_report}, /*RRCInactiveTransitionReport*/
-    {trace_failure_indication, trace_failure_indication,
-     trace_failure_indication},              /*TraceFailureIndication*/
-    {trace_start, trace_start, trace_start}, /*TraceStart*/
-    {ue_context_modification, ue_context_modification,
-     ue_context_modification}, /*UEContextModification*/
-    {0, ngap_amf_handle_ue_context_release_complete, 0}, /*UEContextRelease*/
-    {ngap_amf_handle_ue_context_release_request, 0,
-     0}, /*UEContextReleaseRequest*/
-    {ue_radio_capability_check, ue_radio_capability_check,
-     ue_radio_capability_check}, /*UERadioCapabilityCheck*/
-    {ngap_amf_handle_ue_radio_cap_indication, 0,
-     0}, /*UERadioCapabilityInfoIndication*/
-    {ue_tnla_binding_release, ue_tnla_binding_release,
-     ue_tnla_binding_release}, /*UETNLABindingRelease*/
-    {ngap_amf_handle_uplink_nas_transport, 0,
-     0},  //{ngap_amf_handle_uplink_nas_transport,0,0}, /*UplinkNASTransport*/
-    {uplink_non_ue_associated_nrppa_transport,
-     uplink_non_ue_associated_nrppa_transport,
-     uplink_non_ue_associated_nrppa_transport}, /*UplinkNonUEAssociatedNRPPaTransport*/
-    {uplink_ran_configuration_transfer, uplink_ran_configuration_transfer,
-     uplink_ran_configuration_transfer}, /*UplinkRANConfigurationTransfer*/
-    {uplink_ran_status_transfer, uplink_ran_status_transfer,
-     uplink_ran_status_transfer}, /*UplinkRANStatusTransfer*/
-    {uplink_ue_associated_nrppa_transport, uplink_ue_associated_nrppa_transport,
-     uplink_ue_associated_nrppa_transport}, /*UplinkUEAssociatedNRPPaTransport*/
-    {0, 0, 0},                              /*WriteReplaceWarning*/
-    {0, 0, 0},                              /*WriteReplaceWarning*/
-    {0, 0, 0},                              /*WriteReplaceWarning*/
-    {0, 0, 0},                              /*WriteReplaceWarning*/
-    {0, 0, 0},                              /*WriteReplaceWarning*/
-    {0, 0, 0},                              /*WriteReplaceWarning*/
-    {0, 0, 0},                              /*WriteReplaceWarning*/
-    {0, 0, 0},                              /*WriteReplaceWarning*/
-    {0, 0, 0}                               /*WriteReplaceWarning*/
+int secondary_rat_data_usage_report(
+    const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
+    struct Ngap_NGAP_PDU* message_p) {
+  Logger::ngap().debug("Handling Secondary RAT Data Usage Report");
+  // TODO:
+  return RETURNok;
+}
 
+//------------------------------------------------------------------------------
+ngap_message_decoded_callback
+    messages_callback[NGAP_PROCEDURE_CODE_MAX_VALUE][NGAP_PRESENT_MAX_VALUE] = {
+        {ngap_amf_configuration_update, ngap_amf_configuration_update_ack,
+         ngap_amf_configuration_update_failure}, /*0 AMFConfigurationUpdate*/
+        {amf_status_indication, 0, 0},           /*1 AMFStatusIndication*/
+        {cell_traffic_trace, 0, 0},              /*2 CellTrafficTrace*/
+        {deactivate_trace, 0, 0},                /*3 DeactivateTrace*/
+        {downlink_nas_transport, 0, 0},          /*4 DownlinkNASTransport*/
+        {downlink_non_UEassociated_nrppa_transport, 0,
+         0}, /*5 DownlinkNonUEAssociatedNRPPaTransport*/
+        {downlink_ran_configuration_transfer, 0,
+         0}, /*6 DownlinkRANConfigurationTransfer*/
+        {downlink_ran_status_transfer, 0, 0}, /*7 DownlinkRANStatusTransfer*/
+        {downlink_ue_associated_nappa_transport, 0,
+         0}, /*8 DownlinkUEAssociatedNRPPaTransport*/
+        {ngap_amf_handle_error_indication, 0, 0},  /*9 ErrorIndication*/
+        {handover_cancel, handover_cancel_ack, 0}, /*10 HandoverCancel*/
+        {handover_notification, 0, 0},             /*11 HandoverNotification*/
+        {handover_preparation, handover_command,
+         handover_preparation_failure}, /*12 HandoverPreparation*/
+        {handover_request, handover_request_ack,
+         handover_failure}, /*13 HandoverResourceAllocation*/
+        {ngap_handle_initial_context_setup_request,
+         ngap_amf_handle_initial_context_setup_response,
+         ngap_amf_handle_initial_context_setup_failure}, /*14
+                                                            InitialContextSetup*/
+        {ngap_amf_handle_initial_ue_message, 0, 0},      /*15 InitialUEMessage*/
+        {location_reporting_control, 0, 0}, /*16 LocationReportingControl*/
+        {location_reporting_failure_indication, 0,
+         0},                     /*17 LocationReportingFailureIndication*/
+        {location_report, 0, 0}, /*18 LocationReport*/
+        {nas_non_delivery_indication, 0, 0}, /*19 NASNonDeliveryIndication*/
+        {ng_reset, 0, 0},                    /*20 NGReset*/
+        {ngap_amf_handle_ng_setup_request, ngap_handle_ng_setup_response,
+         ngap_handle_ng_setup_failure}, /*21 NGSetup*/
+        {overload_start, 0, 0},         /*22 OverloadStart*/
+        {overload_stop, 0, 0},          /*23 OverloadStop*/
+        {paging, 0, 0},                 /*24 Paging*/
+        {ngap_amf_handle_path_switch_request,
+         ngap_handle_path_switch_request_ack,
+         ngap_handle_path_switch_request_failure}, /*25 PathSwitchRequest*/
+        {ngap_handle_pdu_session_resource_modify_request,
+         ngap_amf_handle_pdu_session_resource_modify_response,
+         0}, /*26 PDUSessionResourceModify*/
+        {pdu_session_resource_modify_indication,
+         pdu_session_resource_modify_confirm,
+         0}, /*27 PDUSessionResourceModifyIndication*/
+        {ngap_handle_pdu_session_resource_release_command,
+         ngap_amf_handle_pdu_session_resource_release_response,
+         0}, /*28 PDUSessionResourceRelease*/
+        {ngap_handle_pdu_session_resource_setup_request,
+         ngap_amf_handle_pdu_session_resource_setup_response,
+         0},                                 /*29 PDUSessionResourceSetup*/
+        {pdu_session_resource_notify, 0, 0}, /*30 PDUSessionResourceNotify*/
+        {private_message, 0, 0},             /*31 PrivateMessage*/
+        {pws_cancel_request, pws_cancel_response, 0}, /*32 PWSCancel*/
+        {pws_failure_indication, 0, 0}, /*33 PWSFailureIndication*/
+        {pws_restart_indication, 0, 0}, /*34 PWSRestartIndication*/
+        {ran_configuration_update, ran_configuration_update_ack,
+         ran_configuration_update_failure}, /*35 RANConfigurationUpdate*/
+        {reroute_nas_request, 0, 0},        /*36 RerouteNASRequest*/
+        {rrc_inactive_transition_report, 0,
+         0},                              /*37 RRCInactiveTransitionReport*/
+        {trace_failure_indication, 0, 0}, /*38 TraceFailureIndication*/
+        {trace_start, 0, 0},              /*39 TraceStart*/
+        {ue_context_modification_request, ue_context_modification_response,
+         ue_context_modification_failure}, /*40 UEContextModification*/
+        {ngap_handle_ue_context_release_command,
+         ngap_amf_handle_ue_context_release_complete,
+         0}, /*41 UEContextRelease*/
+        {ngap_amf_handle_ue_context_release_request, 0,
+         0}, /*42 UEContextReleaseRequest*/
+        {ue_radio_capability_check_request, ue_radio_capability_check_response,
+         0}, /*43 UERadioCapabilityCheck*/
+        {ngap_amf_handle_ue_radio_cap_indication, 0,
+         0}, /*44 UERadioCapabilityInfoIndication*/
+        {ue_tnla_binding_release, ue_tnla_binding_release,
+         ue_tnla_binding_release}, /*45 UETNLABindingRelease*/
+        {ngap_amf_handle_uplink_nas_transport, 0, 0}, /*46 UplinkNASTransport*/
+        {uplink_non_ue_associated_nrppa_transport, 0,
+         0}, /*47 UplinkNonUEAssociatedNRPPaTransport*/
+        {uplink_ran_configuration_transfer, 0,
+         0}, /*48 UplinkRANConfigurationTransfer*/
+        {uplink_ran_status_transfer, 0, 0}, /*49 UplinkRANStatusTransfer*/
+        {uplink_ue_associated_nrppa_transport, 0,
+         0},       /*50 UplinkUEAssociatedNRPPaTransport*/
+        {0, 0, 0}, /*51 WriteReplaceWarning*/
+        {secondary_rat_data_usage_report, 0,
+         0},       /*52 SecondaryRATDataUsageReport*/
+        {0, 0, 0}, /*53 UplinkRIMInformationTransfer*/
+        {0, 0, 0}  /*54 DownlinkRIMInformationTransfer*/
 };
 
 //------------------------------------------------------------------------------

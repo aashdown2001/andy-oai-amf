@@ -206,9 +206,7 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
   long amf_ue_ngap_id             = itti_msg.amf_ue_ngap_id;
   uint32_t ran_ue_ngap_id         = itti_msg.ran_ue_ngap_id;
   std::shared_ptr<nas_context> nc = {};
-  if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
-    nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
-  else {
+  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().warn(
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
@@ -259,14 +257,13 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
 
       // Get NSSAI
       std::shared_ptr<nas_context> nc = {};
-      if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id)) {
+      if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
         Logger::amf_n1().warn(
             "No existed NAS context for UE with amf_ue_ngap_id "
             "(" AMF_UE_NGAP_ID_FMT ")",
             amf_ue_ngap_id);
         return;
       }
-      nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
 
       std::shared_ptr<pdu_session_context> psc = {};
       if (!amf_app_inst->find_pdu_session_context(
@@ -1112,14 +1109,12 @@ void amf_n1::registration_request_handle(
           ueItem.connStatus = "5GMM-CONNECTED";  //"CM-CONNECTED";
           ueItem.registerStatus =
               "5GMM-REG-INITIATED";  // 5GMM-COMMON-PROCEDURE-INITIATED
-          ueItem.ranid = ran_ue_ngap_id;
-          ueItem.amfid = amf_ue_ngap_id;
-          ueItem.imsi  = nc.get()->imsi;
-          if (uc.get() != nullptr) {
-            ueItem.mcc    = uc.get()->cgi.mcc;
-            ueItem.mnc    = uc.get()->cgi.mnc;
-            ueItem.cellId = uc.get()->cgi.nrCellID;
-          }
+          ueItem.ranid  = ran_ue_ngap_id;
+          ueItem.amfid  = amf_ue_ngap_id;
+          ueItem.imsi   = nc.get()->imsi;
+          ueItem.mcc    = uc.get()->cgi.mcc;
+          ueItem.mnc    = uc.get()->cgi.mnc;
+          ueItem.cellId = uc.get()->cgi.nrCellID;
 
           stacs.update_ue_info(ueItem);
           set_5gmm_state(nc, _5GMM_COMMON_PROCEDURE_INITIATED);
@@ -1231,15 +1226,14 @@ void amf_n1::registration_request_handle(
       // release ue_ngap_context and ue_context
       if (uc.get()) uc.reset();
 
-      if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id)) {
+      std::shared_ptr<ue_ngap_context> unc = {};
+      if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
         Logger::amf_n1().error(
             "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
             ran_ue_ngap_id);
         return;
       }
 
-      std::shared_ptr<ue_ngap_context> unc =
-          amf_n2_inst->ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id);
       if (unc.get()) unc.reset();
       return;
     }
@@ -1362,64 +1356,53 @@ void amf_n1::registration_request_handle(
   }
 
   // Trigger UE Location Report
-  if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id)) {
+  std::shared_ptr<ue_ngap_context> unc = {};
+  if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
     Logger::amf_n1().warn(
         "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
         ran_ue_ngap_id);
   } else {
-    std::shared_ptr<ue_ngap_context> unc =
-        amf_n2_inst->ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id);
-
     std::shared_ptr<gnb_context> gc = {};
-    if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc.get()->gnb_assoc_id)) {
+    if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc.get()->gnb_assoc_id, gc)) {
       Logger::amf_n1().error(
           "No existed gNB context with assoc_id (%d)", unc.get()->gnb_assoc_id);
     } else {
-      gc = amf_n2_inst->assoc_id_2_gnb_context(unc.get()->gnb_assoc_id);
-      if (gc.get() && uc.get()) {
-        oai::amf::model::UserLocation user_location = {};
-        oai::amf::model::NrLocation nr_location     = {};
+      oai::amf::model::UserLocation user_location = {};
+      oai::amf::model::NrLocation nr_location     = {};
 
-        oai::amf::model::Tai tai  = {};
-        nlohmann::json tai_json   = {};
-        tai_json["plmnId"]["mcc"] = uc.get()->cgi.mcc;
-        tai_json["plmnId"]["mnc"] = uc.get()->cgi.mnc;
-        tai_json["tac"]           = std::to_string(uc.get()->tai.tac);
+      oai::amf::model::Tai tai  = {};
+      nlohmann::json tai_json   = {};
+      tai_json["plmnId"]["mcc"] = uc.get()->cgi.mcc;
+      tai_json["plmnId"]["mnc"] = uc.get()->cgi.mnc;
+      tai_json["tac"]           = std::to_string(uc.get()->tai.tac);
 
-        try {
-          from_json(tai_json, tai);
-        } catch (std::exception& e) {
-          Logger::amf_n1().error("Exception with Json: %s", e.what());
-          return;
-        }
-        // uc.get()->cgi.nrCellID;
-        nr_location.setTai(tai);
+      nlohmann::json global_ran_node_id_json        = {};
+      global_ran_node_id_json["plmnId"]["mcc"]      = uc.get()->cgi.mcc;
+      global_ran_node_id_json["plmnId"]["mnc"]      = uc.get()->cgi.mnc;
+      global_ran_node_id_json["gNbId"]["bitLength"] = 32;
+      global_ran_node_id_json["gNbId"]["gNBValue"] =
+          std::to_string(gc->globalRanNodeId);
+      oai::amf::model::GlobalRanNodeId global_ran_node_id = {};
 
-        nlohmann::json global_ran_node_id_json        = {};
-        global_ran_node_id_json["plmnId"]["mcc"]      = uc.get()->cgi.mcc;
-        global_ran_node_id_json["plmnId"]["mnc"]      = uc.get()->cgi.mnc;
-        global_ran_node_id_json["gNbId"]["bitLength"] = 32;
-        global_ran_node_id_json["gNbId"]["gNBValue"] =
-            std::to_string(gc->globalRanNodeId);
-        oai::amf::model::GlobalRanNodeId global_ran_node_id = {};
-        try {
-          from_json(global_ran_node_id_json, global_ran_node_id);
-        } catch (std::exception& e) {
-          Logger::amf_n1().error("Exception with Json: %s", e.what());
-          return;
-        }
-
-        nr_location.setGlobalGnbId(global_ran_node_id);
-
-        user_location.setNrLocation(nr_location);
-
-        // Trigger UE Location Report
-        string supi = uc.get()->supi;
-        Logger::amf_n1().debug(
-            "Signal the UE Location Report Event notification for SUPI %s",
-            supi.c_str());
-        event_sub.ue_location_report(supi, user_location, 1);
+      try {
+        from_json(tai_json, tai);
+        from_json(global_ran_node_id_json, global_ran_node_id);
+      } catch (std::exception& e) {
+        Logger::amf_n1().error("Exception with Json: %s", e.what());
+        return;
       }
+
+      // uc.get()->cgi.nrCellID;
+      nr_location.setTai(tai);
+      nr_location.setGlobalGnbId(global_ran_node_id);
+      user_location.setNrLocation(nr_location);
+
+      // Trigger UE Location Report
+      string supi = uc.get()->supi;
+      Logger::amf_n1().debug(
+          "Signal the UE Location Report Event notification for SUPI %s",
+          supi.c_str());
+      event_sub.ue_location_report(supi, user_location, 1);
     }
   }
 
@@ -1469,6 +1452,19 @@ bool amf_n1::is_amf_ue_id_2_nas_context(const long& amf_ue_ngap_id) const {
   std::shared_lock lock(m_amfueid2nas_context);
   if (amfueid2nas_context.count(amf_ue_ngap_id) > 0) {
     if (amfueid2nas_context.at(amf_ue_ngap_id).get() != nullptr) {
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool amf_n1::is_amf_ue_id_2_nas_context(
+    const long& amf_ue_ngap_id, std::shared_ptr<nas_context>& nc) const {
+  std::shared_lock lock(m_amfueid2nas_context);
+  if (amfueid2nas_context.count(amf_ue_ngap_id) > 0) {
+    nc = amfueid2nas_context.at(amf_ue_ngap_id);
+    if (nc.get() != nullptr) {
       return true;
     }
   }
@@ -2231,7 +2227,7 @@ void amf_n1::authentication_response_handle(
     bstring plain_msg) {
   std::shared_ptr<nas_context> nc = {};
 
-  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id)) {
+  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().error(
         "No existed NAS context for UE with amf_ue_ngap_id " AMF_UE_NGAP_ID_FMT,
         amf_ue_ngap_id);
@@ -2240,7 +2236,7 @@ void amf_n1::authentication_response_handle(
         amf_ue_ngap_id);  // cause?
     return;
   }
-  nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
+
   Logger::amf_n1().info(
       "Found nas_context (%p) with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
       nc.get(), amf_ue_ngap_id);
@@ -2326,7 +2322,7 @@ void amf_n1::authentication_failure_handle(
     const uint32_t ran_ue_ngap_id, const long amf_ue_ngap_id,
     bstring plain_msg) {
   std::shared_ptr<nas_context> nc = {};
-  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id)) {
+  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().error(
         "No existed NAS context for UE with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT
         ")",
@@ -2336,7 +2332,7 @@ void amf_n1::authentication_failure_handle(
         amf_ue_ngap_id);  // cause?
     return;
   }
-  nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
+
   nc.get()->is_common_procedure_for_authentication_running = false;
   // 1. decode AUTHENTICATION FAILURE message
   auto auth_failure = std::make_unique<AuthenticationFailure>();
@@ -2536,9 +2532,7 @@ void amf_n1::security_mode_complete_handle(
   }
 
   std::shared_ptr<nas_context> nc = {};
-  if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
-    nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
-  else {
+  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().warn(
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
@@ -2994,9 +2988,7 @@ void amf_n1::ue_initiate_de_registration_handle(
   Logger::amf_n1().debug("Handling UE-initiated De-registration Request");
 
   std::shared_ptr<nas_context> nc = {};
-  if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
-    nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
-  else {
+  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().warn(
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
@@ -3223,9 +3215,7 @@ void amf_n1::ul_nas_transport_handle(
         "Requested NSSAI!");
 
     std::shared_ptr<nas_context> nc = {};
-    if (amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
-      nc = amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id);
-    else {
+    if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
       Logger::amf_n1().warn(
           "No existed nas_context with amf_ue_ngap_id(0x%x)", amf_ue_ngap_id);
       return;
@@ -4117,10 +4107,8 @@ bool amf_n1::find_ue_context(
 //------------------------------------------------------------------------------
 void amf_n1::mobile_reachable_timer_timeout(
     timer_id_t& timer_id, const uint64_t amf_ue_ngap_id) {
-  std::shared_ptr<nas_context> nc;
-  if (amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
-    nc = amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id);
-  else {
+  std::shared_ptr<nas_context> nc = {};
+  if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().warn(
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
@@ -4150,10 +4138,8 @@ void amf_n1::mobile_reachable_timer_timeout(
 //------------------------------------------------------------------------------
 void amf_n1::implicit_deregistration_timer_timeout(
     timer_id_t timer_id, uint64_t amf_ue_ngap_id) {
-  std::shared_ptr<nas_context> nc;
-  if (amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
-    nc = amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id);
-  else {
+  std::shared_ptr<nas_context> nc = {};
+  if (amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().warn(
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
@@ -4614,13 +4600,11 @@ bool amf_n1::get_slice_selection_subscription_data_from_conf_file(
       amf_n2_inst->ran_ue_id_2_ue_ngap_context(nc->ran_ue_ngap_id);
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc.get()->gnb_assoc_id)) {
+  if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc.get()->gnb_assoc_id, gc)) {
     Logger::amf_n1().error(
         "No existed gNB context with assoc_id (%d)", unc.get()->gnb_assoc_id);
     return false;
   }
-
-  gc = amf_n2_inst->assoc_id_2_gnb_context(unc.get()->gnb_assoc_id);
 
   // Find the common NSSAIs between Requested NSSAIs and Subscribed NSSAIs
   std::vector<oai::amf::model::Snssai> common_snssais;

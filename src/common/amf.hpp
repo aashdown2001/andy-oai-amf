@@ -73,4 +73,7 @@ typedef enum {
   IntegrityProtectedAndCipheredWithNew5GNASSecurityContext = 0x4,
 } SecurityHeaderType_t;
 
+constexpr uint32_t DEFAULT_HTTP1_PORT  = 80;
+constexpr uint32_t DEFAULT_HTTP2_PORT  = 8080;
+constexpr auto DEFAULT_SBI_API_VERSION = "v1";
 #endif
