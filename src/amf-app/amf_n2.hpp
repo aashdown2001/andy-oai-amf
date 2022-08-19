@@ -45,21 +45,21 @@ class amf_n2 : public ngap::ngap_app {
   void handle_itti_message(itti_new_sctp_association& new_assoc);
 
   /*
-   * Handle ITTI message (Downlink NAS Transfer)
+   * Handle ITTI message (NG Setup Request)
    * @param [itti_downlink_nas_transfer&]: ITTI message
    * @return void
    */
   void handle_itti_message(itti_ng_setup_request& ng_setup_req);
 
   /*
-   * Handle ITTI message (Downlink NAS Transfer)
+   * Handle ITTI message (NG Setup Request)
    * @param [std::shared_ptr<itti_ng_setup_request>]: ITTI message
    * @return void
    */
   void handle_itti_message(std::shared_ptr<itti_ng_setup_request> ng_setup_req);
 
   /*
-   * Handle ITTI message (Downlink NAS Transfer)
+   * Handle ITTI message (NG Reset)
    * @param [itti_downlink_nas_transfer&]: ITTI message
    * @return void
    */
