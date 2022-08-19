@@ -21,9 +21,6 @@
 
 #include "AllocationAndRetentionPriority.hpp"
 
-#include <iostream>
-using namespace std;
-
 namespace ngap {
 
 //------------------------------------------------------------------------------

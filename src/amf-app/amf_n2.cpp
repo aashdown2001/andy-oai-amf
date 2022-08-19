@@ -89,8 +89,9 @@ void amf_n2_task(void* args_p) {
       } break;
       case NG_SETUP_REQ: {
         Logger::amf_n2().info("Received NGSetupRequest message, handling");
-        itti_ng_setup_request* m = dynamic_cast<itti_ng_setup_request*>(msg);
-        amf_n2_inst->handle_itti_message(ref(*m));
+        // itti_ng_setup_request* m = dynamic_cast<itti_ng_setup_request*>(msg);
+        amf_n2_inst->handle_itti_message(
+            std::static_pointer_cast<itti_ng_setup_request>(shared_msg));
       } break;
       case NG_RESET: {
         Logger::amf_n2().info("Received NGReset message, handling");
@@ -304,15 +305,17 @@ void amf_n2::handle_itti_message(itti_paging& itti_msg) {
 void amf_n2::handle_itti_message(itti_new_sctp_association& new_assoc) {}
 
 //------------------------------------------------------------------------------
-void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
+void amf_n2::handle_itti_message(
+    std::shared_ptr<itti_ng_setup_request> itti_msg) {
   Logger::amf_n2().debug("Handle NG Setup Request...");
   Logger::amf_n2().debug(
-      "Parameters: assoc_id %d, stream %d", itti_msg.assoc_id, itti_msg.stream);
+      "Parameters: assoc_id %d, stream %d", itti_msg->assoc_id,
+      itti_msg->stream);
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
+  if (!is_assoc_id_2_gnb_context(itti_msg->assoc_id, gc)) {
     Logger::amf_n2().error(
-        "No existed gNB context with assoc_id(%d)", itti_msg.assoc_id);
+        "No existed gNB context with assoc_id(%d)", itti_msg->assoc_id);
     return;
   }
 
@@ -324,7 +327,7 @@ void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
         ng_gnb_state_str[gc.get()->ng_state]);
   } else {
     Logger::amf_n2().debug(
-        "Update gNB context with assoc id (%d)", itti_msg.assoc_id);
+        "Update gNB context with assoc id (%d)", itti_msg->assoc_id);
   }
 
   gnb_infos gnbItem = {};
@@ -333,7 +336,7 @@ void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
   uint32_t gnb_id     = {};
   std::string gnb_mcc = {};
   std::string gnb_mnc = {};
-  if (!itti_msg.ngSetupReq->getGlobalGnbID(gnb_id, gnb_mcc, gnb_mnc)) {
+  if (!itti_msg->ngSetupReq->getGlobalGnbID(gnb_id, gnb_mcc, gnb_mnc)) {
     Logger::amf_n2().error("Missing Mandatory IE Global RAN Node ID");
     return;
   }
@@ -346,7 +349,7 @@ void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
   gnbItem.mnc         = gnb_mnc;
 
   std::string gnb_name = {};
-  if (!itti_msg.ngSetupReq->getRanNodeName(gnb_name)) {
+  if (!itti_msg->ngSetupReq->getRanNodeName(gnb_name)) {
     Logger::amf_n2().warn("Missing IE RanNodeName");
   } else {
     gc->gnb_name     = gnb_name;
@@ -355,7 +358,7 @@ void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
   }
 
   // store Paging DRX in gNB context
-  int defPagingDrx = itti_msg.ngSetupReq->getDefaultPagingDRX();
+  int defPagingDrx = itti_msg->ngSetupReq->getDefaultPagingDRX();
   if (defPagingDrx == -1) {
     Logger::amf_n2().error("Missing Mandatory IE DefaultPagingDRX");
     return;
@@ -364,7 +367,7 @@ void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
 
   // Get supported TA List
   vector<SupportedItem_t> s_ta_list;
-  if (!itti_msg.ngSetupReq->getSupportedTAList(s_ta_list)) {
+  if (!itti_msg->ngSetupReq->getSupportedTAList(s_ta_list)) {
     Logger::amf_n2().error("Missing Mandatory IE Supported TA List");
     return;
   }
@@ -388,7 +391,7 @@ void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
     }
 
     bstring b = blk2bstr(buffer, encoded);
-    sctp_s_38412.sctp_send_msg(itti_msg.assoc_id, itti_msg.stream, &b);
+    sctp_s_38412.sctp_send_msg(itti_msg->assoc_id, itti_msg->stream, &b);
     Logger::amf_n2().error(
         "No common PLMN, encoding NG_SETUP_FAILURE with cause (Unknown PLMN)");
     return;
@@ -443,12 +446,12 @@ void amf_n2::handle_itti_message(itti_ng_setup_request& itti_msg) {
   }
 
   bstring b = blk2bstr(buffer, encoded);
-  sctp_s_38412.sctp_send_msg(itti_msg.assoc_id, itti_msg.stream, &b);
+  sctp_s_38412.sctp_send_msg(itti_msg->assoc_id, itti_msg->stream, &b);
   Logger::amf_n2().debug("Sending NG_SETUP_RESPONSE Ok");
   gc.get()->ng_state = NGAP_READY;
   Logger::amf_n2().debug(
       "gNB with gNB_id 0x%x, assoc_id %d has been attached to AMF",
-      gc.get()->globalRanNodeId, itti_msg.assoc_id);
+      gc.get()->globalRanNodeId, itti_msg->assoc_id);
   stacs.add_gnb(gnbItem.gnb_id, gnbItem);
   return;
 }
