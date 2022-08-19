@@ -40,6 +40,7 @@ class itti_msg_n1 : public itti_msg {
     ran_ue_ngap_id              = i.ran_ue_ngap_id;
     amf_ue_ngap_id              = i.amf_ue_ngap_id;
   }
+  virtual ~itti_msg_n1() = default;
 
  public:
   bool is_nas_signalling_estab_req;
@@ -64,6 +65,7 @@ class itti_uplink_nas_data_ind : public itti_msg_n1 {
     is_guti_valid = i.is_guti_valid;
     guti          = i.guti;
   }
+  virtual ~itti_uplink_nas_data_ind() { bdestroy_wrapper(&nas_msg); }
 
  public:
   bstring nas_msg;
@@ -91,6 +93,10 @@ class itti_downlink_nas_transfer : public itti_msg_n1 {
     is_n2sm_set    = i.is_n2sm_set;
     pdu_session_id = i.pdu_session_id;
     n2sm_info_type = i.n2sm_info_type;
+  }
+  virtual ~itti_downlink_nas_transfer() {
+    bdestroy_wrapper(&dl_nas);
+    bdestroy_wrapper(&n2sm);
   }
 
  public:

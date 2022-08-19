@@ -842,7 +842,7 @@ void amf_n1::service_request_handle(
       std::make_unique<ServiceRequest>();
   service_request->decodefrombuffer(
       nullptr, (uint8_t*) bdata(nas), blength(nas));
-  bdestroy(nas);
+  bdestroy_wrapper(&nas);
   std::unique_ptr<ServiceAccept> service_accept =
       std::make_unique<ServiceAccept>();
   service_accept->setHeader(PLAIN_5GS_MSG);
@@ -907,7 +907,7 @@ void amf_n1::service_request_handle(
               std::make_unique<ServiceRequest>();
           service_request_nas->decodefrombuffer(
               nullptr, (uint8_t*) bdata(plain_msg), blength(plain_msg));
-          bdestroy(plain_msg);
+          bdestroy_wrapper(&plain_msg);
           if (service_request_nas->getPduSessionStatus() > 0) {
             pdu_session_status =
                 (uint16_t) service_request_nas->getPduSessionStatus();
@@ -1039,7 +1039,7 @@ void amf_n1::registration_request_handle(
       nullptr, (uint8_t*) bdata(reg), blength(reg));
   nc->registration_request = blk2bstr((uint8_t*) bdata(reg), blength(reg));
   nc->registration_request_is_set = true;
-  bdestroy(reg);  // free buffer
+  bdestroy_wrapper(&reg);  // free buffer
 
   // Find UE context
   std::shared_ptr<ue_context> uc = {};
@@ -2565,7 +2565,7 @@ void amf_n1::security_mode_complete_handle(
       registration_request->decodefrombuffer(
           nullptr, (uint8_t*) bdata(nas_msg_container),
           blength(nas_msg_container));
-      bdestroy(nas_msg_container);  // free buffer
+      bdestroy_wrapper(&nas_msg_container);  // free buffer
 
       // Get Requested NSSAI (Optional IE), if provided
       if (registration_request->getRequestedNssai(nc.get()->requestedNssai)) {
@@ -3437,7 +3437,7 @@ void amf_n1::run_periodic_registration_update_procedure(
       std::make_unique<RegistrationRequest>();
   registration_request->decodefrombuffer(
       nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
-  bdestroy(nas_msg);  // free buffer
+  bdestroy_wrapper(&nas_msg);  // free buffer
 
   // Encoding REGISTRATION ACCEPT
   auto reg_accept = std::make_unique<RegistrationAccept>();
