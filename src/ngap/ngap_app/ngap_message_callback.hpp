@@ -497,10 +497,10 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
           return RETURNerror;
         }
       }
-      psc.get()->isn2sm_avaliable = false;
+      psc.get()->is_n2sm_avaliable = false;
       Logger::ngap().debug(
           "Receive pdu session resource setup response fail (multi pdu session "
-          "id),set pdu session context isn2sm_avaliable = false");
+          "id),set pdu session context is_n2sm_avaliable = false");
       // TODO:
       /*Logger::ngap().debug("Sending itti ue context release command to
        TASK_AMF_N2"); itti_ue_context_release_command * itti_msg = new

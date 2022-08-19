@@ -926,7 +926,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
           item.s_nssai.sd.c_str());
 
       item.pduSessionNAS_PDU = NULL;
-      if (itti_msg.isn2sm_avaliable) {
+      if (itti_msg.is_n2sm_avaliable) {
         bstring n2sm = itti_msg.n2sm;
         if (blength(itti_msg.n2sm) != 0) {
           item.pduSessionResourceSetupRequestTransfer.buf =

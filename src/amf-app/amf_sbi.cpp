@@ -391,7 +391,7 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
       uint8_t pti     = sm_msg[2];
       Logger::amf_sbi().debug(
           "Decoded PTI for PDUSessionEstablishmentRequest(0x%x)", pti);
-      psc.get()->isn2sm_avaliable = false;
+      psc.get()->is_n2sm_avaliable = false;
       handle_pdu_session_initial_request(
           supi, psc, smf_addr, smf_api_version, smf_port, smf.sm_msg, dnn);
     } break;
