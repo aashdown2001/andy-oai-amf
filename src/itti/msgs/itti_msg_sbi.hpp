@@ -30,9 +30,12 @@
 #include "amf_profile.hpp"
 #include "bstrlib.h"
 #include "itti_msg.hpp"
-#include "pistache/http.h"
+//#include "pistache/http.h"
 
-// using namespace oai::amf::model;
+extern "C" {
+#include "dynamic_memory_check.h"
+}
+
 using namespace amf_application;
 
 class itti_msg_n11 : public itti_msg {
@@ -48,6 +51,7 @@ class itti_msg_n11 : public itti_msg {
     ran_ue_ngap_id = i.ran_ue_ngap_id;
     amf_ue_ngap_id = i.amf_ue_ngap_id;
   }
+  virtual ~itti_msg_n11(){};
 
  public:
   long amf_ue_ngap_id;
@@ -76,6 +80,10 @@ class itti_nsmf_pdusession_create_sm_context : public itti_msg_n11 {
     snssai      = {};
     plmn        = {};
   }
+  virtual ~itti_nsmf_pdusession_create_sm_context() {
+    bdestroy_wrapper(&dnn);
+    bdestroy_wrapper(&sm_msg);
+  }
 
  public:
   uint8_t req_type;
@@ -99,6 +107,9 @@ class itti_pdu_session_resource_setup_response : public itti_msg_n11 {
       : itti_msg_n11(i) {
     pdu_session_id = i.pdu_session_id;
     n2sm           = i.n2sm;
+  }
+  virtual ~itti_pdu_session_resource_setup_response() {
+    bdestroy_wrapper(&n2sm);
   }
 
  public:
@@ -134,6 +145,7 @@ class itti_nsmf_pdusession_update_sm_context : public itti_msg_n11 {
     ho_state       = i.ho_state;
     up_cnx_state   = i.up_cnx_state;
   }
+  virtual ~itti_nsmf_pdusession_update_sm_context() { bdestroy_wrapper(&n2sm); }
 
  public:
   std::string supi;
@@ -159,6 +171,7 @@ class itti_nsmf_pdusession_release_sm_context : public itti_msg_n11 {
     promise_id       = i.promise_id;
     context_location = i.context_location;
   }
+  virtual ~itti_nsmf_pdusession_release_sm_context() {}
 
  public:
   std::string supi;
@@ -180,6 +193,7 @@ class itti_sbi_msg : public itti_msg {
     origin      = orig;
     destination = dest;
   }
+  virtual ~itti_sbi_msg() {}
 };
 
 //-----------------------------------------------------------------------------
@@ -189,6 +203,7 @@ class itti_sbi_register_nf_instance_request : public itti_sbi_msg {
       const task_id_t orig, const task_id_t dest)
       : itti_sbi_msg(SBI_REGISTER_NF_INSTANCE_REQUEST, orig, dest),
         http_version(1) {}
+  virtual ~itti_sbi_register_nf_instance_request() {}
   const char* get_msg_name() { return "SBI_REGISTER_NF_INSTANCE_REQUEST"; };
 
   amf_application::amf_profile profile;
@@ -202,6 +217,7 @@ class itti_sbi_register_nf_instance_response : public itti_sbi_msg {
       const task_id_t orig, const task_id_t dest)
       : itti_sbi_msg(SBI_REGISTER_NF_INSTANCE_RESPONSE, orig, dest),
         http_version(1) {}
+  virtual ~itti_sbi_register_nf_instance_response(){};
   const char* get_msg_name() { return "SBI_REGISTER_NF_INSTANCE_RESPONSE"; };
 
   amf_application::amf_profile profile;
@@ -216,6 +232,7 @@ class itti_sbi_update_nf_instance_request : public itti_sbi_msg {
       const task_id_t orig, const task_id_t dest)
       : itti_sbi_msg(SBI_UPDATE_NF_INSTANCE_REQUEST, orig, dest),
         http_version(1) {}
+  virtual ~itti_sbi_update_nf_instance_request(){};
   const char* get_msg_name() { return "SBI_UPDATE_NF_INSTANCE_REQUEST"; };
 
   //  std::vector<oai::amf::model::PatchItem> patch_items;
@@ -230,6 +247,7 @@ class itti_sbi_update_nf_instance_response : public itti_sbi_msg {
       const task_id_t orig, const task_id_t dest)
       : itti_sbi_msg(SBI_UPDATE_NF_INSTANCE_RESPONSE, orig, dest),
         http_version(1) {}
+  virtual ~itti_sbi_update_nf_instance_response(){};
   const char* get_msg_name() { return "SBI_UPDATE_NF_INSTANCE_RESPONSE"; };
 
   uint8_t http_version;
@@ -242,6 +260,7 @@ class itti_sbi_deregister_nf_instance : public itti_sbi_msg {
  public:
   itti_sbi_deregister_nf_instance(const task_id_t orig, const task_id_t dest)
       : itti_sbi_msg(SBI_DEREGISTER_NF_INSTANCE, orig, dest), http_version(1) {}
+  virtual ~itti_sbi_deregister_nf_instance(){};
   const char* get_msg_name() { return "SBI_DEREGISTER_NF_INSTANCE"; };
 
   uint8_t http_version;
@@ -255,6 +274,7 @@ class itti_sbi_slice_selection_subscription_data : public itti_sbi_msg {
       const task_id_t orig, const task_id_t dest)
       : itti_sbi_msg(SBI_SLICE_SELECTION_SUBSCRIPTION_DATA, orig, dest),
         http_version(1) {}
+  virtual ~itti_sbi_slice_selection_subscription_data(){};
   const char* get_msg_name() {
     return "SBI_SLICE_SELECTION_SUBSCRIPTION_DATA";
   };
@@ -272,6 +292,7 @@ class itti_sbi_network_slice_selection_information : public itti_sbi_msg {
       const task_id_t orig, const task_id_t dest)
       : itti_sbi_msg(SBI_NETWORK_SLICE_SELECTION_INFORMATION, orig, dest),
         http_version(1) {}
+  virtual ~itti_sbi_network_slice_selection_information(){};
   const char* get_msg_name() {
     return "SBI_NETWORK_SLICE_SELECTION_INFORMATION";
   };
@@ -290,6 +311,7 @@ class itti_sbi_nf_instance_discovery : public itti_sbi_msg {
       : itti_sbi_msg(SBI_NF_INSTANCE_DISCOVERY, orig, dest),
         target_amf_set_is_set(false),
         http_version(1) {}
+  virtual ~itti_sbi_nf_instance_discovery(){};
   const char* get_msg_name() { return "SBI_NF_INSTANCE_DISCOVERY"; };
 
   uint8_t http_version;
@@ -310,6 +332,10 @@ class itti_sbi_n1_message_notify : public itti_sbi_msg {
     supi                 = {};
     registration_request = nullptr;
   }
+  virtual ~itti_sbi_n1_message_notify() {
+    bdestroy_wrapper(&registration_request);
+  };
+
   const char* get_msg_name() { return "SBI_N1_MESSAGE_NOTIFY"; };
 
   uint8_t http_version;
@@ -333,6 +359,7 @@ class itti_sbi_event_exposure_request : public itti_sbi_msg {
       : itti_sbi_msg(i, orig, dest),
         event_exposure(i.event_exposure),
         http_version(i.http_version) {}
+  virtual ~itti_sbi_event_exposure_request(){};
   const char* get_msg_name() { return "SBI_EVENT_EXPOSURE_REQUEST"; };
 
   event_exposure_msg event_exposure;
@@ -356,6 +383,7 @@ class itti_sbi_notification_data : public itti_sbi_msg {
       : itti_sbi_msg(i, orig, dest),
         notification_msg(i.notification_msg),
         http_version(i.http_version) {}
+  virtual ~itti_sbi_notification_data(){};
   const char* get_msg_name() { return "SBI_NOTIFICATION_DATA"; };
 
   data_notification_msg notification_msg;
@@ -378,6 +406,7 @@ class itti_sbi_notify_subscribed_event : public itti_sbi_msg {
       : itti_sbi_msg(i, orig, dest),
         notif_id(i.notif_id),
         http_version(i.http_version) {}
+  virtual ~itti_sbi_notify_subscribed_event(){};
   const char* get_msg_name() { return "SBI_NOTIFY_SUBSCRIBED_EVENT"; };
 
   std::string notif_id;
@@ -408,6 +437,7 @@ class itti_sbi_n1_message_notification : public itti_sbi_msg {
         ue_id(i.ue_id),
         n1sm(i.n1sm),
         http_version(i.http_version) {}
+  virtual ~itti_sbi_n1_message_notification(){};
   const char* get_msg_name() { return "SBI_N1_MESSAGE_NOTIFICATION"; };
 
   oai::amf::model::N1MessageNotification notification_msg;
@@ -440,6 +470,7 @@ class itti_sbi_n1n2_message_subscribe : public itti_sbi_msg {
         subscription_data(i.subscription_data),
         http_version(i.http_version),
         promise_id(i.promise_id) {}
+  virtual ~itti_sbi_n1n2_message_subscribe(){};
   const char* get_msg_name() { return "SBI_N1N2_MESSAGE_SUBSCRIBE"; };
 
   std::string ue_cxt_id;
@@ -472,6 +503,7 @@ class itti_sbi_n1n2_message_unsubscribe : public itti_sbi_msg {
         subscription_id(i.subscription_id),
         http_version(i.http_version),
         promise_id(i.promise_id) {}
+  virtual ~itti_sbi_n1n2_message_unsubscribe(){};
   const char* get_msg_name() { return "SBI_N1N2_MESSAGE_UNSUBSCRIBE"; };
 
   std::string ue_cxt_id;
@@ -488,6 +520,7 @@ class itti_sbi_amf_configuration : public itti_sbi_msg {
       : itti_sbi_msg(SBI_AMF_CONFIGURATION, orig, dest),
         http_version(1),
         promise_id(pid) {}
+  virtual ~itti_sbi_amf_configuration(){};
   const char* get_msg_name() { return "SBI_AMF_CONFIGURATION"; };
 
   uint8_t http_version;
@@ -502,6 +535,7 @@ class itti_sbi_update_amf_configuration : public itti_sbi_msg {
       : itti_sbi_msg(SBI_UPDATE_AMF_CONFIGURATION, orig, dest),
         http_version(1),
         promise_id(pid) {}
+  virtual ~itti_sbi_update_amf_configuration(){};
   const char* get_msg_name() { return "SBI_UPDATE_AMF_CONFIGURATION"; };
 
   uint8_t http_version;

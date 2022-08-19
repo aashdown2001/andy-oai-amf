@@ -868,8 +868,8 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
   }
   msg->setAllowedNssai(list);
 
-  bdestroy(itti_msg.nas);
-  bdestroy(itti_msg.kgnb);
+  bdestroy_wrapper(&itti_msg.nas);
+  bdestroy_wrapper(&itti_msg.kgnb);
   if (itti_msg.is_sr or itti_msg.is_pdu_exist) {
     // Set UE RAdio Capability if available
     if (gc.get()->ue_radio_cap_ind) {
