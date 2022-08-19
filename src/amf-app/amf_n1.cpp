@@ -1279,7 +1279,6 @@ void amf_n1::registration_request_handle(
     Logger::amf_n1().error("Missing Mandatory IE ngKSI...");
     send_registration_reject_msg(
         _5GMM_CAUSE_INVALID_MANDATORY_INFO, ran_ue_ngap_id, amf_ue_ngap_id);
-    free_wrapper((void**) &registration_request);
     return;
   }
   nc.get()->ngKsi = ngKSI;
