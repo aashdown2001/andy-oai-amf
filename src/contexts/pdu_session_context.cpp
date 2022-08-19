@@ -23,16 +23,14 @@
 
 //------------------------------------------------------------------------------
 pdu_session_context::pdu_session_context() {
-  isn2sm_avaliable = false;
-  isn1sm_avaliable = false;
-  ran_ue_ngap_id   = 0;
-  amf_ue_ngap_id   = 0;
-  req_type         = 0;
-  pdu_session_id   = 0;
-  // bstring n2sm;
-  isn2sm_avaliable = false;
-  // bstring n1sm;
-  isn1sm_avaliable        = false;
+  is_n2sm_avaliable       = false;
+  is_n1sm_avaliable       = false;
+  ran_ue_ngap_id          = 0;
+  amf_ue_ngap_id          = 0;
+  req_type                = 0;
+  pdu_session_id          = 0;
+  n2sm                    = nullptr;
+  n1sm                    = nullptr;
   smf_info.info_available = false;
   smf_info.addr           = {};
   smf_info.api_version    = "v1";

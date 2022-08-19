@@ -40,7 +40,10 @@ class itti_msg_n11 : public itti_msg {
   itti_msg_n11(
       const itti_msg_type_t msg_type, const task_id_t origin,
       const task_id_t destination)
-      : itti_msg(msg_type, origin, destination) {}
+      : itti_msg(msg_type, origin, destination) {
+    amf_ue_ngap_id = 0;
+    ran_ue_ngap_id = 0;
+  }
   itti_msg_n11(const itti_msg_n11& i) : itti_msg(i) {
     ran_ue_ngap_id = i.ran_ue_ngap_id;
     amf_ue_ngap_id = i.amf_ue_ngap_id;
@@ -55,10 +58,24 @@ class itti_nsmf_pdusession_create_sm_context : public itti_msg_n11 {
  public:
   itti_nsmf_pdusession_create_sm_context(
       const task_id_t origin, const task_id_t destination)
-      : itti_msg_n11(NSMF_PDU_SESSION_CREATE_SM_CTX, origin, destination) {}
+      : itti_msg_n11(NSMF_PDU_SESSION_CREATE_SM_CTX, origin, destination) {
+    req_type    = 0;
+    pdu_sess_id = 0;
+    dnn         = nullptr;
+    sm_msg      = nullptr;
+    snssai      = {};
+    plmn        = {};
+  }
   itti_nsmf_pdusession_create_sm_context(
       const itti_nsmf_pdusession_create_sm_context& i)
-      : itti_msg_n11(i) {}
+      : itti_msg_n11(i) {
+    req_type    = i.req_type;
+    pdu_sess_id = i.pdu_sess_id;
+    dnn         = i.dnn;
+    sm_msg      = i.sm_msg;
+    snssai      = {};
+    plmn        = {};
+  }
 
  public:
   uint8_t req_type;
@@ -74,10 +91,15 @@ class itti_pdu_session_resource_setup_response : public itti_msg_n11 {
   itti_pdu_session_resource_setup_response(
       const task_id_t origin, const task_id_t destination)
       : itti_msg_n11(PDU_SESSION_RESOURCE_SETUP_RESPONSE, origin, destination) {
+    pdu_session_id = 0;
+    n2sm           = nullptr;
   }
   itti_pdu_session_resource_setup_response(
       const itti_pdu_session_resource_setup_response& i)
-      : itti_msg_n11(i) {}
+      : itti_msg_n11(i) {
+    pdu_session_id = i.pdu_session_id;
+    n2sm           = i.n2sm;
+  }
 
  public:
   uint8_t pdu_session_id;
@@ -91,7 +113,7 @@ class itti_nsmf_pdusession_update_sm_context : public itti_msg_n11 {
       : itti_msg_n11(NSMF_PDU_SESSION_UPDATE_SM_CTX, origin, destination) {
     supi           = {};
     pdu_session_id = 0;
-    // n2sm = {};
+    n2sm           = nullptr;
     is_n2sm_set    = false;
     n2sm_info_type = {};
     ran_ue_ngap_id = 0;
@@ -119,8 +141,6 @@ class itti_nsmf_pdusession_update_sm_context : public itti_msg_n11 {
   bstring n2sm;
   bool is_n2sm_set;
   std::string n2sm_info_type;
-  // uint32_t ran_ue_ngap_id;
-  // long amf_ue_ngap_id;
   uint32_t promise_id;
   std::string ho_state;
   std::string up_cnx_state;
@@ -259,7 +279,6 @@ class itti_sbi_network_slice_selection_information : public itti_sbi_msg {
   uint8_t http_version;
   std::string nf_instance_id;
   oai::amf::model::SliceInfoForRegistration slice_info;
-  // plmn_t plmn;
   tai_t tai;
   uint32_t promise_id;
 };
@@ -285,7 +304,12 @@ class itti_sbi_nf_instance_discovery : public itti_sbi_msg {
 class itti_sbi_n1_message_notify : public itti_sbi_msg {
  public:
   itti_sbi_n1_message_notify(const task_id_t orig, const task_id_t dest)
-      : itti_sbi_msg(SBI_N1_MESSAGE_NOTIFY, orig, dest), http_version(1) {}
+      : itti_sbi_msg(SBI_N1_MESSAGE_NOTIFY, orig, dest), http_version(1) {
+    http_version         = 0;
+    target_amf_uri       = {};
+    supi                 = {};
+    registration_request = nullptr;
+  }
   const char* get_msg_name() { return "SBI_N1_MESSAGE_NOTIFY"; };
 
   uint8_t http_version;
@@ -310,6 +334,7 @@ class itti_sbi_event_exposure_request : public itti_sbi_msg {
         event_exposure(i.event_exposure),
         http_version(i.http_version) {}
   const char* get_msg_name() { return "SBI_EVENT_EXPOSURE_REQUEST"; };
+
   event_exposure_msg event_exposure;
   uint8_t http_version;
 };
@@ -332,6 +357,7 @@ class itti_sbi_notification_data : public itti_sbi_msg {
         notification_msg(i.notification_msg),
         http_version(i.http_version) {}
   const char* get_msg_name() { return "SBI_NOTIFICATION_DATA"; };
+
   data_notification_msg notification_msg;
   uint8_t http_version;
 };
@@ -383,6 +409,7 @@ class itti_sbi_n1_message_notification : public itti_sbi_msg {
         n1sm(i.n1sm),
         http_version(i.http_version) {}
   const char* get_msg_name() { return "SBI_N1_MESSAGE_NOTIFICATION"; };
+
   oai::amf::model::N1MessageNotification notification_msg;
   std::string ue_id;
   std::string n1sm;
@@ -414,6 +441,7 @@ class itti_sbi_n1n2_message_subscribe : public itti_sbi_msg {
         http_version(i.http_version),
         promise_id(i.promise_id) {}
   const char* get_msg_name() { return "SBI_N1N2_MESSAGE_SUBSCRIBE"; };
+
   std::string ue_cxt_id;
   oai::amf::model::UeN1N2InfoSubscriptionCreateData subscription_data;
   uint8_t http_version;
@@ -445,6 +473,7 @@ class itti_sbi_n1n2_message_unsubscribe : public itti_sbi_msg {
         http_version(i.http_version),
         promise_id(i.promise_id) {}
   const char* get_msg_name() { return "SBI_N1N2_MESSAGE_UNSUBSCRIBE"; };
+
   std::string ue_cxt_id;
   std::string subscription_id;
   uint8_t http_version;

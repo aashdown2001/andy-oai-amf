@@ -1010,11 +1010,11 @@ void amf_n1::service_request_handle(
     itti_msg->is_sr          = true;  // Service Request indicator
     itti_msg->pdu_session_id = pdu_session_id;
     itti_msg->is_pdu_exist   = true;
-    if (psc.get()->isn2sm_avaliable) {
-      itti_msg->n2sm             = psc.get()->n2sm;
-      itti_msg->isn2sm_avaliable = true;
+    if (psc.get()->is_n2sm_avaliable) {
+      itti_msg->n2sm              = psc.get()->n2sm;
+      itti_msg->is_n2sm_avaliable = true;
     } else {
-      itti_msg->isn2sm_avaliable = false;
+      itti_msg->is_n2sm_avaliable = false;
       Logger::amf_n1().error("Cannot get PDU session information");
     }
 

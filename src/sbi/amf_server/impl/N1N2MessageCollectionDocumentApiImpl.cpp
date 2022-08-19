@@ -95,10 +95,10 @@ void N1N2MessageCollectionDocumentApiImpl::n1_n2_message_transfer(
   bstring n2sm;
   conv::msg_str_2_msg_hex(n2sm_str, n2sm);
 
-  psc.get()->n1sm             = n1sm;
-  psc.get()->isn1sm_avaliable = true;
-  psc.get()->n2sm             = n2sm;
-  psc.get()->isn2sm_avaliable = true;
+  psc.get()->n1sm              = n1sm;
+  psc.get()->is_n1sm_avaliable = true;
+  psc.get()->n2sm              = n2sm;
+  psc.get()->is_n2sm_avaliable = true;
   Logger::amf_server().debug(
       "n2sm size in amf_server(%d)", blength(psc.get()->n2sm));
 

@@ -30,7 +30,7 @@
 typedef struct smf_context_info_s {
   bool info_available;
   std::string addr;
-  std::string port;
+  std::string port;  // TODO: define as uint32_t
   std::string api_version;
   std::string context_location;
 } smf_context_info_t;
@@ -45,9 +45,9 @@ class pdu_session_context {
   uint8_t req_type;
   uint8_t pdu_session_id;
   bstring n2sm;
-  bool isn2sm_avaliable;
+  bool is_n2sm_avaliable;
   bstring n1sm;
-  bool isn1sm_avaliable;
+  bool is_n1sm_avaliable;
   std::string dnn;
   smf_context_info_t smf_info;
   snssai_t snssai;
