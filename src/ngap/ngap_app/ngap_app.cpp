@@ -94,28 +94,27 @@ void ngap_app::handle_sctp_new_association(
     gc = std::shared_ptr<gnb_context>(new gnb_context());
     set_assoc_id_2_gnb_context(assoc_id, gc);
   } else {
-    if (gc.get()->ng_state == NGAP_RESETING ||
-        gc.get()->ng_state == NGAP_SHUTDOWN) {
+    if (gc->ng_state == NGAP_RESETING || gc->ng_state == NGAP_SHUTDOWN) {
       Logger::ngap().warn(
           "Received a new association request on an association that is being "
           "%s, ignoring",
-          ng_gnb_state_str[gc.get()->ng_state]);
+          ng_gnb_state_str[gc->ng_state]);
     } else {
       Logger::ngap().debug("Update gNB context with assoc id (%d)", assoc_id);
     }
   }
 
-  if (gc.get() == nullptr) {
+  if (gc == nullptr) {
     Logger::ngap().error(
         "Failed to create gNB context for assoc_id (%d)", assoc_id);
     return;
   };
 
-  gc.get()->sctp_assoc_id    = assoc_id;
-  gc.get()->instreams        = instreams;
-  gc.get()->outstreams       = outstreams;
-  gc.get()->next_sctp_stream = 1;
-  gc.get()->ng_state         = NGAP_INIT;
+  gc->sctp_assoc_id    = assoc_id;
+  gc->instreams        = instreams;
+  gc->outstreams       = outstreams;
+  gc->next_sctp_stream = 1;
+  gc->ng_state         = NGAP_INIT;
 }
 
 //------------------------------------------------------------------------------
@@ -152,7 +151,7 @@ bool ngap_app::is_assoc_id_2_gnb_context(
   std::shared_lock lock(m_assoc2gnbContext);
   if (assoc2gnbContext.count(assoc_id) > 0) {
     gc = assoc2gnbContext.at(assoc_id);
-    if (gc.get() != nullptr) return true;
+    if (gc != nullptr) return true;
   }
   return false;
 }

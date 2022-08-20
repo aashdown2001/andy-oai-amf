@@ -967,7 +967,7 @@ bool amf_config::get_smf_pdu_session_context_uri(
     const std::shared_ptr<pdu_session_context>& psc, std::string& smf_uri) {
   if (!psc) return false;
 
-  if (!psc.get()->smf_info.info_available) {
+  if (!psc->smf_info.info_available) {
     Logger::amf_sbi().error("No SMF is available for this PDU session");
     return false;
   }
@@ -986,11 +986,11 @@ bool amf_config::get_smf_pdu_session_context_uri(
   else
     smf_ip_addr = smf_addr;
 
-  std::size_t found = psc.get()->smf_info.context_location.find(smf_ip_addr);
+  std::size_t found = psc->smf_info.context_location.find(smf_ip_addr);
   if (found != std::string::npos)
-    smf_uri = psc.get()->smf_info.context_location;
+    smf_uri = psc->smf_info.context_location;
   else
-    smf_uri = smf_addr + ":" + smf_port + psc.get()->smf_info.context_location;
+    smf_uri = smf_addr + ":" + smf_port + psc->smf_info.context_location;
   return true;
 }
 
