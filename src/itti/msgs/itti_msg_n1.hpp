@@ -59,7 +59,7 @@ class itti_uplink_nas_data_ind : public itti_msg_n1 {
     guti          = {};
   }
   itti_uplink_nas_data_ind(const itti_uplink_nas_data_ind& i) : itti_msg_n1(i) {
-    nas_msg       = i.nas_msg;
+    nas_msg       = bstrcpy(i.nas_msg);
     mcc           = i.mcc;
     mnc           = i.mnc;
     is_guti_valid = i.is_guti_valid;
@@ -88,8 +88,8 @@ class itti_downlink_nas_transfer : public itti_msg_n1 {
   }
   itti_downlink_nas_transfer(const itti_downlink_nas_transfer& i)
       : itti_msg_n1(i) {
-    dl_nas         = i.dl_nas;
-    n2sm           = i.n2sm;
+    dl_nas         = bstrcpy(i.dl_nas);
+    n2sm           = bstrcpy(i.n2sm);
     is_n2sm_set    = i.is_n2sm_set;
     pdu_session_id = i.pdu_session_id;
     n2sm_info_type = i.n2sm_info_type;

@@ -327,22 +327,21 @@ void amf_app::handle_itti_message(
     dl->setHeader(PLAIN_5GS_MSG);
     dl->setPayload_Container_Type(N1_SM_INFORMATION);
     dl->setPayload_Container(
-        (uint8_t*) bdata(itti_msg.n1sm), blength(itti_msg.n1sm));
+        (uint8_t*) bdata(bstrcpy(itti_msg.n1sm)), blength(itti_msg.n1sm));
     dl->setPDUSessionId(itti_msg.pdu_session_id);
 
     uint8_t nas[BUFFER_SIZE_1024];
     int encoded_size = dl->encode2buffer(nas, BUFFER_SIZE_1024);
     comUt::print_buffer("amf_app", "n1n2 transfer", nas, encoded_size);
-    bstring dl_nas = blk2bstr(nas, encoded_size);
 
     std::shared_ptr<itti_downlink_nas_transfer> dl_msg =
         std::make_shared<itti_downlink_nas_transfer>(TASK_AMF_APP, TASK_AMF_N1);
 
-    dl_msg->dl_nas = dl_nas;
+    dl_msg->dl_nas = blk2bstr(nas, encoded_size);
     if (!itti_msg.is_n2sm_set) {
       dl_msg->is_n2sm_set = false;
     } else {
-      dl_msg->n2sm           = itti_msg.n2sm;
+      dl_msg->n2sm           = bstrcpy(itti_msg.n2sm);
       dl_msg->pdu_session_id = itti_msg.pdu_session_id;
       dl_msg->is_n2sm_set    = true;
       dl_msg->n2sm_info_type = itti_msg.n2sm_info_type;
@@ -454,7 +453,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
   // Get NAS message (RegistrationRequest, this message included
   // in N1 Message Notify is actually is RegistrationRequest from UE to the
   // initial AMF)
-  bstring n1sm;
+  bstring n1sm = nullptr;
   conv::msg_str_2_msg_hex(itti_msg.n1sm, n1sm);
 
   // get RegistrationContextContainer including gNB info
@@ -625,7 +624,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
   itti_n1_msg->amf_ue_ngap_id              = amf_ue_ngap_id;
   itti_n1_msg->ran_ue_ngap_id              = ran_ue_ngap_id;
   itti_n1_msg->is_nas_signalling_estab_req = true;
-  itti_n1_msg->nas_msg                     = n1sm;
+  itti_n1_msg->nas_msg                     = bstrcpy(n1sm);
   itti_n1_msg->mcc                         = ran_node_id.getPlmnId().getMcc();
   itti_n1_msg->mnc                         = ran_node_id.getPlmnId().getMnc();
   itti_n1_msg->is_guti_valid               = false;
@@ -637,6 +636,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
         itti_n1_msg->get_msg_name());
   }
 
+  bdestroy_wrapper(&n1sm);
   return;
 }
 

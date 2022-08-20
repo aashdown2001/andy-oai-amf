@@ -185,19 +185,14 @@ int ngap_amf_handle_initial_context_setup_response(
     return 0;
   }
 
-  uint8_t transferIe[BUFFER_SIZE_512];
-  memcpy(
-      transferIe, list[0].pduSessionResourceSetupResponseTransfer.buf,
-      list[0].pduSessionResourceSetupResponseTransfer.size);
-  bstring n2sm = blk2bstr(
-      transferIe, list[0].pduSessionResourceSetupResponseTransfer.size);
-
   Logger::ngap().debug(
       "Sending ITTI Initial Context Setup Response to TASK_AMF_SBI");
   auto itti_msg = std::make_shared<itti_nsmf_pdusession_update_sm_context>(
       TASK_NGAP, TASK_AMF_SBI);
   itti_msg->pdu_session_id = list[0].pduSessionId;
-  itti_msg->n2sm           = n2sm;
+  itti_msg->n2sm           = blk2bstr(
+      list[0].pduSessionResourceSetupResponseTransfer.buf,
+      list[0].pduSessionResourceSetupResponseTransfer.size);
   itti_msg->is_n2sm_set    = true;
   itti_msg->n2sm_info_type = "PDU_RES_SETUP_RSP";
   itti_msg->amf_ue_ngap_id = initCtxResp->getAmfUeNgapId();
@@ -350,12 +345,6 @@ int ngap_amf_handle_pdu_session_resource_release_response(
   }
 
   // TODO: add the full list
-  uint8_t transferIe[BUFFER_SIZE_512];
-  memcpy(
-      transferIe, list[0].pduSessionResourceReleaseResponseTransfer.buf,
-      list[0].pduSessionResourceReleaseResponseTransfer.size);
-  bstring n2sm = blk2bstr(
-      transferIe, list[0].pduSessionResourceReleaseResponseTransfer.size);
   Logger::ngap().debug(
       "Sending ITTI PDUSessionResourceReleaseResponse to TASK_AMF_SBI");
 
@@ -363,7 +352,10 @@ int ngap_amf_handle_pdu_session_resource_release_response(
       TASK_NGAP, TASK_AMF_SBI);
 
   itti_msg->pdu_session_id = list[0].pduSessionId;
-  itti_msg->n2sm           = n2sm;
+  itti_msg->n2sm           = blk2bstr(
+      list[0].pduSessionResourceReleaseResponseTransfer.buf,
+      list[0].pduSessionResourceReleaseResponseTransfer.size);
+  ;
   itti_msg->is_n2sm_set    = true;
   itti_msg->n2sm_info_type = "PDU_RES_REL_RSP";
   itti_msg->amf_ue_ngap_id = pduresp->getAmfUeNgapId();
@@ -409,12 +401,6 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
     // return RETURNerror;
   } else {
     // TODO: for multiple PDU Sessions
-    uint8_t transferIe[BUFFER_SIZE_512];
-    memcpy(
-        transferIe, list[0].pduSessionResourceSetupResponseTransfer.buf,
-        list[0].pduSessionResourceSetupResponseTransfer.size);
-    bstring n2sm = blk2bstr(
-        transferIe, list[0].pduSessionResourceSetupResponseTransfer.size);
     itti_nsmf_pdusession_update_sm_context* itti_msg =
         new itti_nsmf_pdusession_update_sm_context(TASK_NGAP, TASK_AMF_SBI);
     long amf_ue_ngap_id              = pduresp->getAmfUeNgapId();
@@ -426,7 +412,10 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
     }
     itti_msg->supi           = "imsi-" + nct.get()->imsi;
     itti_msg->pdu_session_id = list[0].pduSessionId;
-    itti_msg->n2sm           = n2sm;
+    itti_msg->n2sm           = blk2bstr(
+        list[0].pduSessionResourceSetupResponseTransfer.buf,
+        list[0].pduSessionResourceSetupResponseTransfer.size);
+    ;
     itti_msg->is_n2sm_set    = true;
     itti_msg->n2sm_info_type = "PDU_RES_SETUP_RSP";
     itti_msg->amf_ue_ngap_id = pduresp->getAmfUeNgapId();
@@ -554,12 +543,6 @@ int ngap_amf_handle_pdu_session_resource_modify_response(
   }
 
   for (auto response_item : list) {
-    uint8_t buf[BUFFER_SIZE_512];
-    memcpy(
-        buf, response_item.pduSessionResourceModifyResponseTransfer.buf,
-        response_item.pduSessionResourceModifyResponseTransfer.size);
-    bstring n2sm = blk2bstr(
-        buf, response_item.pduSessionResourceModifyResponseTransfer.size);
     Logger::ngap().debug(
         "Sending ITTI PDUSessionResourceModifyResponseTransfer to "
         "TASK_AMF_SBI");
@@ -567,7 +550,9 @@ int ngap_amf_handle_pdu_session_resource_modify_response(
     auto itti_msg = std::make_shared<itti_nsmf_pdusession_update_sm_context>(
         TASK_NGAP, TASK_AMF_SBI);
     itti_msg->pdu_session_id = response_item.pduSessionId;
-    itti_msg->n2sm           = n2sm;
+    itti_msg->n2sm           = blk2bstr(
+        response_item.pduSessionResourceModifyResponseTransfer.buf,
+        response_item.pduSessionResourceModifyResponseTransfer.size);
     itti_msg->is_n2sm_set    = true;
     itti_msg->n2sm_info_type = "PDU_RES_MOD_RSP";
     itti_msg->amf_ue_ngap_id = response_msg->getAmfUeNgapId();

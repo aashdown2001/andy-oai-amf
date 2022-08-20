@@ -219,7 +219,7 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
     return;
   }
 
-  bstring protected_nas;
+  bstring protected_nas = nullptr;
   encode_nas_message_protected(
       secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
       (uint8_t*) bdata(itti_msg.dl_nas), blength(itti_msg.dl_nas),
@@ -233,7 +233,7 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
               std::make_shared<itti_pdu_session_resource_release_command>(
                   TASK_AMF_N1, TASK_AMF_N2);
       release_command->nas            = protected_nas;
-      release_command->n2sm           = itti_msg.n2sm;
+      release_command->n2sm           = bstrcpy(itti_msg.n2sm);
       release_command->amf_ue_ngap_id = amf_ue_ngap_id;
       release_command->ran_ue_ngap_id = ran_ue_ngap_id;
       release_command->pdu_session_id = itti_msg.pdu_session_id;
@@ -251,7 +251,7 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
               std::make_shared<itti_pdu_session_resource_modify_request>(
                   TASK_AMF_N1, TASK_AMF_N2);
       itti_modify_request_msg->nas            = protected_nas;
-      itti_modify_request_msg->n2sm           = itti_msg.n2sm;
+      itti_modify_request_msg->n2sm           = bstrcpy(itti_msg.n2sm);
       itti_modify_request_msg->amf_ue_ngap_id = amf_ue_ngap_id;
       itti_modify_request_msg->ran_ue_ngap_id = ran_ue_ngap_id;
       itti_modify_request_msg->pdu_session_id = itti_msg.pdu_session_id;
@@ -298,7 +298,7 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
             std::make_shared<itti_pdu_session_resource_setup_request>(
                 TASK_AMF_N1, TASK_AMF_N2);
         psrsr->nas            = protected_nas;
-        psrsr->n2sm           = itti_msg.n2sm;
+        psrsr->n2sm           = bstrcpy(itti_msg.n2sm);
         psrsr->amf_ue_ngap_id = amf_ue_ngap_id;
         psrsr->ran_ue_ngap_id = ran_ue_ngap_id;
         psrsr->pdu_session_id = itti_msg.pdu_session_id;
@@ -328,7 +328,7 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
         csr->nas            = protected_nas;
         csr->pdu_session_id = itti_msg.pdu_session_id;
         csr->is_pdu_exist   = true;
-        csr->n2sm           = itti_msg.n2sm;
+        csr->n2sm           = bstrcpy(itti_msg.n2sm);
         csr->is_sr          = false;  // TODO: for Service Request procedure
 
         int ret = itti_inst->send_msg(csr);
@@ -377,8 +377,8 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
   plmn.mnc    = nas_data_ind.mnc;
   plmn.mcc    = nas_data_ind.mcc;
 
-  bstring recved_nas_msg = nas_data_ind.nas_msg;
-  bstring decoded_plain_msg;
+  bstring received_nas_msg  = bstrcpy(nas_data_ind.nas_msg);
+  bstring decoded_plain_msg = nullptr;
 
   std::shared_ptr<nas_context> nc = {};
   if (nas_data_ind.is_guti_valid) {
@@ -418,30 +418,32 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
 
   SecurityHeaderType_t type = {};
   if (!check_security_header_type(
-          type, (uint8_t*) bdata(recved_nas_msg), blength(recved_nas_msg))) {
+          type, (uint8_t*) bdata(received_nas_msg),
+          blength(received_nas_msg))) {
     Logger::amf_n1().error("Not 5GS MOBILITY MANAGEMENT message");
     return;
   }
 
   comUt::print_buffer(
-      "amf_n1", "Received Uplink NAS Message", (uint8_t*) bdata(recved_nas_msg),
-      blength(recved_nas_msg));
+      "amf_n1", "Received Uplink NAS Message",
+      (uint8_t*) bdata(received_nas_msg), blength(received_nas_msg));
 
   uint8_t ulCount = 0;
 
   switch (type) {
     case PlainNasMsg: {
       Logger::amf_n1().debug("Received plain NAS message");
-      decoded_plain_msg = recved_nas_msg;
+      decoded_plain_msg = bstrcpy(received_nas_msg);
     } break;
 
     case IntegrityProtected: {
       Logger::amf_n1().debug("Received integrity protected NAS message");
-      ulCount = *((uint8_t*) bdata(recved_nas_msg) + 6);
+      ulCount = *((uint8_t*) bdata(received_nas_msg) + 6);
       Logger::amf_n1().info(
           "Integrity protected message: ulCount(%d)", ulCount);
       decoded_plain_msg = blk2bstr(
-          (uint8_t*) bdata(recved_nas_msg) + 7, blength(recved_nas_msg) - 7);
+          (uint8_t*) bdata(received_nas_msg) + 7,
+          blength(received_nas_msg) - 7);
     } break;
 
     case IntegrityProtectedAndCiphered: {
@@ -469,13 +471,13 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
       uint32_t mac32 = 0;
       if (!nas_message_integrity_protected(
               nc.get()->security_ctx, NAS_MESSAGE_UPLINK,
-              (uint8_t*) bdata(recved_nas_msg) + 6, blength(recved_nas_msg) - 6,
-              mac32)) {
+              (uint8_t*) bdata(received_nas_msg) + 6,
+              blength(received_nas_msg) - 6, mac32)) {
         Logger::amf_n1().debug("IA0_5G");
       } else {
         bool isMatched      = false;
-        uint8_t* buf        = (uint8_t*) bdata(recved_nas_msg);
-        int buf_len         = blength(recved_nas_msg);
+        uint8_t* buf        = (uint8_t*) bdata(received_nas_msg);
+        int buf_len         = blength(received_nas_msg);
         uint32_t mac32_recv = ntohl((((uint32_t*) (buf + 2))[0]));
         Logger::amf_n1().debug(
             "Received mac32 (0x%x) from the message", mac32_recv);
@@ -491,7 +493,8 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
       }
 
       bstring ciphered = blk2bstr(
-          (uint8_t*) bdata(recved_nas_msg) + 7, blength(recved_nas_msg) - 7);
+          (uint8_t*) bdata(received_nas_msg) + 7,
+          blength(received_nas_msg) - 7);
       if (!nas_message_cipher_protected(
               nc.get()->security_ctx, NAS_MESSAGE_UPLINK, ciphered,
               decoded_plain_msg)) {
@@ -511,17 +514,11 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
 
   if (nas_data_ind.is_nas_signalling_estab_req) {
     Logger::amf_n1().debug("Received NAS Signalling Establishment request...");
-    comUt::print_buffer(
-        "amf_n1", "Decoded plain NAS Message buffer",
-        (uint8_t*) bdata(decoded_plain_msg), blength(decoded_plain_msg));
     nas_signalling_establishment_request_handle(
         type, nc, nas_data_ind.ran_ue_ngap_id, nas_data_ind.amf_ue_ngap_id,
         decoded_plain_msg, snn, ulCount);
   } else {
     Logger::amf_n1().debug("Received uplink NAS message...");
-    comUt::print_buffer(
-        "amf_n1", "Decoded NAS message buffer",
-        (uint8_t*) bdata(decoded_plain_msg), blength(decoded_plain_msg));
     uplink_nas_msg_handle(
         nas_data_ind.ran_ue_ngap_id, nas_data_ind.amf_ue_ngap_id,
         decoded_plain_msg, plmn);
@@ -843,7 +840,7 @@ void amf_n1::service_request_handle(
       std::make_unique<ServiceRequest>();
   service_request->decodefrombuffer(
       nullptr, (uint8_t*) bdata(nas), blength(nas));
-  bdestroy_wrapper(&nas);
+  // bdestroy_wrapper(&nas);
   std::unique_ptr<ServiceAccept> service_accept =
       std::make_unique<ServiceAccept>();
   service_accept->setHeader(PLAIN_5GS_MSG);
@@ -884,7 +881,7 @@ void amf_n1::service_request_handle(
       (uint16_t) service_request->getPduSessionStatus();
   if (pdu_session_status == 0) {
     // Get PDU Session Status from NAS Message Container if available
-    bstring plain_msg;
+    bstring plain_msg = nullptr;
     if (service_request->getNasMessageContainer(plain_msg)) {
       if (blength(plain_msg) < NAS_MESSAGE_MIN_LENGTH) {
         Logger::amf_n1().debug("NAS message too short!");
@@ -908,7 +905,7 @@ void amf_n1::service_request_handle(
               std::make_unique<ServiceRequest>();
           service_request_nas->decodefrombuffer(
               nullptr, (uint8_t*) bdata(plain_msg), blength(plain_msg));
-          bdestroy_wrapper(&plain_msg);
+          // bdestroy_wrapper(&plain_msg);
           if (service_request_nas->getPduSessionStatus() > 0) {
             pdu_session_status =
                 (uint16_t) service_request_nas->getPduSessionStatus();
@@ -939,10 +936,10 @@ void amf_n1::service_request_handle(
     service_accept->setPDU_session_status(0x0000);
     uint8_t buffer[BUFFER_SIZE_256];
     int encoded_size = service_accept->encode2buffer(buffer, BUFFER_SIZE_256);
-    bstring protectedNas;
+    bstring protected_nas = nullptr;
     encode_nas_message_protected(
         secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-        buffer, encoded_size, protectedNas);
+        buffer, encoded_size, protected_nas);
     uint8_t* kamf = nc.get()->kamf[secu->vector_pointer];
     uint8_t kgnb[32];
     uint32_t ulcount = secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
@@ -956,7 +953,7 @@ void amf_n1::service_request_handle(
             TASK_AMF_N1, TASK_AMF_N2);
     itti_msg->ran_ue_ngap_id = ran_ue_ngap_id;
     itti_msg->amf_ue_ngap_id = amf_ue_ngap_id;
-    itti_msg->nas            = protectedNas;
+    itti_msg->nas            = protected_nas;
     itti_msg->kgnb           = kgnb_bs;
     itti_msg->is_sr          = true;  // Service Request indicator
     itti_msg->is_pdu_exist   = false;
@@ -989,10 +986,10 @@ void amf_n1::service_request_handle(
 
     uint8_t buffer[BUFFER_SIZE_256];
     int encoded_size = service_accept->encode2buffer(buffer, BUFFER_SIZE_256);
-    bstring protectedNas;
+    bstring protected_nas = nullptr;
     encode_nas_message_protected(
         secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-        buffer, encoded_size, protectedNas);
+        buffer, encoded_size, protected_nas);
     uint8_t* kamf = nc.get()->kamf[secu->vector_pointer];
     uint8_t kgnb[32];
     uint32_t ulcount = secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
@@ -1006,7 +1003,7 @@ void amf_n1::service_request_handle(
             TASK_AMF_N1, TASK_AMF_N2);
     itti_msg->ran_ue_ngap_id = ran_ue_ngap_id;
     itti_msg->amf_ue_ngap_id = amf_ue_ngap_id;
-    itti_msg->nas            = protectedNas;
+    itti_msg->nas            = protected_nas;
     itti_msg->kgnb           = kgnb_bs;
     itti_msg->is_sr          = true;  // Service Request indicator
     itti_msg->pdu_session_id = pdu_session_id;
@@ -1040,7 +1037,7 @@ void amf_n1::registration_request_handle(
       nullptr, (uint8_t*) bdata(reg), blength(reg));
   nc->registration_request = blk2bstr((uint8_t*) bdata(reg), blength(reg));
   nc->registration_request_is_set = true;
-  bdestroy_wrapper(&reg);  // free buffer
+  // bdestroy_wrapper(&reg);  // free buffer
 
   // Find UE context
   std::shared_ptr<ue_context> uc = {};
@@ -1330,7 +1327,7 @@ void amf_n1::registration_request_handle(
   // Get pdu session status(OPtional IE), associated and active pdu sessions
   // available in UE
 
-  bstring nas_msg;
+  bstring nas_msg = nullptr;
   bool is_messagecontainer =
       registration_request->getNasMessageContainer(nas_msg);
 
@@ -2248,8 +2245,8 @@ void amf_n1::authentication_response_handle(
 
   auth_response->decodefrombuffer(
       nullptr, (uint8_t*) bdata(plain_msg), blength(plain_msg));
-  bstring resStar;
-  bool isAuthOk = true;
+  bstring resStar = nullptr;
+  bool isAuthOk   = true;
   // Get response RES*
   if (!auth_response->getAuthenticationResponseParameter(resStar)) {
     Logger::amf_n1().warn(
@@ -2350,7 +2347,7 @@ void amf_n1::authentication_failure_handle(
   switch (mm_cause) {
     case _5GMM_CAUSE_SYNCH_FAILURE: {
       Logger::amf_n1().debug("Initial new Authentication procedure");
-      bstring auts;
+      bstring auts = nullptr;
       if (!auth_failure->getAutsInAuthFailPara(auts)) {
         Logger::amf_n1().warn(
             "IE Authentication Failure Parameter (AUTS) not received");
@@ -2482,15 +2479,15 @@ bool amf_n1::start_security_mode_control_procedure(
   std::string str = security_context_is_new ? "true" : "false";
   Logger::amf_n1().debug("Security Context status (is new:  %s)", str.c_str());
 
-  bstring intProtctedNas;
+  bstring protected_nas = nullptr;
   encode_nas_message_protected(
       secu_ctx, security_context_is_new, INTEGRITY_PROTECTED_WITH_NEW_SECU_CTX,
-      NAS_MESSAGE_DOWNLINK, buffer, encoded_size, intProtctedNas);
+      NAS_MESSAGE_DOWNLINK, buffer, encoded_size, protected_nas);
   comUt::print_buffer(
       "amf_n1", "Encrypted Security-Mode-Command message buffer",
-      (uint8_t*) bdata(intProtctedNas), blength(intProtctedNas));
+      (uint8_t*) bdata(protected_nas), blength(protected_nas));
   itti_send_dl_nas_buffer_to_task_n2(
-      intProtctedNas, nc.get()->ran_ue_ngap_id, nc.get()->amf_ue_ngap_id);
+      protected_nas, nc.get()->ran_ue_ngap_id, nc.get()->amf_ue_ngap_id);
   // secu_ctx->dl_count.seq_num ++;
   free_wrapper((void**) &data);
   return true;
@@ -2547,7 +2544,7 @@ void amf_n1::security_mode_complete_handle(
       "amf_n1", "Security Mode Complete message buffer",
       (uint8_t*) bdata(nas_msg), blength(nas_msg));
 
-  bstring nas_msg_container;
+  bstring nas_msg_container = nullptr;
   if (security_mode_complete->getNasMessageContainer(nas_msg_container)) {
     comUt::print_buffer(
         "amf_n1", "NAS Message Container", (uint8_t*) bdata(nas_msg_container),
@@ -2565,7 +2562,7 @@ void amf_n1::security_mode_complete_handle(
       registration_request->decodefrombuffer(
           nullptr, (uint8_t*) bdata(nas_msg_container),
           blength(nas_msg_container));
-      bdestroy_wrapper(&nas_msg_container);  // free buffer
+      // bdestroy_wrapper(&nas_msg_container);  // free buffer
 
       // Get Requested NSSAI (Optional IE), if provided
       if (registration_request->getRequestedNssai(nc.get()->requestedNssai)) {
@@ -2661,10 +2658,10 @@ void amf_n1::security_mode_complete_handle(
     return;
   }
 
-  bstring protectedNas;
+  bstring protected_nas = nullptr;
   encode_nas_message_protected(
       secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-      buffer, encoded_size, protectedNas);
+      buffer, encoded_size, protected_nas);
 
   if (!uc.get()->isUeContextRequest) {
     Logger::amf_n1().debug(
@@ -2680,7 +2677,7 @@ void amf_n1::security_mode_complete_handle(
 
     std::shared_ptr<itti_dl_nas_transport> dnt =
         std::make_shared<itti_dl_nas_transport>(TASK_AMF_N1, TASK_AMF_N2);
-    dnt->nas            = protectedNas;
+    dnt->nas            = protected_nas;
     dnt->amf_ue_ngap_id = amf_ue_ngap_id;
     dnt->ran_ue_ngap_id = ran_ue_ngap_id;
 
@@ -2709,7 +2706,7 @@ void amf_n1::security_mode_complete_handle(
     itti_msg->ran_ue_ngap_id = ran_ue_ngap_id;
     itti_msg->amf_ue_ngap_id = amf_ue_ngap_id;
     itti_msg->kgnb           = kgnb_bs;
-    itti_msg->nas            = protectedNas;
+    itti_msg->nas            = protected_nas;
     itti_msg->is_pdu_exist   = false;  // no pdu context
     itti_msg->is_sr          = false;  // TODO: for Service Request procedure
 
@@ -2778,13 +2775,13 @@ void amf_n1::registration_complete_handle(
     }
     nas_secu_ctx* secu = nc.get()->security_ctx;
     // protect nas message
-    bstring protectedNas;
+    bstring protected_nas;
     encode_nas_message_protected(
         secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-    conf, 45, protectedNas);
+    conf, 45, protected_nas);
 
     itti_send_dl_nas_buffer_to_task_n2(
-        protectedNas, ran_ue_ngap_id, amf_ue_ngap_id);
+        protected_nas, ran_ue_ngap_id, amf_ue_ngap_id);
         */
 }
 
@@ -2794,7 +2791,7 @@ void amf_n1::encode_nas_message_protected(
     uint8_t direction, uint8_t* input_nas_buf, int input_nas_len,
     bstring& protected_nas) {
   Logger::amf_n1().debug("Encoding nas_message_protected...");
-  uint8_t protected_nas_buf[1024];
+  uint8_t protected_nas_buf[BUFFER_SIZE_4096];
   int encoded_size = 0;
 
   switch (security_header_type & 0x0f) {
@@ -2802,8 +2799,8 @@ void amf_n1::encode_nas_message_protected(
     } break;
 
     case INTEGRITY_PROTECTED_AND_CIPHERED: {
-      bstring input = blk2bstr(input_nas_buf, input_nas_len);
-      bstring ciphered;
+      bstring input    = blk2bstr(input_nas_buf, input_nas_len);
+      bstring ciphered = nullptr;
       // balloc(ciphered, blength(input));
       nas_message_cipher_protected(nsc, NAS_MESSAGE_DOWNLINK, input, ciphered);
       protected_nas_buf[0] = EPD_5GS_MM_MSG;
@@ -2824,6 +2821,9 @@ void amf_n1::encode_nas_message_protected(
         *(uint32_t*) (protected_nas_buf + 2) = htonl(mac32);
         encoded_size                         = 7 + input_nas_len;
       }
+
+      //      bdestroy_wrapper(&input);
+      //      bdestroy_wrapper(&ciphered);
     } break;
 
     case INTEGRITY_PROTECTED_WITH_NEW_SECU_CTX: {
@@ -3229,8 +3229,8 @@ void amf_n1::ul_nas_transport_handle(
 
   Logger::amf_n1().debug("S_NSSAI for this PDU Session %s", snssai.ToString());
 
-  bstring dnn = bfromcstr("default");
-  bstring sm_msg;
+  bstring dnn    = bfromcstr("default");
+  bstring sm_msg = nullptr;
   if (ul_nas->getDnn(dnn)) {
   } else {
     dnn = bfromcstr("default");
@@ -3316,10 +3316,10 @@ void amf_n1::run_mobility_registration_update_procedure(
   }
 
   // protect nas message
-  bstring protectedNas;
+  bstring protected_nas = nullptr;
   encode_nas_message_protected(
       secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-      buffer, encoded_size, protectedNas);
+      buffer, encoded_size, protected_nas);
 
   // get PDU session status
   std::vector<uint8_t> pdu_session_to_be_activated = {};
@@ -3350,7 +3350,7 @@ void amf_n1::run_mobility_registration_update_procedure(
   itti_msg->ran_ue_ngap_id = nc.get()->ran_ue_ngap_id;
   itti_msg->amf_ue_ngap_id = nc.get()->amf_ue_ngap_id;
   itti_msg->kgnb           = kgnb_bs;
-  itti_msg->nas            = protectedNas;
+  itti_msg->nas            = protected_nas;
   itti_msg->is_sr          = true;  // service request indicator, to be verified
 
   if (psc.get() != nullptr) {
@@ -3409,16 +3409,16 @@ void amf_n1::run_periodic_registration_update_procedure(
     return;
   }
 
-  bstring protectedNas;
+  bstring protected_nas = nullptr;
   encode_nas_message_protected(
       secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-      buffer, encoded_size, protectedNas);
+      buffer, encoded_size, protected_nas);
 
   std::shared_ptr<itti_dl_nas_transport> itti_msg =
       std::make_shared<itti_dl_nas_transport>(TASK_AMF_N1, TASK_AMF_N2);
   itti_msg->ran_ue_ngap_id = nc.get()->ran_ue_ngap_id;
   itti_msg->amf_ue_ngap_id = nc.get()->amf_ue_ngap_id;
-  itti_msg->nas            = protectedNas;
+  itti_msg->nas            = protected_nas;
 
   int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {
@@ -3437,7 +3437,7 @@ void amf_n1::run_periodic_registration_update_procedure(
       std::make_unique<RegistrationRequest>();
   registration_request->decodefrombuffer(
       nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
-  bdestroy_wrapper(&nas_msg);  // free buffer
+  // bdestroy_wrapper(&nas_msg);  // free buffer
 
   // Encoding REGISTRATION ACCEPT
   auto reg_accept = std::make_unique<RegistrationAccept>();
@@ -3480,16 +3480,16 @@ void amf_n1::run_periodic_registration_update_procedure(
     return;
   }
 
-  bstring protectedNas;
+  bstring protected_nas = nullptr;
   encode_nas_message_protected(
       secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-      buffer, encoded_size, protectedNas);
+      buffer, encoded_size, protected_nas);
 
   std::shared_ptr<itti_dl_nas_transport> itti_msg =
       std::make_shared<itti_dl_nas_transport>(TASK_AMF_N1, TASK_AMF_N2);
   itti_msg->ran_ue_ngap_id = nc.get()->ran_ue_ngap_id;
   itti_msg->amf_ue_ngap_id = nc.get()->amf_ue_ngap_id;
-  itti_msg->nas            = protectedNas;
+  itti_msg->nas            = protected_nas;
 
   int ret = itti_inst->send_msg(itti_msg);
   if (0 != ret) {

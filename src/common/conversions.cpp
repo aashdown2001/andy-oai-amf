@@ -233,7 +233,8 @@ char* conv::bstring2charString(bstring b) {
   uint8_t* value = (uint8_t*) bdata(b);
   for (int i = 0; i < blength(b); i++) buf[i] = (char) value[i];
   buf[blength(b)] = '\0';
-  free_wrapper((void**) &value);
+  // free_wrapper((void**) &value);
+  value = nullptr;
   return buf;
 }
 

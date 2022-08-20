@@ -469,10 +469,10 @@ int NgapMessage::encode2Buffer(uint8_t* buf, int bufSize) {
 }
 
 //------------------------------------------------------------------------------
-void NgapMessage::encode2NewBuffer(uint8_t*& buf, int& encoded_size) {
+void NgapMessage::encode2NewBuffer(uint8_t** buf, int& encoded_size) {
   asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, ngapPdu);
   encoded_size = aper_encode_to_new_buffer(
-      &asn_DEF_Ngap_NGAP_PDU, NULL, ngapPdu, (void**) &buf);
+      &asn_DEF_Ngap_NGAP_PDU, NULL, ngapPdu, (void**) buf);
   Logger::ngap().debug("Encoded message size ( %d )", encoded_size);
   return;
 }
