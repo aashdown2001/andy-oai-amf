@@ -410,7 +410,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
           "No UE NAS context with amf_ue_ngap_id (0x%x)", amf_ue_ngap_id);
       return RETURNerror;
     }
-    itti_msg->supi           = "imsi-" + nct.get()->imsi;
+    itti_msg->supi           = "imsi-" + nct->imsi;
     itti_msg->pdu_session_id = list[0].pduSessionId;
     itti_msg->n2sm           = blk2bstr(
         list[0].pduSessionResourceSetupResponseTransfer.buf,
@@ -477,16 +477,16 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
         return RETURNerror;
       }
 
-      string supi                              = "imsi-" + nct.get()->imsi;
+      string supi                              = "imsi-" + nct->imsi;
       std::shared_ptr<pdu_session_context> psc = {};
       if (amf_app_inst->find_pdu_session_context(
               supi, list_fail[0].pduSessionId, psc)) {
-        if (psc.get() == nullptr) {
+        if (psc == nullptr) {
           Logger::ngap().error("Cannot get pdu_session_context");
           return RETURNerror;
         }
       }
-      psc.get()->is_n2sm_avaliable = false;
+      psc->is_n2sm_avaliable = false;
       Logger::ngap().debug(
           "Receive pdu session resource setup response fail (multi pdu session "
           "id),set pdu session context is_n2sm_avaliable = false");
