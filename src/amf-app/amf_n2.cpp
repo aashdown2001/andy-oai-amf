@@ -83,6 +83,7 @@ void amf_n2_task(void* args_p) {
     switch (msg->msg_type) {
       case NEW_SCTP_ASSOCIATION: {
         Logger::amf_n2().info("Received new SCTP_ASSOCIATION");
+        // TODO:
         itti_new_sctp_association* m =
             dynamic_cast<itti_new_sctp_association*>(msg);
         amf_n2_inst->handle_itti_message(ref(*m));
@@ -95,11 +96,13 @@ void amf_n2_task(void* args_p) {
       } break;
       case NG_RESET: {
         Logger::amf_n2().info("Received NGReset message, handling");
+        // TODO:
         itti_ng_reset* m = dynamic_cast<itti_ng_reset*>(msg);
         amf_n2_inst->handle_itti_message(ref(*m));
       } break;
       case NG_SHUTDOWN: {
         Logger::amf_n2().info("Received SCTP Shutdown Event, handling");
+        // TODO:
         itti_ng_shutdown* m = dynamic_cast<itti_ng_shutdown*>(msg);
         amf_n2_inst->handle_itti_message(ref(*m));
       } break;
@@ -299,6 +302,8 @@ void amf_n2::handle_itti_message(itti_paging& itti_msg) {
 
   amf_n2_inst->sctp_s_38412.sctp_send_msg(
       unc.get()->gnb_assoc_id, unc.get()->sctp_stream_send, &b);
+
+  bdestroy_wrapper(&b);
 }
 
 //------------------------------------------------------------------------------
@@ -394,6 +399,7 @@ void amf_n2::handle_itti_message(
     sctp_s_38412.sctp_send_msg(itti_msg->assoc_id, itti_msg->stream, &b);
     Logger::amf_n2().error(
         "No common PLMN, encoding NG_SETUP_FAILURE with cause (Unknown PLMN)");
+    bdestroy_wrapper(&b);
     return;
 
   } else {
@@ -453,6 +459,7 @@ void amf_n2::handle_itti_message(
       "gNB with gNB_id 0x%x, assoc_id %d has been attached to AMF",
       gc.get()->globalRanNodeId, itti_msg->assoc_id);
   stacs.add_gnb(gnbItem.gnb_id, gnbItem);
+  bdestroy_wrapper(&b);
   return;
 }
 
@@ -521,6 +528,7 @@ void amf_n2::handle_itti_message(itti_ng_reset& itti_msg) {
 
   bstring b = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(gc.get()->sctp_assoc_id, itti_msg.stream, &b);
+  bdestroy_wrapper(&b);
   return;
 }
 
@@ -661,8 +669,9 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
     uint8_t* nas_buf = nullptr;
     size_t nas_len   = 0;
     if (init_ue_msg.initUeMsg->getNasPdu(nas_buf, nas_len)) {
-      bstring nas       = blk2bstr(nas_buf, nas_len);
-      itti_msg->nas_buf = nas;
+      // bstring nas       = blk2bstr(nas_buf, nas_len);
+      itti_msg->nas_buf = blk2bstr(nas_buf, nas_len);
+      ;
     } else {
       Logger::amf_n2().error("Missing IE NAS-PDU");
       return;
@@ -802,12 +811,14 @@ void amf_n2::handle_itti_message(itti_dl_nas_transport& dl_nas_transport) {
   ngap_msg->setAmfUeNgapId(dl_nas_transport.amf_ue_ngap_id);
   ngap_msg->setRanUeNgapId(dl_nas_transport.ran_ue_ngap_id);
   ngap_msg->setNasPdu(
-      (uint8_t*) bdata(dl_nas_transport.nas), blength(dl_nas_transport.nas));
+      (uint8_t*) bdata(bstrcpy(dl_nas_transport.nas)),
+      blength(dl_nas_transport.nas));
   uint8_t buffer[BUFFER_SIZE_1024];
   int encoded_size = ngap_msg->encode2Buffer(buffer, BUFFER_SIZE_1024);
   bstring b        = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(
       gc.get()->sctp_assoc_id, unc.get()->sctp_stream_send, &b);
+  bdestroy_wrapper(&b);
 }
 
 //------------------------------------------------------------------------------
@@ -871,8 +882,8 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
   }
   msg->setAllowedNssai(list);
 
-  bdestroy_wrapper(&itti_msg.nas);
-  bdestroy_wrapper(&itti_msg.kgnb);
+  // bdestroy_wrapper(&itti_msg.nas);
+  // bdestroy_wrapper(&itti_msg.kgnb);
   if (itti_msg.is_sr or itti_msg.is_pdu_exist) {
     // Set UE RAdio Capability if available
     if (gc.get()->ue_radio_cap_ind) {
@@ -930,12 +941,9 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
 
       item.pduSessionNAS_PDU = NULL;
       if (itti_msg.is_n2sm_avaliable) {
-        bstring n2sm = itti_msg.n2sm;
         if (blength(itti_msg.n2sm) != 0) {
-          item.pduSessionResourceSetupRequestTransfer.buf =
-              (uint8_t*) bdata(itti_msg.n2sm);
-          item.pduSessionResourceSetupRequestTransfer.size =
-              blength(itti_msg.n2sm);
+          conv::bstring_2_octet_string(
+              itti_msg.n2sm, item.pduSessionResourceSetupRequestTransfer);
         } else {
           Logger::amf_n2().error("n2sm empty!");
         }
@@ -956,6 +964,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
   bstring b        = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(
       gc.get()->sctp_assoc_id, unc.get()->sctp_stream_send, &b);
+  bdestroy_wrapper(&b);
 }
 
 //------------------------------------------------------------------------------
@@ -1023,18 +1032,17 @@ void amf_n2::handle_itti_message(
       "S_NSSAI (SST, SD) %s, %s", item.s_nssai.sst.c_str(),
       item.s_nssai.sd.c_str());
 
-  item.pduSessionResourceSetupRequestTransfer.buf =
-      (uint8_t*) bdata(itti_msg.n2sm);
-  item.pduSessionResourceSetupRequestTransfer.size = blength(itti_msg.n2sm);
+  conv::bstring_2_octet_string(
+      itti_msg.n2sm, item.pduSessionResourceSetupRequestTransfer);
   list.push_back(item);
   psrsr->setPduSessionResourceSetupRequestList(list);
   psrsr->setUEAggregateMaxBitRate(
       UE_AGGREGATE_MAXIMUM_BIT_RATE_DL, UE_AGGREGATE_MAXIMUM_BIT_RATE_UL);
   size_t buffer_size = BUFFER_SIZE_512;
-  uint8_t* buffer    = (uint8_t*) calloc(1, buffer_size);
-  int encoded_size   = 0;
+  uint8_t buffer[BUFFER_SIZE_4096];  //    = (uint8_t*) calloc(1, buffer_size);
+  int encoded_size = 0;
 
-  psrsr->encode2NewBuffer(buffer, encoded_size);
+  psrsr->encode2NewBuffer((uint8_t**) &buffer, encoded_size);
 #if DEBUG_IS_ON
   Logger::amf_n2().debug("N2 SM buffer data: ");
   for (int i = 0; i < encoded_size; i++) printf("%02x ", (char) buffer[i]);
@@ -1044,8 +1052,7 @@ void amf_n2::handle_itti_message(
   bstring b = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(
       gc.get()->sctp_assoc_id, unc.get()->sctp_stream_send, &b);
-  // free memory
-  free_wrapper((void**) &buffer);
+  bdestroy_wrapper(&b);
 }
 
 //------------------------------------------------------------------------------
@@ -1079,12 +1086,12 @@ void amf_n2::handle_itti_message(
   PDUSessionResourceModifyRequestItem_t item = {};
   item.pduSessionId                          = itti_msg.pdu_session_id;
 
-  item.pduSessionResourceModifyRequestTransfer.buf =
-      (uint8_t*) bdata(itti_msg.n2sm);
-  item.pduSessionResourceModifyRequestTransfer.size = blength(itti_msg.n2sm);
-  item.s_nssai.sd                                   = itti_msg.s_NSSAI.getSd();
-  item.s_nssai.sst                                  = itti_msg.s_NSSAI.getSst();
+  conv::bstring_2_octet_string(
+      itti_msg.n2sm, item.pduSessionResourceModifyRequestTransfer);
+  item.s_nssai.sd  = itti_msg.s_NSSAI.getSd();
+  item.s_nssai.sst = itti_msg.s_NSSAI.getSst();
 
+  // TODO:
   uint8_t* nas_pdu = (uint8_t*) calloc(1, blength(itti_msg.nas) + 1);
   uint8_t* buf_tmp = (uint8_t*) bdata(itti_msg.nas);
   if (buf_tmp != nullptr) memcpy(nas_pdu, buf_tmp, blength(itti_msg.nas));
@@ -1095,11 +1102,9 @@ void amf_n2::handle_itti_message(
 
   modify_request_msg->setPduSessionResourceModifyRequestList(list);
 
-  size_t buffer_size = BUFFER_SIZE_512;
-  uint8_t* buffer    = (uint8_t*) calloc(1, buffer_size);
-  int encoded_size   = 0;
-
-  modify_request_msg->encode2NewBuffer(buffer, encoded_size);
+  uint8_t buffer[BUFFER_SIZE_4096];
+  int encoded_size = 0;
+  modify_request_msg->encode2NewBuffer((uint8_t**) &buffer, encoded_size);
 #if DEBUG_IS_ON
   Logger::amf_n2().debug("N2 SM buffer data: ");
   for (int i = 0; i < encoded_size; i++) printf("%02x ", (char) buffer[i]);
@@ -1111,7 +1116,7 @@ void amf_n2::handle_itti_message(
       gc.get()->sctp_assoc_id, unc.get()->sctp_stream_send, &b);
   // free memory
   free_wrapper((void**) &nas_pdu);
-  free_wrapper((void**) &buffer);
+  bdestroy_wrapper(&b);
 }
 
 //------------------------------------------------------------------------------
@@ -1150,17 +1155,14 @@ void amf_n2::handle_itti_message(
   PDUSessionResourceToReleaseItem_t item = {};
   item.pduSessionId                      = itti_msg.pdu_session_id;
 
-  item.pduSessionResourceReleaseCommandTransfer.buf =
-      (uint8_t*) bdata(itti_msg.n2sm);
-  item.pduSessionResourceReleaseCommandTransfer.size = blength(itti_msg.n2sm);
+  conv::bstring_2_octet_string(
+      itti_msg.n2sm, item.pduSessionResourceReleaseCommandTransfer);
   list.push_back(item);
   release_cmd_msg->setPduSessionResourceToReleaseList(list);
 
-  size_t buffer_size = BUFFER_SIZE_512;
-  uint8_t* buffer    = (uint8_t*) calloc(1, buffer_size);
-  int encoded_size   = 0;
-
-  release_cmd_msg->encode2NewBuffer(buffer, encoded_size);
+  uint8_t buffer[BUFFER_SIZE_4096];
+  int encoded_size = 0;
+  release_cmd_msg->encode2NewBuffer((uint8_t**) &buffer, encoded_size);
 #if DEBUG_IS_ON
   Logger::amf_n2().debug("N2 SM buffer data: ");
   for (int i = 0; i < encoded_size; i++) printf("%02x ", (char) buffer[i]);
@@ -1172,7 +1174,7 @@ void amf_n2::handle_itti_message(
       gc.get()->sctp_assoc_id, unc.get()->sctp_stream_send, &b);
   // free memory
   free_wrapper((void**) &nas_pdu);
-  free_wrapper((void**) &buffer);
+  bdestroy_wrapper(&b);
 }
 
 //------------------------------------------------------------------------------
@@ -1190,6 +1192,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_request& itti_msg) {
   int encoded_size = ueCtxRelCmd->encode2Buffer(buffer, BUFFER_SIZE_512);
   bstring b        = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(itti_msg.assoc_id, itti_msg.stream, &b);
+  bdestroy_wrapper(&b);
 }
 
 //------------------------------------------------------------------------------
@@ -1232,7 +1235,8 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
   bstring b = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(
       gc.get()->sctp_assoc_id, unc.get()->sctp_stream_send, &b);
-  return;
+  bdestroy_wrapper(&b);
+  // return;
 
   /*
    * Send ITTI to N11 SBI, notify CommunicationFailure Report, RAN Cause
@@ -1724,6 +1728,7 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   gc_target                      = gnb_id_2_gnb_context(gnbid.getValue());
   unc.get()->target_gnb_assoc_id = gc_target.get()->sctp_assoc_id;
   sctp_s_38412.sctp_send_msg(gc_target.get()->sctp_assoc_id, 0, &b);
+  bdestroy_wrapper(&b);
   return true;
 }
 
@@ -1881,8 +1886,8 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
   uint8_t buffer[BUFFER_SIZE_1024];
   int encoded_size = handovercommand->encode2Buffer(buffer, BUFFER_SIZE_1024);
   bstring b        = blk2bstr(buffer, encoded_size);
-
   sctp_s_38412.sctp_send_msg(unc.get()->gnb_assoc_id, 0, &b);
+  bdestroy_wrapper(&b);
 }
 
 //------------------------------------------------------------------------------
@@ -2022,6 +2027,7 @@ void amf_n2::handle_itti_message(itti_handover_notify& itti_msg) {
   bstring b = blk2bstr(buffer, encoded_size);
 
   sctp_s_38412.sctp_send_msg(unc.get()->gnb_assoc_id, 0, &b);
+  bdestroy_wrapper(&b);
 
   if (!is_amf_ue_id_2_ue_ngap_context(amf_ue_ngap_id, unc)) {
     Logger::amf_n2().error(
@@ -2100,6 +2106,7 @@ void amf_n2::handle_itti_message(itti_uplink_ran_status_transfer& itti_msg) {
       downLinkranstatustransfer->encode2Buffer(buffer, BUFFER_SIZE_1024);
   bstring b = blk2bstr(buffer, encode_size);
   sctp_s_38412.sctp_send_msg(unc.get()->target_gnb_assoc_id, 0, &b);
+  bdestroy_wrapper(&b);
 }
 
 //------------------------------------------------------------------------------
@@ -2140,6 +2147,7 @@ void amf_n2::handle_itti_message(itti_rereoute_nas& itti_msg) {
 
   amf_n2_inst->sctp_s_38412.sctp_send_msg(
       unc.get()->gnb_assoc_id, unc.get()->sctp_stream_send, &b);
+  bdestroy_wrapper(&b);
 }
 
 //------------------------------------------------------------------------------
@@ -2159,6 +2167,7 @@ void amf_n2::send_handover_preparation_failure(
   bstring b = blk2bstr(buffer, encoded_size);
 
   sctp_s_38412.sctp_send_msg(gnb_assoc_id, 0, &b);
+  bdestroy_wrapper(&b);
 }
 
 //------------------------------------------------------------------------------

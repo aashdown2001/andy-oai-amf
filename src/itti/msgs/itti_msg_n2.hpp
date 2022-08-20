@@ -138,7 +138,7 @@ class itti_dl_nas_transport : public itti_msg_n2 {
   itti_dl_nas_transport(const itti_dl_nas_transport& i) : itti_msg_n2(i) {
     ran_ue_ngap_id = i.ran_ue_ngap_id;
     amf_ue_ngap_id = i.amf_ue_ngap_id;
-    nas            = i.nas;
+    nas            = bstrcpy(i.nas);
   }
   virtual ~itti_dl_nas_transport() { bdestroy_wrapper(&nas); }
 
@@ -168,10 +168,10 @@ class itti_initial_context_setup_request : public itti_msg_n2 {
       : itti_msg_n2(i) {
     ran_ue_ngap_id    = i.ran_ue_ngap_id;
     amf_ue_ngap_id    = i.amf_ue_ngap_id;
-    kgnb              = i.kgnb;
-    nas               = i.nas;
+    kgnb              = bstrcpy(i.kgnb);
+    nas               = bstrcpy(i.nas);
     is_sr             = i.is_sr;
-    n2sm              = i.n2sm;
+    n2sm              = bstrcpy(i.n2sm);
     pdu_session_id    = i.pdu_session_id;
     is_pdu_exist      = i.is_pdu_exist;
     is_n2sm_avaliable = i.is_n2sm_avaliable;
@@ -207,8 +207,8 @@ class itti_pdu_session_resource_setup_request : public itti_msg_n2 {
   itti_pdu_session_resource_setup_request(
       const itti_pdu_session_resource_setup_request& i)
       : itti_msg_n2(i) {
-    nas            = i.nas;
-    n2sm           = i.n2sm;
+    nas            = bstrcpy(i.nas);
+    n2sm           = bstrcpy(i.n2sm);
     ran_ue_ngap_id = i.ran_ue_ngap_id;
     amf_ue_ngap_id = i.amf_ue_ngap_id;
     pdu_session_id = i.pdu_session_id;
@@ -240,8 +240,8 @@ class itti_pdu_session_resource_modify_request : public itti_msg_n2 {
   itti_pdu_session_resource_modify_request(
       const itti_pdu_session_resource_modify_request& i)
       : itti_msg_n2(i) {
-    nas            = i.nas;
-    n2sm           = i.n2sm;
+    nas            = bstrcpy(i.nas);
+    n2sm           = bstrcpy(i.n2sm);
     ran_ue_ngap_id = i.ran_ue_ngap_id;
     amf_ue_ngap_id = i.amf_ue_ngap_id;
     pdu_session_id = i.pdu_session_id;
@@ -274,8 +274,8 @@ class itti_pdu_session_resource_release_command : public itti_msg_n2 {
   itti_pdu_session_resource_release_command(
       const itti_pdu_session_resource_release_command& i)
       : itti_msg_n2(i) {
-    nas            = i.nas;
-    n2sm           = i.n2sm;
+    nas            = bstrcpy(i.nas);
+    n2sm           = bstrcpy(i.n2sm);
     ran_ue_ngap_id = i.ran_ue_ngap_id;
     amf_ue_ngap_id = i.amf_ue_ngap_id;
     pdu_session_id = i.pdu_session_id;
