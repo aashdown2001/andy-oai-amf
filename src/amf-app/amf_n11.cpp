@@ -610,7 +610,7 @@ void amf_n11::handle_itti_message(itti_sbi_notify_subscribed_event& itti_msg) {
     i.get_reports(event_reports);
     for (auto r : event_reports) {
       report["type"]            = r.getType().get_value();
-      report["state"]["active"] = "TRUE";
+      report["state"]["active"] = true; // as boolean
       if (r.supiIsSet()) {
         report["supi"] = r.getSupi();
       }
@@ -638,8 +638,8 @@ void amf_n11::handle_itti_message(itti_sbi_notify_subscribed_event& itti_msg) {
 
       // timestamp
       std::time_t time_epoch_ntp = std::time(nullptr);
-      uint64_t tv_ntp            = time_epoch_ntp + SECONDS_SINCE_FIRST_EPOCH;
-      report["timeStamp"]        = std::to_string(tv_ntp);
+      uint64_t tv_ntp            = time_epoch_ntp; // not needed: + SECONDS_SINCE_FIRST_EPOCH;
+      report["timeStamp"]        = tv_ntp; // don't convert to string, leave as int64
       report_lists.push_back(report);
     }
 
