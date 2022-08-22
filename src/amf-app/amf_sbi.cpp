@@ -211,7 +211,7 @@ void amf_sbi::handle_itti_message(
   uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
 
   std::string supi = {};
-  if (uc.get() != nullptr) {
+  if (uc != nullptr) {
     supi = uc->supi;
   } else {
     Logger::amf_sbi().error(
@@ -225,7 +225,7 @@ void amf_sbi::handle_itti_message(
       supi.c_str(), itti_msg.pdu_session_id);
 
   std::shared_ptr<pdu_session_context> psc = {};
-  if (!uc.get()->find_pdu_session_context(itti_msg.pdu_session_id, psc)) {
+  if (!uc->find_pdu_session_context(itti_msg.pdu_session_id, psc)) {
     Logger::amf_sbi().error(
         "Could not find pdu_session_context with SUPI %s, Failed",
         supi.c_str());
@@ -286,10 +286,9 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
     return;
   }
 
-  std::string supi      = "imsi-" + nc.get()->imsi;
-  string ue_context_key = "app_ue_ranid_" +
-                          to_string(nc.get()->ran_ue_ngap_id) + ":amfid_" +
-                          to_string(nc.get()->amf_ue_ngap_id);
+  std::string supi      = "imsi-" + nc->imsi;
+  string ue_context_key = "app_ue_ranid_" + to_string(nc->ran_ue_ngap_id) +
+                          ":amfid_" + to_string(nc->amf_ue_ngap_id);
   std::shared_ptr<ue_context> uc = {};
   Logger::amf_sbi().info(
       "Find ue_context in amf_app using UE Context Key: %s",
@@ -301,7 +300,7 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
   }
 
   uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
-  if (!uc.get()) {
+  if (!uc) {
     Logger::amf_sbi().error(
         "No UE context for %s exit", ue_context_key.c_str());
     return;
@@ -309,30 +308,30 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
 
   // Create PDU Session Context if not available
   std::shared_ptr<pdu_session_context> psc = {};
-  if (!uc.get()->find_pdu_session_context(smf.pdu_sess_id, psc)) {
+  if (!uc->find_pdu_session_context(smf.pdu_sess_id, psc)) {
     psc = std::shared_ptr<pdu_session_context>(new pdu_session_context());
-    uc.get()->add_pdu_session_context(smf.pdu_sess_id, psc);
+    uc->add_pdu_session_context(smf.pdu_sess_id, psc);
     Logger::amf_sbi().debug("Create a PDU Session Context");
   }
 
-  if (!psc.get()) {
+  if (!psc) {
     Logger::amf_sbi().error("No PDU Session Context found");
     return;
   }
 
   // Store corresponding info in PDU Session Context
-  psc.get()->amf_ue_ngap_id = nc.get()->amf_ue_ngap_id;
-  psc.get()->ran_ue_ngap_id = nc.get()->ran_ue_ngap_id;
-  psc.get()->req_type       = smf.req_type;
-  psc.get()->pdu_session_id = smf.pdu_sess_id;
-  psc.get()->snssai.sST     = smf.snssai.sST;
-  psc.get()->snssai.sD      = smf.snssai.sD;
-  psc.get()->plmn.mcc       = smf.plmn.mcc;
-  psc.get()->plmn.mnc       = smf.plmn.mnc;
+  psc->amf_ue_ngap_id = nc->amf_ue_ngap_id;
+  psc->ran_ue_ngap_id = nc->ran_ue_ngap_id;
+  psc->req_type       = smf.req_type;
+  psc->pdu_session_id = smf.pdu_sess_id;
+  psc->snssai.sST     = smf.snssai.sST;
+  psc->snssai.sD      = smf.snssai.sD;
+  psc->plmn.mcc       = smf.plmn.mcc;
+  psc->plmn.mnc       = smf.plmn.mnc;
 
   Logger::amf_sbi().debug(
-      "PDU Session Context, NSSAI SST (0x%x) SD %s", psc.get()->snssai.sST,
-      psc.get()->snssai.sD.c_str());
+      "PDU Session Context, NSSAI SST (0x%x) SD %s", psc->snssai.sST,
+      psc->snssai.sD.c_str());
 
   // parse binary dnn and store
   std::string dnn = "default";  // If DNN doesn't available, use "default"
@@ -343,25 +342,24 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
   }
 
   Logger::amf_sbi().debug("Requested DNN: %s", dnn.c_str());
-  psc.get()->dnn = dnn;
+  psc->dnn = dnn;
 
   std::string smf_addr        = {};
   std::string smf_api_version = {};
   std::string smf_port        = "80";  // Set to default port number
-  if (!psc.get()->smf_info.info_available) {
+  if (!psc->smf_info.info_available) {
     if (amf_cfg.support_features.enable_smf_selection) {
       // Get NRF URI
       std::string nrf_uri = {};
-      if (!amf_sbi::get_nrf_uri(
-              psc.get()->snssai, psc.get()->plmn, psc.get()->dnn, nrf_uri)) {
+      if (!amf_sbi::get_nrf_uri(psc->snssai, psc->plmn, psc->dnn, nrf_uri)) {
         Logger::amf_sbi().error("No NRF is available");
         return;
       }
       Logger::amf_sbi().debug("NRF NF Discover URI: %s", nrf_uri.c_str());
       // use NRF to find suitable SMF based on snssai, plmn and dnn
       if (!discover_smf(
-              smf_addr, smf_port, smf_api_version, psc.get()->snssai,
-              psc.get()->plmn, psc.get()->dnn, nrf_uri)) {
+              smf_addr, smf_port, smf_api_version, psc->snssai, psc->plmn,
+              psc->dnn, nrf_uri)) {
         Logger::amf_sbi().error("SMF Selection, no SMF candidate is available");
         return;
       }
@@ -374,10 +372,10 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
     }
 
     // store smf info to be used with this PDU session
-    psc.get()->smf_info.info_available = true;
-    psc->smf_info.addr                 = smf_addr;
-    psc->smf_info.port                 = smf_port;
-    psc->smf_info.api_version          = smf_api_version;
+    psc->smf_info.info_available = true;
+    psc->smf_info.addr           = smf_addr;
+    psc->smf_info.port           = smf_port;
+    psc->smf_info.api_version    = smf_api_version;
   } else {
     smf_addr             = psc->smf_info.addr;
     smf_api_version      = psc->smf_info.api_version;
@@ -391,7 +389,7 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
       uint8_t pti     = sm_msg[2];
       Logger::amf_sbi().debug(
           "Decoded PTI for PDUSessionEstablishmentRequest(0x%x)", pti);
-      psc.get()->isn2sm_avaliable = false;
+      psc->is_n2sm_avaliable = false;
       handle_pdu_session_initial_request(
           supi, psc, smf_addr, smf_api_version, smf_port, smf.sm_msg, dnn);
     } break;
@@ -416,8 +414,7 @@ void amf_sbi::send_pdu_session_update_sm_context_request(
   Logger::amf_sbi().debug(
       "Send PDU Session Update SM Context Request to SMF (SUPI %s, PDU Session "
       "ID %d, %s)",
-      supi.c_str(), psc.get()->pdu_session_id,
-      psc.get()->smf_info.addr.c_str());
+      supi.c_str(), psc->pdu_session_id, psc->smf_info.addr.c_str());
 
   std::string remote_uri = {};
   if (!amf_cfg.get_smf_pdu_session_context_uri(psc, remote_uri)) {
@@ -440,7 +437,7 @@ void amf_sbi::send_pdu_session_update_sm_context_request(
   if (amf_cfg.support_features.use_http2) http_version = 2;
 
   curl_http_client(
-      remote_uri, json_part, n1sm_msg, "", supi, psc.get()->pdu_session_id,
+      remote_uri, json_part, n1sm_msg, "", supi, psc->pdu_session_id,
       http_version);
 }
 
@@ -451,7 +448,7 @@ void amf_sbi::handle_pdu_session_initial_request(
     const std::string& smf_port, bstring sm_msg, const std::string& dnn) {
   Logger::amf_sbi().debug(
       "Handle PDU Session Establishment Request (SUPI %s, PDU Session ID %d)",
-      supi.c_str(), psc.get()->pdu_session_id);
+      supi.c_str(), psc->pdu_session_id);
 
   // Provide http2 port if enabled
   std::string amf_port = to_string(amf_cfg.sbi.port);
@@ -468,23 +465,22 @@ void amf_sbi::handle_pdu_session_initial_request(
   pdu_session_establishment_request["pei"]           = "imei-200000000000001";
   pdu_session_establishment_request["gpsi"]          = "msisdn-200000000001";
   pdu_session_establishment_request["dnn"]           = dnn.c_str();
-  pdu_session_establishment_request["sNssai"]["sst"] = psc.get()->snssai.sST;
-  pdu_session_establishment_request["sNssai"]["sd"] =
-      psc.get()->snssai.sD.c_str();
-  pdu_session_establishment_request["pduSessionId"] = psc.get()->pdu_session_id;
+  pdu_session_establishment_request["sNssai"]["sst"] = psc->snssai.sST;
+  pdu_session_establishment_request["sNssai"]["sd"]  = psc->snssai.sD.c_str();
+  pdu_session_establishment_request["pduSessionId"]  = psc->pdu_session_id;
   pdu_session_establishment_request["requestType"] =
       "INITIAL_REQUEST";  // TODO: from SM_MSG
   pdu_session_establishment_request["servingNfId"] = "servingNfId";
   pdu_session_establishment_request["servingNetwork"]["mcc"] =
-      psc.get()->plmn.mcc.c_str();
+      psc->plmn.mcc.c_str();
   pdu_session_establishment_request["servingNetwork"]["mnc"] =
-      psc.get()->plmn.mnc.c_str();
+      psc->plmn.mnc.c_str();
   pdu_session_establishment_request["anType"] = "3GPP_ACCESS";  // TODO
   pdu_session_establishment_request["smContextStatusUri"] =
       "http://" +
       std::string(inet_ntoa(*((struct in_addr*) &amf_cfg.sbi.addr4))) + ":" +
       amf_port + "/nsmf-pdusession/callback/" + supi + "/" +
-      std::to_string(psc.get()->pdu_session_id);
+      std::to_string(psc->pdu_session_id);
 
   pdu_session_establishment_request["n1MessageContainer"]["n1MessageClass"] =
       "SM";
@@ -503,7 +499,7 @@ void amf_sbi::handle_pdu_session_initial_request(
   if (amf_cfg.support_features.use_http2) http_version = 2;
 
   curl_http_client(
-      remote_uri, json_part, n1sm_msg, "", supi, psc.get()->pdu_session_id,
+      remote_uri, json_part, n1sm_msg, "", supi, psc->pdu_session_id,
       http_version);
 }
 
@@ -528,10 +524,10 @@ void amf_sbi::handle_itti_message(
 
   nlohmann::json pdu_session_release_request;
   pdu_session_release_request["supi"]          = itti_msg.supi.c_str();
-  pdu_session_release_request["dnn"]           = psc.get()->dnn.c_str();
-  pdu_session_release_request["sNssai"]["sst"] = psc.get()->snssai.sST;
-  pdu_session_release_request["sNssai"]["sd"]  = psc.get()->snssai.sD;
-  pdu_session_release_request["pduSessionId"]  = psc.get()->pdu_session_id;
+  pdu_session_release_request["dnn"]           = psc->dnn.c_str();
+  pdu_session_release_request["sNssai"]["sst"] = psc->snssai.sST;
+  pdu_session_release_request["sNssai"]["sd"]  = psc->snssai.sD;
+  pdu_session_release_request["pduSessionId"]  = psc->pdu_session_id;
   pdu_session_release_request["cause"] = "REL_DUE_TO_REACTIVATION";  // TODO:
   pdu_session_release_request["ngApCause"] = "radioNetwork";
   std::string msg_body                     = pdu_session_release_request.dump();
@@ -1121,7 +1117,8 @@ void amf_sbi::curl_http_client(
     std::string n1sm               = {};
     std::string n2sm               = {};
     nlohmann::json response_data   = {};
-    bstring n1sm_hex, n2sm_hex;
+    bstring n1sm_hex               = nullptr;
+    bstring n2sm_hex               = nullptr;
 
     Logger::amf_sbi().info("Get response with HTTP code (%d)", httpCode);
     Logger::amf_sbi().info("Response body %s", response.c_str());
@@ -1209,7 +1206,7 @@ void amf_sbi::curl_http_client(
               location_pos + 10, crlf_pos - (location_pos + 10));
           Logger::amf_sbi().info(
               "Location of the created SMF context: %s", location.c_str());
-          psc.get()->smf_info.context_location = location;
+          psc->smf_info.context_location = location;
         }
       }
 
@@ -1261,6 +1258,7 @@ void amf_sbi::curl_http_client(
         curl_easy_cleanup(curl);
         curl_global_cleanup();
         free_wrapper((void**) &body_data);
+        bdestroy_wrapper(&n1sm_hex);
         return;
       }
 
@@ -1278,7 +1276,7 @@ void amf_sbi::curl_http_client(
           comUt::print_buffer(
               "amf_sbi", "Get response n1sm:", (uint8_t*) bdata(n1sm_hex),
               blength(n1sm_hex));
-          itti_msg->n1sm        = n1sm_hex;
+          itti_msg->n1sm        = bstrcpy(n1sm_hex);
           itti_msg->is_n1sm_set = true;
         }
         if (n2sm.size() > 0) {
@@ -1286,7 +1284,7 @@ void amf_sbi::curl_http_client(
           comUt::print_buffer(
               "amf_sbi", "Get response n2sm:", (uint8_t*) bdata(n2sm_hex),
               blength(n2sm_hex));
-          itti_msg->n2sm           = n2sm_hex;
+          itti_msg->n2sm           = bstrcpy(n2sm_hex);
           itti_msg->is_n2sm_set    = true;
           itti_msg->n2sm_info_type = response_data
               ["n2SmInfoType"];  // response_data["n2InfoContainer"]["smInfo"]["n2InfoContent"]["ngapIeType"];
@@ -1305,6 +1303,8 @@ void amf_sbi::curl_http_client(
       }
     }
 
+    bdestroy_wrapper(&n1sm_hex);
+    bdestroy_wrapper(&n2sm_hex);
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
   }
@@ -1404,7 +1404,6 @@ void amf_sbi::curl_http_client(
     std::string n1sm               = {};
     std::string n2sm               = {};
     nlohmann::json response_data   = {};
-    bstring n1sm_hex, n2sm_hex;
 
     // clear input
     n1sm_msg  = {};

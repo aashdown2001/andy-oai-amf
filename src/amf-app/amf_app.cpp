@@ -238,7 +238,7 @@ bool amf_app::ran_amf_id_2_ue_context(
   std::shared_lock lock(m_ue_ctx_key);
   if (ue_ctx_key.count(ue_context_key) > 0) {
     uc = ue_ctx_key.at(ue_context_key);
-    if (uc.get() == nullptr) return false;
+    if (uc == nullptr) return false;
     return true;
   } else
     return false;
@@ -278,7 +278,7 @@ bool amf_app::find_pdu_session_context(
   if (!is_supi_2_ue_context(supi)) return false;
   std::shared_ptr<ue_context> uc = {};
   uc                             = supi_2_ue_context(supi);
-  if (!uc.get()->find_pdu_session_context(pdu_session_id, psc)) return false;
+  if (!uc->find_pdu_session_context(pdu_session_id, psc)) return false;
   return true;
 }
 
@@ -289,7 +289,7 @@ bool amf_app::get_pdu_sessions_context(
   if (!is_supi_2_ue_context(supi)) return false;
   std::shared_ptr<ue_context> uc = {};
   uc                             = supi_2_ue_context(supi);
-  if (!uc.get()->get_pdu_sessions_context(sessions_ctx)) return false;
+  if (!uc->get_pdu_sessions_context(sessions_ctx)) return false;
   return true;
 }
 
@@ -311,8 +311,8 @@ void amf_app::handle_itti_message(
         "Handle ITTI N1N2 Message Transfer Request for Paging");
     std::shared_ptr<itti_paging> i =
         std::make_shared<itti_paging>(TASK_AMF_APP, TASK_AMF_N2);
-    amf_n1_inst->supi_2_amf_id(itti_msg.supi, i.get()->amf_ue_ngap_id);
-    amf_n1_inst->supi_2_ran_id(itti_msg.supi, i.get()->ran_ue_ngap_id);
+    amf_n1_inst->supi_2_amf_id(itti_msg.supi, i->amf_ue_ngap_id);
+    amf_n1_inst->supi_2_ran_id(itti_msg.supi, i->ran_ue_ngap_id);
 
     int ret = itti_inst->send_msg(i);
     if (0 != ret) {
@@ -327,22 +327,21 @@ void amf_app::handle_itti_message(
     dl->setHeader(PLAIN_5GS_MSG);
     dl->setPayload_Container_Type(N1_SM_INFORMATION);
     dl->setPayload_Container(
-        (uint8_t*) bdata(itti_msg.n1sm), blength(itti_msg.n1sm));
+        (uint8_t*) bdata(bstrcpy(itti_msg.n1sm)), blength(itti_msg.n1sm));
     dl->setPDUSessionId(itti_msg.pdu_session_id);
 
     uint8_t nas[BUFFER_SIZE_1024];
     int encoded_size = dl->encode2buffer(nas, BUFFER_SIZE_1024);
     comUt::print_buffer("amf_app", "n1n2 transfer", nas, encoded_size);
-    bstring dl_nas = blk2bstr(nas, encoded_size);
 
     std::shared_ptr<itti_downlink_nas_transfer> dl_msg =
         std::make_shared<itti_downlink_nas_transfer>(TASK_AMF_APP, TASK_AMF_N1);
 
-    dl_msg->dl_nas = dl_nas;
+    dl_msg->dl_nas = blk2bstr(nas, encoded_size);
     if (!itti_msg.is_n2sm_set) {
       dl_msg->is_n2sm_set = false;
     } else {
-      dl_msg->n2sm           = itti_msg.n2sm;
+      dl_msg->n2sm           = bstrcpy(itti_msg.n2sm);
       dl_msg->pdu_session_id = itti_msg.pdu_session_id;
       dl_msg->is_n2sm_set    = true;
       dl_msg->n2sm_info_type = itti_msg.n2sm_info_type;
@@ -389,27 +388,26 @@ void amf_app::handle_itti_message(
         itti_msg.ran_ue_ngap_id);
   } else {
     unc = amf_n2_inst->ran_ue_id_2_ue_ngap_context(itti_msg.ran_ue_ngap_id);
-    unc.get()->amf_ue_ngap_id = amf_ue_ngap_id;
+    unc->amf_ue_ngap_id = amf_ue_ngap_id;
     amf_n2_inst->set_amf_ue_ngap_id_2_ue_ngap_context(amf_ue_ngap_id, unc);
   }
 
   // Create UE Context and store related information information
-  if (uc.get() == nullptr) {
+  if (uc == nullptr) {
     Logger::amf_app().error(
         "Failed to create ue_context with ran_amf_id %s",
         ue_context_key.c_str());
   } else {
-    uc.get()->cgi = itti_msg.cgi;
-    uc.get()->tai = itti_msg.tai;
+    uc->cgi = itti_msg.cgi;
+    uc->tai = itti_msg.tai;
     if (itti_msg.rrc_cause != -1)
-      uc.get()->rrc_estb_cause =
-          (e_Ngap_RRCEstablishmentCause) itti_msg.rrc_cause;
+      uc->rrc_estb_cause = (e_Ngap_RRCEstablishmentCause) itti_msg.rrc_cause;
     if (itti_msg.ueCtxReq == -1)
-      uc.get()->isUeContextRequest = false;
+      uc->isUeContextRequest = false;
     else
-      uc.get()->isUeContextRequest = true;
-    uc.get()->ran_ue_ngap_id = itti_msg.ran_ue_ngap_id;
-    uc.get()->amf_ue_ngap_id = amf_ue_ngap_id;
+      uc->isUeContextRequest = true;
+    uc->ran_ue_ngap_id = itti_msg.ran_ue_ngap_id;
+    uc->amf_ue_ngap_id = amf_ue_ngap_id;
 
     std::string guti;
     bool is_guti_valid = false;
@@ -454,7 +452,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
   // Get NAS message (RegistrationRequest, this message included
   // in N1 Message Notify is actually is RegistrationRequest from UE to the
   // initial AMF)
-  bstring n1sm;
+  bstring n1sm = nullptr;
   conv::msg_str_2_msg_hex(itti_msg.n1sm, n1sm);
 
   // get RegistrationContextContainer including gNB info
@@ -537,7 +535,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
 
   long amf_ue_ngap_id = INVALID_AMF_UE_NGAP_ID;
   // Generate AMF UE NGAP ID if necessary
-  if (!uc.get()) {  // No UE context existed
+  if (!uc) {  // No UE context existed
     amf_ue_ngap_id = generate_amf_ue_ngap_id();
   } else {
     if ((amf_ue_ngap_id = uc->amf_ue_ngap_id) == INVALID_AMF_UE_NGAP_ID) {
@@ -551,7 +549,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
     Logger::amf_app().debug(
         "No existing UE Context associated with UE Context Key %s",
         ue_context_key.c_str());
-    if (!uc.get()) {
+    if (!uc) {
       // Create a new UE Context
       Logger::amf_app().debug(
           "Create a new UE Context with UE Context Key",
@@ -563,14 +561,14 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
     uc = ran_amf_id_2_ue_context(ue_context_key);
   }
   // Return if UE Context is still invalid
-  if (!uc.get()) {
+  if (!uc) {
     Logger::amf_app().error("Failed to get UE Context");
     return;
   }
 
   // Update info for UE context
-  uc.get()->amf_ue_ngap_id = amf_ue_ngap_id;
-  uc.get()->ran_ue_ngap_id = ran_ue_ngap_id;
+  uc->amf_ue_ngap_id = amf_ue_ngap_id;
+  uc->ran_ue_ngap_id = ran_ue_ngap_id;
   // RrcEstCause
   if (registration_context.rrcEstCauseIsSet()) {
     uint8_t rrc_cause = {};
@@ -584,10 +582,10 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
       rrc_cause = 0;
     }
 
-    uc.get()->rrc_estb_cause = (e_Ngap_RRCEstablishmentCause) rrc_cause;
+    uc->rrc_estb_cause = (e_Ngap_RRCEstablishmentCause) rrc_cause;
   }
   // ueContextRequest
-  uc.get()->isUeContextRequest = registration_context.isUeContextRequest();
+  uc->isUeContextRequest = registration_context.isUeContextRequest();
 
   // Step 4. Create UE NGAP Context if necessary
   // Create/Update UE NGAP Context
@@ -600,7 +598,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
     amf_n2_inst->set_ran_ue_ngap_id_2_ue_ngap_context(ran_ue_ngap_id, unc);
   } else {
     unc = amf_n2_inst->ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id);
-    if (!unc.get()) {
+    if (!unc) {
       Logger::amf_app().error(
           "Failed to get UE NGAP context for "
           "ran_ue_ngap_id " GNB_UE_NGAP_ID_FMT,
@@ -610,12 +608,12 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
   }
 
   // Store related information into UE NGAP context
-  unc.get()->ran_ue_ngap_id = ran_ue_ngap_id;
-  // TODO:  unc.get()->sctp_stream_recv
-  // TODO: unc.get()->sctp_stream_send
-  // TODO: gc.get()->next_sctp_stream
-  // TODO: unc.get()->gnb_assoc_id
-  // TODO: unc.get()->tai
+  unc->ran_ue_ngap_id = ran_ue_ngap_id;
+  // TODO:  unc->sctp_stream_recv
+  // TODO: unc->sctp_stream_send
+  // TODO: gc->next_sctp_stream
+  // TODO: unc->gnb_assoc_id
+  // TODO: unc->tai
 
   // Step 5. Trigger the procedure following RegistrationRequest
 
@@ -625,7 +623,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
   itti_n1_msg->amf_ue_ngap_id              = amf_ue_ngap_id;
   itti_n1_msg->ran_ue_ngap_id              = ran_ue_ngap_id;
   itti_n1_msg->is_nas_signalling_estab_req = true;
-  itti_n1_msg->nas_msg                     = n1sm;
+  itti_n1_msg->nas_msg                     = bstrcpy(n1sm);
   itti_n1_msg->mcc                         = ran_node_id.getPlmnId().getMcc();
   itti_n1_msg->mnc                         = ran_node_id.getPlmnId().getMnc();
   itti_n1_msg->is_guti_valid               = false;
@@ -637,6 +635,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
         itti_n1_msg->get_msg_name());
   }
 
+  bdestroy_wrapper(&n1sm);
   return;
 }
 
@@ -864,10 +863,10 @@ bool amf_app::generate_5g_guti(
   }
   std::shared_ptr<ue_context> uc = {};
   uc                             = ran_amf_id_2_ue_context(ue_context_key);
-  mcc                            = uc.get()->tai.mcc;
-  mnc                            = uc.get()->tai.mnc;
+  mcc                            = uc->tai.mcc;
+  mnc                            = uc->tai.mnc;
   tmsi                           = generate_tmsi();
-  uc.get()->tmsi                 = tmsi;
+  uc->tmsi                       = tmsi;
   return true;
 }
 
@@ -889,19 +888,18 @@ evsub_id_t amf_app::handle_event_exposure_subscription(
   // store subscription
   for (auto i : event_subscriptions) {
     std::shared_ptr<amf_subscription> ss = std::make_shared<amf_subscription>();
-    ss.get()->sub_id                     = evsub_id;
+    ss->sub_id                           = evsub_id;
     // TODO:
     if (msg->event_exposure.is_supi_is_set()) {
-      ss.get()->supi        = msg->event_exposure.get_supi();
-      ss.get()->supi_is_set = true;
+      ss->supi        = msg->event_exposure.get_supi();
+      ss->supi_is_set = true;
     }
-    ss.get()->notify_correlation_id =
-        msg->event_exposure.get_notify_correlation_id();
-    ss.get()->notify_uri = msg->event_exposure.get_notify_uri();
-    ss.get()->nf_id      = msg->event_exposure.get_nf_id();
-    ss.get()->ev_type    = i.type;
+    ss->notify_correlation_id = msg->event_exposure.get_notify_correlation_id();
+    ss->notify_uri            = msg->event_exposure.get_notify_uri();
+    ss->nf_id                 = msg->event_exposure.get_nf_id();
+    ss->ev_type               = i.type;
     add_event_subscription(evsub_id, i.type, ss);
-    ss.get()->display();
+    ss->display();
   }
   return evsub_id;
 }

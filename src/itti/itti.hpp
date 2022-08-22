@@ -24,7 +24,6 @@
 
 #include <chrono>
 #include <condition_variable>
-//#include <iomanip>
 #include <stdint.h>
 
 #include <iostream>

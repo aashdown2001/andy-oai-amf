@@ -44,6 +44,7 @@ typedef enum {
   NGAP_READY,
   NGAP_SHUTDOWN
 } amf_ng_gnb_state_t;
+
 class gnb_context {
  public:
   amf_ng_gnb_state_t ng_state;

@@ -839,6 +839,7 @@ int RegistrationRequest::decodefrombuffer(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding RegistrationRequest message");
   int decoded_size       = 3;
+  int decoded_result     = 0;
   plain_header           = header;
   ie_5gsregistrationtype = new _5GSRegistrationType();
   decoded_size += ie_5gsregistrationtype->decodefrombuffer(
@@ -857,8 +858,10 @@ int RegistrationRequest::decodefrombuffer(
       case 0xC: {
         Logger::nas_mm().debug("Decoding IEI(0xC)");
         ie_non_current_native_nas_ksi = new NasKeySetIdentifier();
-        decoded_size += ie_non_current_native_nas_ksi->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true, false);
+        if ((decoded_result = ie_non_current_native_nas_ksi->decodefrombuffer(
+                 buf + decoded_size, len - decoded_size, true, false)) <= 0)
+          return decoded_result;
+        decoded_size += decoded_result;
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;

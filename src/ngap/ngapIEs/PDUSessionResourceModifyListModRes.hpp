@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author
- \date
- \email: contact@openairinterface.org
- */
-
 #ifndef _PDU_SESSION_RESOURCE_MODIFY_LIST_MOD_RES_H_
 #define _PDU_SESSION_RESOURCE_MODIFY_LIST_MOD_RES_H_
 
