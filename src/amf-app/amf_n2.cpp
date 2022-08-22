@@ -1031,11 +1031,10 @@ void amf_n2::handle_itti_message(
   psrsr->setPduSessionResourceSetupRequestList(list);
   psrsr->setUEAggregateMaxBitRate(
       UE_AGGREGATE_MAXIMUM_BIT_RATE_DL, UE_AGGREGATE_MAXIMUM_BIT_RATE_UL);
-  size_t buffer_size = BUFFER_SIZE_512;
-  uint8_t buffer[BUFFER_SIZE_4096];  //    = (uint8_t*) calloc(1, buffer_size);
+  uint8_t* buffer  = (uint8_t*) calloc(1, BUFFER_SIZE_4096);
   int encoded_size = 0;
 
-  psrsr->encode2NewBuffer((uint8_t**) &buffer, encoded_size);
+  psrsr->encode2NewBuffer(buffer, encoded_size);
 #if DEBUG_IS_ON
   Logger::amf_n2().debug("N2 SM buffer data: ");
   for (int i = 0; i < encoded_size; i++) printf("%02x ", (char) buffer[i]);
@@ -1094,9 +1093,9 @@ void amf_n2::handle_itti_message(
 
   modify_request_msg->setPduSessionResourceModifyRequestList(list);
 
-  uint8_t buffer[BUFFER_SIZE_4096];
+  uint8_t* buffer  = (uint8_t*) calloc(1, BUFFER_SIZE_4096);
   int encoded_size = 0;
-  modify_request_msg->encode2NewBuffer((uint8_t**) &buffer, encoded_size);
+  modify_request_msg->encode2NewBuffer(buffer, encoded_size);
 #if DEBUG_IS_ON
   Logger::amf_n2().debug("N2 SM buffer data: ");
   for (int i = 0; i < encoded_size; i++) printf("%02x ", (char) buffer[i]);
@@ -1151,9 +1150,9 @@ void amf_n2::handle_itti_message(
   list.push_back(item);
   release_cmd_msg->setPduSessionResourceToReleaseList(list);
 
-  uint8_t buffer[BUFFER_SIZE_4096];
+  uint8_t* buffer  = (uint8_t*) calloc(1, BUFFER_SIZE_4096);
   int encoded_size = 0;
-  release_cmd_msg->encode2NewBuffer((uint8_t**) &buffer, encoded_size);
+  release_cmd_msg->encode2NewBuffer(buffer, encoded_size);
 #if DEBUG_IS_ON
   Logger::amf_n2().debug("N2 SM buffer data: ");
   for (int i = 0; i < encoded_size; i++) printf("%02x ", (char) buffer[i]);
