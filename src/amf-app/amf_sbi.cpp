@@ -1117,7 +1117,8 @@ void amf_sbi::curl_http_client(
     std::string n1sm               = {};
     std::string n2sm               = {};
     nlohmann::json response_data   = {};
-    bstring n1sm_hex, n2sm_hex;
+    bstring n1sm_hex               = nullptr;
+    bstring n2sm_hex               = nullptr;
 
     Logger::amf_sbi().info("Get response with HTTP code (%d)", httpCode);
     Logger::amf_sbi().info("Response body %s", response.c_str());
@@ -1257,6 +1258,7 @@ void amf_sbi::curl_http_client(
         curl_easy_cleanup(curl);
         curl_global_cleanup();
         free_wrapper((void**) &body_data);
+        bdestroy_wrapper(&n1sm_hex);
         return;
       }
 
@@ -1274,7 +1276,7 @@ void amf_sbi::curl_http_client(
           comUt::print_buffer(
               "amf_sbi", "Get response n1sm:", (uint8_t*) bdata(n1sm_hex),
               blength(n1sm_hex));
-          itti_msg->n1sm        = n1sm_hex;
+          itti_msg->n1sm        = bstrcpy(n1sm_hex);
           itti_msg->is_n1sm_set = true;
         }
         if (n2sm.size() > 0) {
@@ -1282,7 +1284,7 @@ void amf_sbi::curl_http_client(
           comUt::print_buffer(
               "amf_sbi", "Get response n2sm:", (uint8_t*) bdata(n2sm_hex),
               blength(n2sm_hex));
-          itti_msg->n2sm           = n2sm_hex;
+          itti_msg->n2sm           = bstrcpy(n2sm_hex);
           itti_msg->is_n2sm_set    = true;
           itti_msg->n2sm_info_type = response_data
               ["n2SmInfoType"];  // response_data["n2InfoContainer"]["smInfo"]["n2InfoContent"]["ngapIeType"];
@@ -1301,6 +1303,8 @@ void amf_sbi::curl_http_client(
       }
     }
 
+    bdestroy_wrapper(&n1sm_hex);
+    bdestroy_wrapper(&n2sm_hex);
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
   }
@@ -1400,7 +1404,6 @@ void amf_sbi::curl_http_client(
     std::string n1sm               = {};
     std::string n2sm               = {};
     nlohmann::json response_data   = {};
-    bstring n1sm_hex, n2sm_hex;
 
     // clear input
     n1sm_msg  = {};
