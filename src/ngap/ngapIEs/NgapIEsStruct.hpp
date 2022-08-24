@@ -247,6 +247,12 @@ typedef struct {
 typedef struct {
   long QFI;
 } QosFlowToBeForwardedItem_t;
+
+typedef struct gNBId_s {
+  uint32_t id;
+  uint8_t bit_length;
+} gNBId_t;  // 22bits to 32bits
+
 }  // namespace ngap
 
 #endif

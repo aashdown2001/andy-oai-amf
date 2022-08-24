@@ -19,37 +19,36 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _GNB_ID_H_
-#define _GNB_ID_H_
+#ifndef _NG_ENB_ID_H_
+#define _NG_ENB_ID_H_
 
-#include "NgapIEsStruct.hpp"
-#include <optional>
+#include "PlmnId.hpp"
 
 extern "C" {
-#include "Ngap_GNB-ID.h"
+#include "Ngap_NgENB-ID.h"
 }
 
 namespace ngap {
 
-constexpr uint8_t NGAP_GNB_ID_SIZE_MAX = 32;
-constexpr uint8_t NGAP_GNB_ID_SIZE_MIN = 22;
-
-class GNB_ID {
+class NgENB_ID {
  public:
-  GNB_ID();
-  virtual ~GNB_ID();
+  NgENB_ID();
+  virtual ~NgENB_ID();
 
-  bool encode(Ngap_GNB_ID_t&);
-  bool decode(Ngap_GNB_ID_t&);
-  void setValue(const gNBId_t& gnb_id);
-  bool setValue(const uint32_t& id, const uint8_t& bit_length);
-  // long getValue() const;
-  bool get(gNBId_t& gnb_id) const;
-  bool get(uint32_t& id) const;
+  bool encode(Ngap_NgENB_ID_t&);
+  bool decode(Ngap_NgENB_ID_t&);
+
+  void get(uint32_t& id, Ngap_NgENB_ID_PR& present) const;
+  void set(const uint32_t& id, const Ngap_NgENB_ID_PR& present);
 
  private:
-  std::optional<gNBId_t> gnb_id_;  // 22bits to 32bits
-  Ngap_GNB_ID_PR present_;
+  PlmnId plmnId;  // Mandatory
+  union {
+    uint32_t macro_ngenb_id;
+    uint32_t short_macro_ngENB_id;
+    uint32_t long_macro_ngENB_id;
+  } id_;  // Mandatory
+  Ngap_NgENB_ID_PR present_;
 };
 
 }  // namespace ngap

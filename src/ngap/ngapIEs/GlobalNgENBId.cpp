@@ -19,44 +19,40 @@
  *      contact@openairinterface.org
  */
 
-#include "GlobalgNBId.hpp"
+#include "GlobalNgENBId.hpp"
 
 namespace ngap {
 
 //------------------------------------------------------------------------------
-GlobalgNBId::GlobalgNBId() {
-  plmnId = {};
-  gNB_ID = {};
+GlobalNgENBId::GlobalNgENBId() {}
+
+//------------------------------------------------------------------------------
+GlobalNgENBId::~GlobalNgENBId() {}
+
+//------------------------------------------------------------------------------
+void GlobalNgENBId::set(const PlmnId& plmn_id, const NgENB_ID& ng_enb_id) {
+  plmn_id_   = plmn_id;
+  ng_enb_id_ = ng_enb_id;
 }
 
 //------------------------------------------------------------------------------
-GlobalgNBId::~GlobalgNBId() {}
-
-//------------------------------------------------------------------------------
-void GlobalgNBId::set(const PlmnId& plmn, const GNB_ID& gnbid) {
-  plmnId = plmn;
-  gNB_ID = gnbid;
+void GlobalNgENBId::get(PlmnId& plmn_id, NgENB_ID& ng_enb_id) const {
+  plmn_id   = plmn_id_;
+  ng_enb_id = ng_enb_id_;
 }
 
 //------------------------------------------------------------------------------
-void GlobalgNBId::get(PlmnId& plmn, GNB_ID& gnbid) {
-  plmn  = plmnId;
-  gnbid = gNB_ID;
-}
-
-//------------------------------------------------------------------------------
-bool GlobalgNBId::encode(Ngap_GlobalGNB_ID_t* globalgnbid) {
-  if (!plmnId.encode2octetstring(globalgnbid->pLMNIdentity)) return false;
-  if (!gNB_ID.encode(globalgnbid->gNB_ID)) return false;
-
+bool GlobalNgENBId::encode(Ngap_GlobalNgENB_ID_t& global_ng_enb_id) {
+  if (!plmn_id_.encode2octetstring(global_ng_enb_id.pLMNIdentity)) return false;
+  if (!ng_enb_id_.encode(global_ng_enb_id.ngENB_ID)) return false;
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool GlobalgNBId::decode(Ngap_GlobalGNB_ID_t* globalgnbid) {
-  if (!plmnId.decodefromoctetstring(globalgnbid->pLMNIdentity)) return false;
-  if (!gNB_ID.decode(globalgnbid->gNB_ID)) return false;
-
+bool GlobalNgENBId::decode(Ngap_GlobalNgENB_ID_t& global_ng_enb_id) {
+  if (!plmn_id_.decodefromoctetstring(global_ng_enb_id.pLMNIdentity))
+    return false;
+  if (!ng_enb_id_.decode(global_ng_enb_id.ngENB_ID)) return false;
   return true;
 }
 }  // namespace ngap

@@ -90,6 +90,21 @@
     x = ((buf)[0] << 8) | ((buf)[1]);                                          \
   } while (0)
 
+/* Convert an integer on 24 bits to the given bUFFER */
+#define INT24_TO_BUFFER(x, buf)                                                \
+  do {                                                                         \
+    (buf)[0] = (x) >> 16;                                                      \
+    (buf)[1] = (x) >> 8;                                                       \
+    (buf)[2] = (x);                                                            \
+  } while (0)
+
+#define BUFFER_TO_INT24(buf, x)                                                \
+  do {                                                                         \
+    x = (int32_t)(                                                             \
+        ((uint32_t)((buf)[0]) << 16) | ((uint32_t)((buf)[1]) << 8) |           \
+        ((uint32_t)((buf)[2])));                                               \
+  } while (0)
+
 /* Convert an integer on 32 bits to the given bUFFER */
 #define INT32_TO_BUFFER(x, buf)                                                \
   do {                                                                         \
@@ -108,7 +123,7 @@
 /* Convert an integer on 32 bits to an octet string from aSN1c tool */
 #define INT32_TO_OCTET_STRING(x, aSN)                                          \
   do {                                                                         \
-    (aSN)->buf = calloc(4, sizeof(uint8_t));                                   \
+    (aSN)->buf = (uint8_t*) calloc(4, sizeof(uint8_t));                        \
     INT32_TO_BUFFER(x, ((aSN)->buf));                                          \
     (aSN)->size = 4;                                                           \
   } while (0)
@@ -117,6 +132,25 @@
   do {                                                                         \
     INT32_TO_OCTET_STRING(x, aSN);                                             \
     (aSN)->bits_unused = 0;                                                    \
+  } while (0)
+
+#define INT24_TO_BIT_STRING(x, aSN, s)                                         \
+  do {                                                                         \
+    INT24_TO_OCTET_STRING(x, aSN);                                             \
+    (aSN)->bits_unused = 24 - s;                                               \
+  } while (0)
+
+#define INT24_TO_OCTET_STRING(x, aSN)                                          \
+  do {                                                                         \
+    (aSN)->buf  = (uint8_t*) calloc(3, sizeof(uint8_t));                       \
+    (aSN)->size = 3;                                                           \
+    INT24_TO_BUFFER(x, (aSN)->buf);                                            \
+  } while (0)
+
+#define OCTET_STRING_TO_INT24(aSN, x)                                          \
+  do {                                                                         \
+    DevCheck((aSN)->size == 3, (aSN)->size, 0, 0);                             \
+    BUFFER_TO_INT24((aSN)->buf, x);                                            \
   } while (0)
 
 #define INT16_TO_OCTET_STRING(x, aSN)                                          \
@@ -166,6 +200,11 @@
   do {                                                                         \
     DevCheck((aSN)->bits_unused == 0, (aSN)->bits_unused, 0, 0);               \
     OCTET_STRING_TO_INT32(aSN, x);                                             \
+  } while (0)
+
+#define BIT_STRING_TO_INT24(aSN, x)                                            \
+  do {                                                                         \
+    OCTET_STRING_TO_INT24(aSN, x);                                             \
   } while (0)
 
 #define BIT_STRING_TO_CELL_IDENTITY(aSN, vALUE)                                \

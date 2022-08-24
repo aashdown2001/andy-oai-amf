@@ -41,7 +41,8 @@ class NGSetupRequestMsg : public NgapMessage {
 
   void setGlobalRanNodeID(
       const std::string& mcc, const std::string& mnc,
-      const Ngap_GlobalRANNodeID_PR& ranNodeType, const uint32_t& ranNodeId);
+      const Ngap_GlobalRANNodeID_PR& ranNodeType, const uint32_t& ranNodeId,
+      const uint8_t& ran_node_id_size);
   bool getGlobalGnbID(uint32_t& gnbId, std::string& mcc, std::string& mnc);
 
   void setRanNodeName(const std::string& ranNodeName);

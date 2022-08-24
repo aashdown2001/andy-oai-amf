@@ -51,17 +51,19 @@ void NGSetupRequestMsg::initialize() {
 //------------------------------------------------------------------------------
 void NGSetupRequestMsg::setGlobalRanNodeID(
     const std::string& mcc, const std::string& mnc,
-    const Ngap_GlobalRANNodeID_PR& ranNodeType, const uint32_t& ranNodeId) {
+    const Ngap_GlobalRANNodeID_PR& ranNodeType, const uint32_t& ranNodeId,
+    const uint8_t& ran_node_id_size) {
   GlobalRanNodeId globalRanNodeIdIE = {};
   globalRanNodeIdIE.setChoiceOfRanNodeId(ranNodeType);
 
+  // TODO: other options for GlobalNgENBId/Global N3IWF ID
   GlobalgNBId globalgNBId = {};
   PlmnId plmn             = {};
   plmn.setMccMnc(mcc, mnc);
   GNB_ID gnbid = {};
-  gnbid.setValue(ranNodeId);
-  globalgNBId.setGlobalgNBId(plmn, gnbid);
-  globalRanNodeIdIE.setGlobalgNBID(globalgNBId);
+  gnbid.setValue(ranNodeId, ran_node_id_size);
+  globalgNBId.set(plmn, gnbid);
+  globalRanNodeIdIE.set(globalgNBId);
 
   Ngap_NGSetupRequestIEs_t* ie =
       (Ngap_NGSetupRequestIEs_t*) calloc(1, sizeof(Ngap_NGSetupRequestIEs_t));
@@ -69,8 +71,7 @@ void NGSetupRequestMsg::setGlobalRanNodeID(
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_NGSetupRequestIEs__value_PR_GlobalRANNodeID;
 
-  if (!globalRanNodeIdIE.encode2GlobalRANNodeID(
-          &ie->value.choice.GlobalRANNodeID)) {
+  if (!globalRanNodeIdIE.encode(&ie->value.choice.GlobalRANNodeID)) {
     Logger::ngap().error("Encode NGAP GlobalRANNodeID IE error");
     free_wrapper((void**) &ie);
     return;
@@ -203,7 +204,7 @@ bool NGSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                     Ngap_Criticality_reject &&
                 ngSetupRequestIEs->protocolIEs.list.array[i]->value.present ==
                     Ngap_NGSetupRequestIEs__value_PR_GlobalRANNodeID) {
-              if (!globalRanNodeId.decodefromGlobalRANNodeID(
+              if (!globalRanNodeId.decode(
                       &ngSetupRequestIEs->protocolIEs.list.array[i]
                            ->value.choice.GlobalRANNodeID)) {
                 Logger::ngap().error("Decoded NGAP GlobalRanNodeId IE error");
@@ -283,19 +284,28 @@ bool NGSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
 //------------------------------------------------------------------------------
 bool NGSetupRequestMsg::getGlobalGnbID(
     uint32_t& gnbId, std::string& mcc, std::string& mnc) {
+  // TODO: Only support Global gNB ID for now
   if (globalRanNodeId.getChoiceOfRanNodeId() !=
-      Ngap_GlobalRANNodeID_PR_globalGNB_ID)
+      Ngap_GlobalRANNodeID_PR_globalGNB_ID) {
+    Logger::ngap().warn("RAN node type is not supported!");
     return false;
+  }
 
   GlobalgNBId globalgNBId = {};
-  globalRanNodeId.getGlobalgNBID(globalgNBId);
+  if (!globalRanNodeId.get(globalgNBId)) {
+    Logger::ngap().warn("There's no value for Global RAN Node ID!");
+    return false;
+  }
 
   PlmnId plmn  = {};
   GNB_ID gnbid = {};
-  globalgNBId.getGlobalgNBId(plmn, gnbid);
+  globalgNBId.get(plmn, gnbid);
   plmn.getMcc(mcc);
   plmn.getMnc(mnc);
-  gnbId = gnbid.getValue();
+  if (!gnbid.get(gnbId)) {
+    Logger::ngap().warn("There's no value for gNB ID!");
+    return false;
+  }
 
   return true;
 }

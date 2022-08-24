@@ -107,7 +107,7 @@ bool HandoverRequiredMsg::getTargetID(GlobalgNBId& gnbId, TAI& tai) {
   if (targetID.present == Ngap_TargetID_PR_targetRANNodeID) {
     if (targetID.choice.targetRANNodeID->globalRANNodeID.present ==
         Ngap_GlobalRANNodeID_PR_globalGNB_ID) {
-      gnbId.decodefromGlobalgNBId(
+      gnbId.decode(
           targetID.choice.targetRANNodeID->globalRANNodeID.choice.globalGNB_ID);
       tai.decodefromTAI(&targetID.choice.targetRANNodeID->selectedTAI);
       return true;

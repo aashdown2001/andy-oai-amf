@@ -90,9 +90,8 @@ void amf_n2_task(void* args_p) {
       } break;
       case NG_SETUP_REQ: {
         Logger::amf_n2().info("Received NGSetupRequest message, handling");
-        // itti_ng_setup_request* m = dynamic_cast<itti_ng_setup_request*>(msg);
-        amf_n2_inst->handle_itti_message(
-            std::static_pointer_cast<itti_ng_setup_request>(shared_msg));
+        auto msg = std::dynamic_pointer_cast<itti_ng_setup_request>(shared_msg);
+        amf_n2_inst->handle_itti_message(msg);
       } break;
       case NG_RESET: {
         Logger::amf_n2().info("Received NGReset message, handling");
@@ -310,7 +309,7 @@ void amf_n2::handle_itti_message(itti_new_sctp_association& new_assoc) {}
 
 //------------------------------------------------------------------------------
 void amf_n2::handle_itti_message(
-    std::shared_ptr<itti_ng_setup_request> itti_msg) {
+    std::shared_ptr<itti_ng_setup_request>& itti_msg) {
   Logger::amf_n2().debug("Handle NG Setup Request...");
   Logger::amf_n2().debug(
       "Parameters: assoc_id %d, stream %d", itti_msg->assoc_id,
@@ -325,7 +324,8 @@ void amf_n2::handle_itti_message(
 
   if (gc->ng_state == NGAP_RESETING || gc->ng_state == NGAP_SHUTDOWN) {
     Logger::amf_n2().warn(
-        "Received new association request on an association that is being %s, "
+        "Received a new association request on an association that is being "
+        "%s, "
         "ignoring",
         ng_gnb_state_str[gc->ng_state]);
   } else {
@@ -1501,16 +1501,18 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   itti_msg.handoverReq->getTargetID(TargetGlobalgNBId, tai);
   ngap::PlmnId plmn = {};
   GNB_ID gnbid      = {};
-  TargetGlobalgNBId.getGlobalgNBId(plmn, gnbid);
+  TargetGlobalgNBId.get(plmn, gnbid);
   std::string mcc = {};
   std::string mnc = {};
   plmn.getMcc(mcc);
   plmn.getMnc(mnc);
+  uint32_t gnb_id_value = {0};
+  gnbid.get(gnb_id_value);
 
   Logger::amf_n2().debug(
       "Handover Required, Target ID GlobalRanNodeID PLMN (MCC %s, MNC %s, "
       "gNBId 0x%x)",
-      mcc.c_str(), mnc.c_str(), gnbid.getValue());
+      mcc.c_str(), mnc.c_str(), gnb_id_value);
 
   string mccSelectTAI = {};
   string mncSelectTAI = {};
@@ -1712,8 +1714,8 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   int encoded_size = handover_request->encode2Buffer(buffer, BUFFER_SIZE_4096);
   bstring b        = blk2bstr(buffer, encoded_size);
   std::shared_ptr<gnb_context> gc_target = {};
-  gc_target                = gnb_id_2_gnb_context(gnbid.getValue());
-  unc->target_gnb_assoc_id = gc_target->sctp_assoc_id;
+  gc_target                              = gnb_id_2_gnb_context(gnb_id_value);
+  unc->target_gnb_assoc_id               = gc_target->sctp_assoc_id;
   sctp_s_38412.sctp_send_msg(gc_target->sctp_assoc_id, 0, &b);
   bdestroy_wrapper(&b);
   return true;

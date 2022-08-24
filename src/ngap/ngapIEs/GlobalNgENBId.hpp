@@ -19,32 +19,32 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _GLOBAL_GNB_ID_H
-#define _GLOBAL_GNB_ID_H
+#ifndef _GLOBAL_NG_ENB_ID_H
+#define _GLOBAL_NG_ENB_ID_H
 
-#include "GNB-ID.hpp"
+#include "NgENBId.hpp"
 #include "PlmnId.hpp"
 
 extern "C" {
-#include "Ngap_GlobalGNB-ID.h"
+#include "Ngap_GlobalNgENB-ID.h"
 }
 
 namespace ngap {
 
-class GlobalgNBId {
+class GlobalNgENBId {
  public:
-  GlobalgNBId();
-  virtual ~GlobalgNBId();
+  GlobalNgENBId();
+  virtual ~GlobalNgENBId();
 
-  bool encode(Ngap_GlobalGNB_ID_t*);
-  bool decode(Ngap_GlobalGNB_ID_t*);
+  bool encode(Ngap_GlobalNgENB_ID_t&);
+  bool decode(Ngap_GlobalNgENB_ID_t&);
 
-  void set(const PlmnId& plmn, const GNB_ID& gnbid);
-  void get(PlmnId& plmn, GNB_ID& gnbid);
+  void set(const PlmnId& plmn, const NgENB_ID& ng_enb_id);
+  void get(PlmnId& plmn, NgENB_ID& ng_enb_id) const;
 
  private:
-  PlmnId plmnId;  // Mandatory
-  GNB_ID gNB_ID;  // Mandatory
+  PlmnId plmn_id_;      // Mandatory
+  NgENB_ID ng_enb_id_;  // Mandatory
 };
 
 }  // namespace ngap
