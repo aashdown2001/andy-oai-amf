@@ -68,6 +68,7 @@ extern "C" {
 using namespace nas;
 using namespace amf_application;
 using namespace config;
+using namespace boost::placeholders;
 
 extern itti_mw* itti_inst;
 extern amf_n1* amf_n1_inst;
