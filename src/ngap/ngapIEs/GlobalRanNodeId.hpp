@@ -47,10 +47,8 @@ class GlobalRanNodeId {
   void setChoiceOfRanNodeId(const Ngap_GlobalRANNodeID_PR& id_present);
   Ngap_GlobalRANNodeID_PR getChoiceOfRanNodeId();
 
-  bool encode(
-      Ngap_GlobalRANNodeID_t*);  // TODO: use reference instead of pointer
-  bool decode(
-      Ngap_GlobalRANNodeID_t*);  // TODO: use reference instead of pointer
+  bool encode(Ngap_GlobalRANNodeID_t*);
+  bool decode(Ngap_GlobalRANNodeID_t*);
 
  private:
   std::optional<GlobalgNBId> global_gnb_id_;

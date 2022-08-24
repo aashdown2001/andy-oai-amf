@@ -57,7 +57,7 @@ void BroadcastPLMNItem::getPlmnSliceSupportList(
 //------------------------------------------------------------------------------
 bool BroadcastPLMNItem::encode2BroadcastPLMNItem(
     Ngap_BroadcastPLMNItem_t* plmnItem) {
-  if (!plmn.encode2octetstring(plmnItem->pLMNIdentity)) return false;
+  if (!plmn.encode(plmnItem->pLMNIdentity)) return false;
 
   for (std::vector<S_NSSAI>::iterator it = std::begin(supportedSliceList);
        it < std::end(supportedSliceList); ++it) {
@@ -74,7 +74,7 @@ bool BroadcastPLMNItem::encode2BroadcastPLMNItem(
 //------------------------------------------------------------------------------
 bool BroadcastPLMNItem::decodefromBroadcastPLMNItem(
     Ngap_BroadcastPLMNItem_t* pdu) {
-  if (!plmn.decodefromoctetstring(pdu->pLMNIdentity)) return false;
+  if (!plmn.decode(pdu->pLMNIdentity)) return false;
   for (int i = 0; i < pdu->tAISliceSupportList.list.count; i++) {
     S_NSSAI snssai = {};
     if (!snssai.decodefromS_NSSAI(

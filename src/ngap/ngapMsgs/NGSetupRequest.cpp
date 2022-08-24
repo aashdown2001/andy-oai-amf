@@ -59,7 +59,7 @@ void NGSetupRequestMsg::setGlobalRanNodeID(
   // TODO: other options for GlobalNgENBId/Global N3IWF ID
   GlobalgNBId globalgNBId = {};
   PlmnId plmn             = {};
-  plmn.setMccMnc(mcc, mnc);
+  plmn.set(mcc, mnc);
   GNB_ID gnbid = {};
   gnbid.setValue(ranNodeId, ran_node_id_size);
   globalgNBId.set(plmn, gnbid);
@@ -92,7 +92,7 @@ void NGSetupRequestMsg::setRanNodeName(const std::string& value) {
   ie->criticality   = Ngap_Criticality_ignore;
   ie->value.present = Ngap_NGSetupRequestIEs__value_PR_RANNodeName;
 
-  if (!ranNodeName->encode2RanNodeName(&ie->value.choice.RANNodeName)) {
+  if (!ranNodeName->encode(ie->value.choice.RANNodeName)) {
     Logger::ngap().error("Encode NGAP RANNodeName IE error");
     free_wrapper((void**) &ie);
     return;
@@ -123,8 +123,7 @@ void NGSetupRequestMsg::setSupportedTAList(
     for (int j = 0; j < list[i].b_plmn_list.size(); j++) {
       BroadcastPLMNItem broadcastPlmnItem = {};
       PlmnId broadPlmn                    = {};
-      broadPlmn.setMccMnc(
-          list[i].b_plmn_list[j].mcc, list[i].b_plmn_list[j].mnc);
+      broadPlmn.set(list[i].b_plmn_list[j].mcc, list[i].b_plmn_list[j].mnc);
       std::vector<S_NSSAI> snssais;
 
       for (int k = 0; k < list[i].b_plmn_list[j].slice_list.size(); k++) {
@@ -221,9 +220,9 @@ bool NGSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 ngSetupRequestIEs->protocolIEs.list.array[i]->value.present ==
                     Ngap_NGSetupRequestIEs__value_PR_RANNodeName) {
               ranNodeName = new RanNodeName();
-              if (!ranNodeName->decodefromRanNodeName(
-                      &ngSetupRequestIEs->protocolIEs.list.array[i]
-                           ->value.choice.RANNodeName)) {
+              if (!ranNodeName->decode(
+                      ngSetupRequestIEs->protocolIEs.list.array[i]
+                          ->value.choice.RANNodeName)) {
                 Logger::ngap().error("Decoded NGAP RanNodeName IE error");
                 return false;
               }

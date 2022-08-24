@@ -46,7 +46,7 @@ void GlobalgNBId::get(PlmnId& plmn, GNB_ID& gnbid) {
 
 //------------------------------------------------------------------------------
 bool GlobalgNBId::encode(Ngap_GlobalGNB_ID_t* globalgnbid) {
-  if (!plmnId.encode2octetstring(globalgnbid->pLMNIdentity)) return false;
+  if (!plmnId.encode(globalgnbid->pLMNIdentity)) return false;
   if (!gNB_ID.encode(globalgnbid->gNB_ID)) return false;
 
   return true;
@@ -54,7 +54,7 @@ bool GlobalgNBId::encode(Ngap_GlobalGNB_ID_t* globalgnbid) {
 
 //------------------------------------------------------------------------------
 bool GlobalgNBId::decode(Ngap_GlobalGNB_ID_t* globalgnbid) {
-  if (!plmnId.decodefromoctetstring(globalgnbid->pLMNIdentity)) return false;
+  if (!plmnId.decode(globalgnbid->pLMNIdentity)) return false;
   if (!gNB_ID.decode(globalgnbid->gNB_ID)) return false;
 
   return true;

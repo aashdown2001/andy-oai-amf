@@ -21,45 +21,38 @@
 
 #include "RanNodeName.hpp"
 
-#include <iostream>
-using namespace std;
+#include "conversions.hpp"
 
 namespace ngap {
 
 //------------------------------------------------------------------------------
 RanNodeName::RanNodeName() {
-  ranNodeName = NULL;
+  ran_node_name_ = {};
 }
 
 //------------------------------------------------------------------------------
 RanNodeName::~RanNodeName() {}
 
 //------------------------------------------------------------------------------
-void RanNodeName::setValue(const std::string ranName) {
-  ranNodeName = (char*) ranName.c_str();
+void RanNodeName::setValue(const std::string& value) {
+  ran_node_name_ = value;
 }
 
 //------------------------------------------------------------------------------
-bool RanNodeName::getValue(std::string& ranName) {
-  if (!ranNodeName) return false;
-  ranName = ranNodeName;
+void RanNodeName::getValue(std::string& value) const {
+  value = ran_node_name_;
+}
+
+//------------------------------------------------------------------------------
+bool RanNodeName::encode(Ngap_RANNodeName_t& ran_node_name) {
+  conv::string_2_octet_string(ran_node_name_, ran_node_name);
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool RanNodeName::encode2RanNodeName(Ngap_RANNodeName_t* rannodename) {
-  int ret = OCTET_STRING_fromBuf(rannodename, ranNodeName, strlen(ranNodeName));
-
-  if (ret == 0)
-    return true;
-  else
-    return false;
-}
-
-//------------------------------------------------------------------------------
-bool RanNodeName::decodefromRanNodeName(Ngap_RANNodeName_t* rannodename) {
-  if (!rannodename->buf) return false;
-  ranNodeName = (char*) rannodename->buf;
+bool RanNodeName::decode(Ngap_RANNodeName_t& ran_node_name) {
+  if (!ran_node_name.buf) return false;
+  conv::octet_string_2_string(ran_node_name, ran_node_name_);
   return true;
 }
 

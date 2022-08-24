@@ -44,7 +44,7 @@ void EUTRA_CGI::setEUTRA_CGI(
 
 //------------------------------------------------------------------------------
 bool EUTRA_CGI::encode2EUTRA_CGI(Ngap_EUTRA_CGI_t* eutra_cgi) {
-  if (!plmnId->encode2octetstring(eutra_cgi->pLMNIdentity)) return false;
+  if (!plmnId->encode(eutra_cgi->pLMNIdentity)) return false;
   if (!eUTRACellIdentity->encode2bitstring(eutra_cgi->eUTRACellIdentity))
     return false;
 
@@ -55,7 +55,7 @@ bool EUTRA_CGI::encode2EUTRA_CGI(Ngap_EUTRA_CGI_t* eutra_cgi) {
 bool EUTRA_CGI::decodefromEUTRA_CGI(Ngap_EUTRA_CGI_t* eutra_cgi) {
   if (plmnId == nullptr) plmnId = new PlmnId();
   if (eUTRACellIdentity == nullptr) eUTRACellIdentity = new EUTRACellIdentity();
-  if (!plmnId->decodefromoctetstring(eutra_cgi->pLMNIdentity)) return false;
+  if (!plmnId->decode(eutra_cgi->pLMNIdentity)) return false;
   if (!eUTRACellIdentity->decodefrombitstring(eutra_cgi->eUTRACellIdentity))
     return false;
 

@@ -43,15 +43,14 @@ void GlobalNgENBId::get(PlmnId& plmn_id, NgENB_ID& ng_enb_id) const {
 
 //------------------------------------------------------------------------------
 bool GlobalNgENBId::encode(Ngap_GlobalNgENB_ID_t& global_ng_enb_id) {
-  if (!plmn_id_.encode2octetstring(global_ng_enb_id.pLMNIdentity)) return false;
+  if (!plmn_id_.encode(global_ng_enb_id.pLMNIdentity)) return false;
   if (!ng_enb_id_.encode(global_ng_enb_id.ngENB_ID)) return false;
   return true;
 }
 
 //------------------------------------------------------------------------------
 bool GlobalNgENBId::decode(Ngap_GlobalNgENB_ID_t& global_ng_enb_id) {
-  if (!plmn_id_.decodefromoctetstring(global_ng_enb_id.pLMNIdentity))
-    return false;
+  if (!plmn_id_.decode(global_ng_enb_id.pLMNIdentity)) return false;
   if (!ng_enb_id_.decode(global_ng_enb_id.ngENB_ID)) return false;
   return true;
 }

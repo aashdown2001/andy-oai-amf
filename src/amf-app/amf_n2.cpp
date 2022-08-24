@@ -667,7 +667,6 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
     if (init_ue_msg.initUeMsg->getNasPdu(nas_buf, nas_len)) {
       // bstring nas       = blk2bstr(nas_buf, nas_len);
       itti_msg->nas_buf = blk2bstr(nas_buf, nas_len);
-      ;
     } else {
       Logger::amf_n2().error("Missing IE NAS-PDU");
       return;
@@ -1558,7 +1557,7 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
 
   // GUAMI, PLMN
   ngap::PlmnId m_plmnId = {};
-  m_plmnId.setMccMnc(amf_cfg.guami.mcc, amf_cfg.guami.mnc);
+  m_plmnId.set(amf_cfg.guami.mcc, amf_cfg.guami.mnc);
 
   handover_request->setMobilityRestrictionList(m_plmnId);
   handover_request->setGUAMI(

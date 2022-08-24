@@ -46,7 +46,7 @@ void GUAMI::setGUAMI(
 void GUAMI::setGUAMI(
     const std::string& mcc, const std::string& mnc, const uint8_t& regionId,
     const uint16_t& setId, const uint8_t& pointer) {
-  plmnId.setMccMnc(mcc, mnc);
+  plmnId.set(mcc, mnc);
   aMFRegionID.setAMFRegionID(regionId);
   aMFSetID.setAMFSetID(setId);
   aMFPointer.setAMFPointer(pointer);
@@ -56,7 +56,7 @@ void GUAMI::setGUAMI(
 void GUAMI::setGUAMI(
     const std::string& mcc, const std::string& mnc, const std::string& regionId,
     const std::string& setId, const std::string& pointer) {
-  plmnId.setMccMnc(mcc, mnc);
+  plmnId.set(mcc, mnc);
   aMFRegionID.setAMFRegionID(regionId);
   aMFSetID.setAMFSetID(setId);
   aMFPointer.setAMFPointer(pointer);
@@ -64,7 +64,7 @@ void GUAMI::setGUAMI(
 
 //------------------------------------------------------------------------------
 bool GUAMI::encode2GUAMI(Ngap_GUAMI_t* guami) {
-  if (!plmnId.encode2octetstring(guami->pLMNIdentity)) return false;
+  if (!plmnId.encode(guami->pLMNIdentity)) return false;
   if (!aMFRegionID.encode2bitstring(guami->aMFRegionID)) return false;
   if (!aMFSetID.encode2bitstring(guami->aMFSetID)) return false;
   if (!aMFPointer.encode2bitstring(guami->aMFPointer)) return false;
@@ -74,7 +74,7 @@ bool GUAMI::encode2GUAMI(Ngap_GUAMI_t* guami) {
 
 //------------------------------------------------------------------------------
 bool GUAMI::decodefromGUAMI(Ngap_GUAMI_t* pdu) {
-  if (!plmnId.decodefromoctetstring(pdu->pLMNIdentity)) return false;
+  if (!plmnId.decode(pdu->pLMNIdentity)) return false;
   if (!aMFRegionID.decodefrombitstring(pdu->aMFRegionID)) return false;
   if (!aMFSetID.decodefrombitstring(pdu->aMFSetID)) return false;
   if (!aMFPointer.decodefrombitstring(pdu->aMFPointer)) return false;

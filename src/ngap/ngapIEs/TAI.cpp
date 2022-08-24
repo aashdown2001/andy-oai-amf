@@ -38,7 +38,7 @@ void TAI::setTAI(const PlmnId& m_plmnId, const TAC& m_tac) {
 //------------------------------------------------------------------------------
 void TAI::setTAI(
     const std::string& mcc, const std::string& mnc, const uint32_t& m_tac) {
-  plmnId.setMccMnc(mcc, mnc);
+  plmnId.set(mcc, mnc);
   tac.setTac(m_tac);
 }
 
@@ -51,12 +51,12 @@ void TAI::getTAI(std::string& mcc, std::string& mnc, uint32_t& m_tac) {
 
 //------------------------------------------------------------------------------
 void TAI::setTAI(const Tai_t& tai) {
-  plmnId.setMccMnc(tai.mcc, tai.mnc);
+  plmnId.set(tai.mcc, tai.mnc);
   tac.setTac(tai.tac);
 }
 //------------------------------------------------------------------------------
 bool TAI::encode2TAI(Ngap_TAI_t* tai) {
-  if (!plmnId.encode2octetstring(tai->pLMNIdentity)) return false;
+  if (!plmnId.encode(tai->pLMNIdentity)) return false;
   if (!tac.encode2octetstring(tai->tAC)) return false;
 
   return true;
@@ -64,7 +64,7 @@ bool TAI::encode2TAI(Ngap_TAI_t* tai) {
 
 //------------------------------------------------------------------------------
 bool TAI::decodefromTAI(Ngap_TAI_t* tai) {
-  if (!plmnId.decodefromoctetstring(tai->pLMNIdentity)) return false;
+  if (!plmnId.decode(tai->pLMNIdentity)) return false;
   if (!tac.decodefromoctetstring(tai->tAC)) return false;
 
   return true;

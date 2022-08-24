@@ -283,3 +283,32 @@ void conv::sd_string_to_int(const std::string& sd_str, uint32_t& sd) {
     sd = SD_NO_VALUE;
   }
 }
+
+//------------------------------------------------------------------------------
+void conv::bstring_2_string(const bstring& b_str, std::string& str) {
+  auto b = bstrcpy(b_str);
+  // std::string str_tmp((char*) bdata(b) , blength(b));
+  str.assign((char*) bdata(b), blength(b));
+}
+
+//------------------------------------------------------------------------------
+void conv::string_2_bstring(const std::string& str, bstring& b_str) {
+  b_str = blk2bstr(str.c_str(), str.length());
+}
+
+//------------------------------------------------------------------------------
+void conv::octet_string_2_string(
+    const OCTET_STRING_t& octet_str, std::string& str) {
+  // std::string str_tmp((char *) octet_str.buf , octet_str.size);
+  str.assign((char*) octet_str.buf, octet_str.size);
+}
+
+//------------------------------------------------------------------------------
+void conv::string_2_octet_string(
+    const std::string& str, OCTET_STRING_t& o_str) {
+  o_str.buf = (uint8_t*) calloc(1, str.length() + 1);
+  // o_str.buf = strcpy(new char[str.length() + 1], str.c_str());
+  std::copy(str.begin(), str.end(), o_str.buf);
+  o_str.buf[str.length()] = '\0';
+  o_str.size              = str.length() + 1;
+}

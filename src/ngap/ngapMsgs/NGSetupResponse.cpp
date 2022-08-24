@@ -131,7 +131,7 @@ void NGSetupResponseMsg::setPlmnSupportList(
   for (int i = 0; i < list.size(); i++) {
     PLMNSupportItem plmnSupportItem = {};
     PlmnId plmn                     = {};
-    plmn.setMccMnc(list[i].mcc, list[i].mnc);
+    plmn.set(list[i].mcc, list[i].mnc);
     Logger::ngap().debug(
         "MCC %s, MNC %s", list[i].mcc.c_str(), list[i].mnc.c_str());
 

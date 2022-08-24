@@ -45,7 +45,7 @@ void PLMNSupportItem::setPlmnSliceSupportList(
 //------------------------------------------------------------------------------
 bool PLMNSupportItem::encode2PLMNSupportItem(
     Ngap_PLMNSupportItem_t* plmnsupportItem) {
-  if (!plmn.encode2octetstring(plmnsupportItem->pLMNIdentity)) return false;
+  if (!plmn.encode(plmnsupportItem->pLMNIdentity)) return false;
   for (std::vector<S_NSSAI>::iterator it = std::begin(snssais);
        it < std::end(snssais); ++it) {
     Ngap_SliceSupportItem_t* slice =
@@ -59,7 +59,7 @@ bool PLMNSupportItem::encode2PLMNSupportItem(
 //------------------------------------------------------------------------------
 bool PLMNSupportItem::decodefromPLMNSupportItem(
     Ngap_PLMNSupportItem_t* plmnsupportItem) {
-  if (!plmn.decodefromoctetstring(plmnsupportItem->pLMNIdentity)) return false;
+  if (!plmn.decode(plmnsupportItem->pLMNIdentity)) return false;
 
   for (int i = 0; i < plmnsupportItem->sliceSupportList.list.count; i++) {
     S_NSSAI snssai = {};

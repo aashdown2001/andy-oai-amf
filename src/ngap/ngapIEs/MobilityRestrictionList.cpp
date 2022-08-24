@@ -43,7 +43,7 @@ void MobilityRestrictionList::getMobilityRestrictionList(PlmnId& sPLMN) {
 //------------------------------------------------------------------------------
 bool MobilityRestrictionList::encodeMobilityRestrictionList(
     Ngap_MobilityRestrictionList_t* mobilityrestrictionlist) {
-  if (!servingPLMN.encode2octetstring(mobilityrestrictionlist->servingPLMN)) {
+  if (!servingPLMN.encode(mobilityrestrictionlist->servingPLMN)) {
     return false;
   }
   return true;
