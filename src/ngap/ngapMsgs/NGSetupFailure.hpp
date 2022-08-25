@@ -39,7 +39,7 @@ class NGSetupFailureMsg : public NgapMessage {
   void set(
       const e_Ngap_CauseRadioNetwork& cause_value,
       const e_Ngap_TimeToWait& time_to_wait);
-  void setCauseRadioNetwork(const e_Ngap_CauseRadioNetwork& cause_value);
+  void set(const e_Ngap_CauseRadioNetwork& cause_value);
   bool getCauseRadioNetwork(e_Ngap_CauseRadioNetwork&);
 
   void setCauseTransport(

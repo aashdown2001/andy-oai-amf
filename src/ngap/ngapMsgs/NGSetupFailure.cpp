@@ -94,8 +94,7 @@ void NGSetupFailureMsg::set(
 }
 
 //------------------------------------------------------------------------------
-void NGSetupFailureMsg::setCauseRadioNetwork(
-    const e_Ngap_CauseRadioNetwork& cause_value) {
+void NGSetupFailureMsg::set(const e_Ngap_CauseRadioNetwork& cause_value) {
   cause.setChoiceOfCause(Ngap_Cause_PR_radioNetwork);
   cause.setValue(cause_value);
   addCauseIE();

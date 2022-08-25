@@ -383,8 +383,7 @@ void amf_n2::handle_itti_message(
     // encode NG SETUP FAILURE MESSAGE and send back
     uint8_t* buffer = (uint8_t*) calloc(1, BUFFER_SIZE_1024);
     NGSetupFailureMsg ngSetupFailure;
-    ngSetupFailure.setCauseRadioNetwork(
-        Ngap_CauseRadioNetwork_unspecified, Ngap_TimeToWait_v5s);
+    ngSetupFailure.set(Ngap_CauseRadioNetwork_unspecified, Ngap_TimeToWait_v5s);
     int encoded =
         ngSetupFailure.encode2Buffer((uint8_t*) buffer, BUFFER_SIZE_1024);
 
