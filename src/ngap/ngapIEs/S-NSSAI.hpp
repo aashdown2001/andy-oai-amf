@@ -52,9 +52,7 @@ class S_NSSAI {
 
  private:
   uint8_t sst_;  // mandatory  OCTET_STRING(SIZE(1))
-                 //  uint32_t sd;  // OCTET_STRING(SIZE(3))
   std::optional<uint32_t> sd_;
-  //  bool sdIsSet;
 };
 
 }  // namespace ngap

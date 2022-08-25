@@ -82,7 +82,7 @@ void NGSetupFailureMsg::addTimeToWaitIE() {
 }
 
 //------------------------------------------------------------------------------
-void NGSetupFailureMsg::setCauseRadioNetwork(
+void NGSetupFailureMsg::set(
     const e_Ngap_CauseRadioNetwork& cause_value,
     const e_Ngap_TimeToWait& time_to_wait) {
   cause.setChoiceOfCause(Ngap_Cause_PR_radioNetwork);

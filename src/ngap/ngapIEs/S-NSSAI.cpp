@@ -57,12 +57,12 @@ bool S_NSSAI::DecodeSD(Ngap_SD_t* m_sd) {
 
   uint32_t value = SD_NO_VALUE;
   if (m_sd->size == 3) {
-    sd_ = ((m_sd->buf[0] << 16) + (m_sd->buf[1] << 8) + m_sd->buf[2]);
-    sd_ = std::optional<uint32_t>(value);
+    value = ((m_sd->buf[0] << 16) + (m_sd->buf[1] << 8) + m_sd->buf[2]);
+    sd_   = std::optional<uint32_t>(value);
     return true;
   } else if (m_sd->size == 4) {
-    sd_ = ((m_sd->buf[1] << 16) + (m_sd->buf[2] << 8) + m_sd->buf[3]);
-    sd_ = std::optional<uint32_t>(value);
+    value = ((m_sd->buf[1] << 16) + (m_sd->buf[2] << 8) + m_sd->buf[3]);
+    sd_   = std::optional<uint32_t>(value);
     return true;
   }
 
