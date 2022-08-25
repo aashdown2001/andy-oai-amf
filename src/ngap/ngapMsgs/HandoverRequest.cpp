@@ -242,7 +242,7 @@ void HandoverRequest::setAllowedNSSAI(std::vector<S_NSSAI>& list) {
   for (auto& it : list) {
     Ngap_AllowedNSSAI_Item_t* item =
         (Ngap_AllowedNSSAI_Item_t*) calloc(1, sizeof(Ngap_AllowedNSSAI_Item_t));
-    it.encode2S_NSSAI(&item->s_NSSAI);
+    it.encode(&item->s_NSSAI);
     int ret = ASN_SEQUENCE_ADD(&allowedNSSAI.list, item);
     if (ret != 0)
       Logger::ngap().error(

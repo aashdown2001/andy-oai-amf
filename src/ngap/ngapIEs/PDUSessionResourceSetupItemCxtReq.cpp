@@ -79,7 +79,7 @@ bool PDUSessionResourceSetupItemCxtReq::
     pduSessionResourceSetupItemCxtReq->nAS_PDU = naspdu;
   }
 
-  if (!s_NSSAI.encode2S_NSSAI(&pduSessionResourceSetupItemCxtReq->s_NSSAI))
+  if (!s_NSSAI.encode(&pduSessionResourceSetupItemCxtReq->s_NSSAI))
     return false;
   pduSessionResourceSetupItemCxtReq->pDUSessionResourceSetupRequestTransfer =
       pDUSessionResourceSetupRequestTransfer;
@@ -95,7 +95,7 @@ bool PDUSessionResourceSetupItemCxtReq::
   if (!pDUSessionID.decodefromPDUSessionID(
           pduSessionResourceSetupItemCxtReq->pDUSessionID))
     return false;
-  if (!s_NSSAI.decodefromS_NSSAI(&(pduSessionResourceSetupItemCxtReq->s_NSSAI)))
+  if (!s_NSSAI.decode(&(pduSessionResourceSetupItemCxtReq->s_NSSAI)))
     return false;
 
   if (pduSessionResourceSetupItemCxtReq->nAS_PDU) {

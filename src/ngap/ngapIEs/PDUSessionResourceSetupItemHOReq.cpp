@@ -44,7 +44,7 @@ bool PDUSessionResourceSetupItemHOReq::encode2PDUSessionResourceSetupItemHOReq(
   if (!pDUSessionID->encode2PDUSessionID(
           pduSessionResourceSetupItemHOReq->pDUSessionID))
     return false;
-  if (!s_NSSAI->encode2S_NSSAI(&pduSessionResourceSetupItemHOReq->s_NSSAI))
+  if (!s_NSSAI->encode(&pduSessionResourceSetupItemHOReq->s_NSSAI))
     return false;
   pduSessionResourceSetupItemHOReq->handoverRequestTransfer =
       pDUSessionResourceSetupRequestTransfer;
@@ -60,7 +60,7 @@ bool PDUSessionResourceSetupItemHOReq::
   if (!pDUSessionID->decodefromPDUSessionID(
           pduSessionResourceSetupItemHOReq->pDUSessionID))
     return false;
-  if (!s_NSSAI->decodefromS_NSSAI(&pduSessionResourceSetupItemHOReq->s_NSSAI))
+  if (!s_NSSAI->decode(&pduSessionResourceSetupItemHOReq->s_NSSAI))
     return false;
   pDUSessionResourceSetupRequestTransfer =
       pduSessionResourceSetupItemHOReq->handoverRequestTransfer;

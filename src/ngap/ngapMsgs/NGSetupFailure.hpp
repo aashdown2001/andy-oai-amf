@@ -25,7 +25,6 @@
 #include "Cause.hpp"
 #include "MessageType.hpp"
 #include "TimeToWait.hpp"
-//#include "CriticalityDiagnostics.hpp"
 #include "NgapMessage.hpp"
 
 namespace ngap {
@@ -72,16 +71,15 @@ class NGSetupFailureMsg : public NgapMessage {
 
   bool decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) override;
 
+  void addCauseIE();
+  void addTimeToWaitIE();
+
  private:
   Ngap_NGSetupFailure_t* ngSetupFailureIEs;
 
   Cause cause;            // Mandatory
   TimeToWait timeToWait;  // Mandatory
   // TODO: CriticalityDiagnostics *criticalityDiagnostics; //Optional
-
-  void addCauseIE();
-  void addTimeToWaitIE();
 };
-
 }  // namespace ngap
 #endif

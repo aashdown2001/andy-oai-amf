@@ -74,8 +74,7 @@ bool PDUSessionResourceSetupItemSUReq::encode2PDUSessionResourceSetupItemSUReq(
     }
     pduSessionResourceSetupItemSUReq->pDUSessionNAS_PDU = naspdu;
   }
-  if (!s_NSSAI.encode2S_NSSAI(&pduSessionResourceSetupItemSUReq->s_NSSAI))
-    return false;
+  if (!s_NSSAI.encode(&pduSessionResourceSetupItemSUReq->s_NSSAI)) return false;
   pduSessionResourceSetupItemSUReq->pDUSessionResourceSetupRequestTransfer =
       pDUSessionResourceSetupRequestTransfer;
 
@@ -90,8 +89,7 @@ bool PDUSessionResourceSetupItemSUReq::
   if (!pDUSessionID.decodefromPDUSessionID(
           pduSessionResourceSetupItemSUReq->pDUSessionID))
     return false;
-  if (!s_NSSAI.decodefromS_NSSAI(&pduSessionResourceSetupItemSUReq->s_NSSAI))
-    return false;
+  if (!s_NSSAI.decode(&pduSessionResourceSetupItemSUReq->s_NSSAI)) return false;
 
   if (pduSessionResourceSetupItemSUReq->pDUSessionNAS_PDU) {
     nAS_PDU = new NAS_PDU();

@@ -49,7 +49,7 @@ bool AllowedNSSAI::encode2AllowedNSSAI(Ngap_AllowedNSSAI_t* allowedNssaiList) {
     Ngap_AllowedNSSAI_Item_t* allowednssaiitem =
         (Ngap_AllowedNSSAI_Item_t*) calloc(1, sizeof(Ngap_AllowedNSSAI_Item_t));
     if (!allowednssaiitem) return false;
-    if (!it->encode2S_NSSAI(&allowednssaiitem->s_NSSAI)) return false;
+    if (!it->encode(&allowednssaiitem->s_NSSAI)) return false;
     if (ASN_SEQUENCE_ADD(&allowedNssaiList->list, allowednssaiitem) != 0)
       return false;
   }
@@ -61,8 +61,7 @@ bool AllowedNSSAI::decodefromAllowedNSSAI(
     Ngap_AllowedNSSAI_t* allowedNssaiList) {
   for (int i = 0; i < allowedNssaiList->list.count; i++) {
     S_NSSAI snssai = {};
-    if (!snssai.decodefromS_NSSAI(&allowedNssaiList->list.array[i]->s_NSSAI))
-      return false;
+    if (!snssai.decode(&allowedNssaiList->list.array[i]->s_NSSAI)) return false;
     allowedSnssaiList.push_back(snssai);
   }
   return true;

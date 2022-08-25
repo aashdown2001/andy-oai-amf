@@ -64,7 +64,7 @@ bool BroadcastPLMNItem::encode2BroadcastPLMNItem(
     Ngap_SliceSupportItem_t* slice =
         (Ngap_SliceSupportItem_t*) calloc(1, sizeof(Ngap_SliceSupportItem_t));
     if (!slice) return false;
-    if (!it->encode2S_NSSAI(&slice->s_NSSAI)) return false;
+    if (!it->encode(&slice->s_NSSAI)) return false;
     if (ASN_SEQUENCE_ADD(&plmnItem->tAISliceSupportList.list, slice) != 0)
       return false;
   }
@@ -77,8 +77,7 @@ bool BroadcastPLMNItem::decodefromBroadcastPLMNItem(
   if (!plmn.decode(pdu->pLMNIdentity)) return false;
   for (int i = 0; i < pdu->tAISliceSupportList.list.count; i++) {
     S_NSSAI snssai = {};
-    if (!snssai.decodefromS_NSSAI(
-            &pdu->tAISliceSupportList.list.array[i]->s_NSSAI))
+    if (!snssai.decode(&pdu->tAISliceSupportList.list.array[i]->s_NSSAI))
       return false;
     supportedSliceList.push_back(snssai);
   }
