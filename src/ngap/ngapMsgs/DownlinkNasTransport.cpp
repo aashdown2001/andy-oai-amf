@@ -108,7 +108,7 @@ void DownLinkNasTransportMsg::setOldAmfName(const std::string name) {
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_DownlinkNASTransport_IEs__value_PR_AMFName;
 
-  int ret = oldAmfName->encode2AmfName(&ie->value.choice.AMFName);
+  int ret = oldAmfName->encode(&ie->value.choice.AMFName);
   if (!ret) {
     Logger::ngap().error("Encode oldAmfName IE error");
     free_wrapper((void**) &ie);
@@ -251,7 +251,7 @@ bool DownLinkNasTransportMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
             downLinkNasTransportIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_DownlinkNASTransport_IEs__value_PR_AMFName) {
           oldAmfName = new AmfName();
-          if (!oldAmfName->decodefromAmfName(
+          if (!oldAmfName->decode(
                   &downLinkNasTransportIEs->protocolIEs.list.array[i]
                        ->value.choice.AMFName)) {
             Logger::ngap().error("Decode NGAP OldAMFName IE error");

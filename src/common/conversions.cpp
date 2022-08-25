@@ -265,9 +265,9 @@ void conv::bstring_2_octet_string(bstring& b_str, OCTET_STRING_t& octet_str) {
 }
 
 //------------------------------------------------------------------------------
-void conv::sd_string_to_int(const std::string& sd_str, uint32_t& sd) {
+bool conv::sd_string_to_int(const std::string& sd_str, uint32_t& sd) {
   sd = SD_NO_VALUE;
-  if (sd_str.empty()) return;
+  if (sd_str.empty()) return false;
   uint8_t base = 10;
   try {
     if (sd_str.size() > 2) {
@@ -281,7 +281,57 @@ void conv::sd_string_to_int(const std::string& sd_str, uint32_t& sd) {
         "Error when converting from string to int for S-NSSAI SD, error: %s",
         e.what());
     sd = SD_NO_VALUE;
+    return false;
   }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool conv::string_to_int(
+    const std::string& str, uint32_t& value, const uint8_t& base) {
+  if (str.empty()) return false;
+  if ((base != 10) or (base != 16)) {
+    Logger::amf_app().warn("Only support Dec or Hex string value");
+    return false;
+  }
+  if (base == 16) {
+    if (str.size() <= 2) return false;
+    if (!boost::iequals(str.substr(0, 2), "0x")) return false;
+  }
+  try {
+    value = std::stoul(str, nullptr, base);
+  } catch (const std::exception& e) {
+    Logger::amf_app().error(
+        "Error when converting from string to int, error: %s", e.what());
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool conv::string_to_int8(const std::string& str, uint8_t& value) {
+  if (str.empty()) return false;
+  try {
+    value = (uint8_t) std::stoi(str);
+  } catch (const std::exception& e) {
+    Logger::amf_app().error(
+        "Error when converting from string to int, error: %s", e.what());
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool conv::string_to_int32(const std::string& str, uint32_t& value) {
+  if (str.empty()) return false;
+  try {
+    value = (uint32_t) std::stoi(str);
+  } catch (const std::exception& e) {
+    Logger::amf_app().error(
+        "Error when converting from string to int, error: %s", e.what());
+    return false;
+  }
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -308,7 +358,24 @@ void conv::string_2_octet_string(
     const std::string& str, OCTET_STRING_t& o_str) {
   o_str.buf = (uint8_t*) calloc(1, str.length() + 1);
   // o_str.buf = strcpy(new char[str.length() + 1], str.c_str());
+  // memcpy(o_str.buf, str.c_str(), str.size());
   std::copy(str.begin(), str.end(), o_str.buf);
   o_str.buf[str.length()] = '\0';
   o_str.size              = str.length() + 1;
+}
+
+//------------------------------------------------------------------------------
+bool conv::int8_2_octet_string(const uint8_t& value, OCTET_STRING_t& o_str) {
+  o_str.buf = (uint8_t*) calloc(1, sizeof(uint8_t));
+  if (!o_str.buf) return false;
+  o_str.size   = 1;
+  o_str.buf[0] = value;
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool conv::octet_string_2_int8(const OCTET_STRING_t& o_str, uint8_t& value) {
+  if (o_str.size != 1) return false;
+  value = o_str.buf[0];
+  return true;
 }

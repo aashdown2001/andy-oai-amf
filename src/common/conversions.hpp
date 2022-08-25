@@ -67,12 +67,18 @@ class conv {
   static void octet_string_2_bstring(
       const OCTET_STRING_t& octet_str, bstring& b_str);
   static void bstring_2_octet_string(bstring& b_str, OCTET_STRING_t& octet_str);
-  static void sd_string_to_int(const std::string& sd_str, uint32_t& sd);
+  static bool sd_string_to_int(const std::string& sd_str, uint32_t& sd);
+  static bool string_to_int(
+      const std::string& str, uint32_t& value, const uint8_t& base);
+  static bool string_to_int8(const std::string& str, uint8_t& value);
+  static bool string_to_int32(const std::string& str, uint32_t& value);
   static void bstring_2_string(const bstring& b_str, std::string& str);
   static void string_2_bstring(const std::string& str, bstring& b_str);
   static void octet_string_2_string(
       const OCTET_STRING_t& octet_str, std::string& str);
   static void string_2_octet_string(
       const std::string& str, OCTET_STRING_t& o_str);
+  static bool int8_2_octet_string(const uint8_t& value, OCTET_STRING_t& o_str);
+  static bool octet_string_2_int8(const OCTET_STRING_t& o_str, uint8_t& value);
 };
 #endif /* FILE_CONVERSIONS_HPP_SEEN */

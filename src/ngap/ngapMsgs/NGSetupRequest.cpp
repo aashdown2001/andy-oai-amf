@@ -31,16 +31,14 @@ namespace ngap {
 //------------------------------------------------------------------------------
 NGSetupRequestMsg::NGSetupRequestMsg() : NgapMessage() {
   ngSetupRequestIEs = nullptr;
-  ranNodeName       = nullptr;
+  ranNodeName       = std::nullopt;
 
   NgapMessage::setMessageType(NgapMessageType::NG_SETUP_REQUEST);
   initialize();
 }
 
 //------------------------------------------------------------------------------
-NGSetupRequestMsg::~NGSetupRequestMsg() {
-  if (ranNodeName) delete ranNodeName;
-}
+NGSetupRequestMsg::~NGSetupRequestMsg() {}
 
 //------------------------------------------------------------------------------
 void NGSetupRequestMsg::initialize() {
@@ -83,8 +81,12 @@ void NGSetupRequestMsg::setGlobalRanNodeID(
 
 //------------------------------------------------------------------------------
 void NGSetupRequestMsg::setRanNodeName(const std::string& value) {
-  if (!ranNodeName) ranNodeName = new RanNodeName();
-  ranNodeName->setValue(value);
+  RanNodeName tmp = {};
+  if (!tmp.setValue(value)) {
+    return;
+  }
+
+  ranNodeName = std::optional<RanNodeName>(tmp);
 
   Ngap_NGSetupRequestIEs_t* ie =
       (Ngap_NGSetupRequestIEs_t*) calloc(1, sizeof(Ngap_NGSetupRequestIEs_t));
@@ -92,7 +94,7 @@ void NGSetupRequestMsg::setRanNodeName(const std::string& value) {
   ie->criticality   = Ngap_Criticality_ignore;
   ie->value.present = Ngap_NGSetupRequestIEs__value_PR_RANNodeName;
 
-  if (!ranNodeName->encode(ie->value.choice.RANNodeName)) {
+  if (!ranNodeName.value().encode(ie->value.choice.RANNodeName)) {
     Logger::ngap().error("Encode NGAP RANNodeName IE error");
     free_wrapper((void**) &ie);
     return;
@@ -149,8 +151,7 @@ void NGSetupRequestMsg::setSupportedTAList(
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_NGSetupRequestIEs__value_PR_SupportedTAList;
 
-  if (!supportedTAListIE.encode2SupportedTAList(
-          &ie->value.choice.SupportedTAList)) {
+  if (!supportedTAListIE.encode(ie->value.choice.SupportedTAList)) {
     Logger::ngap().error("Encode SupportedTAList IE error");
     free_wrapper((void**) &ie);
     return;
@@ -171,7 +172,7 @@ void NGSetupRequestMsg::setDefaultPagingDRX(const e_Ngap_PagingDRX& value) {
   ie->criticality   = Ngap_Criticality_ignore;
   ie->value.present = Ngap_NGSetupRequestIEs__value_PR_PagingDRX;
 
-  if (!defaultPagingDRXIE.encode2DefaultPagingDRX(ie->value.choice.PagingDRX)) {
+  if (!defaultPagingDRXIE.encode(ie->value.choice.PagingDRX)) {
     Logger::ngap().error("Encode DefaultPagingDRX IE error");
     free_wrapper((void**) &ie);
     return;
@@ -219,8 +220,8 @@ bool NGSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                     Ngap_Criticality_ignore &&
                 ngSetupRequestIEs->protocolIEs.list.array[i]->value.present ==
                     Ngap_NGSetupRequestIEs__value_PR_RANNodeName) {
-              ranNodeName = new RanNodeName();
-              if (!ranNodeName->decode(
+              ranNodeName = std::make_optional<RanNodeName>();
+              if (!ranNodeName.value().decode(
                       ngSetupRequestIEs->protocolIEs.list.array[i]
                           ->value.choice.RANNodeName)) {
                 Logger::ngap().error("Decoded NGAP RanNodeName IE error");
@@ -236,9 +237,9 @@ bool NGSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                     Ngap_Criticality_reject &&
                 ngSetupRequestIEs->protocolIEs.list.array[i]->value.present ==
                     Ngap_NGSetupRequestIEs__value_PR_SupportedTAList) {
-              if (!supportedTAList.decodefromSupportedTAList(
-                      &ngSetupRequestIEs->protocolIEs.list.array[i]
-                           ->value.choice.SupportedTAList)) {
+              if (!supportedTAList.decode(
+                      ngSetupRequestIEs->protocolIEs.list.array[i]
+                          ->value.choice.SupportedTAList)) {
                 Logger::ngap().error("Decoded NGAP SupportedTAList IE error");
                 return false;
               }
@@ -252,7 +253,7 @@ bool NGSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                     Ngap_Criticality_ignore &&
                 ngSetupRequestIEs->protocolIEs.list.array[i]->value.present ==
                     Ngap_NGSetupRequestIEs__value_PR_PagingDRX) {
-              if (!defaultPagingDrx.decodefromDefaultPagingDRX(
+              if (!defaultPagingDrx.decode(
                       ngSetupRequestIEs->protocolIEs.list.array[i]
                           ->value.choice.PagingDRX)) {
                 Logger::ngap().error("Decoded NGAP DefaultPagingDRX IE error");
@@ -311,8 +312,8 @@ bool NGSetupRequestMsg::getGlobalGnbID(
 
 //------------------------------------------------------------------------------
 bool NGSetupRequestMsg::getRanNodeName(std::string& name) {
-  if (!ranNodeName) return false;
-  ranNodeName->getValue(name);
+  if (!ranNodeName.has_value()) return false;
+  ranNodeName.value().getValue(name);
   return true;
 }
 

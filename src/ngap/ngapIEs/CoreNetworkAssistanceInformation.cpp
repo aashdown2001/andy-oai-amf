@@ -97,7 +97,7 @@ bool CoreNetworkAssistanceInfo::encode2CoreNetworkAssistanceInfo(
     Ngap_PagingDRX_t* pagingdrx =
         (Ngap_PagingDRX_t*) calloc(1, sizeof(Ngap_PagingDRX_t));
     if (!pagingdrx) return false;
-    if (!pagingDRX->encode2DefaultPagingDRX(*pagingdrx)) return false;
+    if (!pagingDRX->encode(*pagingdrx)) return false;
     coreNetworkAssistanceInformation->uESpecificDRX = pagingdrx;
   }
 
@@ -138,8 +138,7 @@ bool CoreNetworkAssistanceInfo::decodefromCoreNetworkAssistanceInfo(
 
   if (coreNetworkAssistanceInformation->uESpecificDRX) {
     if (pagingDRX == nullptr) pagingDRX = new DefaultPagingDRX();
-    if (!pagingDRX->decodefromDefaultPagingDRX(
-            *(coreNetworkAssistanceInformation->uESpecificDRX)))
+    if (!pagingDRX->decode(*(coreNetworkAssistanceInformation->uESpecificDRX)))
       return false;
   }
 

@@ -34,8 +34,10 @@ RanNodeName::RanNodeName() {
 RanNodeName::~RanNodeName() {}
 
 //------------------------------------------------------------------------------
-void RanNodeName::setValue(const std::string& value) {
+bool RanNodeName::setValue(const std::string& value) {
+  if (value.size() > RAN_NODE_NAME_SIZE_MAX) return false;
   ran_node_name_ = value;
+  return true;
 }
 
 //------------------------------------------------------------------------------

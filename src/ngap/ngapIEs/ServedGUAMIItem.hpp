@@ -25,6 +25,8 @@
 #include "AMFName.hpp"
 #include "GUAMI.hpp"
 
+#include <optional>
+
 extern "C" {
 #include "Ngap_ServedGUAMIItem.h"
 }
@@ -39,16 +41,16 @@ class ServedGUAMIItem {
   void setGUAMI(const GUAMI& m_guami);
   void getGUAMI(GUAMI& m_guami);
 
-  void setBackupAMFName(AmfName*);
-  bool getBackupAMFName(AmfName*&);
+  void setBackupAMFName(const AmfName&);
+  bool getBackupAMFName(AmfName&) const;
 
   bool encode2ServedGUAMIItem(Ngap_ServedGUAMIItem*);
   bool decodefromServedGUAMIItem(Ngap_ServedGUAMIItem*);
 
  private:
-  GUAMI guamiGroup;        // Mandatory
-  AmfName* backupAMFName;  // Optional
-  bool backupAMFNameIsSet;
+  GUAMI guamiGroup;                      // Mandatory
+  std::optional<AmfName> backupAMFName;  // Optional
+  // bool backupAMFNameIsSet;
   // TODO: GUAMI Type (Optional)
 };
 
