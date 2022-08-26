@@ -33,15 +33,13 @@ namespace ngap {
 //------------------------------------------------------------------------------
 NGResetAckMsg::NGResetAckMsg() {
   ngResetAckIEs                       = nullptr;
-  ueAssociatedLogicalNGConnectionList = nullptr;
+  ueAssociatedLogicalNGConnectionList = std::nullopt;
   CriticalityDiagnostics              = nullptr;
   NgapMessage::setMessageType(NgapMessageType::NG_RESET_ACKNOWLEDGE);
   initialize();
 }
 //------------------------------------------------------------------------------
 NGResetAckMsg::~NGResetAckMsg() {
-  if (ueAssociatedLogicalNGConnectionList)
-    free_wrapper((void**) &ueAssociatedLogicalNGConnectionList);
   if (CriticalityDiagnostics) free_wrapper((void**) &CriticalityDiagnostics);
 }
 
@@ -54,20 +52,19 @@ void NGResetAckMsg::initialize() {
 //------------------------------------------------------------------------------
 void NGResetAckMsg::setUE_associatedLogicalNG_connectionList(
     std::vector<UEAssociatedLogicalNGConnectionItem>& list) {
-  if (!ueAssociatedLogicalNGConnectionList) {
-    ueAssociatedLogicalNGConnectionList =
-        (UEAssociatedLogicalNGConnectionList*) calloc(
-            1, sizeof(UEAssociatedLogicalNGConnectionList));
-  }
-  ueAssociatedLogicalNGConnectionList->set(list);
+  UEAssociatedLogicalNGConnectionList tmp = {};
+  tmp.set(list);
+  ueAssociatedLogicalNGConnectionList =
+      std::make_optional<UEAssociatedLogicalNGConnectionList>(tmp);
+
   addUE_associatedLogicalNG_connectionList();
 }
 
 //------------------------------------------------------------------------------
 void NGResetAckMsg::getUE_associatedLogicalNG_connectionList(
     std::vector<UEAssociatedLogicalNGConnectionItem>& list) {
-  if (ueAssociatedLogicalNGConnectionList) {
-    ueAssociatedLogicalNGConnectionList->get(list);
+  if (ueAssociatedLogicalNGConnectionList.has_value()) {
+    ueAssociatedLogicalNGConnectionList.value().get(list);
   }
 }
 
@@ -80,7 +77,7 @@ void NGResetAckMsg::addUE_associatedLogicalNG_connectionList() {
   ie->value.present =
       Ngap_NGResetAcknowledgeIEs__value_PR_UE_associatedLogicalNG_connectionList;
 
-  if (!ueAssociatedLogicalNGConnectionList->encode(
+  if (!ueAssociatedLogicalNGConnectionList.value().encode(
           &ie->value.choice.UE_associatedLogicalNG_connectionList)) {
     Logger::ngap().error(
         "Encode NGAP UE_associatedLogicalNG_connectionList IE error");
@@ -115,18 +112,17 @@ bool NGResetAckMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                     Ngap_Criticality_ignore &&
                 ngResetAckIEs->protocolIEs.list.array[i]->value.present ==
                     Ngap_NGResetAcknowledgeIEs__value_PR_UE_associatedLogicalNG_connectionList) {
-              ueAssociatedLogicalNGConnectionList =
-                  new UEAssociatedLogicalNGConnectionList();
-              if (!ueAssociatedLogicalNGConnectionList->decode(
-                      &ngResetAckIEs->protocolIEs.list.array[i]
-                           ->value.choice
-                           .UE_associatedLogicalNG_connectionList)) {
+              UEAssociatedLogicalNGConnectionList tmp = {};
+              if (!tmp.decode(&ngResetAckIEs->protocolIEs.list.array[i]
+                                   ->value.choice
+                                   .UE_associatedLogicalNG_connectionList)) {
                 Logger::ngap().error(
                     "Decoded NGAP UE_associatedLogicalNG_connectionList IE "
                     "error");
                 return false;
               }
-
+              ueAssociatedLogicalNGConnectionList =
+                  std::make_optional<UEAssociatedLogicalNGConnectionList>(tmp);
             } else {
               Logger::ngap().error(
                   "Decoded NGAP UE_associatedLogicalNG_connectionList IE "

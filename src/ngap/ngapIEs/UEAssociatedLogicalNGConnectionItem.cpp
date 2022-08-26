@@ -124,30 +124,7 @@ bool UEAssociatedLogicalNGConnectionItem::encode(
   ran_ue_ngap_id_.value().encode(*item->rAN_UE_NGAP_ID);
   return true;
 }
-/*
-//------------------------------------------------------------------------------
-bool UEAssociatedLogicalNGConnectionItem::encode(
-    UEAssociatedLogicalNGConnectionItem& item) {
-  item.amfUeNgapId = new AMF_UE_NGAP_ID();
-  item.amfUeNgapId = amfUeNgapId;
-  item.ranUeNgapId = new RAN_UE_NGAP_ID();
-  item.ranUeNgapId = ranUeNgapId;
-  return true;
-}
 
-//------------------------------------------------------------------------------
-bool UEAssociatedLogicalNGConnectionItem::decode(
-    UEAssociatedLogicalNGConnectionItem& item) {
-        if (!amf_ue_ngap_id_.has_value()){
-                amf_ue_ngap_id_ = std::make_optional<AMF_UE_NGAP_ID>();
-        }
-
-  amf_ue_ngap_id_.value().set(item.amfUeNgapId->get());
-  if (!ranUeNgapId) ranUeNgapId = new RAN_UE_NGAP_ID();
-  ran_ue_ngap_id_.value().set(item.ranUeNgapId->getRanUeNgapId());
-  return true;
-}
-*/
 //------------------------------------------------------------------------------
 bool UEAssociatedLogicalNGConnectionItem::decode(
     Ngap_UE_associatedLogicalNG_connectionItem_t* item) {

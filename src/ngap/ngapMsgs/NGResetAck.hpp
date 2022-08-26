@@ -27,6 +27,8 @@
 #include "UEAssociatedLogicalNGConnectionList.hpp"
 #include "NgapMessage.hpp"
 
+#include <optional>
+
 namespace ngap {
 
 class NGResetAckMsg : public NgapMessage {
@@ -49,9 +51,9 @@ class NGResetAckMsg : public NgapMessage {
  private:
   Ngap_NGResetAcknowledge_t* ngResetAckIEs;
 
-  UEAssociatedLogicalNGConnectionList*
+  std::optional<UEAssociatedLogicalNGConnectionList>
       ueAssociatedLogicalNGConnectionList;                // Optional
-  Ngap_CriticalityDiagnostics_t* CriticalityDiagnostics;  // Optional
+  Ngap_CriticalityDiagnostics_t* CriticalityDiagnostics;  // TODO: Optional
 };
 
 }  // namespace ngap
