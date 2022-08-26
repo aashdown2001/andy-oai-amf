@@ -108,7 +108,7 @@ void HandoverPreparationFailure::setCause(
 
   cause.setChoiceOfCause(causePresent);
   if (causePresent != Ngap_Cause_PR_NOTHING) cause.setValue(value);
-  cause.encode2Cause(&(ie->value.choice.Cause));
+  cause.encode(ie->value.choice.Cause);
   int ret = ASN_SEQUENCE_ADD(&hoPreparationFailureIEs->protocolIEs.list, ie);
   if (ret != 0) Logger::ngap().error("Encode Cause IE error");
 }
@@ -181,9 +181,8 @@ bool HandoverPreparationFailure::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_ignore &&
             hoPreparationFailureIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_HandoverPreparationFailureIEs__value_PR_Cause) {
-          if (!cause.decodefromCause(
-                  &hoPreparationFailureIEs->protocolIEs.list.array[i]
-                       ->value.choice.Cause)) {
+          if (!cause.decode(hoPreparationFailureIEs->protocolIEs.list.array[i]
+                                ->value.choice.Cause)) {
             Logger::ngap().error("Decoded NGAP Cause IE error");
             return false;
           }

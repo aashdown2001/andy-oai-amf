@@ -33,16 +33,16 @@ class Cause {
   Cause();
   virtual ~Cause();
 
-  bool encode2Cause(Ngap_Cause_t* cause);
-  bool decodefromCause(Ngap_Cause_t* pdu);
-  void setChoiceOfCause(Ngap_Cause_PR m_causePresent);
-  Ngap_Cause_PR getChoiceOfCause();
-  void setValue(long);
-  long getValue();
+  bool encode(Ngap_Cause_t& cause) const;
+  bool decode(const Ngap_Cause_t& cause);
+  void setChoiceOfCause(const Ngap_Cause_PR& cause_present);
+  Ngap_Cause_PR getChoiceOfCause() const;
+  void setValue(const long& value);
+  long getValue() const;
 
  private:
-  long causeValue;
-  Ngap_Cause_PR causePresent;
+  long cause_value_;
+  Ngap_Cause_PR cause_present_;
 };
 }  // namespace ngap
 

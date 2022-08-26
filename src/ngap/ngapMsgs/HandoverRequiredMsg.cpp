@@ -209,9 +209,8 @@ bool HandoverRequiredMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_ignore &&
             handoverRequiredIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_HandoverRequiredIEs__value_PR_Cause) {
-          if (!cause.decodefromCause(
-                  &handoverRequiredIEs->protocolIEs.list.array[i]
-                       ->value.choice.Cause)) {
+          if (!cause.decode(handoverRequiredIEs->protocolIEs.list.array[i]
+                                ->value.choice.Cause)) {
             Logger::ngap().error("Decoded NGAP Cause IE error");
             return false;
           }

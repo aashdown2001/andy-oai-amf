@@ -159,7 +159,7 @@ void HandoverRequest::setCause(
 
   cause.setChoiceOfCause(causePresent);
   cause.setValue(value);
-  cause.encode2Cause(&(ie->value.choice.Cause));
+  cause.encode(ie->value.choice.Cause);
   int ret = ASN_SEQUENCE_ADD(&handoverRequestIEs->protocolIEs.list, ie);
   if (ret != 0) Logger::ngap().error("Encode Cause IE error");
 }

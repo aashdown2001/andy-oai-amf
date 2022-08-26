@@ -144,7 +144,7 @@ void UEContextReleaseCommandMsg::addCauseIE() {
   ie->id            = Ngap_ProtocolIE_ID_id_Cause;
   ie->criticality   = Ngap_Criticality_ignore;
   ie->value.present = Ngap_UEContextReleaseCommand_IEs__value_PR_Cause;
-  causeValue.encode2Cause(&ie->value.choice.Cause);
+  causeValue.encode(ie->value.choice.Cause);
   int ret = ASN_SEQUENCE_ADD(&ies->protocolIEs.list, ie);
   if (ret != 0) Logger::ngap().error("Encode NGAP Cause IE error");
 }
@@ -214,8 +214,8 @@ bool UEContextReleaseCommandMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_ignore &&
             ies->protocolIEs.list.array[i]->value.present ==
                 Ngap_UEContextReleaseCommand_IEs__value_PR_Cause) {
-          if (!causeValue.decodefromCause(
-                  &ies->protocolIEs.list.array[i]->value.choice.Cause)) {
+          if (!causeValue.decode(
+                  ies->protocolIEs.list.array[i]->value.choice.Cause)) {
             Logger::ngap().error("Decoded NGAP Cause IE error");
             return false;
           }
