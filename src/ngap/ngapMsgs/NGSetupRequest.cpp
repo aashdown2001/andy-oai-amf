@@ -118,7 +118,7 @@ void NGSetupRequestMsg::setSupportedTAList(
   for (int i = 0; i < list.size(); i++) {
     SupportedTaItem item = {};
     TAC tac              = {};
-    tac.setTac(list[i].tac);
+    tac.set(list[i].tac);
     item.setTac(tac);
 
     std::vector<BroadcastPLMNItem> broadcastPlmnItems;
@@ -329,7 +329,7 @@ bool NGSetupRequestMsg::getSupportedTAList(
     it->getTac(tac);
 
     SupportedItem_t supporteditem_data = {};
-    supporteditem_data.tac             = tac.getTac();
+    supporteditem_data.tac             = tac.get();
 
     std::vector<BroadcastPLMNItem> broadcastPLMNItems;
     it->getBroadcastPlmnList(broadcastPLMNItems);

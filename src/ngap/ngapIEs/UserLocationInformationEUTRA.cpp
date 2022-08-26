@@ -20,49 +20,32 @@
  */
 
 #include "UserLocationInformationEUTRA.hpp"
-
-#include <iostream>
-using namespace std;
+#include "logger.hpp"
 
 namespace ngap {
 
 //------------------------------------------------------------------------------
-UserLocationInformationEUTRA::UserLocationInformationEUTRA() {
-  eUTRA_CGI = NULL;
-  tAI       = NULL;
-  /*istimeStampSet = false;
-   timeStamp = NULL;*/
-}
+UserLocationInformationEUTRA::UserLocationInformationEUTRA() {}
 
 //------------------------------------------------------------------------------
 UserLocationInformationEUTRA::~UserLocationInformationEUTRA() {}
 
 //------------------------------------------------------------------------------
 void UserLocationInformationEUTRA::setInformationEUTRA(
-    EUTRA_CGI* m_eUTRA_CGI, TAI* m_tAI) {
+    const EUTRA_CGI& m_eUTRA_CGI, const TAI& m_tAI) {
   eUTRA_CGI = m_eUTRA_CGI;
   tAI       = m_tAI;
 }
 
 //------------------------------------------------------------------------------
-/*void UserLocationInformationEUTRA::setInformationEUTRA(EUTRA_CGI*
- m_eUTRA_CGI,TAI* m_tAI,TimeStamp* m_timeStamp)
- {
- eUTRA_CGI = m_eUTRA_CGI;
- tAI = m_tAI;
- istimeStampSet = true;
- timeStamp = m_timeStamp;
- }*/
-
-//------------------------------------------------------------------------------
 bool UserLocationInformationEUTRA::encode2UserLocationInformationEUTRA(
     Ngap_UserLocationInformationEUTRA_t* userLocationInformationEUTRA) {
-  if (!eUTRA_CGI->encode2EUTRA_CGI(&userLocationInformationEUTRA->eUTRA_CGI)) {
-    cout << "[Warning] eUTRA_CGI->encode2EUTRA_CGI() error!" << endl;
+  if (!eUTRA_CGI.encode(userLocationInformationEUTRA->eUTRA_CGI)) {
+    Logger::ngap().warn("Encode eUTRA_CGI IE error");
     return false;
   }
-  if (!tAI->encode2TAI(&userLocationInformationEUTRA->tAI)) {
-    cout << "[Warning] tAI->encode2TAI() error!" << endl;
+  if (!tAI.encode(&userLocationInformationEUTRA->tAI)) {
+    Logger::ngap().warn("Encode TAI IE error");
     return false;
   }
 #if 0
@@ -84,15 +67,13 @@ bool UserLocationInformationEUTRA::encode2UserLocationInformationEUTRA(
 //------------------------------------------------------------------------------
 bool UserLocationInformationEUTRA::decodefromUserLocationInformationEUTRA(
     Ngap_UserLocationInformationEUTRA_t* userLocationInformationEUTRA) {
-  if (eUTRA_CGI == nullptr) eUTRA_CGI = new EUTRA_CGI();
-  if (!eUTRA_CGI->decodefromEUTRA_CGI(
-          &userLocationInformationEUTRA->eUTRA_CGI)) {
-    cout << "[Warning] eUTRA_CGI->decodefromEUTRA_CGI() error!" << endl;
+  if (!eUTRA_CGI.decode(userLocationInformationEUTRA->eUTRA_CGI)) {
+    Logger::ngap().warn("Decode eUTRA_CGI IE error");
     return false;
   }
-  tAI = new TAI();
-  if (!tAI->decodefromTAI(&userLocationInformationEUTRA->tAI)) {
-    cout << "[Warning] tAI->decodefromTAI() error!" << endl;
+
+  if (!tAI.decode(&userLocationInformationEUTRA->tAI)) {
+    Logger::ngap().warn("Decode TAI IE error");
     return false;
   }
 #if 0
@@ -111,21 +92,8 @@ bool UserLocationInformationEUTRA::decodefromUserLocationInformationEUTRA(
 }
 
 //------------------------------------------------------------------------------
-/*bool UserLocationInformationEUTRA::getTimeStampPresence()
- {
- return istimeStampSet;
- }*/
-/*void UserLocationInformationEUTRA::getInformationEUTRA(EUTRA_CGI*
- &m_eUTRA_CGI,TAI* &m_tAI,TimeStamp* &m_timeStamp)
- {
- m_eUTRA_CGI = eUTRA_CGI;
- m_tAI = tAI;
- m_timeStamp = timeStamp;
- }*/
-
-//------------------------------------------------------------------------------
 void UserLocationInformationEUTRA::getInformationEUTRA(
-    EUTRA_CGI*& m_eUTRA_CGI, TAI*& m_tAI) {
+    EUTRA_CGI& m_eUTRA_CGI, TAI& m_tAI) {
   m_eUTRA_CGI = eUTRA_CGI;
   m_tAI       = tAI;
 }

@@ -157,7 +157,7 @@ void PagingMsg::setTAIListForPaging(const std::vector<Tai_t>& list) {
   for (int i = 0; i < list.size(); i++) {
     TAI tai = {};
     plmnid[i].set(list[i].mcc, list[i].mnc);
-    tac[i].setTac(list[i].tac);
+    tac[i].set(list[i].tac);
     tai.setTAI(plmnid[i], tac[i]);
     tailist.push_back(tai);
   }

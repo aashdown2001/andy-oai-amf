@@ -146,7 +146,7 @@ void UEContextReleaseCompleteMsg::getUserLocationInfoNR(
 
     plmnId.getMcc(tai.mcc);
     plmnId.getMnc(tai.mnc);
-    tai.tac = tac.getTac() & 0x00ffffff;
+    tai.tac = tac.get() & 0x00ffffff;
   }
 }
 

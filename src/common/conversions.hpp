@@ -80,5 +80,6 @@ class conv {
       const std::string& str, OCTET_STRING_t& o_str);
   static bool int8_2_octet_string(const uint8_t& value, OCTET_STRING_t& o_str);
   static bool octet_string_2_int8(const OCTET_STRING_t& o_str, uint8_t& value);
+  // TODO: bitstring_2_int32
 };
 #endif /* FILE_CONVERSIONS_HPP_SEEN */

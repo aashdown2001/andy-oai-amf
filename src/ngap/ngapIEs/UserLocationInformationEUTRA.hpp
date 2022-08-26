@@ -36,23 +36,21 @@ class UserLocationInformationEUTRA {
   UserLocationInformationEUTRA();
   virtual ~UserLocationInformationEUTRA();
 
-  void setInformationEUTRA(EUTRA_CGI* m_eUTRA_CGI, TAI* m_tAI);
-  // void setInformationEUTRA(EUTRA_CGI* m_eUTRA_CGI,TAI* m_tAI,TimeStamp*
-  // m_timeStamp);
+  void setInformationEUTRA(const EUTRA_CGI& m_eUTRA_CGI, const TAI& m_tAI);
+  void getInformationEUTRA(EUTRA_CGI& m_eUTRA_CGI, TAI& m_tAI);
+
+  // bool getTimeStampPresence();
+
   bool encode2UserLocationInformationEUTRA(
       Ngap_UserLocationInformationEUTRA_t* userLocationInformation);
   bool decodefromUserLocationInformationEUTRA(
       Ngap_UserLocationInformationEUTRA_t* userLocationInformation);
-  // void getInformationEUTRA(EUTRA_CGI* &m_eUTRA_CGI,TAI* &m_tAI,TimeStamp*
-  // &m_timeStamp);
-  void getInformationEUTRA(EUTRA_CGI*& m_eUTRA_CGI, TAI*& m_tAI);
-  // bool getTimeStampPresence();
 
  private:
-  EUTRA_CGI* eUTRA_CGI;
-  TAI* tAI;
-  // bool istimeStampSet;
-  // TimeStamp *timeStamp;
+  EUTRA_CGI eUTRA_CGI;  // Mandatory
+  TAI tAI;              // Mandatory
+  // TODO: TimeStamp *timeStamp; //Age of Location (Optional)
+  // TODO: NG-RAN CGI (PSCell Information) (Optional)
 };
 
 }  // namespace ngap

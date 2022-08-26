@@ -109,7 +109,7 @@ bool HandoverRequiredMsg::getTargetID(GlobalgNBId& gnbId, TAI& tai) {
         Ngap_GlobalRANNodeID_PR_globalGNB_ID) {
       gnbId.decode(
           targetID.choice.targetRANNodeID->globalRANNodeID.choice.globalGNB_ID);
-      tai.decodefromTAI(&targetID.choice.targetRANNodeID->selectedTAI);
+      tai.decode(&targetID.choice.targetRANNodeID->selectedTAI);
       return true;
     }
   }

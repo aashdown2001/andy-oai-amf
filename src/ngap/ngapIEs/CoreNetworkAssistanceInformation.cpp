@@ -86,7 +86,7 @@ bool CoreNetworkAssistanceInfo::encode2CoreNetworkAssistanceInfo(
         (Ngap_TAIListForInactiveItem_t*) calloc(
             1, sizeof(Ngap_TAIListForInactiveItem_t));
     if (!taiListForInactiveItem) return false;
-    if (!it->encode2TAI(&taiListForInactiveItem->tAI)) return false;
+    if (!it->encode(&taiListForInactiveItem->tAI)) return false;
     if (ASN_SEQUENCE_ADD(
             &coreNetworkAssistanceInformation->tAIListForInactive.list,
             taiListForInactiveItem) != 0)
@@ -129,7 +129,7 @@ bool CoreNetworkAssistanceInfo::decodefromCoreNetworkAssistanceInfo(
        i < coreNetworkAssistanceInformation->tAIListForInactive.list.count;
        i++) {
     TAI tai_item = {};
-    if (!tai_item.decodefromTAI(
+    if (!tai_item.decode(
             &coreNetworkAssistanceInformation->tAIListForInactive.list.array[i]
                  ->tAI))
       return false;

@@ -42,7 +42,7 @@ bool UserLocationInformationNR::encode2UserLocationInformationNR(
   if (!nR_CGI.encode2NR_CGI(&userLocationInformationNR->nR_CGI)) {
     return false;
   }
-  if (!tAI.encode2TAI(&userLocationInformationNR->tAI)) {
+  if (!tAI.encode(&userLocationInformationNR->tAI)) {
     return false;
   }
 #if 0
@@ -67,7 +67,7 @@ bool UserLocationInformationNR::decodefromUserLocationInformationNR(
     return false;
   }
 
-  if (!tAI.decodefromTAI(&userLocationInformationNR->tAI)) {
+  if (!tAI.decode(&userLocationInformationNR->tAI)) {
     return false;
   }
 #if 0
