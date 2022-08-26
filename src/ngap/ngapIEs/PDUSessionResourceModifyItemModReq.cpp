@@ -61,8 +61,7 @@ bool PDUSessionResourceModifyItemModReq::
     pduSessionResourceModifyItemModReq.nAS_PDU =
         (Ngap_NAS_PDU_t*) calloc(1, sizeof(Ngap_NAS_PDU_t));
     if (!pduSessionResourceModifyItemModReq.nAS_PDU) return false;
-    if (!nAS_PDU->encode2octetstring(
-            *pduSessionResourceModifyItemModReq.nAS_PDU)) {
+    if (!nAS_PDU->encode(*pduSessionResourceModifyItemModReq.nAS_PDU)) {
       if (pduSessionResourceModifyItemModReq.nAS_PDU != nullptr)
         free(pduSessionResourceModifyItemModReq.nAS_PDU);
       return false;
@@ -86,8 +85,7 @@ bool PDUSessionResourceModifyItemModReq::
 
   if (pduSessionResourceModifyItemModReq.nAS_PDU) {
     nAS_PDU = new NAS_PDU();
-    if (!nAS_PDU->decodefromoctetstring(
-            *pduSessionResourceModifyItemModReq.nAS_PDU))
+    if (!nAS_PDU->decode(*pduSessionResourceModifyItemModReq.nAS_PDU))
       return false;
   }
 

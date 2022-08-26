@@ -97,7 +97,7 @@ void UplinkNASTransportMsg::setNasPdu(uint8_t* nas, size_t sizeofnas) {
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_UplinkNASTransport_IEs__value_PR_NAS_PDU;
 
-  int ret = nasPdu.encode2octetstring(ie->value.choice.NAS_PDU);
+  int ret = nasPdu.encode(ie->value.choice.NAS_PDU);
   if (!ret) {
     Logger::ngap().error("Encode NGAP NAS_PDU IE error");
     free_wrapper((void**) &ie);
@@ -224,9 +224,8 @@ bool UplinkNASTransportMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_reject &&
             uplinkNASTransportIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_UplinkNASTransport_IEs__value_PR_NAS_PDU) {
-          if (!nasPdu.decodefromoctetstring(
-                  uplinkNASTransportIEs->protocolIEs.list.array[i]
-                      ->value.choice.NAS_PDU)) {
+          if (!nasPdu.decode(uplinkNASTransportIEs->protocolIEs.list.array[i]
+                                 ->value.choice.NAS_PDU)) {
             Logger::ngap().error("Decoded NGAP NAS_PDU IE error");
             return false;
           }

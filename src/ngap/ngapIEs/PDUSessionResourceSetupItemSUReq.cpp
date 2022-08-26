@@ -68,7 +68,7 @@ bool PDUSessionResourceSetupItemSUReq::encode2PDUSessionResourceSetupItemSUReq(
     Ngap_NAS_PDU_t* naspdu =
         (Ngap_NAS_PDU_t*) calloc(1, sizeof(Ngap_NAS_PDU_t));
     if (!naspdu) return false;
-    if (!nAS_PDU->encode2octetstring(*naspdu)) {
+    if (!nAS_PDU->encode(*naspdu)) {
       free_wrapper((void**) &naspdu);
       return false;
     }
@@ -93,8 +93,7 @@ bool PDUSessionResourceSetupItemSUReq::
 
   if (pduSessionResourceSetupItemSUReq->pDUSessionNAS_PDU) {
     nAS_PDU = new NAS_PDU();
-    if (!nAS_PDU->decodefromoctetstring(
-            *pduSessionResourceSetupItemSUReq->pDUSessionNAS_PDU))
+    if (!nAS_PDU->decode(*pduSessionResourceSetupItemSUReq->pDUSessionNAS_PDU))
       return false;
   }
 

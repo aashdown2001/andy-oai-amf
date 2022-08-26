@@ -149,7 +149,7 @@ void PduSessionResourceReleaseCommandMsg::setNasPdu(uint8_t* nas, size_t size) {
   ie->value.present =
       Ngap_PDUSessionResourceReleaseCommandIEs__value_PR_NAS_PDU;
 
-  int ret = nasPdu->encode2octetstring(ie->value.choice.NAS_PDU);
+  int ret = nasPdu->encode(ie->value.choice.NAS_PDU);
   if (!ret) {
     Logger::nas_mm().warn("encode NAS_PDU IE error");
     free_wrapper((void**) &ie);
@@ -328,7 +328,7 @@ bool PduSessionResourceReleaseCommandMsg::decodeFromPdu(
                     ->value.present ==
                 Ngap_PDUSessionResourceReleaseCommandIEs__value_PR_NAS_PDU) {
           nasPdu = new NAS_PDU();
-          if (!nasPdu->decodefromoctetstring(
+          if (!nasPdu->decode(
                   pduSessionResourceReleaseCommandIEs->protocolIEs.list
                       .array[i]
                       ->value.choice.NAS_PDU)) {

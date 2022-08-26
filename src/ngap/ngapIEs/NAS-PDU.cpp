@@ -25,41 +25,41 @@ namespace ngap {
 
 //------------------------------------------------------------------------------
 NAS_PDU::NAS_PDU() {
-  naspdubuffer = NULL;
-  buffersize   = -1;
+  buffer_ = nullptr;
+  size_   = -1;
 }
 
 //------------------------------------------------------------------------------
 NAS_PDU::~NAS_PDU() {}
 
 //------------------------------------------------------------------------------
-bool NAS_PDU::encode2octetstring(Ngap_NAS_PDU_t& m_naspdu) {
+bool NAS_PDU::encode(Ngap_NAS_PDU_t& nas_pdu) {
   int ret;
-  ret = OCTET_STRING_fromBuf(&m_naspdu, naspdubuffer, buffersize);
+  ret = OCTET_STRING_fromBuf(&nas_pdu, buffer_, size_);
   if (ret != 0) return false;
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool NAS_PDU::decodefromoctetstring(Ngap_NAS_PDU_t& m_naspdu) {
-  naspdubuffer = (char*) m_naspdu.buf;
-  buffersize   = m_naspdu.size;
+bool NAS_PDU::decode(Ngap_NAS_PDU_t& nas_pdu) {
+  buffer_ = (char*) nas_pdu.buf;
+  size_   = nas_pdu.size;
   return true;
 }
 
 //------------------------------------------------------------------------------
 bool NAS_PDU::getNasPdu(uint8_t*& buffer, size_t& size) const {
-  buffer = (uint8_t*) naspdubuffer;
-  size   = buffersize;
-  if (!naspdubuffer) return false;
-  if (buffersize < 0) return false;
+  buffer = (uint8_t*) buffer_;
+  size   = size_;
+  if (!buffer_) return false;
+  if (size_ < 0) return false;
 
   return true;
 }
 
 //------------------------------------------------------------------------------
 void NAS_PDU::setNasPdu(uint8_t* buffer, size_t size) {
-  naspdubuffer = (char*) buffer;
-  buffersize   = size;
+  buffer_ = (char*) buffer;
+  size_   = size;
 }
 }  // namespace ngap

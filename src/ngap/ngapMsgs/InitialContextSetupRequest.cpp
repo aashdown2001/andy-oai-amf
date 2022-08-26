@@ -383,7 +383,7 @@ void InitialContextSetupRequestMsg::setNasPdu(uint8_t* nas, size_t size) {
   ie->criticality   = Ngap_Criticality_ignore;
   ie->value.present = Ngap_InitialContextSetupRequestIEs__value_PR_NAS_PDU;
 
-  int ret = nasPdu->encode2octetstring(ie->value.choice.NAS_PDU);
+  int ret = nasPdu->encode(ie->value.choice.NAS_PDU);
   if (!ret) {
     Logger::ngap().error("Encode NAS PDU error!");
     free_wrapper((void**) &ie);
@@ -638,7 +638,7 @@ bool InitialContextSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                     ->value.present ==
                 Ngap_InitialContextSetupRequestIEs__value_PR_NAS_PDU) {
           nasPdu = new NAS_PDU();
-          if (!nasPdu->decodefromoctetstring(
+          if (!nasPdu->decode(
                   initialContextSetupRequestIEs->protocolIEs.list.array[i]
                       ->value.choice.NAS_PDU)) {
             Logger::ngap().error("Decoded NGAP NAS_PDU IE error");

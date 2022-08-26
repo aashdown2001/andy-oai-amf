@@ -154,7 +154,7 @@ void DownLinkNasTransportMsg::setNasPdu(uint8_t* nas, size_t sizeofnas) {
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_DownlinkNASTransport_IEs__value_PR_NAS_PDU;
 
-  int ret = nasPdu.encode2octetstring(ie->value.choice.NAS_PDU);
+  int ret = nasPdu.encode(ie->value.choice.NAS_PDU);
   if (!ret) {
     Logger::ngap().error("Encode NAS_PDU IE error");
     free_wrapper((void**) &ie);
@@ -284,9 +284,8 @@ bool DownLinkNasTransportMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_reject &&
             downLinkNasTransportIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_DownlinkNASTransport_IEs__value_PR_NAS_PDU) {
-          if (!nasPdu.decodefromoctetstring(
-                  downLinkNasTransportIEs->protocolIEs.list.array[i]
-                      ->value.choice.NAS_PDU)) {
+          if (!nasPdu.decode(downLinkNasTransportIEs->protocolIEs.list.array[i]
+                                 ->value.choice.NAS_PDU)) {
             Logger::ngap().error("Decode NGAP NAS_PDU IE error");
             return false;
           }
