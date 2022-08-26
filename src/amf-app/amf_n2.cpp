@@ -479,8 +479,8 @@ void amf_n2::handle_itti_message(itti_ng_reset& itti_msg) {
   // UE association(s) indicated explicitly or implicitly in the NG RESET
   // message and remove the NGAP ID for the indicated UE associations.
   ResetType reset_type = {};
-  std::vector<UEAssociationLogicalNGConnectionItem>
-      ueAssociationLogicalNGConnectionList;
+  std::vector<UEAssociatedLogicalNGConnectionItem>
+      ueAssociatedLogicalNGConnectionList;
   itti_msg.ngReset->getResetType(reset_type);
   if (reset_type.getResetType() == Ngap_ResetType_PR_nG_Interface) {
     // Reset all
@@ -499,8 +499,8 @@ void amf_n2::handle_itti_message(itti_ng_reset& itti_msg) {
       reset_type.getResetType() == Ngap_ResetType_PR_partOfNG_Interface) {
     // TODO:
     reset_type.getUE_associatedLogicalNG_connectionList(
-        ueAssociationLogicalNGConnectionList);
-    for (auto ue : ueAssociationLogicalNGConnectionList) {
+        ueAssociatedLogicalNGConnectionList);
+    for (auto ue : ueAssociatedLogicalNGConnectionList) {
       unsigned long amf_ue_ngap_id = {0};
       uint32_t ran_ue_ngap_id      = {0};
       if (ue.getAmfUeNgapId(amf_ue_ngap_id)) {
@@ -514,10 +514,10 @@ void amf_n2::handle_itti_message(itti_ng_reset& itti_msg) {
   // TODO: create NGResetAck and reply to gNB
   std::unique_ptr<NGResetAckMsg> ng_reset_ack =
       std::make_unique<NGResetAckMsg>();
-  // UEAssociationLogicalNGConnectionList
-  if (ueAssociationLogicalNGConnectionList.size() > 0) {
+  // UEAssociatedLogicalNGConnectionList
+  if (ueAssociatedLogicalNGConnectionList.size() > 0) {
     ng_reset_ack->setUE_associatedLogicalNG_connectionList(
-        ueAssociationLogicalNGConnectionList);
+        ueAssociatedLogicalNGConnectionList);
   }
 
   uint8_t buffer[BUFFER_SIZE_512];

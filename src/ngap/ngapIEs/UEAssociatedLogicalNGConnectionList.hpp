@@ -22,7 +22,7 @@
 #ifndef _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_LIST_H_
 #define _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_LIST_H_
 
-#include "UEAssociationLogicalNGConnectionItem.hpp"
+#include "UEAssociatedLogicalNGConnectionItem.hpp"
 
 #include <vector>
 
@@ -34,24 +34,24 @@ extern "C" {
 
 namespace ngap {
 
-class UEAssociationLogicalNGConnectionList {
+class UEAssociatedLogicalNGConnectionList {
  public:
-  UEAssociationLogicalNGConnectionList();
-  virtual ~UEAssociationLogicalNGConnectionList();
+  UEAssociatedLogicalNGConnectionList();
+  virtual ~UEAssociatedLogicalNGConnectionList();
 
-  void setUEAssociationLogicalNGConnectionItem(
-      UEAssociationLogicalNGConnectionItem*
-          m_UEAssociationLogicalNGConnectionItem,
+  void setUEAssociatedLogicalNGConnectionItem(
+      UEAssociatedLogicalNGConnectionItem*
+          m_UEAssociatedLogicalNGConnectionItem,
       int num);
-  void getUEAssociationLogicalNGConnectionItem(
-      UEAssociationLogicalNGConnectionItem*&
-          m_UEAssociationLogicalNGConnectionItem,
+  void getUEAssociatedLogicalNGConnectionItem(
+      UEAssociatedLogicalNGConnectionItem*&
+          m_UEAssociatedLogicalNGConnectionItem,
       int& num);
 
-  void setUEAssociationLogicalNGConnectionItem(
-      std::vector<UEAssociationLogicalNGConnectionItem>& list);
-  void getUEAssociationLogicalNGConnectionItem(
-      std::vector<UEAssociationLogicalNGConnectionItem>& list);
+  void setUEAssociatedLogicalNGConnectionItem(
+      std::vector<UEAssociatedLogicalNGConnectionItem>& list);
+  void getUEAssociatedLogicalNGConnectionItem(
+      std::vector<UEAssociatedLogicalNGConnectionItem>& list);
 
   bool encode(Ngap_UE_associatedLogicalNG_connectionList_t*
                   ue_associatedLogicalNG_connectionList);
@@ -59,7 +59,7 @@ class UEAssociationLogicalNGConnectionList {
                   ue_associatedLogicalNG_connectionList);
 
  private:
-  UEAssociationLogicalNGConnectionItem* ueAssociationLogicalNGConnectionItem;
+  UEAssociatedLogicalNGConnectionItem* ueAssociatedLogicalNGConnectionItem;
   int number_of_items;
 };
 

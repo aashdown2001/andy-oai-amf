@@ -54,7 +54,7 @@ void RerouteNASRequest::initialize() {
 //------------------------------------------------------------------------------
 void RerouteNASRequest::setAmfUeNgapId(const unsigned long& id) {
   if (!amfUeNgapId) amfUeNgapId = new AMF_UE_NGAP_ID();
-  amfUeNgapId->setAMF_UE_NGAP_ID(id);
+  amfUeNgapId->set(id);
 
   Ngap_RerouteNASRequest_IEs_t* ie = (Ngap_RerouteNASRequest_IEs_t*) calloc(
       1, sizeof(Ngap_RerouteNASRequest_IEs_t));
@@ -76,12 +76,12 @@ void RerouteNASRequest::setAmfUeNgapId(const unsigned long& id) {
 //------------------------------------------------------------------------------
 unsigned long RerouteNASRequest::getAmfUeNgapId() {
   if (!amfUeNgapId) return RETURNerror;
-  return amfUeNgapId->getAMF_UE_NGAP_ID();
+  return amfUeNgapId->get();
 }
 
 //------------------------------------------------------------------------------
 void RerouteNASRequest::setRanUeNgapId(const uint32_t& ran_ue_ngap_id) {
-  ranUeNgapId.setRanUeNgapId(ran_ue_ngap_id);
+  ranUeNgapId.set(ran_ue_ngap_id);
 
   Ngap_RerouteNASRequest_IEs_t* ie = (Ngap_RerouteNASRequest_IEs_t*) calloc(
       1, sizeof(Ngap_RerouteNASRequest_IEs_t));
@@ -89,7 +89,7 @@ void RerouteNASRequest::setRanUeNgapId(const uint32_t& ran_ue_ngap_id) {
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_RerouteNASRequest_IEs__value_PR_RAN_UE_NGAP_ID;
 
-  int ret = ranUeNgapId.encode2RAN_UE_NGAP_ID(ie->value.choice.RAN_UE_NGAP_ID);
+  int ret = ranUeNgapId.encode(ie->value.choice.RAN_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error!");
     free_wrapper((void**) &ie);
@@ -102,7 +102,7 @@ void RerouteNASRequest::setRanUeNgapId(const uint32_t& ran_ue_ngap_id) {
 
 //------------------------------------------------------------------------------
 uint32_t RerouteNASRequest::getRanUeNgapId() {
-  return ranUeNgapId.getRanUeNgapId();
+  return ranUeNgapId.get();
 }
 
 //------------------------------------------------------------------------------
@@ -246,7 +246,7 @@ bool RerouteNASRequest::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_reject &&
             rerouteNASRequestIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_RerouteNASRequest_IEs__value_PR_RAN_UE_NGAP_ID) {
-          if (!ranUeNgapId.decodefromRAN_UE_NGAP_ID(
+          if (!ranUeNgapId.decode(
                   rerouteNASRequestIEs->protocolIEs.list.array[i]
                       ->value.choice.RAN_UE_NGAP_ID)) {
             Logger::ngap().error("Decoded NGAP RAN_UE_NGAP_ID IE error");

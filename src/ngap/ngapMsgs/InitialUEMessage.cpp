@@ -52,7 +52,7 @@ void InitialUEMessageMsg::initialize() {
 
 //------------------------------------------------------------------------------
 void InitialUEMessageMsg::setRanUENgapID(const uint32_t& value) {
-  ranUeNgapId.setRanUeNgapId(value);
+  ranUeNgapId.set(value);
 
   Ngap_InitialUEMessage_IEs_t* ie = (Ngap_InitialUEMessage_IEs_t*) calloc(
       1, sizeof(Ngap_InitialUEMessage_IEs_t));
@@ -60,7 +60,7 @@ void InitialUEMessageMsg::setRanUENgapID(const uint32_t& value) {
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_InitialUEMessage_IEs__value_PR_RAN_UE_NGAP_ID;
 
-  int ret = ranUeNgapId.encode2RAN_UE_NGAP_ID(ie->value.choice.RAN_UE_NGAP_ID);
+  int ret = ranUeNgapId.encode(ie->value.choice.RAN_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error");
     free_wrapper((void**) &ie);
@@ -200,14 +200,13 @@ bool InitialUEMessageMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_reject &&
             initialUEMessageIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_InitialUEMessage_IEs__value_PR_RAN_UE_NGAP_ID) {
-          if (!ranUeNgapId.decodefromRAN_UE_NGAP_ID(
+          if (!ranUeNgapId.decode(
                   initialUEMessageIEs->protocolIEs.list.array[i]
                       ->value.choice.RAN_UE_NGAP_ID)) {
             Logger::ngap().error("Decoded NGAP RAN_UE_NGAP_ID IE error");
             return false;
           }
-          Logger::ngap().debug(
-              "Received RanUeNgapId %d ", ranUeNgapId.getRanUeNgapId());
+          Logger::ngap().debug("Received RanUeNgapId %d ", ranUeNgapId.get());
 
         } else {
           Logger::ngap().error("Decoded NGAP RAN_UE_NGAP_ID IE error");
@@ -311,7 +310,7 @@ bool InitialUEMessageMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
 
 //------------------------------------------------------------------------------
 bool InitialUEMessageMsg::getRanUENgapID(uint32_t& value) {
-  value = ranUeNgapId.getRanUeNgapId();
+  value = ranUeNgapId.get();
   return true;
 }
 

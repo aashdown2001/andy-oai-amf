@@ -19,7 +19,7 @@
  *      contact@openairinterface.org
  */
 
-#include "UEAssociationLogicalNGConnectionList.hpp"
+#include "UEAssociatedLogicalNGConnectionList.hpp"
 
 extern "C" {
 #include "dynamic_memory_check.h"
@@ -30,59 +30,59 @@ using namespace std;
 
 namespace ngap {
 
-UEAssociationLogicalNGConnectionList::UEAssociationLogicalNGConnectionList() {
-  ueAssociationLogicalNGConnectionItem = nullptr;
-  number_of_items                      = 0;
+UEAssociatedLogicalNGConnectionList::UEAssociatedLogicalNGConnectionList() {
+  ueAssociatedLogicalNGConnectionItem = nullptr;
+  number_of_items                     = 0;
 }
 
-UEAssociationLogicalNGConnectionList::~UEAssociationLogicalNGConnectionList() {
-  if (ueAssociationLogicalNGConnectionItem)
-    delete[] ueAssociationLogicalNGConnectionItem;
+UEAssociatedLogicalNGConnectionList::~UEAssociatedLogicalNGConnectionList() {
+  if (ueAssociatedLogicalNGConnectionItem)
+    delete[] ueAssociatedLogicalNGConnectionItem;
 }
 //------------------------------------------------------------------------------
-void UEAssociationLogicalNGConnectionList::
-    setUEAssociationLogicalNGConnectionItem(
-        UEAssociationLogicalNGConnectionItem*
-            m_UEAssociationLogicalNGConnectionItem,
+void UEAssociatedLogicalNGConnectionList::
+    setUEAssociatedLogicalNGConnectionItem(
+        UEAssociatedLogicalNGConnectionItem*
+            m_UEAssociatedLogicalNGConnectionItem,
         int num) {
-  ueAssociationLogicalNGConnectionItem = m_UEAssociationLogicalNGConnectionItem;
-  number_of_items                      = num;
+  ueAssociatedLogicalNGConnectionItem = m_UEAssociatedLogicalNGConnectionItem;
+  number_of_items                     = num;
 }
 
 //------------------------------------------------------------------------------
-void UEAssociationLogicalNGConnectionList::
-    getUEAssociationLogicalNGConnectionItem(
-        UEAssociationLogicalNGConnectionItem*&
-            m_UEAssociationLogicalNGConnectionItem,
+void UEAssociatedLogicalNGConnectionList::
+    getUEAssociatedLogicalNGConnectionItem(
+        UEAssociatedLogicalNGConnectionItem*&
+            m_UEAssociatedLogicalNGConnectionItem,
         int& num) {
-  m_UEAssociationLogicalNGConnectionItem = ueAssociationLogicalNGConnectionItem;
-  num                                    = number_of_items;
+  m_UEAssociatedLogicalNGConnectionItem = ueAssociatedLogicalNGConnectionItem;
+  num                                   = number_of_items;
 }
 
 //------------------------------------------------------------------------------
-void UEAssociationLogicalNGConnectionList::
-    setUEAssociationLogicalNGConnectionItem(
-        std::vector<UEAssociationLogicalNGConnectionItem>& list) {
+void UEAssociatedLogicalNGConnectionList::
+    setUEAssociatedLogicalNGConnectionItem(
+        std::vector<UEAssociatedLogicalNGConnectionItem>& list) {
   number_of_items = list.size();
-  ueAssociationLogicalNGConnectionItem =
-      new UEAssociationLogicalNGConnectionItem[number_of_items]();
+  ueAssociatedLogicalNGConnectionItem =
+      new UEAssociatedLogicalNGConnectionItem[number_of_items]();
   for (int i = 0; i < number_of_items; i++) {
-    if (!ueAssociationLogicalNGConnectionItem[i].decode(list[i])) return;
+    ueAssociatedLogicalNGConnectionItem[i].set(list[i]);
   }
   return;
 }
 
 //------------------------------------------------------------------------------
-void UEAssociationLogicalNGConnectionList::
-    getUEAssociationLogicalNGConnectionItem(
-        std::vector<UEAssociationLogicalNGConnectionItem>& list) {
+void UEAssociatedLogicalNGConnectionList::
+    getUEAssociatedLogicalNGConnectionItem(
+        std::vector<UEAssociatedLogicalNGConnectionItem>& list) {
   for (int i = 0; i < number_of_items; i++) {
-    list.push_back(ueAssociationLogicalNGConnectionItem[i]);
+    list.push_back(ueAssociatedLogicalNGConnectionItem[i]);
   }
 }
 
 //------------------------------------------------------------------------------
-bool UEAssociationLogicalNGConnectionList::encode(
+bool UEAssociatedLogicalNGConnectionList::encode(
     Ngap_UE_associatedLogicalNG_connectionList_t*
         ue_associatedLogicalNG_connectionList) {
   for (int i = 0; i < number_of_items; i++) {
@@ -90,7 +90,7 @@ bool UEAssociationLogicalNGConnectionList::encode(
         (Ngap_UE_associatedLogicalNG_connectionItem_t*) calloc(
             1, sizeof(Ngap_UE_associatedLogicalNG_connectionItem_t));
     if (!item) return false;
-    if (!ueAssociationLogicalNGConnectionItem[i].encode(*item)) return false;
+    if (!ueAssociatedLogicalNGConnectionItem[i].encode(*item)) return false;
     if (ASN_SEQUENCE_ADD(&ue_associatedLogicalNG_connectionList->list, item) !=
         0)
       return false;
@@ -99,14 +99,14 @@ bool UEAssociationLogicalNGConnectionList::encode(
 }
 
 //------------------------------------------------------------------------------
-bool UEAssociationLogicalNGConnectionList::decode(
+bool UEAssociatedLogicalNGConnectionList::decode(
     Ngap_UE_associatedLogicalNG_connectionList_t*
         ue_associatedLogicalNG_connectionList) {
   number_of_items = ue_associatedLogicalNG_connectionList->list.count;
-  ueAssociationLogicalNGConnectionItem =
-      new UEAssociationLogicalNGConnectionItem[number_of_items]();
+  ueAssociatedLogicalNGConnectionItem =
+      new UEAssociatedLogicalNGConnectionItem[number_of_items]();
   for (int i = 0; i < number_of_items; i++) {
-    if (!ueAssociationLogicalNGConnectionItem[i].decode(
+    if (!ueAssociatedLogicalNGConnectionItem[i].decode(
             ue_associatedLogicalNG_connectionList->list.array[i]))
       return false;
   }

@@ -48,7 +48,7 @@ void UEContextReleaseCompleteMsg::initialize() {
 
 //------------------------------------------------------------------------------
 void UEContextReleaseCompleteMsg::setAmfUeNgapId(const unsigned long& id) {
-  amfUeNgapId.setAMF_UE_NGAP_ID(id);
+  amfUeNgapId.set(id);
   Ngap_UEContextReleaseComplete_IEs* ie =
       (Ngap_UEContextReleaseComplete_IEs*) calloc(
           1, sizeof(Ngap_UEContextReleaseComplete_IEs));
@@ -69,7 +69,7 @@ void UEContextReleaseCompleteMsg::setAmfUeNgapId(const unsigned long& id) {
 //------------------------------------------------------------------------------
 void UEContextReleaseCompleteMsg::setRanUeNgapId(
     const uint32_t& ran_ue_ngap_id) {
-  ranUeNgapId.setRanUeNgapId(ran_ue_ngap_id);
+  ranUeNgapId.set(ran_ue_ngap_id);
   Ngap_UEContextReleaseComplete_IEs* ie =
       (Ngap_UEContextReleaseComplete_IEs*) calloc(
           1, sizeof(Ngap_UEContextReleaseComplete_IEs));
@@ -77,7 +77,7 @@ void UEContextReleaseCompleteMsg::setRanUeNgapId(
   ie->criticality = Ngap_Criticality_reject;
   ie->value.present =
       Ngap_UEContextReleaseComplete_IEs__value_PR_RAN_UE_NGAP_ID;
-  int ret = ranUeNgapId.encode2RAN_UE_NGAP_ID(ie->value.choice.RAN_UE_NGAP_ID);
+  int ret = ranUeNgapId.encode(ie->value.choice.RAN_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode NGAP RAN_UE_NGAP_ID IE error");
     free_wrapper((void**) &ie);
@@ -266,9 +266,8 @@ bool UEContextReleaseCompleteMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_ignore &&
             ies->protocolIEs.list.array[i]->value.present ==
                 Ngap_UEContextReleaseComplete_IEs__value_PR_RAN_UE_NGAP_ID) {
-          if (!ranUeNgapId.decodefromRAN_UE_NGAP_ID(
-                  ies->protocolIEs.list.array[i]
-                      ->value.choice.RAN_UE_NGAP_ID)) {
+          if (!ranUeNgapId.decode(ies->protocolIEs.list.array[i]
+                                      ->value.choice.RAN_UE_NGAP_ID)) {
             Logger::ngap().error("Decode NGAP RAN_UE_NGAP_ID IE error");
             return false;
           }

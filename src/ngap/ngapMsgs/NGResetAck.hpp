@@ -23,8 +23,8 @@
 #define _NG_RESET_ACK_H_
 
 #include "NgapIEsStruct.hpp"
-#include "UEAssociationLogicalNGConnectionItem.hpp"
-#include "UEAssociationLogicalNGConnectionList.hpp"
+#include "UEAssociatedLogicalNGConnectionItem.hpp"
+#include "UEAssociatedLogicalNGConnectionList.hpp"
 #include "NgapMessage.hpp"
 
 namespace ngap {
@@ -37,9 +37,9 @@ class NGResetAckMsg : public NgapMessage {
   void initialize();
 
   void setUE_associatedLogicalNG_connectionList(
-      std::vector<UEAssociationLogicalNGConnectionItem>& list);
+      std::vector<UEAssociatedLogicalNGConnectionItem>& list);
   void getUE_associatedLogicalNG_connectionList(
-      std::vector<UEAssociationLogicalNGConnectionItem>& list);
+      std::vector<UEAssociatedLogicalNGConnectionItem>& list);
 
   void addUE_associatedLogicalNG_connectionList();
 
@@ -49,8 +49,8 @@ class NGResetAckMsg : public NgapMessage {
  private:
   Ngap_NGResetAcknowledge_t* ngResetAckIEs;
 
-  UEAssociationLogicalNGConnectionList*
-      ueAssociationLogicalNGConnectionList;               // Optional
+  UEAssociatedLogicalNGConnectionList*
+      ueAssociatedLogicalNGConnectionList;                // Optional
   Ngap_CriticalityDiagnostics_t* CriticalityDiagnostics;  // Optional
 };
 
