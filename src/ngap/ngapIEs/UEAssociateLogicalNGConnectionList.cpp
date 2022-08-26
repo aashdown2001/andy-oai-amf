@@ -30,67 +30,39 @@ using namespace std;
 
 namespace ngap {
 
-UEAssociatedLogicalNGConnectionList::UEAssociatedLogicalNGConnectionList() {
-  ueAssociatedLogicalNGConnectionItem = nullptr;
-  number_of_items                     = 0;
-}
+UEAssociatedLogicalNGConnectionList::UEAssociatedLogicalNGConnectionList() {}
 
-UEAssociatedLogicalNGConnectionList::~UEAssociatedLogicalNGConnectionList() {
-  if (ueAssociatedLogicalNGConnectionItem)
-    delete[] ueAssociatedLogicalNGConnectionItem;
-}
+UEAssociatedLogicalNGConnectionList::~UEAssociatedLogicalNGConnectionList() {}
 //------------------------------------------------------------------------------
-void UEAssociatedLogicalNGConnectionList::
-    setUEAssociatedLogicalNGConnectionItem(
-        UEAssociatedLogicalNGConnectionItem*
-            m_UEAssociatedLogicalNGConnectionItem,
-        int num) {
-  ueAssociatedLogicalNGConnectionItem = m_UEAssociatedLogicalNGConnectionItem;
-  number_of_items                     = num;
-}
-
-//------------------------------------------------------------------------------
-void UEAssociatedLogicalNGConnectionList::
-    getUEAssociatedLogicalNGConnectionItem(
-        UEAssociatedLogicalNGConnectionItem*&
-            m_UEAssociatedLogicalNGConnectionItem,
-        int& num) {
-  m_UEAssociatedLogicalNGConnectionItem = ueAssociatedLogicalNGConnectionItem;
-  num                                   = number_of_items;
-}
-
-//------------------------------------------------------------------------------
-void UEAssociatedLogicalNGConnectionList::
-    setUEAssociatedLogicalNGConnectionItem(
-        std::vector<UEAssociatedLogicalNGConnectionItem>& list) {
-  number_of_items = list.size();
-  ueAssociatedLogicalNGConnectionItem =
-      new UEAssociatedLogicalNGConnectionItem[number_of_items]();
-  for (int i = 0; i < number_of_items; i++) {
-    ueAssociatedLogicalNGConnectionItem[i].set(list[i]);
-  }
+void UEAssociatedLogicalNGConnectionList::set(
+    std::vector<UEAssociatedLogicalNGConnectionItem>& list) {
+  list_ = list;
   return;
 }
 
 //------------------------------------------------------------------------------
-void UEAssociatedLogicalNGConnectionList::
-    getUEAssociatedLogicalNGConnectionItem(
-        std::vector<UEAssociatedLogicalNGConnectionItem>& list) {
-  for (int i = 0; i < number_of_items; i++) {
-    list.push_back(ueAssociatedLogicalNGConnectionItem[i]);
-  }
+void UEAssociatedLogicalNGConnectionList::get(
+    std::vector<UEAssociatedLogicalNGConnectionItem>& list) {
+  list = list_;
+}
+
+//------------------------------------------------------------------------------
+void UEAssociatedLogicalNGConnectionList::addItem(
+    UEAssociatedLogicalNGConnectionItem& item) {
+  list_.push_back(item);
 }
 
 //------------------------------------------------------------------------------
 bool UEAssociatedLogicalNGConnectionList::encode(
     Ngap_UE_associatedLogicalNG_connectionList_t*
         ue_associatedLogicalNG_connectionList) {
-  for (int i = 0; i < number_of_items; i++) {
+  for (auto l : list_) {
     Ngap_UE_associatedLogicalNG_connectionItem_t* item =
         (Ngap_UE_associatedLogicalNG_connectionItem_t*) calloc(
             1, sizeof(Ngap_UE_associatedLogicalNG_connectionItem_t));
     if (!item) return false;
-    if (!ueAssociatedLogicalNGConnectionItem[i].encode(*item)) return false;
+    if (!l.encode(*item)) return false;
+    // if (!ueAssociatedLogicalNGConnectionItem[i].encode(*item)) return false;
     if (ASN_SEQUENCE_ADD(&ue_associatedLogicalNG_connectionList->list, item) !=
         0)
       return false;
@@ -102,13 +74,12 @@ bool UEAssociatedLogicalNGConnectionList::encode(
 bool UEAssociatedLogicalNGConnectionList::decode(
     Ngap_UE_associatedLogicalNG_connectionList_t*
         ue_associatedLogicalNG_connectionList) {
-  number_of_items = ue_associatedLogicalNG_connectionList->list.count;
-  ueAssociatedLogicalNGConnectionItem =
-      new UEAssociatedLogicalNGConnectionItem[number_of_items]();
-  for (int i = 0; i < number_of_items; i++) {
-    if (!ueAssociatedLogicalNGConnectionItem[i].decode(
-            ue_associatedLogicalNG_connectionList->list.array[i]))
+  list_.clear();
+  for (int i = 0; i < ue_associatedLogicalNG_connectionList->list.count; i++) {
+    UEAssociatedLogicalNGConnectionItem item = {};
+    if (!item.decode(ue_associatedLogicalNG_connectionList->list.array[i]))
       return false;
+    list_.push_back(item);
   }
   return true;
 }

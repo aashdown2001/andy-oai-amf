@@ -66,7 +66,7 @@ bool UEAssociatedLogicalNGConnectionItem::getAmfUeNgapId(uint64_t& id) {
 
 //------------------------------------------------------------------------------
 void UEAssociatedLogicalNGConnectionItem::setRanUeNgapId(
-    uint32_t ran_ue_ngap_id) {
+    const uint32_t& ran_ue_ngap_id) {
   ran_ue_ngap_id_ = std::make_optional<RAN_UE_NGAP_ID>(ran_ue_ngap_id);
 
   Ngap_DownlinkNASTransport_IEs_t* ie =

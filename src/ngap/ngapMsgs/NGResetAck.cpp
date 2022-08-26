@@ -59,8 +59,7 @@ void NGResetAckMsg::setUE_associatedLogicalNG_connectionList(
         (UEAssociatedLogicalNGConnectionList*) calloc(
             1, sizeof(UEAssociatedLogicalNGConnectionList));
   }
-  ueAssociatedLogicalNGConnectionList->setUEAssociatedLogicalNGConnectionItem(
-      list);
+  ueAssociatedLogicalNGConnectionList->set(list);
   addUE_associatedLogicalNG_connectionList();
 }
 
@@ -68,8 +67,7 @@ void NGResetAckMsg::setUE_associatedLogicalNG_connectionList(
 void NGResetAckMsg::getUE_associatedLogicalNG_connectionList(
     std::vector<UEAssociatedLogicalNGConnectionItem>& list) {
   if (ueAssociatedLogicalNGConnectionList) {
-    ueAssociatedLogicalNGConnectionList->getUEAssociatedLogicalNGConnectionItem(
-        list);
+    ueAssociatedLogicalNGConnectionList->get(list);
   }
 }
 

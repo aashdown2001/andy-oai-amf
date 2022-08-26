@@ -55,7 +55,7 @@ void ResetType::setResetType(
     partOfNG_Interface = (UEAssociatedLogicalNGConnectionList*) calloc(
         1, sizeof(UEAssociatedLogicalNGConnectionList));
   }
-  partOfNG_Interface->setUEAssociatedLogicalNGConnectionItem(list);
+  partOfNG_Interface->set(list);
 }
 
 //------------------------------------------------------------------------------
@@ -108,14 +108,14 @@ void ResetType::setUE_associatedLogicalNG_connectionList(
   if (!partOfNG_Interface) {
     partOfNG_Interface = new UEAssociatedLogicalNGConnectionList();
   }
-  partOfNG_Interface->setUEAssociatedLogicalNGConnectionItem(list);
+  partOfNG_Interface->set(list);
 }
 
 //------------------------------------------------------------------------------
 void ResetType::getUE_associatedLogicalNG_connectionList(
     std::vector<UEAssociatedLogicalNGConnectionItem>& list) {
   if (partOfNG_Interface) {
-    partOfNG_Interface->getUEAssociatedLogicalNGConnectionItem(list);
+    partOfNG_Interface->get(list);
   }
 }
 

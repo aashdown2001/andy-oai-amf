@@ -19,8 +19,8 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_LIST_H_
-#define _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_LIST_H_
+#ifndef _UE_ASSOCIATED_LOGICAL_NG_CONNECTION_LIST_H_
+#define _UE_ASSOCIATED_LOGICAL_NG_CONNECTION_LIST_H_
 
 #include "UEAssociatedLogicalNGConnectionItem.hpp"
 
@@ -28,7 +28,7 @@
 
 extern "C" {
 #include "Ngap_ProtocolIE-Field.h"
-#include "Ngap_UE-associatedLogicalNG-connectionItem.h"
+//#include "Ngap_UE-associatedLogicalNG-connectionItem.h"
 #include "Ngap_UE-associatedLogicalNG-connectionList.h"
 }
 
@@ -39,19 +39,10 @@ class UEAssociatedLogicalNGConnectionList {
   UEAssociatedLogicalNGConnectionList();
   virtual ~UEAssociatedLogicalNGConnectionList();
 
-  void setUEAssociatedLogicalNGConnectionItem(
-      UEAssociatedLogicalNGConnectionItem*
-          m_UEAssociatedLogicalNGConnectionItem,
-      int num);
-  void getUEAssociatedLogicalNGConnectionItem(
-      UEAssociatedLogicalNGConnectionItem*&
-          m_UEAssociatedLogicalNGConnectionItem,
-      int& num);
+  void set(std::vector<UEAssociatedLogicalNGConnectionItem>& list);
+  void get(std::vector<UEAssociatedLogicalNGConnectionItem>& list);
 
-  void setUEAssociatedLogicalNGConnectionItem(
-      std::vector<UEAssociatedLogicalNGConnectionItem>& list);
-  void getUEAssociatedLogicalNGConnectionItem(
-      std::vector<UEAssociatedLogicalNGConnectionItem>& list);
+  void addItem(UEAssociatedLogicalNGConnectionItem& item);
 
   bool encode(Ngap_UE_associatedLogicalNG_connectionList_t*
                   ue_associatedLogicalNG_connectionList);
@@ -59,8 +50,7 @@ class UEAssociatedLogicalNGConnectionList {
                   ue_associatedLogicalNG_connectionList);
 
  private:
-  UEAssociatedLogicalNGConnectionItem* ueAssociatedLogicalNGConnectionItem;
-  int number_of_items;
+  std::vector<UEAssociatedLogicalNGConnectionItem> list_;
 };
 
 }  // namespace ngap

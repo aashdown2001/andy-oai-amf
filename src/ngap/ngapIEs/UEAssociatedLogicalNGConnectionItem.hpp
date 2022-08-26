@@ -19,8 +19,8 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_ITEM_H_
-#define _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_ITEM_H_
+#ifndef _UE_ASSOCIATED_LOGICAL_NG_CONNECTION_ITEM_H_
+#define _UE_ASSOCIATED_LOGICAL_NG_CONNECTION_ITEM_H_
 
 #include "AMF-UE-NGAP-ID.hpp"
 #include "RAN-UE-NGAP-ID.hpp"
@@ -41,16 +41,14 @@ class UEAssociatedLogicalNGConnectionItem {
 
   bool setAmfUeNgapId(const uint64_t& id);
   bool getAmfUeNgapId(uint64_t& id);
-  void setRanUeNgapId(uint32_t id);
+  void setRanUeNgapId(const uint32_t& id);
   bool getRanUeNgapId(uint32_t& id);
 
   void set(UEAssociatedLogicalNGConnectionItem& item);
 
   bool encode(Ngap_UE_associatedLogicalNG_connectionItem_t& item);
   bool encode(Ngap_UE_associatedLogicalNG_connectionItem_t* item);
-  // bool encode(UEAssociatedLogicalNGConnectionItem& item);
   bool decode(Ngap_UE_associatedLogicalNG_connectionItem_t* item);
-  // bool decode(UEAssociatedLogicalNGConnectionItem& item);
 
  private:
   std::optional<AMF_UE_NGAP_ID> amf_ue_ngap_id_;  // Optional
