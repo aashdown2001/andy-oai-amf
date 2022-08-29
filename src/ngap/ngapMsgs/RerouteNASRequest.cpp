@@ -175,8 +175,8 @@ bool RerouteNASRequest::getNgapMessage(OCTET_STRING_t& message) const {
 }
 
 //------------------------------------------------------------------------------
-void RerouteNASRequest::setAMFSetID(const uint16_t& amf_set_id) {
-  amfSetID.setAMFSetID(amf_set_id);
+bool RerouteNASRequest::setAMFSetID(const uint16_t& amf_set_id) {
+  if (!amfSetID.set(amf_set_id)) return false;
 
   Ngap_RerouteNASRequest_IEs_t* ie = (Ngap_RerouteNASRequest_IEs_t*) calloc(
       1, sizeof(Ngap_RerouteNASRequest_IEs_t));
@@ -184,20 +184,24 @@ void RerouteNASRequest::setAMFSetID(const uint16_t& amf_set_id) {
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_RerouteNASRequest_IEs__value_PR_AMFSetID;
 
-  int ret = amfSetID.encode2bitstring(ie->value.choice.AMFSetID);
+  int ret = amfSetID.encode(ie->value.choice.AMFSetID);
   if (!ret) {
     Logger::ngap().error("Encode AMFSetID IE error!");
     free_wrapper((void**) &ie);
-    return;
+    return false;
   }
 
   ret = ASN_SEQUENCE_ADD(&rerouteNASRequestIEs->protocolIEs.list, ie);
-  if (ret != 0) Logger::ngap().error("Encode AMFSetID IE error!");
+  if (ret != 0) {
+    Logger::ngap().error("Encode AMFSetID IE error!");
+    return false;
+  }
+  return true;
 }
 
 //------------------------------------------------------------------------------
 void RerouteNASRequest::getAMFSetID(std::string& amf_set_id) {
-  amfSetID.getAMFSetID(amf_set_id);
+  amfSetID.get(amf_set_id);
 }
 
 //------------------------------------------------------------------------------
@@ -274,9 +278,8 @@ bool RerouteNASRequest::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_reject &&
             rerouteNASRequestIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_RerouteNASRequest_IEs__value_PR_AMFSetID) {
-          if (!amfSetID.decodefrombitstring(
-                  rerouteNASRequestIEs->protocolIEs.list.array[i]
-                      ->value.choice.AMFSetID)) {
+          if (!amfSetID.decode(rerouteNASRequestIEs->protocolIEs.list.array[i]
+                                   ->value.choice.AMFSetID)) {
             Logger::ngap().error("Decoded NGAP AMFSetID error");
             return false;
           }

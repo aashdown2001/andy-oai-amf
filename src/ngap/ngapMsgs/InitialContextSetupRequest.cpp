@@ -359,7 +359,7 @@ void InitialContextSetupRequestMsg::setSecurityKey(uint8_t* key) {
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_InitialContextSetupRequestIEs__value_PR_SecurityKey;
 
-  int ret = securityKey.encode2bitstring(ie->value.choice.SecurityKey);
+  int ret = securityKey.encode(ie->value.choice.SecurityKey);
   if (!ret) {
     Logger::ngap().error("Encode SecurityKey IE error!");
     free_wrapper((void**) &ie);
@@ -620,7 +620,7 @@ bool InitialContextSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
             initialContextSetupRequestIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_InitialContextSetupRequestIEs__value_PR_SecurityKey) {
-          if (!securityKey.decodefrombitstring(
+          if (!securityKey.decode(
                   initialContextSetupRequestIEs->protocolIEs.list.array[i]
                       ->value.choice.SecurityKey)) {
             Logger::ngap().error("Decoded NGAP SecurityKey IE error");

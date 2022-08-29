@@ -126,7 +126,7 @@ void InitialUEMessageMsg::setUserLocationInfoNR(
 //------------------------------------------------------------------------------
 void InitialUEMessageMsg::setRRCEstablishmentCause(
     const e_Ngap_RRCEstablishmentCause& cause) {
-  rRCEstablishmentCause.setRRCEstablishmentCause(cause);
+  rRCEstablishmentCause.set(cause);
 
   Ngap_InitialUEMessage_IEs_t* ie = (Ngap_InitialUEMessage_IEs_t*) calloc(
       1, sizeof(Ngap_InitialUEMessage_IEs_t));
@@ -134,8 +134,8 @@ void InitialUEMessageMsg::setRRCEstablishmentCause(
   ie->criticality   = Ngap_Criticality_ignore;
   ie->value.present = Ngap_InitialUEMessage_IEs__value_PR_RRCEstablishmentCause;
 
-  int ret = rRCEstablishmentCause.encode2RRCEstablishmentCause(
-      ie->value.choice.RRCEstablishmentCause);
+  int ret =
+      rRCEstablishmentCause.encode(ie->value.choice.RRCEstablishmentCause);
   if (!ret) {
     Logger::ngap().error("Encode RRCEstablishmentCause IE error");
     free_wrapper((void**) &ie);
@@ -251,7 +251,7 @@ bool InitialUEMessageMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_ignore &&
             initialUEMessageIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_InitialUEMessage_IEs__value_PR_RRCEstablishmentCause) {
-          if (!rRCEstablishmentCause.decodefromRRCEstablishmentCause(
+          if (!rRCEstablishmentCause.decode(
                   initialUEMessageIEs->protocolIEs.list.array[i]
                       ->value.choice.RRCEstablishmentCause)) {
             Logger::ngap().error("Decoded NGAP RRCEstablishmentCause IE error");
@@ -286,7 +286,7 @@ bool InitialUEMessageMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
             initialUEMessageIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_InitialUEMessage_IEs__value_PR_FiveG_S_TMSI) {
           fivegSTmsi = new FiveGSTmsi();
-          if (!fivegSTmsi->decodefrompdu(
+          if (!fivegSTmsi->decodeFromPdu(
                   initialUEMessageIEs->protocolIEs.list.array[i]
                       ->value.choice.FiveG_S_TMSI)) {
             Logger::ngap().error("Decoded NGAP FiveG_S_TMSI IE error");
@@ -338,7 +338,7 @@ bool InitialUEMessageMsg::getUserLocationInfoNR(
 
 //------------------------------------------------------------------------------
 int InitialUEMessageMsg::getRRCEstablishmentCause() {
-  return rRCEstablishmentCause.getRRCEstablishmentCause();
+  return rRCEstablishmentCause.get();
 }
 
 //------------------------------------------------------------------------------
@@ -353,7 +353,7 @@ int InitialUEMessageMsg::getUeContextRequest() {
 //------------------------------------------------------------------------------
 bool InitialUEMessageMsg::get5GS_TMSI(std::string& _5GsTmsi) {
   if (fivegSTmsi) {
-    fivegSTmsi->getValue(_5GsTmsi);
+    fivegSTmsi->getTmsi(_5GsTmsi);
     return true;
   } else
     return false;
@@ -363,7 +363,7 @@ bool InitialUEMessageMsg::get5GS_TMSI(std::string& _5GsTmsi) {
 bool InitialUEMessageMsg::get5GS_TMSI(
     std ::string& setid, std ::string& pointer, std ::string& tmsi) {
   if (fivegSTmsi) {
-    fivegSTmsi->getValue(setid, pointer, tmsi);
+    fivegSTmsi->get(setid, pointer, tmsi);
     return true;
   } else
     return false;

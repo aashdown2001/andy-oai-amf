@@ -33,7 +33,7 @@ SecurityKey::SecurityKey() {
 SecurityKey::~SecurityKey() {}
 
 //------------------------------------------------------------------------------
-bool SecurityKey::encode2bitstring(Ngap_SecurityKey_t& m_securitykey) {
+bool SecurityKey::encode(Ngap_SecurityKey_t& m_securitykey) {
   m_securitykey.bits_unused = 0;
   m_securitykey.size        = 32;
   uint8_t* buffer           = (uint8_t*) calloc(1, 32);
@@ -45,7 +45,7 @@ bool SecurityKey::encode2bitstring(Ngap_SecurityKey_t& m_securitykey) {
 }
 
 //------------------------------------------------------------------------------
-bool SecurityKey::decodefrombitstring(Ngap_SecurityKey_t& m_securitykey) {
+bool SecurityKey::decode(Ngap_SecurityKey_t& m_securitykey) {
   securitykeybuffer = m_securitykey.buf;
   return true;
 }

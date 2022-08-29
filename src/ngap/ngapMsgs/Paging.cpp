@@ -72,7 +72,7 @@ bool PagingMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_ignore &&
             pagingIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_PagingIEs__value_PR_UEPagingIdentity) {
-          if (!uePagingIdentity.decodefrompdu(
+          if (!uePagingIdentity.decodeFromPdu(
                   pagingIEs->protocolIEs.list.array[i]
                       ->value.choice.UEPagingIdentity)) {
             Logger::ngap().error("Decoded NGAP UEPagingIdentity IE error");

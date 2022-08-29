@@ -34,7 +34,7 @@ class IEsCriticalityDiagnostics {
   virtual ~IEsCriticalityDiagnostics();
 
   void encode2pdu(Ngap_CriticalityDiagnostics_IE_Item_t*);
-  void decodefrompdu(Ngap_CriticalityDiagnostics_IE_Item_t*);
+  void decodeFromPdu(Ngap_CriticalityDiagnostics_IE_Item_t*);
   void setIeCriticality(Ngap_Criticality_t);
   void setIeId(Ngap_ProtocolIE_ID_t);
   void setTypeOfError(Ngap_TypeOfError_t);

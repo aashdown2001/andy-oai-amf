@@ -41,11 +41,11 @@ class GUAMI {
   void setGUAMI(
       const PlmnId& m_plmnId, const AMFRegionID& m_aMFRegionID,
       const AMFSetID& m_aMFSetID, const AMFPointer& m_aMFPointer);
-  void setGUAMI(
+  bool setGUAMI(
       const std::string& mcc, const std::string& mnc, const uint8_t& regionId,
       const uint16_t& setId, const uint8_t& pointer);
 
-  void setGUAMI(
+  bool setGUAMI(
       const std::string& mcc, const std::string& mnc,
       const std::string& regionId, const std::string& setId,
       const std::string& pointer);

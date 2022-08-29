@@ -63,7 +63,7 @@ void NR_CGI::getNR_CGI(struct NrCgi_s& cig) {
 //------------------------------------------------------------------------------
 bool NR_CGI::encode2NR_CGI(Ngap_NR_CGI_t* nr_cgi) {
   if (!plmnId.encode(nr_cgi->pLMNIdentity)) return false;
-  if (!nRCellIdentity.encode2bitstring(nr_cgi->nRCellIdentity)) return false;
+  if (!nRCellIdentity.encode(nr_cgi->nRCellIdentity)) return false;
 
   return true;
 }
@@ -71,7 +71,7 @@ bool NR_CGI::encode2NR_CGI(Ngap_NR_CGI_t* nr_cgi) {
 //------------------------------------------------------------------------------
 bool NR_CGI::decodefromNR_CGI(Ngap_NR_CGI_t* nr_cgi) {
   if (!plmnId.decode(nr_cgi->pLMNIdentity)) return false;
-  if (!nRCellIdentity.decodefrombitstring(nr_cgi->nRCellIdentity)) return false;
+  if (!nRCellIdentity.decode(nr_cgi->nRCellIdentity)) return false;
   return true;
 }
 

@@ -33,18 +33,18 @@ UEPagingIdentity::~UEPagingIdentity() {}
 void UEPagingIdentity::setUEPagingIdentity(
     const std::string& setid, const std::string& pointer,
     const std::string& tmsi) {
-  fiveGSTmsi.setValue(setid, pointer, tmsi);
+  fiveGSTmsi.set(setid, pointer, tmsi);
 }
 
 //------------------------------------------------------------------------------
 void UEPagingIdentity::getUEPagingIdentity(std::string& _5g_s_tmsi) {
-  fiveGSTmsi.getValue(_5g_s_tmsi);
+  fiveGSTmsi.getTmsi(_5g_s_tmsi);
 }
 
 //------------------------------------------------------------------------------
 void UEPagingIdentity::getUEPagingIdentity(
     std::string& setid, std::string& pointer, std::string& tmsi) {
-  fiveGSTmsi.getValue(setid, pointer, tmsi);
+  fiveGSTmsi.get(setid, pointer, tmsi);
 }
 
 //------------------------------------------------------------------------------
@@ -59,9 +59,9 @@ bool UEPagingIdentity::encode2pdu(Ngap_UEPagingIdentity_t* pdu) {
 }
 
 //------------------------------------------------------------------------------
-bool UEPagingIdentity::decodefrompdu(Ngap_UEPagingIdentity_t pdu) {
+bool UEPagingIdentity::decodeFromPdu(Ngap_UEPagingIdentity_t pdu) {
   if (pdu.present != Ngap_UEPagingIdentity_PR_fiveG_S_TMSI) return false;
-  if (!fiveGSTmsi.decodefrompdu(*pdu.choice.fiveG_S_TMSI)) return false;
+  if (!fiveGSTmsi.decodeFromPdu(*pdu.choice.fiveG_S_TMSI)) return false;
 
   return true;
 }

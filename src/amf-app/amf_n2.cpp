@@ -2119,7 +2119,7 @@ void amf_n2::handle_itti_message(itti_rereoute_nas& itti_msg) {
   RerouteNASRequest rerouteNASRequest = {};
   rerouteNASRequest.setRanUeNgapId(itti_msg.ran_ue_ngap_id);
   rerouteNASRequest.setAmfUeNgapId(itti_msg.amf_ue_ngap_id);
-  rerouteNASRequest.setAMFSetID(itti_msg.amf_set_id);
+  if (!rerouteNASRequest.setAMFSetID(itti_msg.amf_set_id)) return;
   if (unc->initialUEMsg.size > 0)
     rerouteNASRequest.setNgapMessage(
         unc->initialUEMsg);  // Include InitialUEMessage

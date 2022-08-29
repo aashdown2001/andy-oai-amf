@@ -40,7 +40,7 @@ void NRCellIdentity::setNRCellIdentity(unsigned long m_nrcellidentity) {
 }
 
 //------------------------------------------------------------------------------
-bool NRCellIdentity::encode2bitstring(Ngap_NRCellIdentity_t& nRCellIdentity) {
+bool NRCellIdentity::encode(Ngap_NRCellIdentity_t& nRCellIdentity) {
   nRCellIdentity.bits_unused = 4;
   nRCellIdentity.size        = 5;
   nRCellIdentity.buf = (uint8_t*) calloc(1, sizeof(uint32_t) + sizeof(uint8_t));
@@ -55,8 +55,7 @@ bool NRCellIdentity::encode2bitstring(Ngap_NRCellIdentity_t& nRCellIdentity) {
 }
 
 //------------------------------------------------------------------------------
-bool NRCellIdentity::decodefrombitstring(
-    Ngap_NRCellIdentity_t& nRCellIdentity) {
+bool NRCellIdentity::decode(Ngap_NRCellIdentity_t& nRCellIdentity) {
   if (!nRCellIdentity.buf) return false;
 
   nrcellidentity = nRCellIdentity.buf[0];

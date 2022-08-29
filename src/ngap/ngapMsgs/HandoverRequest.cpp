@@ -263,7 +263,7 @@ void HandoverRequest::setAllowedNSSAI(std::vector<S_NSSAI>& list) {
 void HandoverRequest::setSecurityContext(const long& count, uint8_t* buffer) {
   SecurityKey securitykey;
   securitykey.setSecurityKey(buffer);
-  securitykey.encode2bitstring(securityContext.nextHopNH);
+  securitykey.encode(securityContext.nextHopNH);
   securityContext.nextHopChainingCount = count;
 
   Ngap_HandoverRequestIEs_t* ie =

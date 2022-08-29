@@ -33,8 +33,8 @@ class SecurityKey {
   SecurityKey();
   virtual ~SecurityKey();
 
-  bool encode2bitstring(Ngap_SecurityKey_t&);
-  bool decodefrombitstring(Ngap_SecurityKey_t&);
+  bool encode(Ngap_SecurityKey_t&);
+  bool decode(Ngap_SecurityKey_t&);
   bool getSecurityKey(uint8_t*& buffer);
   void setSecurityKey(uint8_t* buffer);
 
