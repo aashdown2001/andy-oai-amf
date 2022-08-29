@@ -36,15 +36,13 @@ class UserLocationInformationEUTRA {
   UserLocationInformationEUTRA();
   virtual ~UserLocationInformationEUTRA();
 
-  void setInformationEUTRA(const EUTRA_CGI& m_eUTRA_CGI, const TAI& m_tAI);
-  void getInformationEUTRA(EUTRA_CGI& m_eUTRA_CGI, TAI& m_tAI);
+  void set(const EUTRA_CGI& m_eUTRA_CGI, const TAI& m_tAI);
+  void get(EUTRA_CGI& m_eUTRA_CGI, TAI& m_tAI);
 
   // bool getTimeStampPresence();
 
-  bool encode2UserLocationInformationEUTRA(
-      Ngap_UserLocationInformationEUTRA_t* userLocationInformation);
-  bool decodefromUserLocationInformationEUTRA(
-      Ngap_UserLocationInformationEUTRA_t* userLocationInformation);
+  bool encode(Ngap_UserLocationInformationEUTRA_t* userLocationInformation);
+  bool decode(Ngap_UserLocationInformationEUTRA_t* userLocationInformation);
 
  private:
   EUTRA_CGI eUTRA_CGI;  // Mandatory

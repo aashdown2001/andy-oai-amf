@@ -95,14 +95,14 @@ void InitialUEMessageMsg::setNasPdu(uint8_t* nas, size_t size) {
 //------------------------------------------------------------------------------
 void InitialUEMessageMsg::setUserLocationInfoNR(
     const struct NrCgi_s& cig, const struct Tai_s& tai) {
-  UserLocationInformationNR* informationNR = new UserLocationInformationNR();
-  NR_CGI nR_CGI                            = {};
+  UserLocationInformationNR information_nr;
+  NR_CGI nR_CGI = {};
   nR_CGI.setNR_CGI(cig.mcc, cig.mnc, cig.nrCellID);
 
   TAI tai_nr = {};
   tai_nr.setTAI(tai);
-  informationNR->setInformationNR(nR_CGI, tai_nr);
-  userLocationInformation.setInformation(informationNR);
+  information_nr.set(nR_CGI, tai_nr);
+  userLocationInformation.setInformation(information_nr);
 
   Ngap_InitialUEMessage_IEs_t* ie = (Ngap_InitialUEMessage_IEs_t*) calloc(
       1, sizeof(Ngap_InitialUEMessage_IEs_t));
@@ -111,8 +111,8 @@ void InitialUEMessageMsg::setUserLocationInfoNR(
   ie->value.present =
       Ngap_InitialUEMessage_IEs__value_PR_UserLocationInformation;
 
-  int ret = userLocationInformation.encodefromUserLocationInformation(
-      &ie->value.choice.UserLocationInformation);
+  int ret =
+      userLocationInformation.encode(&ie->value.choice.UserLocationInformation);
   if (!ret) {
     Logger::ngap().error("Encode UserLocationInformation IE error");
     free_wrapper((void**) &ie);
@@ -234,7 +234,7 @@ bool InitialUEMessageMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_reject &&
             initialUEMessageIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_InitialUEMessage_IEs__value_PR_UserLocationInformation) {
-          if (!userLocationInformation.decodefromUserLocationInformation(
+          if (!userLocationInformation.decode(
                   &initialUEMessageIEs->protocolIEs.list.array[i]
                        ->value.choice.UserLocationInformation)) {
             Logger::ngap().error(
@@ -322,14 +322,14 @@ bool InitialUEMessageMsg::getNasPdu(uint8_t*& nas, size_t& size) {
 //------------------------------------------------------------------------------
 bool InitialUEMessageMsg::getUserLocationInfoNR(
     struct NrCgi_s& cig, struct Tai_s& tai) {
-  UserLocationInformationNR* informationNR;
-  userLocationInformation.getInformation(informationNR);
+  UserLocationInformationNR information_nr = {};
+  userLocationInformation.getInformation(information_nr);
   if (userLocationInformation.getChoiceOfUserLocationInformation() !=
       Ngap_UserLocationInformation_PR_userLocationInformationNR)
     return false;
   NR_CGI nR_CGI = {};
   TAI nR_TAI    = {};
-  informationNR->getInformationNR(nR_CGI, nR_TAI);
+  information_nr.get(nR_CGI, nR_TAI);
   nR_CGI.getNR_CGI(cig);
   nR_TAI.getTAI(tai);
 

@@ -118,14 +118,14 @@ bool UplinkNASTransportMsg::getNasPdu(uint8_t*& nas, size_t& sizeofnas) {
 //------------------------------------------------------------------------------
 void UplinkNASTransportMsg::setUserLocationInfoNR(
     const NrCgi_t& cig, const Tai_t& tai) {
-  UserLocationInformationNR* informationNR = new UserLocationInformationNR();
-  NR_CGI nR_CGI                            = {};
-  TAI tai_nr                               = {};
+  UserLocationInformationNR information_nr;
+  NR_CGI nR_CGI = {};
+  TAI tai_nr    = {};
 
   nR_CGI.setNR_CGI(cig);
   tai_nr.setTAI(tai);
-  informationNR->setInformationNR(nR_CGI, tai_nr);
-  userLocationInformation.setInformation(informationNR);
+  information_nr.set(nR_CGI, tai_nr);
+  userLocationInformation.setInformation(information_nr);
 
   Ngap_UplinkNASTransport_IEs_t* ie = (Ngap_UplinkNASTransport_IEs_t*) calloc(
       1, sizeof(Ngap_UplinkNASTransport_IEs_t));
@@ -134,8 +134,8 @@ void UplinkNASTransportMsg::setUserLocationInfoNR(
   ie->value.present =
       Ngap_UplinkNASTransport_IEs__value_PR_UserLocationInformation;
 
-  int ret = userLocationInformation.encodefromUserLocationInformation(
-      &ie->value.choice.UserLocationInformation);
+  int ret =
+      userLocationInformation.encode(&ie->value.choice.UserLocationInformation);
   if (!ret) {
     Logger::ngap().error("Encode NGAP UserLocationInformation IE error");
     free_wrapper((void**) &ie);
@@ -149,14 +149,16 @@ void UplinkNASTransportMsg::setUserLocationInfoNR(
 
 //------------------------------------------------------------------------------
 bool UplinkNASTransportMsg::getUserLocationInfoNR(NrCgi_t& cig, Tai_t& tai) {
-  UserLocationInformationNR* informationNR;
-  userLocationInformation.getInformation(informationNR);
+  UserLocationInformationNR information_nr = {};
+  if (!userLocationInformation.getInformation(information_nr)) return false;
+
   if (userLocationInformation.getChoiceOfUserLocationInformation() !=
       Ngap_UserLocationInformation_PR_userLocationInformationNR)
     return false;
+
   NR_CGI nR_CGI = {};
   TAI nR_TAI    = {};
-  informationNR->getInformationNR(nR_CGI, nR_TAI);
+  information_nr.get(nR_CGI, nR_TAI);
   nR_CGI.getNR_CGI(cig);
   nR_TAI.getTAI(tai);
 
@@ -239,7 +241,7 @@ bool UplinkNASTransportMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_ignore &&
             uplinkNASTransportIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_UplinkNASTransport_IEs__value_PR_UserLocationInformation) {
-          if (!userLocationInformation.decodefromUserLocationInformation(
+          if (!userLocationInformation.decode(
                   &uplinkNASTransportIEs->protocolIEs.list.array[i]
                        ->value.choice.UserLocationInformation)) {
             Logger::ngap().error(

@@ -93,14 +93,14 @@ void UEContextReleaseCompleteMsg::setUserLocationInfoNR(
   if (!userLocationInformation)
     userLocationInformation = new UserLocationInformation();
 
-  UserLocationInformationNR* informationNR = new UserLocationInformationNR();
+  UserLocationInformationNR information_nr = {};
   NR_CGI nR_CGI                            = {};
   nR_CGI.setNR_CGI(cig.mcc, cig.mnc, cig.nrCellID);
 
   TAI tai_nr = {};
   tai_nr.setTAI(tai);
-  informationNR->setInformationNR(nR_CGI, tai_nr);
-  userLocationInformation->setInformation(informationNR);
+  information_nr.set(nR_CGI, tai_nr);
+  userLocationInformation->setInformation(information_nr);
 
   Ngap_UEContextReleaseComplete_IEs* ie =
       (Ngap_UEContextReleaseComplete_IEs*) calloc(
@@ -110,7 +110,7 @@ void UEContextReleaseCompleteMsg::setUserLocationInfoNR(
   ie->value.present =
       Ngap_UEContextReleaseComplete_IEs__value_PR_UserLocationInformation;
 
-  int ret = userLocationInformation->encodefromUserLocationInformation(
+  int ret = userLocationInformation->encode(
       &ie->value.choice.UserLocationInformation);
   if (!ret) {
     Logger::ngap().error("Encode NGAP UserLocationInformation IE error");
@@ -126,12 +126,12 @@ void UEContextReleaseCompleteMsg::setUserLocationInfoNR(
 void UEContextReleaseCompleteMsg::getUserLocationInfoNR(
     NrCgi_t& cig, Tai_t& tai) {
   if (userLocationInformation) {
-    UserLocationInformationNR* informationNR = new UserLocationInformationNR();
-    userLocationInformation->getInformation(informationNR);
+    UserLocationInformationNR information_nr = {};
+    if (!userLocationInformation->getInformation(information_nr)) return;
 
     NR_CGI nR_CGI = {};
     TAI tai_nr    = {};
-    informationNR->getInformationNR(nR_CGI, tai_nr);
+    information_nr.get(nR_CGI, tai_nr);
     PlmnId plmnId_cgi             = {};
     NRCellIdentity nRCellIdentity = {};
 

@@ -172,13 +172,13 @@ void PduSessionResourceReleaseResponseMsg::setUserLocationInfoNR(
   if (!userLocationInformation)
     userLocationInformation = new UserLocationInformation();
 
-  UserLocationInformationNR* informationNR = new UserLocationInformationNR();
+  UserLocationInformationNR information_nr = {};
   NR_CGI nR_CGI                            = {};
   TAI tai_nr                               = {};
   nR_CGI.setNR_CGI(cig.mcc, cig.mnc, cig.nrCellID);
   tai_nr.setTAI(tai);
-  informationNR->setInformationNR(nR_CGI, tai_nr);
-  userLocationInformation->setInformation(informationNR);
+  information_nr.set(nR_CGI, tai_nr);
+  userLocationInformation->setInformation(information_nr);
 
   Ngap_PDUSessionResourceReleaseResponseIEs_t* ie =
       (Ngap_PDUSessionResourceReleaseResponseIEs_t*) calloc(
@@ -188,7 +188,7 @@ void PduSessionResourceReleaseResponseMsg::setUserLocationInfoNR(
   ie->value.present =
       Ngap_PDUSessionResourceReleaseResponseIEs__value_PR_UserLocationInformation;
 
-  int ret = userLocationInformation->encodefromUserLocationInformation(
+  int ret = userLocationInformation->encode(
       &ie->value.choice.UserLocationInformation);
   if (!ret) {
     Logger::nas_mm().warn("Encode UserLocationInformation IE error");
@@ -206,14 +206,15 @@ void PduSessionResourceReleaseResponseMsg::setUserLocationInfoNR(
 //------------------------------------------------------------------------------
 bool PduSessionResourceReleaseResponseMsg::getUserLocationInfoNR(
     NrCgi_t& cig, Tai_t& tai) {
-  UserLocationInformationNR* informationNR;
-  userLocationInformation->getInformation(informationNR);
+  UserLocationInformationNR information_nr = {};
+  if (!userLocationInformation->getInformation(information_nr)) return false;
+
   if (userLocationInformation->getChoiceOfUserLocationInformation() !=
       Ngap_UserLocationInformation_PR_userLocationInformationNR)
     return false;
   NR_CGI nR_CGI = {};
   TAI nR_TAI    = {};
-  informationNR->getInformationNR(nR_CGI, nR_TAI);
+  information_nr.get(nR_CGI, nR_TAI);
   PlmnId cgi_plmnId             = {};
   NRCellIdentity nRCellIdentity = {};
   nR_CGI.getNR_CGI(cig);
