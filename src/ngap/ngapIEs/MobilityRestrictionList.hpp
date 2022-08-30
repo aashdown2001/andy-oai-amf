@@ -36,7 +36,7 @@ class MobilityRestrictionList {
   void getPLMN(PlmnId& sPlmn);
 
   bool encode(Ngap_MobilityRestrictionList_t* mobilityrestrictionlist);
-  // TODO: Decode
+  bool decode(Ngap_MobilityRestrictionList_t* mobilityrestrictionlist);
 
  private:
   PlmnId servingPLMN;  // Mandatory

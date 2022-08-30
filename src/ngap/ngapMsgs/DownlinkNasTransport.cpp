@@ -205,6 +205,20 @@ bool DownLinkNasTransportMsg::getMobilityRestrictionList(
 }
 
 //------------------------------------------------------------------------------
+void DownLinkNasTransportMsg::setUEAggregateMaxBitRate(
+    const UEAggregateMaxBitRate& bit_rate) {
+  uEAggregateMaxBitRate = std::make_optional<UEAggregateMaxBitRate>(bit_rate);
+};
+
+//------------------------------------------------------------------------------
+bool DownLinkNasTransportMsg::getUEAggregateMaxBitRate(
+    UEAggregateMaxBitRate& bit_rate) {
+  if (!uEAggregateMaxBitRate.has_value()) return false;
+  bit_rate = uEAggregateMaxBitRate.value();
+  return true;
+}
+
+//------------------------------------------------------------------------------
 void DownLinkNasTransportMsg::setIndex2Rat_FrequencySelectionPriority(
     const uint32_t& value) {
   indexToRFSP = std::make_optional<IndexToRFSP>(value);
@@ -233,6 +247,20 @@ bool DownLinkNasTransportMsg::getIndex2Rat_FrequencySelectionPriority(
   if (!indexToRFSP.has_value()) return false;
 
   index = indexToRFSP.value().get();
+  return true;
+}
+
+//------------------------------------------------------------------------------
+void DownLinkNasTransportMsg::setAllowedNssai(
+    const AllowedNSSAI& allowed_nssai) {
+  allowedNssai = std::make_optional<AllowedNSSAI>(allowed_nssai);
+}
+
+//------------------------------------------------------------------------------
+bool DownLinkNasTransportMsg::getAllowedNssai(
+    AllowedNSSAI& allowed_nssai) const {
+  if (!allowedNssai.has_value()) return false;
+  allowed_nssai = allowedNssai.value();
   return true;
 }
 
@@ -341,6 +369,26 @@ bool DownLinkNasTransportMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
           return false;
         }
       } break;
+
+      case Ngap_ProtocolIE_ID_id_MobilityRestrictionList: {
+        if (downLinkNasTransportIEs->protocolIEs.list.array[i]->criticality ==
+                Ngap_Criticality_ignore &&
+            downLinkNasTransportIEs->protocolIEs.list.array[i]->value.present ==
+                Ngap_DownlinkNASTransport_IEs__value_PR_MobilityRestrictionList) {
+          MobilityRestrictionList tmp = {};
+          if (!tmp.decode(&downLinkNasTransportIEs->protocolIEs.list.array[i]
+                               ->value.choice.MobilityRestrictionList)) {
+            Logger::ngap().error(
+                "Decode NGAP MobilityRestrictionList IE error");
+            return false;
+          }
+          mobilityRestrictionList = std::optional<MobilityRestrictionList>(tmp);
+        } else {
+          Logger::ngap().error("Decode NGAP MobilityRestrictionList IE error");
+          return false;
+        }
+      } break;
+
       case Ngap_ProtocolIE_ID_id_IndexToRFSP: {
         if (downLinkNasTransportIEs->protocolIEs.list.array[i]->criticality ==
                 Ngap_Criticality_ignore &&
@@ -355,6 +403,44 @@ bool DownLinkNasTransportMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
           indexToRFSP = std::optional<IndexToRFSP>(tmp);
         } else {
           Logger::ngap().error("Decode NGAP IndexToRFSP IE error");
+          return false;
+        }
+      } break;
+
+      case Ngap_ProtocolIE_ID_id_UEAggregateMaximumBitRate: {
+        if (downLinkNasTransportIEs->protocolIEs.list.array[i]->criticality ==
+                Ngap_Criticality_ignore &&
+            downLinkNasTransportIEs->protocolIEs.list.array[i]->value.present ==
+                Ngap_DownlinkNASTransport_IEs__value_PR_UEAggregateMaximumBitRate) {
+          UEAggregateMaxBitRate tmp = {};
+          if (!tmp.decode(downLinkNasTransportIEs->protocolIEs.list.array[i]
+                              ->value.choice.UEAggregateMaximumBitRate)) {
+            Logger::ngap().error(
+                "Decode NGAP UEAggregateMaximumBitRate IE error");
+            return false;
+          }
+          uEAggregateMaxBitRate = std::optional<UEAggregateMaxBitRate>(tmp);
+        } else {
+          Logger::ngap().error(
+              "Decode NGAP UEAggregateMaximumBitRate IE error");
+          return false;
+        }
+      } break;
+
+      case Ngap_ProtocolIE_ID_id_AllowedNSSAI: {
+        if (downLinkNasTransportIEs->protocolIEs.list.array[i]->criticality ==
+                Ngap_Criticality_reject &&
+            downLinkNasTransportIEs->protocolIEs.list.array[i]->value.present ==
+                Ngap_DownlinkNASTransport_IEs__value_PR_AllowedNSSAI) {
+          AllowedNSSAI tmp = {};
+          if (!tmp.decode(&downLinkNasTransportIEs->protocolIEs.list.array[i]
+                               ->value.choice.AllowedNSSAI)) {
+            Logger::ngap().error("Decode NGAP AllowedNSSAI IE error");
+            return false;
+          }
+          allowedNssai = std::optional<AllowedNSSAI>(tmp);
+        } else {
+          Logger::ngap().error("Decode NGAP AllowedNSSAI IE error");
           return false;
         }
       } break;

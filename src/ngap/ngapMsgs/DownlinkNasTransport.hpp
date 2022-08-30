@@ -22,6 +22,7 @@
 #ifndef _DOWNLINK_NAS_TRANSPORT_H_
 #define _DOWNLINK_NAS_TRANSPORT_H_
 
+#include "AllowedNssai.hpp"
 #include "AMFName.hpp"
 #include "IndexToRFSP.hpp"
 #include "NAS-PDU.hpp"
@@ -57,8 +58,14 @@ class DownLinkNasTransportMsg : public NgapUEMessage {
   void setMobilityRestrictionList(const MobilityRestrictionList&);
   bool getMobilityRestrictionList(MobilityRestrictionList&) const;
 
+  void setUEAggregateMaxBitRate(const UEAggregateMaxBitRate& bit_rate);
+  bool getUEAggregateMaxBitRate(UEAggregateMaxBitRate& bit_rate);
+
   void setIndex2Rat_FrequencySelectionPriority(const uint32_t& value);  // 1~256
   bool getIndex2Rat_FrequencySelectionPriority(uint32_t&) const;
+
+  void setAllowedNssai(const AllowedNSSAI& allowed_nssai);
+  bool getAllowedNssai(AllowedNSSAI& allowed_nssai) const;
 
  private:
   Ngap_DownlinkNASTransport_t* downLinkNasTransportIEs;
@@ -71,7 +78,7 @@ class DownLinkNasTransportMsg : public NgapUEMessage {
   std::optional<MobilityRestrictionList> mobilityRestrictionList;  // Optional
   std::optional<IndexToRFSP> indexToRFSP;                          // Optional
   std::optional<UEAggregateMaxBitRate> uEAggregateMaxBitRate;      // Optional
-  // TODO: Allowed NSSAI (Optional)
+  std::optional<AllowedNSSAI> allowedNssai;                        // Optional
 };
 
 }  // namespace ngap
