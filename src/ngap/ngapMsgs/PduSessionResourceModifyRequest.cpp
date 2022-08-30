@@ -103,7 +103,7 @@ void PduSessionResourceModifyRequestMsg::setRanPagingPriority(
     const uint8_t& priority) {
   if (!ranPagingPriority) ranPagingPriority = new RANPagingPriority();
 
-  ranPagingPriority->setRANPagingPriority(priority);
+  ranPagingPriority->set(priority);
 
   Ngap_PDUSessionResourceModifyRequestIEs_t* ie =
       (Ngap_PDUSessionResourceModifyRequestIEs_t*) calloc(
@@ -113,8 +113,7 @@ void PduSessionResourceModifyRequestMsg::setRanPagingPriority(
   ie->value.present =
       Ngap_PDUSessionResourceModifyRequestIEs__value_PR_RANPagingPriority;
 
-  int ret = ranPagingPriority->encode2RANPagingPriority(
-      ie->value.choice.RANPagingPriority);
+  int ret = ranPagingPriority->encode(ie->value.choice.RANPagingPriority);
   if (!ret) {
     Logger::ngap().error("Encode NGAP RANPagingPriority IE error");
     free_wrapper((void**) &ie);
@@ -129,7 +128,7 @@ void PduSessionResourceModifyRequestMsg::setRanPagingPriority(
 //------------------------------------------------------------------------------
 int PduSessionResourceModifyRequestMsg::getRanPagingPriority() {
   if (!ranPagingPriority) return -1;
-  return ranPagingPriority->getRANPagingPriority();
+  return ranPagingPriority->get();
 }
 
 //------------------------------------------------------------------------------
@@ -289,7 +288,7 @@ bool PduSessionResourceModifyRequestMsg::decodeFromPdu(
                     ->value.present ==
                 Ngap_PDUSessionResourceModifyRequestIEs__value_PR_RANPagingPriority) {
           ranPagingPriority = new RANPagingPriority();
-          if (!ranPagingPriority->decodefromRANPagingPriority(
+          if (!ranPagingPriority->decode(
                   pduSessionResourceModifyRequestIEs->protocolIEs.list.array[i]
                       ->value.choice.RANPagingPriority)) {
             Logger::ngap().error("Decoded NGAP RANPagingPriority IE error");

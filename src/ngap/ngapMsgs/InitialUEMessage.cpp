@@ -31,18 +31,17 @@ namespace ngap {
 //------------------------------------------------------------------------------
 InitialUEMessageMsg::InitialUEMessageMsg() : NgapMessage() {
   initialUEMessageIEs = nullptr;
-  uEContextRequest    = nullptr;
-  fivegSTmsi          = nullptr;
+  uEContextRequest    = std::nullopt;
+  fivegSTmsi          = std::nullopt;
+  amfSetId            = std::nullopt;
+  allowedNssai        = std::nullopt;
 
   NgapMessage::setMessageType(NgapMessageType::NG_SETUP_RESPONSE);
   initialize();
 }
 
 //------------------------------------------------------------------------------
-InitialUEMessageMsg::~InitialUEMessageMsg() {
-  if (uEContextRequest) delete uEContextRequest;
-  if (fivegSTmsi) delete fivegSTmsi;
-}
+InitialUEMessageMsg::~InitialUEMessageMsg() {}
 
 //------------------------------------------------------------------------------
 void InitialUEMessageMsg::initialize() {
@@ -148,10 +147,8 @@ void InitialUEMessageMsg::setRRCEstablishmentCause(
 
 //------------------------------------------------------------------------------
 void InitialUEMessageMsg::setUeContextRequest(
-    const e_Ngap_UEContextRequest& ueCtxReq) {
-  if (!uEContextRequest) uEContextRequest = new UEContextRequest();
-
-  uEContextRequest->setUEContextRequest(ueCtxReq);
+    const e_Ngap_UEContextRequest& ue_ctx_req) {
+  uEContextRequest = std::make_optional<UEContextRequest>(ue_ctx_req);
 
   Ngap_InitialUEMessage_IEs_t* ie = (Ngap_InitialUEMessage_IEs_t*) calloc(
       1, sizeof(Ngap_InitialUEMessage_IEs_t));
@@ -159,8 +156,7 @@ void InitialUEMessageMsg::setUeContextRequest(
   ie->criticality   = Ngap_Criticality_ignore;
   ie->value.present = Ngap_InitialUEMessage_IEs__value_PR_UEContextRequest;
 
-  int ret = uEContextRequest->encode2UEContextRequest(
-      ie->value.choice.UEContextRequest);
+  int ret = uEContextRequest.value().encode(ie->value.choice.UEContextRequest);
   if (!ret) {
     Logger::ngap().error("Encode UEContextRequest IE error");
     free_wrapper((void**) &ie);
@@ -169,6 +165,28 @@ void InitialUEMessageMsg::setUeContextRequest(
 
   ret = ASN_SEQUENCE_ADD(&initialUEMessageIEs->protocolIEs.list, ie);
   if (ret != 0) Logger::ngap().error("Encode UEContextRequest IE error");
+}
+
+//------------------------------------------------------------------------------
+bool InitialUEMessageMsg::getAMFSetID(uint16_t& amf_set_id) {
+  if (!amfSetId.has_value()) return false;
+  amfSetId.value().get(amf_set_id);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool InitialUEMessageMsg::getAMFSetID(std::string& amf_set_id) {
+  if (!amfSetId.has_value()) return false;
+  amfSetId.value().get(amf_set_id);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool InitialUEMessageMsg::setAMFSetID(const uint16_t& amf_set_id) {
+  AMFSetID tmp = {};
+  if (!tmp.set(amf_set_id)) return false;
+  amfSetId = std::optional<AMFSetID>(tmp);
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -267,17 +285,18 @@ bool InitialUEMessageMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_ignore &&
             initialUEMessageIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_InitialUEMessage_IEs__value_PR_UEContextRequest) {
-          uEContextRequest = new UEContextRequest();
-          if (!uEContextRequest->decodefromUEContextRequest(
-                  initialUEMessageIEs->protocolIEs.list.array[i]
-                      ->value.choice.UEContextRequest)) {
+          UEContextRequest tmp = {};
+          if (!tmp.decode(initialUEMessageIEs->protocolIEs.list.array[i]
+                              ->value.choice.UEContextRequest)) {
             Logger::ngap().error("Decoded NGAP UEContextRequest IE error");
             return false;
           }
+          uEContextRequest = std::optional<UEContextRequest>(tmp);
         } else {
           Logger::ngap().error("Decoded NGAP UEContextRequest IE error");
           return false;
         }
+
       } break;
 
       case Ngap_ProtocolIE_ID_id_FiveG_S_TMSI: {
@@ -285,16 +304,30 @@ bool InitialUEMessageMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_reject &&
             initialUEMessageIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_InitialUEMessage_IEs__value_PR_FiveG_S_TMSI) {
-          fivegSTmsi = new FiveGSTmsi();
-          if (!fivegSTmsi->decodeFromPdu(
-                  initialUEMessageIEs->protocolIEs.list.array[i]
-                      ->value.choice.FiveG_S_TMSI)) {
+          FiveGSTmsi tmp = {};
+          if (!tmp.decodeFromPdu(initialUEMessageIEs->protocolIEs.list.array[i]
+                                     ->value.choice.FiveG_S_TMSI)) {
             Logger::ngap().error("Decoded NGAP FiveG_S_TMSI IE error");
             return false;
           }
+          fivegSTmsi = std::optional<FiveGSTmsi>(tmp);
         }
       } break;
+      case Ngap_ProtocolIE_ID_id_AMFSetID: {
+        if (initialUEMessageIEs->protocolIEs.list.array[i]->criticality ==
+                Ngap_Criticality_ignore &&
+            initialUEMessageIEs->protocolIEs.list.array[i]->value.present ==
+                Ngap_InitialUEMessage_IEs__value_PR_AMFSetID) {
+          AMFSetID tmp = {};
+          if (!tmp.decode(initialUEMessageIEs->protocolIEs.list.array[i]
+                              ->value.choice.AMFSetID)) {
+            Logger::ngap().error("Decoded NGAP AMF Set ID IE error");
+            return false;
+          }
+          amfSetId = std::optional<AMFSetID>(tmp);
+        }
 
+      } break;
       default: {
         Logger::ngap().warn(
             "Not decoded IE %d",
@@ -342,9 +375,9 @@ int InitialUEMessageMsg::getRRCEstablishmentCause() {
 }
 
 //------------------------------------------------------------------------------
-int InitialUEMessageMsg::getUeContextRequest() {
-  if (uEContextRequest) {
-    return uEContextRequest->getUEContextRequest();
+int InitialUEMessageMsg::getUeContextRequest() const {
+  if (uEContextRequest.has_value()) {
+    return uEContextRequest.value().get();
   } else {
     return -1;
   }
@@ -352,8 +385,8 @@ int InitialUEMessageMsg::getUeContextRequest() {
 
 //------------------------------------------------------------------------------
 bool InitialUEMessageMsg::get5GS_TMSI(std::string& _5GsTmsi) {
-  if (fivegSTmsi) {
-    fivegSTmsi->getTmsi(_5GsTmsi);
+  if (fivegSTmsi.has_value()) {
+    fivegSTmsi.value().getTmsi(_5GsTmsi);
     return true;
   } else
     return false;
@@ -362,11 +395,23 @@ bool InitialUEMessageMsg::get5GS_TMSI(std::string& _5GsTmsi) {
 //------------------------------------------------------------------------------
 bool InitialUEMessageMsg::get5GS_TMSI(
     std ::string& setid, std ::string& pointer, std ::string& tmsi) {
-  if (fivegSTmsi) {
-    fivegSTmsi->get(setid, pointer, tmsi);
+  if (fivegSTmsi.has_value()) {
+    fivegSTmsi.value().get(setid, pointer, tmsi);
     return true;
   } else
     return false;
+}
+
+//------------------------------------------------------------------------------
+void InitialUEMessageMsg::setAllowedNssai(const AllowedNSSAI& allowed_nssai) {
+  allowedNssai = std::make_optional<AllowedNSSAI>(allowed_nssai);
+}
+
+//------------------------------------------------------------------------------
+bool InitialUEMessageMsg::getAllowedNssai(AllowedNSSAI& allowed_nssai) const {
+  if (!allowedNssai.has_value()) return false;
+  allowed_nssai = allowedNssai.value();
+  return true;
 }
 
 }  // namespace ngap

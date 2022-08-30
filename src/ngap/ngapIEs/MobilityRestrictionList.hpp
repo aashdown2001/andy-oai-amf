@@ -20,7 +20,7 @@
  */
 
 #ifndef _MOBILITY_RESTRICTION_LIST_H_
-#define _MOBILITYRESTRICTION_LIST_H_
+#define _MOBILITY_RESTRICTION_LIST_H_
 #include "PlmnId.hpp"
 
 extern "C" {
@@ -32,11 +32,11 @@ class MobilityRestrictionList {
   MobilityRestrictionList();
   virtual ~MobilityRestrictionList();
 
-  void setMobilityRestrictionList(const PlmnId& sPlmn);
-  void getMobilityRestrictionList(PlmnId& sPlmn);
+  void setPLMN(const PlmnId& sPlmn);
+  void getPLMN(PlmnId& sPlmn);
 
-  bool encodeMobilityRestrictionList(
-      Ngap_MobilityRestrictionList_t* mobilityrestrictionlist);
+  bool encode(Ngap_MobilityRestrictionList_t* mobilityrestrictionlist);
+  // TODO: Decode
 
  private:
   PlmnId servingPLMN;  // Mandatory

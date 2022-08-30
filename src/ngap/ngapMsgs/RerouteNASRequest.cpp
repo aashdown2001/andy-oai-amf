@@ -120,7 +120,7 @@ void RerouteNASRequest::setAllowedNssai(const std::vector<S_Nssai>& list) {
     snssai.setSd(sd);
     snssaiList.push_back(snssai);
   }
-  allowedNssai->setAllowedNSSAI(snssaiList);
+  allowedNssai->set(snssaiList);
 
   Ngap_RerouteNASRequest_IEs_t* ie = (Ngap_RerouteNASRequest_IEs_t*) calloc(
       1, sizeof(Ngap_RerouteNASRequest_IEs_t));
@@ -128,7 +128,7 @@ void RerouteNASRequest::setAllowedNssai(const std::vector<S_Nssai>& list) {
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_RerouteNASRequest_IEs__value_PR_AllowedNSSAI;
 
-  int ret = allowedNssai->encode2AllowedNSSAI(&ie->value.choice.AllowedNSSAI);
+  int ret = allowedNssai->encode(&ie->value.choice.AllowedNSSAI);
   if (!ret) {
     Logger::ngap().error("Encode AllowedNSSAI IE error!");
     free_wrapper((void**) &ie);
@@ -144,7 +144,7 @@ bool RerouteNASRequest::getAllowedNssai(std::vector<S_Nssai>& list) {
   if (!allowedNssai) return false;
 
   std::vector<S_NSSAI> snssaiList;
-  allowedNssai->getAllowedNSSAI(snssaiList);
+  allowedNssai->get(snssaiList);
   for (std::vector<S_NSSAI>::iterator it = std::begin(snssaiList);
        it < std::end(snssaiList); ++it) {
     S_Nssai s_nssai = {};
@@ -295,7 +295,7 @@ bool RerouteNASRequest::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
             rerouteNASRequestIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_RerouteNASRequest_IEs__value_PR_AllowedNSSAI) {
           allowedNssai = new AllowedNSSAI();
-          if (!allowedNssai->decodefromAllowedNSSAI(
+          if (!allowedNssai->decode(
                   &rerouteNASRequestIEs->protocolIEs.list.array[i]
                        ->value.choice.AllowedNSSAI)) {
             Logger::ngap().error("Decoded NGAP AllowedNSSAI IE error");

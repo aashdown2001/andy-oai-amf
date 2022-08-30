@@ -31,17 +31,17 @@ MobilityRestrictionList::MobilityRestrictionList() {}
 MobilityRestrictionList::~MobilityRestrictionList() {}
 
 //------------------------------------------------------------------------------
-void MobilityRestrictionList::setMobilityRestrictionList(const PlmnId& sPLMN) {
+void MobilityRestrictionList::setPLMN(const PlmnId& sPLMN) {
   servingPLMN = sPLMN;
 }
 
 //------------------------------------------------------------------------------
-void MobilityRestrictionList::getMobilityRestrictionList(PlmnId& sPLMN) {
+void MobilityRestrictionList::getPLMN(PlmnId& sPLMN) {
   sPLMN = servingPLMN;
 }
 
 //------------------------------------------------------------------------------
-bool MobilityRestrictionList::encodeMobilityRestrictionList(
+bool MobilityRestrictionList::encode(
     Ngap_MobilityRestrictionList_t* mobilityrestrictionlist) {
   if (!servingPLMN.encode(mobilityrestrictionlist->servingPLMN)) {
     return false;

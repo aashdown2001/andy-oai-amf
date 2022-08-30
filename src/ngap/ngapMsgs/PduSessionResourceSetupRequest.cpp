@@ -56,8 +56,7 @@ void PduSessionResourceSetupRequestMsg::setUEAggregateMaxBitRate(
   if (!uEAggregateMaxBitRate)
     uEAggregateMaxBitRate = new UEAggregateMaxBitRate();
 
-  uEAggregateMaxBitRate->setUEAggregateMaxBitRate(
-      bit_rate_downlink, bit_rate_uplink);
+  uEAggregateMaxBitRate->set(bit_rate_downlink, bit_rate_uplink);
 
   Ngap_PDUSessionResourceSetupRequestIEs_t* ie =
       (Ngap_PDUSessionResourceSetupRequestIEs_t*) calloc(
@@ -67,8 +66,8 @@ void PduSessionResourceSetupRequestMsg::setUEAggregateMaxBitRate(
   ie->value.present =
       Ngap_PDUSessionResourceSetupRequestIEs__value_PR_UEAggregateMaximumBitRate;
 
-  int ret = uEAggregateMaxBitRate->encode2UEAggregateMaxBitRate(
-      ie->value.choice.UEAggregateMaximumBitRate);
+  int ret =
+      uEAggregateMaxBitRate->encode(ie->value.choice.UEAggregateMaximumBitRate);
   if (!ret) {
     Logger::ngap().error("Encode NGAP UEAggregateMaxBitRate IE error");
     free_wrapper((void**) &ie);
@@ -136,7 +135,7 @@ void PduSessionResourceSetupRequestMsg::setRanPagingPriority(
     const uint8_t& priority) {
   if (!ranPagingPriority) ranPagingPriority = new RANPagingPriority();
 
-  ranPagingPriority->setRANPagingPriority(priority);
+  ranPagingPriority->set(priority);
 
   Ngap_PDUSessionResourceSetupRequestIEs_t* ie =
       (Ngap_PDUSessionResourceSetupRequestIEs_t*) calloc(
@@ -146,8 +145,7 @@ void PduSessionResourceSetupRequestMsg::setRanPagingPriority(
   ie->value.present =
       Ngap_PDUSessionResourceSetupRequestIEs__value_PR_RANPagingPriority;
 
-  int ret = ranPagingPriority->encode2RANPagingPriority(
-      ie->value.choice.RANPagingPriority);
+  int ret = ranPagingPriority->encode(ie->value.choice.RANPagingPriority);
   if (!ret) {
     Logger::ngap().error("Encode NGAP RANPagingPriority IE error");
     free_wrapper((void**) &ie);
@@ -162,7 +160,7 @@ void PduSessionResourceSetupRequestMsg::setRanPagingPriority(
 //------------------------------------------------------------------------------
 int PduSessionResourceSetupRequestMsg::getRanPagingPriority() {
   if (!ranPagingPriority) return -1;
-  return ranPagingPriority->getRANPagingPriority();
+  return ranPagingPriority->get();
 }
 
 //------------------------------------------------------------------------------
@@ -354,7 +352,7 @@ bool PduSessionResourceSetupRequestMsg::decodeFromPdu(
                     ->value.present ==
                 Ngap_PDUSessionResourceSetupRequestIEs__value_PR_RANPagingPriority) {
           ranPagingPriority = new RANPagingPriority();
-          if (!ranPagingPriority->decodefromRANPagingPriority(
+          if (!ranPagingPriority->decode(
                   pduSessionResourceSetupRequestIEs->protocolIEs.list.array[i]
                       ->value.choice.RANPagingPriority)) {
             Logger::ngap().error("Decoded NGAP RANPagingPriority IE error");

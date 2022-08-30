@@ -50,12 +50,13 @@ class InitialContextSetupRequestMsg : public NgapUEMessage {
   void setRanUeNgapId(const uint32_t& id) override;
   bool decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) override;
 
-  void setOldAmfName(const std::string& name);
-  bool getOldAmfName(std::string& name);
+  void setOldAmf(const std::string& name);
+  bool getOldAmf(std::string& name);
 
   void setUEAggregateMaxBitRate(
-      const long& bit_rate_downlink, const long& bit_rate_uplink);
-  bool getUEAggregateMaxBitRate(long& bit_rate_downlink, long& bit_rate_uplink);
+      const uint64_t& bit_rate_downlink, const uint64_t& bit_rate_uplink);
+  bool getUEAggregateMaxBitRate(
+      uint64_t& bit_rate_downlink, uint64_t& bit_rate_uplink);
 
   void setCoreNetworkAssistanceInfo(
       const uint16_t& ueIdentityIndexValue /*10bits*/,

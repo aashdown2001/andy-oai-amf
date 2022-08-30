@@ -106,7 +106,7 @@ void PduSessionResourceReleaseCommandMsg::setRanPagingPriority(
     const uint8_t& priority) {
   if (!ranPagingPriority) ranPagingPriority = new RANPagingPriority();
 
-  ranPagingPriority->setRANPagingPriority(priority);
+  ranPagingPriority->set(priority);
 
   Ngap_PDUSessionResourceReleaseCommandIEs_t* ie =
       (Ngap_PDUSessionResourceReleaseCommandIEs_t*) calloc(
@@ -116,8 +116,7 @@ void PduSessionResourceReleaseCommandMsg::setRanPagingPriority(
   ie->value.present =
       Ngap_PDUSessionResourceReleaseCommandIEs__value_PR_RANPagingPriority;
 
-  int ret = ranPagingPriority->encode2RANPagingPriority(
-      ie->value.choice.RANPagingPriority);
+  int ret = ranPagingPriority->encode(ie->value.choice.RANPagingPriority);
   if (!ret) {
     Logger::nas_mm().warn("Encode RANPagingPriority IE error");
     free_wrapper((void**) &ie);
@@ -132,7 +131,7 @@ void PduSessionResourceReleaseCommandMsg::setRanPagingPriority(
 //------------------------------------------------------------------------------
 int PduSessionResourceReleaseCommandMsg::getRanPagingPriority() {
   if (!ranPagingPriority) return -1;
-  return ranPagingPriority->getRANPagingPriority();
+  return ranPagingPriority->get();
 }
 
 //------------------------------------------------------------------------------
@@ -308,7 +307,7 @@ bool PduSessionResourceReleaseCommandMsg::decodeFromPdu(
                     ->value.present ==
                 Ngap_PDUSessionResourceReleaseCommandIEs__value_PR_RANPagingPriority) {
           ranPagingPriority = new RANPagingPriority();
-          if (!ranPagingPriority->decodefromRANPagingPriority(
+          if (!ranPagingPriority->decode(
                   pduSessionResourceReleaseCommandIEs->protocolIEs.list
                       .array[i]
                       ->value.choice.RANPagingPriority)) {

@@ -27,6 +27,10 @@
 #include "NAS-PDU.hpp"
 #include "RANPagingPriority.hpp"
 #include "NgapUEMessage.hpp"
+#include "MobilityRestrictionList.hpp"
+#include "UEAggregateMaxBitRate.hpp"
+
+#include <optional>
 
 namespace ngap {
 
@@ -41,30 +45,32 @@ class DownLinkNasTransportMsg : public NgapUEMessage {
   void setRanUeNgapId(const uint32_t& id) override;
   bool decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) override;
 
-  void setOldAmfName(const std::string name);
-  bool getOldAmfName(std::string& name);
+  void setOldAmf(const std::string& name);
+  bool getOldAmf(std::string& name);
 
-  void setRanPagingPriority(uint8_t pagingPriority);  // 1~256
-  uint8_t getRanPagingPriority();
+  bool setRanPagingPriority(const uint32_t&);  // 1~256
+  bool getRanPagingPriority(uint32_t&);
 
   void setNasPdu(uint8_t* nas, size_t sizeofnas);
   bool getNasPdu(uint8_t*& nas, size_t& sizeofnas);
 
-  void setIndex2Rat_Frequency_SelectionPriority(uint8_t value);  // 1~256
-  uint8_t getIndex2Rat_Frequency_SelectionPriority();
+  void setMobilityRestrictionList(const MobilityRestrictionList&);
+  bool getMobilityRestrictionList(MobilityRestrictionList&) const;
+
+  void setIndex2Rat_FrequencySelectionPriority(const uint32_t& value);  // 1~256
+  bool getIndex2Rat_FrequencySelectionPriority(uint32_t&) const;
 
  private:
   Ngap_DownlinkNASTransport_t* downLinkNasTransportIEs;
 
   // AMF_UE_NGAP_ID (Mandatory)
   // RAN_UE_NGAP_ID (Mandatory)
-  AmfName* oldAmfName;                   // Optional
-  RANPagingPriority* ranPagingPriority;  // Optional
-  NAS_PDU nasPdu;                        // Mandatory
-  // TODO: Mobility Restriction List (Optional)
-  IndexToRFSP*
-      indexToRFSP;  // Index to RAT/Frequency Selection Priority (Optional)
-  // TODO: UE Aggregate Maximum Bit Rate (Optional)
+  std::optional<AmfName> oldAMF;                                   // Optional
+  std::optional<RANPagingPriority> ranPagingPriority;              // Optional
+  NAS_PDU nasPdu;                                                  // Mandatory
+  std::optional<MobilityRestrictionList> mobilityRestrictionList;  // Optional
+  std::optional<IndexToRFSP> indexToRFSP;                          // Optional
+  std::optional<UEAggregateMaxBitRate> uEAggregateMaxBitRate;      // Optional
   // TODO: Allowed NSSAI (Optional)
 };
 

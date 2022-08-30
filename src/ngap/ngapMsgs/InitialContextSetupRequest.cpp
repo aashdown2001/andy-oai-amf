@@ -102,7 +102,7 @@ void InitialContextSetupRequestMsg::setRanUeNgapId(
 }
 
 //------------------------------------------------------------------------------
-void InitialContextSetupRequestMsg::setOldAmfName(const std::string& name) {
+void InitialContextSetupRequestMsg::setOldAmf(const std::string& name) {
   if (!oldAmfName) oldAmfName = new AmfName();
   oldAmfName->setValue(name);
 
@@ -126,12 +126,11 @@ void InitialContextSetupRequestMsg::setOldAmfName(const std::string& name) {
 
 //------------------------------------------------------------------------------
 void InitialContextSetupRequestMsg::setUEAggregateMaxBitRate(
-    const long& bit_rate_downlink, const long& bit_rate_uplink) {
+    const uint64_t& bit_rate_downlink, const uint64_t& bit_rate_uplink) {
   if (!uEAggregateMaxBitRate)
     uEAggregateMaxBitRate = new UEAggregateMaxBitRate();
 
-  uEAggregateMaxBitRate->setUEAggregateMaxBitRate(
-      bit_rate_downlink, bit_rate_uplink);
+  uEAggregateMaxBitRate->set(bit_rate_downlink, bit_rate_uplink);
 
   Ngap_InitialContextSetupRequestIEs_t* ie =
       (Ngap_InitialContextSetupRequestIEs_t*) calloc(
@@ -141,8 +140,8 @@ void InitialContextSetupRequestMsg::setUEAggregateMaxBitRate(
   ie->value.present =
       Ngap_InitialContextSetupRequestIEs__value_PR_UEAggregateMaximumBitRate;
 
-  int ret = uEAggregateMaxBitRate->encode2UEAggregateMaxBitRate(
-      ie->value.choice.UEAggregateMaximumBitRate);
+  int ret =
+      uEAggregateMaxBitRate->encode(ie->value.choice.UEAggregateMaximumBitRate);
   if (!ret) {
     Logger::ngap().error("Encode UEAggregateMaxBitRate IE error!");
     free_wrapper((void**) &ie);
@@ -298,7 +297,7 @@ void InitialContextSetupRequestMsg::setAllowedNssai(
     snssai.setSd(sd);
     snssaiList.push_back(snssai);
   }
-  allowedNssai.setAllowedNSSAI(snssaiList);
+  allowedNssai.set(snssaiList);
 
   Ngap_InitialContextSetupRequestIEs_t* ie =
       (Ngap_InitialContextSetupRequestIEs_t*) calloc(
@@ -307,7 +306,7 @@ void InitialContextSetupRequestMsg::setAllowedNssai(
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_InitialContextSetupRequestIEs__value_PR_AllowedNSSAI;
 
-  int ret = allowedNssai.encode2AllowedNSSAI(&ie->value.choice.AllowedNSSAI);
+  int ret = allowedNssai.encode(&ie->value.choice.AllowedNSSAI);
   if (!ret) {
     Logger::ngap().error("Encode AllowedNSSAI IE error!");
     free_wrapper((void**) &ie);
@@ -505,7 +504,7 @@ bool InitialContextSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                     ->value.present ==
                 Ngap_InitialContextSetupRequestIEs__value_PR_UEAggregateMaximumBitRate) {
           uEAggregateMaxBitRate = new UEAggregateMaxBitRate();
-          if (!uEAggregateMaxBitRate->decodefromUEAggregateMaxBitRate(
+          if (!uEAggregateMaxBitRate->decode(
                   initialContextSetupRequestIEs->protocolIEs.list.array[i]
                       ->value.choice.UEAggregateMaximumBitRate)) {
             Logger::ngap().error(
@@ -585,7 +584,7 @@ bool InitialContextSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
             initialContextSetupRequestIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_InitialContextSetupRequestIEs__value_PR_AllowedNSSAI) {
-          if (!allowedNssai.decodefromAllowedNSSAI(
+          if (!allowedNssai.decode(
                   &initialContextSetupRequestIEs->protocolIEs.list.array[i]
                        ->value.choice.AllowedNSSAI)) {
             Logger::ngap().error("Decoded NGAP AllowedNSSAI IE error");
@@ -661,7 +660,7 @@ bool InitialContextSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
 }
 
 //------------------------------------------------------------------------------
-bool InitialContextSetupRequestMsg::getOldAmfName(std::string& name) {
+bool InitialContextSetupRequestMsg::getOldAmf(std::string& name) {
   if (!oldAmfName) return false;
   oldAmfName->getValue(name);
   return true;
@@ -669,10 +668,9 @@ bool InitialContextSetupRequestMsg::getOldAmfName(std::string& name) {
 
 //------------------------------------------------------------------------------
 bool InitialContextSetupRequestMsg::getUEAggregateMaxBitRate(
-    long& bit_rate_downlink, long& bit_rate_uplink) {
+    uint64_t& bit_rate_downlink, uint64_t& bit_rate_uplink) {
   if (!uEAggregateMaxBitRate) return false;
-  return uEAggregateMaxBitRate->getUEAggregateMaxBitRate(
-      bit_rate_downlink, bit_rate_uplink);
+  return uEAggregateMaxBitRate->get(bit_rate_downlink, bit_rate_uplink);
 }
 
 //------------------------------------------------------------------------------
@@ -756,7 +754,7 @@ bool InitialContextSetupRequestMsg::getPduSessionResourceSetupRequestList(
 bool InitialContextSetupRequestMsg::getAllowedNssai(
     std::vector<S_Nssai>& list) {
   std::vector<S_NSSAI> snssaiList;
-  allowedNssai.getAllowedNSSAI(snssaiList);
+  allowedNssai.get(snssaiList);
   for (std::vector<S_NSSAI>::iterator it = std::begin(snssaiList);
        it < std::end(snssaiList); ++it) {
     S_Nssai s_nssai = {};

@@ -167,8 +167,7 @@ void HandoverRequest::setCause(
 //------------------------------------------------------------------------------
 void HandoverRequest::setUEAggregateMaximumBitRate(
     const long& bitRateDownlink, const long& bitRateUplink) {
-  ueAggregateMaximumBitRate.setUEAggregateMaxBitRate(
-      bitRateDownlink, bitRateUplink);
+  ueAggregateMaximumBitRate.set(bitRateDownlink, bitRateUplink);
 
   Ngap_HandoverRequestIEs_t* ie =
       (Ngap_HandoverRequestIEs_t*) calloc(1, sizeof(Ngap_HandoverRequestIEs_t));
@@ -176,8 +175,7 @@ void HandoverRequest::setUEAggregateMaximumBitRate(
   ie->criticality = Ngap_Criticality_reject;
   ie->value.present =
       Ngap_HandoverRequestIEs__value_PR_UEAggregateMaximumBitRate;
-  ueAggregateMaximumBitRate.encode2UEAggregateMaxBitRate(
-      ie->value.choice.UEAggregateMaximumBitRate);
+  ueAggregateMaximumBitRate.encode(ie->value.choice.UEAggregateMaximumBitRate);
 
   int ret = ASN_SEQUENCE_ADD(&handoverRequestIEs->protocolIEs.list, ie);
   if (ret != 0)
@@ -342,9 +340,8 @@ void HandoverRequest::setMobilityRestrictionList(const PlmnId& m_plmnId) {
   ie->id            = Ngap_ProtocolIE_ID_id_MobilityRestrictionList;
   ie->criticality   = Ngap_Criticality_ignore;
   ie->value.present = Ngap_HandoverRequestIEs__value_PR_MobilityRestrictionList;
-  mobilityRestrictionList->setMobilityRestrictionList(m_plmnId);
-  mobilityRestrictionList->encodeMobilityRestrictionList(
-      &(ie->value.choice.MobilityRestrictionList));
+  mobilityRestrictionList->setPLMN(m_plmnId);
+  mobilityRestrictionList->encode(&(ie->value.choice.MobilityRestrictionList));
   int ret = ASN_SEQUENCE_ADD(&handoverRequestIEs->protocolIEs.list, ie);
   if (ret != 0) Logger::ngap().error("Encode MobilityRestrictionList IE error");
 }
