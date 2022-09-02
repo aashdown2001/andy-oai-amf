@@ -205,7 +205,7 @@ void PduSessionResourceSetupRequestMsg::setPduSessionResourceSetupRequestList(
   for (int i = 0; i < list.size(); i++) {
     PDUSessionResourceSetupItemSUReq itemSUReq = {};
     PDUSessionID pDUSessionID                  = {};
-    pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+    pDUSessionID.set(list[i].pduSessionId);
     NAS_PDU* m_nAS_PDU = nullptr;
     if (list[i].pduSessionNAS_PDU) {
       m_nAS_PDU = new NAS_PDU();
@@ -265,7 +265,7 @@ bool PduSessionResourceSetupRequestMsg::getPduSessionResourceSetupRequestList(
     item.getPDUSessionResourceSetupItemSUReq(
         pDUSessionID, nAS_PDU, s_NSSAI,
         request.pduSessionResourceSetupRequestTransfer);
-    pDUSessionID.getPDUSessionID(request.pduSessionId);
+    pDUSessionID.get(request.pduSessionId);
     s_NSSAI.getSst(request.s_nssai.sst);
     s_NSSAI.getSd(request.s_nssai.sd);
     if (nAS_PDU) {

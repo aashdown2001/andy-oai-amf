@@ -194,6 +194,28 @@ void DownLinkNasTransportMsg::setMobilityRestrictionList(
     const MobilityRestrictionList& mobility_restriction_list) {
   mobilityRestrictionList =
       std::make_optional<MobilityRestrictionList>(mobility_restriction_list);
+
+  Ngap_DownlinkNASTransport_IEs_t* ie =
+      (Ngap_DownlinkNASTransport_IEs_t*) calloc(
+          1, sizeof(Ngap_DownlinkNASTransport_IEs_t));
+  ie->id          = Ngap_ProtocolIE_ID_id_MobilityRestrictionList;
+  ie->criticality = Ngap_Criticality_ignore;
+  ie->value.present =
+      Ngap_DownlinkNASTransport_IEs__value_PR_MobilityRestrictionList;
+
+  int ret = mobilityRestrictionList.value().encode(
+      &ie->value.choice.MobilityRestrictionList);
+  if (!ret) {
+    Logger::ngap().error("Encode MobilityRestrictionList IE error");
+    free_wrapper((void**) &ie);
+    return;
+  }
+
+  ret = ASN_SEQUENCE_ADD(&downLinkNasTransportIEs->protocolIEs.list, ie);
+  if (ret != 0)
+    Logger::ngap().error("Encode NGAP MobilityRestrictionList IE error");
+
+  return;
 }
 
 //------------------------------------------------------------------------------
@@ -208,6 +230,28 @@ bool DownLinkNasTransportMsg::getMobilityRestrictionList(
 void DownLinkNasTransportMsg::setUEAggregateMaxBitRate(
     const UEAggregateMaxBitRate& bit_rate) {
   uEAggregateMaxBitRate = std::make_optional<UEAggregateMaxBitRate>(bit_rate);
+
+  Ngap_DownlinkNASTransport_IEs_t* ie =
+      (Ngap_DownlinkNASTransport_IEs_t*) calloc(
+          1, sizeof(Ngap_DownlinkNASTransport_IEs_t));
+  ie->id          = Ngap_ProtocolIE_ID_id_UEAggregateMaximumBitRate;
+  ie->criticality = Ngap_Criticality_ignore;
+  ie->value.present =
+      Ngap_DownlinkNASTransport_IEs__value_PR_UEAggregateMaximumBitRate;
+
+  int ret = uEAggregateMaxBitRate.value().encode(
+      ie->value.choice.UEAggregateMaximumBitRate);
+  if (!ret) {
+    Logger::ngap().error("Encode UEAggregateMaximumBitRate IE error");
+    free_wrapper((void**) &ie);
+    return;
+  }
+
+  ret = ASN_SEQUENCE_ADD(&downLinkNasTransportIEs->protocolIEs.list, ie);
+  if (ret != 0)
+    Logger::ngap().error("Encode NGAP UEAggregateMaximumBitRate IE error");
+
+  return;
 };
 
 //------------------------------------------------------------------------------
@@ -254,6 +298,23 @@ bool DownLinkNasTransportMsg::getIndex2Rat_FrequencySelectionPriority(
 void DownLinkNasTransportMsg::setAllowedNssai(
     const AllowedNSSAI& allowed_nssai) {
   allowedNssai = std::make_optional<AllowedNSSAI>(allowed_nssai);
+
+  Ngap_DownlinkNASTransport_IEs_t* ie =
+      (Ngap_DownlinkNASTransport_IEs_t*) calloc(
+          1, sizeof(Ngap_DownlinkNASTransport_IEs_t));
+  ie->id            = Ngap_ProtocolIE_ID_id_AllowedNSSAI;
+  ie->criticality   = Ngap_Criticality_reject;
+  ie->value.present = Ngap_DownlinkNASTransport_IEs__value_PR_AllowedNSSAI;
+
+  int ret = allowedNssai.value().encode(&ie->value.choice.AllowedNSSAI);
+  if (!ret) {
+    Logger::ngap().error("Encode AllowedNSSAI IE error");
+    free_wrapper((void**) &ie);
+    return;
+  }
+
+  ret = ASN_SEQUENCE_ADD(&downLinkNasTransportIEs->protocolIEs.list, ie);
+  if (ret != 0) Logger::ngap().error("Encode AllowedNSSAI IE error");
 }
 
 //------------------------------------------------------------------------------

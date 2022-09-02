@@ -139,7 +139,7 @@ void PduSessionResourceModifyRequestMsg::setPduSessionResourceModifyRequestList(
 
   for (int i = 0; i < list.size(); i++) {
     PDUSessionID pDUSessionID = {};
-    pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+    pDUSessionID.set(list[i].pduSessionId);
     NAS_PDU nAS_PDU = {};
     if (list[i].pduSessionNAS_PDU) {
       nAS_PDU.setNasPdu(
@@ -206,7 +206,7 @@ bool PduSessionResourceModifyRequestMsg::getPduSessionResourceModifyRequestList(
             pDUSessionID, nAS_PDU,
             request.pduSessionResourceModifyRequestTransfer, s_NSSAI);
 
-    pDUSessionID.getPDUSessionID(request.pduSessionId);
+    pDUSessionID.get(request.pduSessionId);
 
     nAS_PDU.getNasPdu(
         request.pduSessionNAS_PDU, request.sizeofpduSessionNAS_PDU);

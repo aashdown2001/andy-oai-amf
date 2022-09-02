@@ -34,8 +34,8 @@ namespace ngap {
 InitialContextSetupRequestMsg::InitialContextSetupRequestMsg()
     : NgapUEMessage() {
   initialContextSetupRequestIEs      = nullptr;
-  oldAmfName                         = nullptr;
-  uEAggregateMaxBitRate              = nullptr;
+  oldAMF                             = std::nullopt;
+  uEAggregateMaxBitRate              = std::nullopt;
   coreNetworkAssistanceInfo          = nullptr;
   pduSessionResourceSetupRequestList = nullptr;
   nasPdu                             = nullptr;
@@ -103,8 +103,9 @@ void InitialContextSetupRequestMsg::setRanUeNgapId(
 
 //------------------------------------------------------------------------------
 void InitialContextSetupRequestMsg::setOldAmf(const std::string& name) {
-  if (!oldAmfName) oldAmfName = new AmfName();
-  oldAmfName->setValue(name);
+  AmfName tmp = {};
+  tmp.setValue(name);
+  oldAMF = std::optional<AmfName>(tmp);
 
   Ngap_InitialContextSetupRequestIEs_t* ie =
       (Ngap_InitialContextSetupRequestIEs_t*) calloc(
@@ -113,7 +114,7 @@ void InitialContextSetupRequestMsg::setOldAmf(const std::string& name) {
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_InitialContextSetupRequestIEs__value_PR_AMFName;
 
-  int ret = oldAmfName->encode(&ie->value.choice.AMFName);
+  int ret = oldAMF.value().encode(&ie->value.choice.AMFName);
   if (!ret) {
     Logger::ngap().error("Encode oldAmfName IE error!");
     free_wrapper((void**) &ie);
@@ -127,10 +128,9 @@ void InitialContextSetupRequestMsg::setOldAmf(const std::string& name) {
 //------------------------------------------------------------------------------
 void InitialContextSetupRequestMsg::setUEAggregateMaxBitRate(
     const uint64_t& bit_rate_downlink, const uint64_t& bit_rate_uplink) {
-  if (!uEAggregateMaxBitRate)
-    uEAggregateMaxBitRate = new UEAggregateMaxBitRate();
-
-  uEAggregateMaxBitRate->set(bit_rate_downlink, bit_rate_uplink);
+  UEAggregateMaxBitRate tmp = {};
+  tmp.set(bit_rate_downlink, bit_rate_uplink);
+  uEAggregateMaxBitRate = std::optional<UEAggregateMaxBitRate>(tmp);
 
   Ngap_InitialContextSetupRequestIEs_t* ie =
       (Ngap_InitialContextSetupRequestIEs_t*) calloc(
@@ -140,8 +140,8 @@ void InitialContextSetupRequestMsg::setUEAggregateMaxBitRate(
   ie->value.present =
       Ngap_InitialContextSetupRequestIEs__value_PR_UEAggregateMaximumBitRate;
 
-  int ret =
-      uEAggregateMaxBitRate->encode(ie->value.choice.UEAggregateMaximumBitRate);
+  int ret = uEAggregateMaxBitRate.value().encode(
+      ie->value.choice.UEAggregateMaximumBitRate);
   if (!ret) {
     Logger::ngap().error("Encode UEAggregateMaxBitRate IE error!");
     free_wrapper((void**) &ie);
@@ -150,6 +150,42 @@ void InitialContextSetupRequestMsg::setUEAggregateMaxBitRate(
 
   ret = ASN_SEQUENCE_ADD(&initialContextSetupRequestIEs->protocolIEs.list, ie);
   if (ret != 0) Logger::ngap().error("Encode UEAggregateMaxBitRate IE error!");
+}
+
+//------------------------------------------------------------------------------
+void InitialContextSetupRequestMsg::setUEAggregateMaxBitRate(
+    const UEAggregateMaxBitRate& bit_rate) {
+  uEAggregateMaxBitRate = std::make_optional<UEAggregateMaxBitRate>(bit_rate);
+
+  Ngap_InitialContextSetupRequestIEs_t* ie =
+      (Ngap_InitialContextSetupRequestIEs_t*) calloc(
+          1, sizeof(Ngap_InitialContextSetupRequestIEs_t));
+  ie->id          = Ngap_ProtocolIE_ID_id_UEAggregateMaximumBitRate;
+  ie->criticality = Ngap_Criticality_reject;
+  ie->value.present =
+      Ngap_InitialContextSetupRequestIEs__value_PR_UEAggregateMaximumBitRate;
+
+  int ret = uEAggregateMaxBitRate.value().encode(
+      ie->value.choice.UEAggregateMaximumBitRate);
+  if (!ret) {
+    Logger::ngap().error("Encode UEAggregateMaximumBitRate IE error");
+    free_wrapper((void**) &ie);
+    return;
+  }
+
+  ret = ASN_SEQUENCE_ADD(&initialContextSetupRequestIEs->protocolIEs.list, ie);
+  if (ret != 0)
+    Logger::ngap().error("Encode NGAP UEAggregateMaximumBitRate IE error");
+
+  return;
+};
+
+//------------------------------------------------------------------------------
+bool InitialContextSetupRequestMsg::getUEAggregateMaxBitRate(
+    UEAggregateMaxBitRate& bit_rate) {
+  if (!uEAggregateMaxBitRate.has_value()) return false;
+  bit_rate = uEAggregateMaxBitRate.value();
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -162,7 +198,7 @@ void InitialContextSetupRequestMsg::setCoreNetworkAssistanceInfo(
     coreNetworkAssistanceInfo = new CoreNetworkAssistanceInfo();
 
   UEIdentityIndexValue m_ueIdentityIndexValue = {};
-  m_ueIdentityIndexValue.setUEIdentityIndexValue(ueIdentityIndexValue);
+  m_ueIdentityIndexValue.set(ueIdentityIndexValue);
   DefaultPagingDRX* m_pagingDRX = new DefaultPagingDRX();
   m_pagingDRX->setValue(ueSpecificDrx);
   PeriodicRegistrationUpdateTimer m_periodicRegUpdateTimer = {};
@@ -240,7 +276,7 @@ void InitialContextSetupRequestMsg::setPduSessionResourceSetupRequestList(
   for (int i = 0; i < list.size(); i++) {
     PDUSessionResourceSetupItemCxtReq pduSessionResourceSetupItemCxtReq = {};
     PDUSessionID pDUSessionID                                           = {};
-    pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+    pDUSessionID.set(list[i].pduSessionId);
     NAS_PDU* nAS_PDU = nullptr;
     if (list[i].pduSessionNAS_PDU) {
       nAS_PDU = new NAS_PDU();
@@ -485,13 +521,14 @@ bool InitialContextSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
             initialContextSetupRequestIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_InitialContextSetupRequestIEs__value_PR_AMFName) {
-          oldAmfName = new AmfName();
-          if (!oldAmfName->decode(
+          AmfName tmp = {};
+          if (!tmp.decode(
                   &initialContextSetupRequestIEs->protocolIEs.list.array[i]
                        ->value.choice.AMFName)) {
             Logger::ngap().error("Decoded NGAP OldAMFName IE error");
             return false;
           }
+          oldAMF = std::optional<AmfName>(tmp);
         } else {
           Logger::ngap().error("Decoded NGAP OldAMFName IE error");
           return false;
@@ -503,14 +540,15 @@ bool InitialContextSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
             initialContextSetupRequestIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_InitialContextSetupRequestIEs__value_PR_UEAggregateMaximumBitRate) {
-          uEAggregateMaxBitRate = new UEAggregateMaxBitRate();
-          if (!uEAggregateMaxBitRate->decode(
+          UEAggregateMaxBitRate tmp = {};
+          if (!tmp.decode(
                   initialContextSetupRequestIEs->protocolIEs.list.array[i]
                       ->value.choice.UEAggregateMaximumBitRate)) {
             Logger::ngap().error(
                 "Decoded NGAP UEAggregateMaximumBitRate IE error");
             return false;
           }
+          uEAggregateMaxBitRate = std::optional<UEAggregateMaxBitRate>(tmp);
         } else {
           Logger::ngap().error(
               "Decoded NGAP UEAggregateMaximumBitRate IE error");
@@ -661,16 +699,17 @@ bool InitialContextSetupRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
 
 //------------------------------------------------------------------------------
 bool InitialContextSetupRequestMsg::getOldAmf(std::string& name) {
-  if (!oldAmfName) return false;
-  oldAmfName->getValue(name);
+  if (!oldAMF.has_value()) return false;
+  oldAMF.value().getValue(name);
   return true;
 }
 
 //------------------------------------------------------------------------------
 bool InitialContextSetupRequestMsg::getUEAggregateMaxBitRate(
     uint64_t& bit_rate_downlink, uint64_t& bit_rate_uplink) {
-  if (!uEAggregateMaxBitRate) return false;
-  return uEAggregateMaxBitRate->get(bit_rate_downlink, bit_rate_uplink);
+  if (!uEAggregateMaxBitRate.has_value()) return false;
+  uEAggregateMaxBitRate.value().get(bit_rate_downlink, bit_rate_uplink);
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -688,7 +727,7 @@ bool InitialContextSetupRequestMsg::getCoreNetworkAssistanceInfo(
   coreNetworkAssistanceInfo->getCoreNetworkAssistanceInfo(
       m_ueIdentityIndexValue, m_pagingDRX, m_periodicRegUpdateTimer,
       micoModeInd, taiList);
-  m_ueIdentityIndexValue.getUEIdentityIndexValue(ueIdentityIndexValue);
+  m_ueIdentityIndexValue.get(ueIdentityIndexValue);
   if (m_pagingDRX)
     ueSpecificDrx = m_pagingDRX->getValue();
   else
@@ -733,7 +772,7 @@ bool InitialContextSetupRequestMsg::getPduSessionResourceSetupRequestList(
     it->getPDUSessionResourceSetupItemCxtReq(
         pDUSessionID, nAS_PDU, s_NSSAI,
         request.pduSessionResourceSetupRequestTransfer);
-    pDUSessionID.getPDUSessionID(request.pduSessionId);
+    pDUSessionID.get(request.pduSessionId);
     s_NSSAI.getSst(request.s_nssai.sst);
     s_NSSAI.getSd(request.s_nssai.sd);
     if (nAS_PDU) {

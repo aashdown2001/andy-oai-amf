@@ -52,8 +52,7 @@ bool PDUSessionResourceSetupItemCxtRes::
     encode2PDUSessionResourceSetupItemCxtRes(
         Ngap_PDUSessionResourceSetupItemCxtRes_t*
             pduSessionResourceSetupItemCxtRes) {
-  if (!pDUSessionID.encode2PDUSessionID(
-          pduSessionResourceSetupItemCxtRes->pDUSessionID))
+  if (!pDUSessionID.encode(pduSessionResourceSetupItemCxtRes->pDUSessionID))
     return false;
   pduSessionResourceSetupItemCxtRes->pDUSessionResourceSetupResponseTransfer =
       pDUSessionResourceSetupResponseTransfer;
@@ -66,8 +65,7 @@ bool PDUSessionResourceSetupItemCxtRes::
     decodefromPDUSessionResourceSetupItemCxtRes(
         Ngap_PDUSessionResourceSetupItemCxtRes_t*
             pduSessionResourceSetupItemCxtRes) {
-  if (!pDUSessionID.decodefromPDUSessionID(
-          pduSessionResourceSetupItemCxtRes->pDUSessionID))
+  if (!pDUSessionID.decode(pduSessionResourceSetupItemCxtRes->pDUSessionID))
     return false;
   pDUSessionResourceSetupResponseTransfer =
       pduSessionResourceSetupItemCxtRes

@@ -39,6 +39,7 @@ class Cause {
   Ngap_Cause_PR getChoiceOfCause() const;
   void setValue(const long& value);
   long getValue() const;
+  void set(const long& value, const Ngap_Cause_PR& cause_present);
 
  private:
   long cause_value_;

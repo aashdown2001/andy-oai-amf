@@ -282,7 +282,7 @@ void HandoverRequest::setPduSessionResourceSetupList(
 
   for (int i = 0; i < list.size(); i++) {
     PDUSessionID* m_pDUSessionID = new PDUSessionID();
-    m_pDUSessionID->setPDUSessionID(list[i].pduSessionId);
+    m_pDUSessionID->set(list[i].pduSessionId);
     S_NSSAI* m_s_NSSAI = new S_NSSAI();
     m_s_NSSAI->setSst(list[i].s_nssai.sst);
     if (list[i].s_nssai.sd.size()) m_s_NSSAI->setSd(list[i].s_nssai.sd);

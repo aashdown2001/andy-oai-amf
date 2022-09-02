@@ -41,8 +41,7 @@ void PDUSessionResourceSetupItemHOReq::setPDUSessionResourceSetupItemHOReq(
 }
 bool PDUSessionResourceSetupItemHOReq::encode2PDUSessionResourceSetupItemHOReq(
     Ngap_PDUSessionResourceSetupItemHOReq_t* pduSessionResourceSetupItemHOReq) {
-  if (!pDUSessionID->encode2PDUSessionID(
-          pduSessionResourceSetupItemHOReq->pDUSessionID))
+  if (!pDUSessionID->encode(pduSessionResourceSetupItemHOReq->pDUSessionID))
     return false;
   if (!s_NSSAI->encode(&pduSessionResourceSetupItemHOReq->s_NSSAI))
     return false;
@@ -57,8 +56,7 @@ bool PDUSessionResourceSetupItemHOReq::
             pduSessionResourceSetupItemHOReq) {
   if (pDUSessionID == nullptr) pDUSessionID = new PDUSessionID();
   s_NSSAI = new S_NSSAI();
-  if (!pDUSessionID->decodefromPDUSessionID(
-          pduSessionResourceSetupItemHOReq->pDUSessionID))
+  if (!pDUSessionID->decode(pduSessionResourceSetupItemHOReq->pDUSessionID))
     return false;
   if (!s_NSSAI->decode(&pduSessionResourceSetupItemHOReq->s_NSSAI))
     return false;

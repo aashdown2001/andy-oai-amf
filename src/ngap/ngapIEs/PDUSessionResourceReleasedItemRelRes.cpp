@@ -54,8 +54,7 @@ bool PDUSessionResourceReleasedItemRelRes::
     encode2PDUSessionResourceReleasedItemRelRes(
         Ngap_PDUSessionResourceReleasedItemRelRes_t*
             pduSessionResourceReleasedItemRelRes) {
-  if (!pDUSessionID.encode2PDUSessionID(
-          pduSessionResourceReleasedItemRelRes->pDUSessionID))
+  if (!pDUSessionID.encode(pduSessionResourceReleasedItemRelRes->pDUSessionID))
     return false;
 
   pduSessionResourceReleasedItemRelRes
@@ -70,8 +69,7 @@ bool PDUSessionResourceReleasedItemRelRes::
     decodefromPDUSessionResourceReleasedItemRelRes(
         Ngap_PDUSessionResourceReleasedItemRelRes_t*
             pduSessionResourceReleasedItemRelRes) {
-  pDUSessionID.setPDUSessionID(
-      pduSessionResourceReleasedItemRelRes->pDUSessionID);
+  pDUSessionID.set(pduSessionResourceReleasedItemRelRes->pDUSessionID);
   pDUSessionResourceReleaseResponseTransfer =
       pduSessionResourceReleasedItemRelRes
           ->pDUSessionResourceReleaseResponseTransfer;

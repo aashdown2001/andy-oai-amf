@@ -109,7 +109,7 @@ void PduSessionResourceReleaseResponseMsg::setPduSessionResourceReleasedList(
   for (int i = 0; i < list.size(); i++) {
     PDUSessionResourceReleasedItemRelRes itemRelRes = {};
     PDUSessionID pDUSessionID                       = {};
-    pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+    pDUSessionID.set(list[i].pduSessionId);
 
     itemRelRes.setPDUSessionResourceReleasedItemRelRes(
         pDUSessionID, list[i].pduSessionResourceReleaseResponseTransfer);
@@ -158,7 +158,7 @@ bool PduSessionResourceReleaseResponseMsg::getPduSessionResourceReleasedList(
 
     item.getPDUSessionResourceReleasedItemRelRes(
         pDUSessionID, rel.pduSessionResourceReleaseResponseTransfer);
-    pDUSessionID.getPDUSessionID(rel.pduSessionId);
+    pDUSessionID.get(rel.pduSessionId);
 
     list.push_back(rel);
   }

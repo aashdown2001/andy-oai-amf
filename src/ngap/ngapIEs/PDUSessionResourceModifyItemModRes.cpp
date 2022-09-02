@@ -46,8 +46,7 @@ bool PDUSessionResourceModifyItemModRes::
     encode2PDUSessionResourceModifyItemModRes(
         Ngap_PDUSessionResourceModifyItemModRes_t&
             pduSessionResourceModifyItemModReq) {
-  if (!pDUSessionID.encode2PDUSessionID(
-          pduSessionResourceModifyItemModReq.pDUSessionID))
+  if (!pDUSessionID.encode(pduSessionResourceModifyItemModReq.pDUSessionID))
     return false;
 
   pduSessionResourceModifyItemModReq.pDUSessionResourceModifyResponseTransfer =
@@ -61,8 +60,7 @@ bool PDUSessionResourceModifyItemModRes::
     decodefromPDUSessionResourceModifyItemModRes(
         Ngap_PDUSessionResourceModifyItemModRes_t&
             pduSessionResourceModifyItemModReq) {
-  if (!pDUSessionID.decodefromPDUSessionID(
-          pduSessionResourceModifyItemModReq.pDUSessionID))
+  if (!pDUSessionID.decode(pduSessionResourceModifyItemModReq.pDUSessionID))
     return false;
 
   pDUSessionResourceModifyResponseTransfer =

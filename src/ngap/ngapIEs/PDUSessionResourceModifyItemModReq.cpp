@@ -54,8 +54,7 @@ bool PDUSessionResourceModifyItemModReq::
     encode2PDUSessionResourceModifyItemModReq(
         Ngap_PDUSessionResourceModifyItemModReq_t&
             pduSessionResourceModifyItemModReq) {
-  if (!pDUSessionID.encode2PDUSessionID(
-          pduSessionResourceModifyItemModReq.pDUSessionID))
+  if (!pDUSessionID.encode(pduSessionResourceModifyItemModReq.pDUSessionID))
     return false;
   if (nAS_PDU) {
     pduSessionResourceModifyItemModReq.nAS_PDU =
@@ -79,8 +78,7 @@ bool PDUSessionResourceModifyItemModReq::
     decodefromPDUSessionResourceModifyItemModReq(
         Ngap_PDUSessionResourceModifyItemModReq_t&
             pduSessionResourceModifyItemModReq) {
-  if (!pDUSessionID.decodefromPDUSessionID(
-          pduSessionResourceModifyItemModReq.pDUSessionID))
+  if (!pDUSessionID.decode(pduSessionResourceModifyItemModReq.pDUSessionID))
     return false;
 
   if (pduSessionResourceModifyItemModReq.nAS_PDU) {

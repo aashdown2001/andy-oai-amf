@@ -42,7 +42,7 @@ void PDUSessionResourceReleaseItemCmd::setPDUSessionResourceReleaseItemCmd(
 bool PDUSessionResourceReleaseItemCmd::encode2PDUSessionResourceReleaseItemCmd(
     Ngap_PDUSessionResourceToReleaseItemRelCmd_t*
         pduSessionResourceReleaseCommandTransfer) {
-  if (!pDUSessionID->encode2PDUSessionID(
+  if (!pDUSessionID->encode(
           pduSessionResourceReleaseCommandTransfer->pDUSessionID))
     return false;
   pduSessionResourceReleaseCommandTransfer
@@ -56,7 +56,7 @@ bool PDUSessionResourceReleaseItemCmd::
         Ngap_PDUSessionResourceToReleaseItemRelCmd_t*
             pduSessionResourceReleaseCommandTransfer) {
   if (pDUSessionID == nullptr) pDUSessionID = new PDUSessionID();
-  if (!pDUSessionID->decodefromPDUSessionID(
+  if (!pDUSessionID->decode(
           pduSessionResourceReleaseCommandTransfer->pDUSessionID))
     return false;
   pDUSessionResourceReleaseCommandTransfer =

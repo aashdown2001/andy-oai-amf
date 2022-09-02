@@ -177,7 +177,7 @@ void PduSessionResourceReleaseCommandMsg::setPduSessionResourceToReleaseList(
   for (int i = 0; i < list.size(); i++) {
     PDUSessionResourceToReleaseItemRelCmd itemRelCmd = {};
     PDUSessionID pDUSessionID                        = {};
-    pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+    pDUSessionID.set(list[i].pduSessionId);
     itemRelCmd.setPDUSessionResourceToReleaseItemRelCmd(
         pDUSessionID, list[i].pduSessionResourceReleaseCommandTransfer);
     itemRelCmdList.push_back(itemRelCmd);
@@ -224,7 +224,7 @@ bool PduSessionResourceReleaseCommandMsg::getPduSessionResourceToReleaseList(
 
     item.getPDUSessionResourceToReleaseItemRelCmd(
         pDUSessionID, rel.pduSessionResourceReleaseCommandTransfer);
-    pDUSessionID.getPDUSessionID(rel.pduSessionId);
+    pDUSessionID.get(rel.pduSessionId);
 
     list.push_back(rel);
   }

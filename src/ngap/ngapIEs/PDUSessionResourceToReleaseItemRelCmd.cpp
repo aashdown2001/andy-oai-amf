@@ -56,8 +56,7 @@ bool PDUSessionResourceToReleaseItemRelCmd::
     encode2PDUSessionResourceToReleaseItemRelCmd(
         Ngap_PDUSessionResourceToReleaseItemRelCmd_t*
             pduSessionResourceToReleaseItemRelCmd) {
-  if (!pDUSessionID.encode2PDUSessionID(
-          pduSessionResourceToReleaseItemRelCmd->pDUSessionID))
+  if (!pDUSessionID.encode(pduSessionResourceToReleaseItemRelCmd->pDUSessionID))
     return false;
 
   pduSessionResourceToReleaseItemRelCmd

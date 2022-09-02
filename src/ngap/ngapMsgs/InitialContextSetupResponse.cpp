@@ -105,7 +105,7 @@ void InitialContextSetupResponseMsg::setPduSessionResourceSetupResponseList(
   std::vector<PDUSessionResourceSetupItemCxtRes> itemCxtResList;
   for (int i = 0; i < list.size(); i++) {
     PDUSessionID m_pDUSessionID = {};
-    m_pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+    m_pDUSessionID.set(list[i].pduSessionId);
     PDUSessionResourceSetupItemCxtRes itemCxtRes = {};
     itemCxtRes.setPDUSessionResourceSetupItemCxtRes(
         m_pDUSessionID, list[i].pduSessionResourceSetupResponseTransfer);
@@ -149,7 +149,7 @@ void InitialContextSetupResponseMsg::setPduSessionResourceFailedToSetupList(
 
   for (int i = 0; i < list.size(); i++) {
     PDUSessionID pDUSessionID = {};
-    pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+    pDUSessionID.set(list[i].pduSessionId);
     PDUSessionResourceFailedToSetupItemCxtRes itemCxtRes = {};
     itemCxtRes.setPDUSessionResourceFailedToSetupItemCxtRes(
         pDUSessionID, list[i].pduSessionResourceSetupUnsuccessfulTransfer);
@@ -329,7 +329,7 @@ bool InitialContextSetupResponseMsg::getPduSessionResourceSetupResponseList(
     PDUSessionID m_pDUSessionID = {};
     it->getPDUSessionResourceSetupItemCxtRes(
         m_pDUSessionID, response.pduSessionResourceSetupResponseTransfer);
-    m_pDUSessionID.getPDUSessionID(response.pduSessionId);
+    m_pDUSessionID.get(response.pduSessionId);
     list.push_back(response);
   }
 
@@ -354,7 +354,7 @@ bool InitialContextSetupResponseMsg::getPduSessionResourceFailedToSetupList(
     it->getPDUSessionResourceFailedToSetupItemCxtRes(
         pDUSessionID,
         failedToResponse.pduSessionResourceSetupUnsuccessfulTransfer);
-    pDUSessionID.getPDUSessionID(failedToResponse.pduSessionId);
+    pDUSessionID.get(failedToResponse.pduSessionId);
 
     list.push_back(failedToResponse);
   }

@@ -50,8 +50,7 @@ void PDUSessionResourceSetupItemSURes::getPDUSessionResourceSetupItemSURes(
 //------------------------------------------------------------------------------
 bool PDUSessionResourceSetupItemSURes::encode2PDUSessionResourceSetupItemSURes(
     Ngap_PDUSessionResourceSetupItemSURes_t* pduSessionResourceSetupItemSURes) {
-  if (!pDUSessionID.encode2PDUSessionID(
-          pduSessionResourceSetupItemSURes->pDUSessionID))
+  if (!pDUSessionID.encode(pduSessionResourceSetupItemSURes->pDUSessionID))
     return false;
   pduSessionResourceSetupItemSURes->pDUSessionResourceSetupResponseTransfer =
       pDUSessionResourceSetupResponseTransfer;
@@ -64,8 +63,7 @@ bool PDUSessionResourceSetupItemSURes::
     decodefromPDUSessionResourceSetupItemSURes(
         Ngap_PDUSessionResourceSetupItemSURes_t*
             pduSessionResourceSetupItemSURes) {
-  if (!pDUSessionID.decodefromPDUSessionID(
-          pduSessionResourceSetupItemSURes->pDUSessionID))
+  if (!pDUSessionID.decode(pduSessionResourceSetupItemSURes->pDUSessionID))
     return false;
   pDUSessionResourceSetupResponseTransfer =
       pduSessionResourceSetupItemSURes->pDUSessionResourceSetupResponseTransfer;

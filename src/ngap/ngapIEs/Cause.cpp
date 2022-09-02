@@ -112,4 +112,10 @@ Ngap_Cause_PR Cause::getChoiceOfCause() const {
 long Cause::getValue() const {
   return cause_value_;
 }
+
+//------------------------------------------------------------------------------
+void Cause::set(const long& value, const Ngap_Cause_PR& cause_present) {
+  cause_value_   = value;
+  cause_present_ = cause_present;
+}
 }  // namespace ngap

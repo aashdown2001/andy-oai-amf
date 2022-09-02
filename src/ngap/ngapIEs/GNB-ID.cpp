@@ -82,8 +82,8 @@ bool GNB_ID::encode(Ngap_GNB_ID_t& gnbid) {
     return true;
   }
 
-  gnbid.present            = Ngap_GNB_ID_PR_gNB_ID;
-  gnbid.choice.gNB_ID.size = 4;  // TODO: to be vefified
+  gnbid.present                   = Ngap_GNB_ID_PR_gNB_ID;
+  gnbid.choice.gNB_ID.size        = 4;  // TODO: to be vefified
   gnbid.choice.gNB_ID.bits_unused = 32 - gnb_id_.value().bit_length;
   gnbid.choice.gNB_ID.buf         = (uint8_t*) calloc(1, 4 * sizeof(uint8_t));
   if (!gnbid.choice.gNB_ID.buf) return false;

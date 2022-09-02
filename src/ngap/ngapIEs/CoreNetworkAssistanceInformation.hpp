@@ -63,7 +63,6 @@ class CoreNetworkAssistanceInfo {
   PeriodicRegistrationUpdateTimer periodicRegUpdateTimer;  // Mandatory
   MICOModeIndication* micoModeInd;                         // Optional
   std::vector<TAI> taiList;                                // Mandatory
-  // int numoftai;
   // TODO: Expected UE Behaviour (Optional)
 };
 

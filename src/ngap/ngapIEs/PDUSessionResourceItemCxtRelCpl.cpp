@@ -44,8 +44,7 @@ void PDUSessionResourceItemCxtRelCpl::getPDUSessionResourceItemCxtRelCpl(
 //------------------------------------------------------------------------------
 bool PDUSessionResourceItemCxtRelCpl::encode2PDUSessionResourceItemCxtRelCpl(
     Ngap_PDUSessionResourceItemCxtRelCpl_t* pduSessionResourceItemCxtRelCpl) {
-  if (!pDUSessionID.encode2PDUSessionID(
-          pduSessionResourceItemCxtRelCpl->pDUSessionID))
+  if (!pDUSessionID.encode(pduSessionResourceItemCxtRelCpl->pDUSessionID))
     return false;
 
   return true;
@@ -54,7 +53,7 @@ bool PDUSessionResourceItemCxtRelCpl::encode2PDUSessionResourceItemCxtRelCpl(
 //------------------------------------------------------------------------------
 bool PDUSessionResourceItemCxtRelCpl::decodefromPDUSessionResourceItemCxtRelCpl(
     Ngap_PDUSessionResourceItemCxtRelCpl_t* pduSessionResourceItemCxtRelCpl) {
-  pDUSessionID.setPDUSessionID(pduSessionResourceItemCxtRelCpl->pDUSessionID);
+  pDUSessionID.set(pduSessionResourceItemCxtRelCpl->pDUSessionID);
 
   return true;
 }

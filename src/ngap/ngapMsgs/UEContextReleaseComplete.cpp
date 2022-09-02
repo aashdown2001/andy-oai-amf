@@ -160,7 +160,7 @@ void UEContextReleaseCompleteMsg::setPduSessionResourceCxtRelCplList(
   for (int i = 0; i < list.size(); i++) {
     PDUSessionResourceItemCxtRelCpl item = {};
     PDUSessionID pDUSessionID            = {};
-    pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+    pDUSessionID.set(list[i].pduSessionId);
 
     item.setPDUSessionResourceItemCxtRelCpl(pDUSessionID);
     cxtRelCplList.push_back(item);
@@ -214,7 +214,7 @@ bool UEContextReleaseCompleteMsg::getPduSessionResourceCxtRelCplList(
     PDUSessionResourceCxtRelCplItem_t rel = {};
     PDUSessionID pDUSessionID             = {};
     item.getPDUSessionResourceItemCxtRelCpl(pDUSessionID);
-    pDUSessionID.getPDUSessionID(rel.pduSessionId);
+    pDUSessionID.get(rel.pduSessionId);
     list.push_back(rel);
   }
   return true;

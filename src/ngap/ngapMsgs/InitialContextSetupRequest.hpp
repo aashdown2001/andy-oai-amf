@@ -58,6 +58,9 @@ class InitialContextSetupRequestMsg : public NgapUEMessage {
   bool getUEAggregateMaxBitRate(
       uint64_t& bit_rate_downlink, uint64_t& bit_rate_uplink);
 
+  void setUEAggregateMaxBitRate(const UEAggregateMaxBitRate& bit_rate);
+  bool getUEAggregateMaxBitRate(UEAggregateMaxBitRate& bit_rate);
+
   void setCoreNetworkAssistanceInfo(
       const uint16_t& ueIdentityIndexValue /*10bits*/,
       const e_Ngap_PagingDRX& ueSpecificDrx,
@@ -101,10 +104,10 @@ class InitialContextSetupRequestMsg : public NgapUEMessage {
  private:
   Ngap_InitialContextSetupRequest_t* initialContextSetupRequestIEs;
 
-  AmfName* oldAmfName;                                   // Optional
-  UEAggregateMaxBitRate* uEAggregateMaxBitRate;          // Conditional
-  CoreNetworkAssistanceInfo* coreNetworkAssistanceInfo;  // Optional
-  GUAMI guami;                                           // Mandatory
+  std::optional<AmfName> oldAMF;                               // Optional
+  std::optional<UEAggregateMaxBitRate> uEAggregateMaxBitRate;  // Conditional
+  CoreNetworkAssistanceInfo* coreNetworkAssistanceInfo;        // Optional
+  GUAMI guami;                                                 // Mandatory
   PDUSessionResourceSetupListCxtReq*
       pduSessionResourceSetupRequestList;         // Optional
   AllowedNSSAI allowedNssai;                      // Mandatory

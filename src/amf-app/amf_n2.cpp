@@ -1612,7 +1612,7 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
     OCTET_STRING_t handoverRequiredTransfer = {};
     item.getPDUSessionResourceItemHORqd(pDUSessionID, handoverRequiredTransfer);
     uint8_t pduSessionIDValue = 0;
-    pDUSessionID.getPDUSessionID(pduSessionIDValue);
+    pDUSessionID.get(pduSessionIDValue);
 
     Logger::ngap().debug("PDU Session ID %d", pduSessionIDValue);
     std::shared_ptr<pdu_session_context> psc = {};
@@ -1844,7 +1844,7 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
         unsigned int data_len                  = n2_sm.length();
         PDUSessionID pDUSessionID              = {};
         OCTET_STRING_t handoverCommandTransfer = {};
-        pDUSessionID.setPDUSessionID(pduSessionIDValue);
+        pDUSessionID.set(pduSessionIDValue);
         OCTET_STRING_fromBuf(
             &handoverCommandTransfer, n2_sm.c_str(), n2_sm.length());
         handoverItem.setPDUSessionResourceHandoverItem(

@@ -33,16 +33,17 @@ class UEIdentityIndexValue {
   UEIdentityIndexValue();
   virtual ~UEIdentityIndexValue();
 
-  void setUEIdentityIndexValue(uint16_t m_indexLength10 /*10bits限制*/);
-  void getUEIdentityIndexValue(uint16_t& m_indexLength10 /*10bits限制*/);
+  void set(const uint16_t& index);
+  bool get(uint16_t& index) const;
 
   bool encode2UEIdentityIndexValue(
-      Ngap_UEIdentityIndexValue_t* ueIdentityIndexValue);
+      Ngap_UEIdentityIndexValue_t* ue_identity_index_value);
   bool decodefromUEIdentityIndexValue(
-      Ngap_UEIdentityIndexValue_t* ueIdentityIndexValue);
+      Ngap_UEIdentityIndexValue_t* ue_identity_index_value);
 
  private:
-  uint16_t indexLength10;
+  uint16_t index_;
+  Ngap_UEIdentityIndexValue_PR present_;
 };
 
 }  // namespace ngap

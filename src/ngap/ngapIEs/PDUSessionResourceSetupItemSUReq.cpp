@@ -61,8 +61,7 @@ void PDUSessionResourceSetupItemSUReq::getPDUSessionResourceSetupItemSUReq(
 //------------------------------------------------------------------------------
 bool PDUSessionResourceSetupItemSUReq::encode2PDUSessionResourceSetupItemSUReq(
     Ngap_PDUSessionResourceSetupItemSUReq_t* pduSessionResourceSetupItemSUReq) {
-  if (!pDUSessionID.encode2PDUSessionID(
-          pduSessionResourceSetupItemSUReq->pDUSessionID))
+  if (!pDUSessionID.encode(pduSessionResourceSetupItemSUReq->pDUSessionID))
     return false;
   if (nAS_PDU) {
     Ngap_NAS_PDU_t* naspdu =
@@ -86,8 +85,7 @@ bool PDUSessionResourceSetupItemSUReq::
     decodefromPDUSessionResourceSetupItemSUReq(
         Ngap_PDUSessionResourceSetupItemSUReq_t*
             pduSessionResourceSetupItemSUReq) {
-  if (!pDUSessionID.decodefromPDUSessionID(
-          pduSessionResourceSetupItemSUReq->pDUSessionID))
+  if (!pDUSessionID.decode(pduSessionResourceSetupItemSUReq->pDUSessionID))
     return false;
   if (!s_NSSAI.decode(&pduSessionResourceSetupItemSUReq->s_NSSAI)) return false;
 

@@ -111,7 +111,7 @@ void PduSessionResourceModifyResponseMsg::
     PDUSessionID pDUSessionID               = {};
     PDUSessionResourceModifyItemModRes item = {};
 
-    pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+    pDUSessionID.set(list[i].pduSessionId);
     item.setPDUSessionResourceModifyItemModRes(
         pDUSessionID, list[i].pduSessionResourceModifyResponseTransfer);
     itemModResList.push_back(item);
@@ -160,7 +160,7 @@ bool PduSessionResourceModifyResponseMsg::
     PDUSessionID pDUSessionID                       = {};
     it.getPDUSessionResourceModifyItemModRes(
         pDUSessionID, response.pduSessionResourceModifyResponseTransfer);
-    pDUSessionID.getPDUSessionID(response.pduSessionId);
+    pDUSessionID.get(response.pduSessionId);
 
     list.push_back(response);
   }

@@ -64,8 +64,7 @@ bool PDUSessionResourceSetupItemCxtReq::
     encode2PDUSessionResourceSetupItemCxtReq(
         Ngap_PDUSessionResourceSetupItemCxtReq_t*
             pduSessionResourceSetupItemCxtReq) {
-  if (!pDUSessionID.encode2PDUSessionID(
-          pduSessionResourceSetupItemCxtReq->pDUSessionID))
+  if (!pDUSessionID.encode(pduSessionResourceSetupItemCxtReq->pDUSessionID))
     return false;
 
   if (nAS_PDU) {
@@ -92,8 +91,7 @@ bool PDUSessionResourceSetupItemCxtReq::
     decodefromPDUSessionResourceSetupItemCxtReq(
         Ngap_PDUSessionResourceSetupItemCxtReq_t*
             pduSessionResourceSetupItemCxtReq) {
-  if (!pDUSessionID.decodefromPDUSessionID(
-          pduSessionResourceSetupItemCxtReq->pDUSessionID))
+  if (!pDUSessionID.decode(pduSessionResourceSetupItemCxtReq->pDUSessionID))
     return false;
   if (!s_NSSAI.decode(&(pduSessionResourceSetupItemCxtReq->s_NSSAI)))
     return false;

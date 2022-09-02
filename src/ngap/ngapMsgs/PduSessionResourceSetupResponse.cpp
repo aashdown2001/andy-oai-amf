@@ -112,7 +112,7 @@ void PduSessionResourceSetupResponseMsg::setPduSessionResourceSetupResponseList(
   for (int i = 0; i < list.size(); i++) {
     PDUSessionResourceSetupItemSURes itemSURes = {};
     PDUSessionID pDUSessionID                  = {};
-    pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+    pDUSessionID.set(list[i].pduSessionId);
 
     itemSURes.setPDUSessionResourceSetupItemSURes(
         pDUSessionID, list[i].pduSessionResourceSetupResponseTransfer);
@@ -161,7 +161,7 @@ bool PduSessionResourceSetupResponseMsg::getPduSessionResourceSetupResponseList(
     PDUSessionID pDUSessionID = {};
     item.getPDUSessionResourceSetupItemSURes(
         pDUSessionID, response.pduSessionResourceSetupResponseTransfer);
-    pDUSessionID.getPDUSessionID(response.pduSessionId);
+    pDUSessionID.get(response.pduSessionId);
 
     list.push_back(response);
   }
@@ -181,7 +181,7 @@ void PduSessionResourceSetupResponseMsg::setPduSessionResourceFailedToSetupList(
   for (int i = 0; i < list.size(); i++) {
     PDUSessionResourceFailedToSetupItemSURes itemSURes = {};
     PDUSessionID pDUSessionID                          = {};
-    pDUSessionID.setPDUSessionID(list[i].pduSessionId);
+    pDUSessionID.set(list[i].pduSessionId);
 
     itemSURes.setPDUSessionResourceFailedToSetupItemSURes(
         pDUSessionID, list[i].pduSessionResourceSetupUnsuccessfulTransfer);
@@ -231,7 +231,7 @@ bool PduSessionResourceSetupResponseMsg::getPduSessionResourceFailedToSetupList(
     item.getPDUSessionResourceFailedToSetupItemSURes(
         pDUSessionID,
         failedToResponse.pduSessionResourceSetupUnsuccessfulTransfer);
-    pDUSessionID.getPDUSessionID(failedToResponse.pduSessionId);
+    pDUSessionID.get(failedToResponse.pduSessionId);
 
     list.push_back(failedToResponse);
   }
