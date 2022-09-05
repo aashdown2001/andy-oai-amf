@@ -32,8 +32,8 @@ namespace ngap {
 InitialContextSetupResponseMsg::InitialContextSetupResponseMsg()
     : NgapUEMessage() {
   initialContextSetupResponseIEs              = nullptr;
-  pduSessionResourceSetupResponseList         = nullptr;
-  pduSessionResourceFailedToSetupResponseList = nullptr;
+  pduSessionResourceSetupResponseList         = std::nullopt;
+  pduSessionResourceFailedToSetupResponseList = std::nullopt;
 
   setMessageType(NgapMessageType::INITIAL_CONTEXT_SETUP_RESPONSE);
   initialize();
@@ -98,22 +98,21 @@ void InitialContextSetupResponseMsg::setRanUeNgapId(
 //------------------------------------------------------------------------------
 void InitialContextSetupResponseMsg::setPduSessionResourceSetupResponseList(
     const std::vector<PDUSessionResourceSetupResponseItem_t>& list) {
-  if (!pduSessionResourceSetupResponseList)
-    pduSessionResourceSetupResponseList =
-        new PDUSessionResourceSetupListCxtRes();
+  PDUSessionResourceSetupListCxtRes tmp = {};
 
-  std::vector<PDUSessionResourceSetupItemCxtRes> itemCxtResList;
+  std::vector<PDUSessionResourceSetupItemCxtRes> item_cxt_res_list;
   for (int i = 0; i < list.size(); i++) {
-    PDUSessionID m_pDUSessionID = {};
-    m_pDUSessionID.set(list[i].pduSessionId);
-    PDUSessionResourceSetupItemCxtRes itemCxtRes = {};
-    itemCxtRes.setPDUSessionResourceSetupItemCxtRes(
-        m_pDUSessionID, list[i].pduSessionResourceSetupResponseTransfer);
-    itemCxtResList.push_back(itemCxtRes);
+    PDUSessionID pdu_session_id = {};
+    pdu_session_id.set(list[i].pduSessionId);
+    PDUSessionResourceSetupItemCxtRes item_cxt_res = {};
+    item_cxt_res.set(
+        pdu_session_id, list[i].pduSessionResourceSetupResponseTransfer);
+    item_cxt_res_list.push_back(item_cxt_res);
   }
 
-  pduSessionResourceSetupResponseList->setPDUSessionResourceSetupListCxtRes(
-      itemCxtResList);
+  tmp.set(item_cxt_res_list);
+  pduSessionResourceSetupResponseList =
+      std::optional<PDUSessionResourceSetupListCxtRes>(tmp);
 
   Ngap_InitialContextSetupResponseIEs_t* ie =
       (Ngap_InitialContextSetupResponseIEs_t*) calloc(
@@ -123,9 +122,8 @@ void InitialContextSetupResponseMsg::setPduSessionResourceSetupResponseList(
   ie->value.present =
       Ngap_InitialContextSetupResponseIEs__value_PR_PDUSessionResourceSetupListCxtRes;
 
-  int ret = pduSessionResourceSetupResponseList
-                ->encode2PDUSessionResourceSetupListCxtRes(
-                    &ie->value.choice.PDUSessionResourceSetupListCxtRes);
+  int ret = pduSessionResourceSetupResponseList.value().encode(
+      &ie->value.choice.PDUSessionResourceSetupListCxtRes);
   if (!ret) {
     Logger::ngap().error("Encode PDUSessionResourceSetupListCxtRes IE error");
     free_wrapper((void**) &ie);
@@ -140,24 +138,23 @@ void InitialContextSetupResponseMsg::setPduSessionResourceSetupResponseList(
 //------------------------------------------------------------------------------
 void InitialContextSetupResponseMsg::setPduSessionResourceFailedToSetupList(
     const std::vector<PDUSessionResourceFailedToSetupItem_t>& list) {
-  if (!pduSessionResourceFailedToSetupResponseList)
-    pduSessionResourceFailedToSetupResponseList =
-        new PDUSessionResourceFailedToSetupListCxtRes();
+  PDUSessionResourceFailedToSetupListCxtRes tmp = {};
 
-  std::vector<PDUSessionResourceFailedToSetupItemCxtRes> itemCxtResList;
-  itemCxtResList.reserve(list.size());
+  std::vector<PDUSessionResourceFailedToSetupItemCxtRes> item_cxt_res_list;
+  item_cxt_res_list.reserve(list.size());
 
   for (int i = 0; i < list.size(); i++) {
-    PDUSessionID pDUSessionID = {};
-    pDUSessionID.set(list[i].pduSessionId);
-    PDUSessionResourceFailedToSetupItemCxtRes itemCxtRes = {};
-    itemCxtRes.setPDUSessionResourceFailedToSetupItemCxtRes(
-        pDUSessionID, list[i].pduSessionResourceSetupUnsuccessfulTransfer);
-    itemCxtResList.push_back(itemCxtRes);
+    PDUSessionID pdu_session_id = {};
+    pdu_session_id.set(list[i].pduSessionId);
+    PDUSessionResourceFailedToSetupItemCxtRes item_cxt_res = {};
+    item_cxt_res.set(
+        pdu_session_id, list[i].pduSessionResourceSetupUnsuccessfulTransfer);
+    item_cxt_res_list.push_back(item_cxt_res);
   }
 
-  pduSessionResourceFailedToSetupResponseList
-      ->setPDUSessionResourceFailedToSetupListCxtRes(itemCxtResList);
+  tmp.set(item_cxt_res_list);
+  pduSessionResourceFailedToSetupResponseList =
+      std::optional<PDUSessionResourceFailedToSetupListCxtRes>(tmp);
 
   Ngap_InitialContextSetupResponseIEs_t* ie =
       (Ngap_InitialContextSetupResponseIEs_t*) calloc(
@@ -167,10 +164,8 @@ void InitialContextSetupResponseMsg::setPduSessionResourceFailedToSetupList(
   ie->value.present =
       Ngap_InitialContextSetupResponseIEs__value_PR_PDUSessionResourceFailedToSetupListCxtRes;
 
-  int ret =
-      pduSessionResourceFailedToSetupResponseList
-          ->encode2PDUSessionResourceFailedToSetupListCxtRes(
-              &ie->value.choice.PDUSessionResourceFailedToSetupListCxtRes);
+  int ret = pduSessionResourceFailedToSetupResponseList.value().encode(
+      &ie->value.choice.PDUSessionResourceFailedToSetupListCxtRes);
   if (!ret) {
     Logger::ngap().error(
         "Encode PDUSessionResourceFailedToSetupListCxtRes IE error");
@@ -253,18 +248,17 @@ bool InitialContextSetupResponseMsg::decodeFromPdu(
             initialContextSetupResponseIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_InitialContextSetupResponseIEs__value_PR_PDUSessionResourceSetupListCxtRes) {
-          pduSessionResourceSetupResponseList =
-              new PDUSessionResourceSetupListCxtRes();
-          if (!pduSessionResourceSetupResponseList
-                   ->decodefromPDUSessionResourceSetupListCxtRes(
-                       &initialContextSetupResponseIEs->protocolIEs.list
-                            .array[i]
-                            ->value.choice.PDUSessionResourceSetupListCxtRes)) {
+          PDUSessionResourceSetupListCxtRes tmp = {};
+          if (!tmp.decode(
+                  &initialContextSetupResponseIEs->protocolIEs.list.array[i]
+                       ->value.choice.PDUSessionResourceSetupListCxtRes)) {
             Logger::ngap().error(
                 "Decoded NGAP PDUSessionResourceSetupListCxtRes IE error");
 
             return false;
           }
+          pduSessionResourceSetupResponseList =
+              std::optional<PDUSessionResourceSetupListCxtRes>(tmp);
         } else {
           Logger::ngap().error(
               "Decoded NGAP PDUSessionResourceSetupListCxtRes IE error");
@@ -278,20 +272,19 @@ bool InitialContextSetupResponseMsg::decodeFromPdu(
             initialContextSetupResponseIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_InitialContextSetupResponseIEs__value_PR_PDUSessionResourceFailedToSetupListCxtRes) {
-          pduSessionResourceFailedToSetupResponseList =
-              new PDUSessionResourceFailedToSetupListCxtRes();
-          if (!pduSessionResourceFailedToSetupResponseList
-                   ->decodefromPDUSessionResourceFailedToSetupListCxtRes(
-                       &initialContextSetupResponseIEs->protocolIEs.list
-                            .array[i]
-                            ->value.choice
-                            .PDUSessionResourceFailedToSetupListCxtRes)) {
+          PDUSessionResourceFailedToSetupListCxtRes tmp = {};
+          if (!tmp.decode(
+                  &initialContextSetupResponseIEs->protocolIEs.list.array[i]
+                       ->value.choice
+                       .PDUSessionResourceFailedToSetupListCxtRes)) {
             Logger::ngap().error(
                 "Decoded NGAP PDUSessionResourceFailedToSetupListCxtRes IE "
                 "error");
 
             return false;
           }
+          pduSessionResourceFailedToSetupResponseList =
+              std::optional<PDUSessionResourceFailedToSetupListCxtRes>(tmp);
         } else {
           Logger::ngap().error(
               "Decoded NGAP PDUSessionResourceFailedToSetupListCxtRes IE "
@@ -315,21 +308,19 @@ bool InitialContextSetupResponseMsg::decodeFromPdu(
 //------------------------------------------------------------------------------
 bool InitialContextSetupResponseMsg::getPduSessionResourceSetupResponseList(
     std::vector<PDUSessionResourceSetupResponseItem_t>& list) {
-  if (!pduSessionResourceSetupResponseList) return false;
+  if (!pduSessionResourceSetupResponseList.has_value()) return false;
 
-  std::vector<PDUSessionResourceSetupItemCxtRes> itemCxtResList;
-  pduSessionResourceSetupResponseList->getPDUSessionResourceSetupListCxtRes(
-      itemCxtResList);
+  std::vector<PDUSessionResourceSetupItemCxtRes> item_cxt_res_list;
+  pduSessionResourceSetupResponseList.value().get(item_cxt_res_list);
 
   for (std::vector<PDUSessionResourceSetupItemCxtRes>::iterator it =
-           std::begin(itemCxtResList);
-       it < std::end(itemCxtResList); ++it) {
+           std::begin(item_cxt_res_list);
+       it < std::end(item_cxt_res_list); ++it) {
     PDUSessionResourceSetupResponseItem_t response = {};
 
-    PDUSessionID m_pDUSessionID = {};
-    it->getPDUSessionResourceSetupItemCxtRes(
-        m_pDUSessionID, response.pduSessionResourceSetupResponseTransfer);
-    m_pDUSessionID.get(response.pduSessionId);
+    PDUSessionID pdu_session_id = {};
+    it->get(pdu_session_id, response.pduSessionResourceSetupResponseTransfer);
+    pdu_session_id.get(response.pduSessionId);
     list.push_back(response);
   }
 
@@ -339,22 +330,21 @@ bool InitialContextSetupResponseMsg::getPduSessionResourceSetupResponseList(
 //------------------------------------------------------------------------------
 bool InitialContextSetupResponseMsg::getPduSessionResourceFailedToSetupList(
     std::vector<PDUSessionResourceFailedToSetupItem_t>& list) {
-  if (!pduSessionResourceFailedToSetupResponseList) return false;
+  if (!pduSessionResourceFailedToSetupResponseList.has_value()) return false;
 
-  std::vector<PDUSessionResourceFailedToSetupItemCxtRes> itemCxtResList;
-  pduSessionResourceFailedToSetupResponseList
-      ->getPDUSessionResourceFailedToSetupListCxtRes(itemCxtResList);
+  std::vector<PDUSessionResourceFailedToSetupItemCxtRes> item_cxt_res_list;
+  pduSessionResourceFailedToSetupResponseList.value().get(item_cxt_res_list);
 
   for (std::vector<PDUSessionResourceFailedToSetupItemCxtRes>::iterator it =
-           std::begin(itemCxtResList);
-       it < std::end(itemCxtResList); ++it) {
+           std::begin(item_cxt_res_list);
+       it < std::end(item_cxt_res_list); ++it) {
     PDUSessionResourceFailedToSetupItem_t failedToResponse = {};
 
-    PDUSessionID pDUSessionID = {};
-    it->getPDUSessionResourceFailedToSetupItemCxtRes(
-        pDUSessionID,
+    PDUSessionID pdu_session_id = {};
+    it->get(
+        pdu_session_id,
         failedToResponse.pduSessionResourceSetupUnsuccessfulTransfer);
-    pDUSessionID.get(failedToResponse.pduSessionId);
+    pdu_session_id.get(failedToResponse.pduSessionId);
 
     list.push_back(failedToResponse);
   }
