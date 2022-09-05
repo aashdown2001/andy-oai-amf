@@ -39,30 +39,30 @@ void UEIdentityIndexValue::set(const uint16_t& index) {
 }
 
 //------------------------------------------------------------------------------
-bool UEIdentityIndexValue::encode2UEIdentityIndexValue(
-    Ngap_UEIdentityIndexValue_t* ue_identity_index_value) {
-  ue_identity_index_value->present = Ngap_UEIdentityIndexValue_PR_indexLength10;
-  ue_identity_index_value->choice.indexLength10.size        = sizeof(uint16_t);
-  ue_identity_index_value->choice.indexLength10.bits_unused = 6;
-  ue_identity_index_value->choice.indexLength10.buf =
-      (uint8_t*) calloc(1, ue_identity_index_value->choice.indexLength10.size);
-  if (!ue_identity_index_value->choice.indexLength10.buf) return false;
-  ue_identity_index_value->choice.indexLength10.buf[0] = (index_ >> 8) & 0x03;
-  ue_identity_index_value->choice.indexLength10.buf[1] = index_ & 0xff;
+bool UEIdentityIndexValue::encode(
+    Ngap_UEIdentityIndexValue_t& ue_identity_index_value) {
+  ue_identity_index_value.present = Ngap_UEIdentityIndexValue_PR_indexLength10;
+  ue_identity_index_value.choice.indexLength10.size        = sizeof(uint16_t);
+  ue_identity_index_value.choice.indexLength10.bits_unused = 6;
+  ue_identity_index_value.choice.indexLength10.buf =
+      (uint8_t*) calloc(1, ue_identity_index_value.choice.indexLength10.size);
+  if (!ue_identity_index_value.choice.indexLength10.buf) return false;
+  ue_identity_index_value.choice.indexLength10.buf[0] = (index_ >> 8) & 0x03;
+  ue_identity_index_value.choice.indexLength10.buf[1] = index_ & 0xff;
 
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool UEIdentityIndexValue::decodefromUEIdentityIndexValue(
-    Ngap_UEIdentityIndexValue_t* ue_identity_index_value) {
-  if (ue_identity_index_value->present !=
+bool UEIdentityIndexValue::decode(
+    const Ngap_UEIdentityIndexValue_t& ue_identity_index_value) {
+  if (ue_identity_index_value.present !=
       Ngap_UEIdentityIndexValue_PR_indexLength10)
     return false;
-  if (!ue_identity_index_value->choice.indexLength10.buf) return false;
-  index_ = ue_identity_index_value->choice.indexLength10.buf[0];
+  if (!ue_identity_index_value.choice.indexLength10.buf) return false;
+  index_ = ue_identity_index_value.choice.indexLength10.buf[0];
   index_ = index_ << 8;
-  index_ |= ue_identity_index_value->choice.indexLength10.buf[1];
+  index_ |= ue_identity_index_value.choice.indexLength10.buf[1];
 
   return true;
 }

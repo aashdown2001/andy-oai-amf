@@ -167,7 +167,7 @@ int PduSessionResourceSetupRequestMsg::getRanPagingPriority() {
 void PduSessionResourceSetupRequestMsg::setNasPdu(uint8_t* nas, size_t size) {
   if (!nasPdu) nasPdu = new NAS_PDU();
 
-  nasPdu->setNasPdu(nas, size);
+  nasPdu->set(nas, size);
 
   Ngap_PDUSessionResourceSetupRequestIEs_t* ie =
       (Ngap_PDUSessionResourceSetupRequestIEs_t*) calloc(
@@ -192,7 +192,7 @@ void PduSessionResourceSetupRequestMsg::setNasPdu(uint8_t* nas, size_t size) {
 bool PduSessionResourceSetupRequestMsg::getNasPdu(
     uint8_t*& nas, size_t& sizeofnas) {
   if (!nasPdu) return false;
-  if (!nasPdu->getNasPdu(nas, sizeofnas)) return false;
+  if (!nasPdu->get(nas, sizeofnas)) return false;
 
   return true;
 }
@@ -209,7 +209,7 @@ void PduSessionResourceSetupRequestMsg::setPduSessionResourceSetupRequestList(
     NAS_PDU* m_nAS_PDU = nullptr;
     if (list[i].pduSessionNAS_PDU) {
       m_nAS_PDU = new NAS_PDU();
-      m_nAS_PDU->setNasPdu(
+      m_nAS_PDU->set(
           list[i].pduSessionNAS_PDU, list[i].sizeofpduSessionNAS_PDU);
     }
     S_NSSAI s_NSSAI = {};
@@ -269,8 +269,7 @@ bool PduSessionResourceSetupRequestMsg::getPduSessionResourceSetupRequestList(
     s_NSSAI.getSst(request.s_nssai.sst);
     s_NSSAI.getSd(request.s_nssai.sd);
     if (nAS_PDU) {
-      nAS_PDU->getNasPdu(
-          request.pduSessionNAS_PDU, request.sizeofpduSessionNAS_PDU);
+      nAS_PDU->get(request.pduSessionNAS_PDU, request.sizeofpduSessionNAS_PDU);
     } else {
       request.pduSessionNAS_PDU       = nullptr;
       request.sizeofpduSessionNAS_PDU = 0;

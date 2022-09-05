@@ -19,8 +19,8 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _SECURITYKEY_H_
-#define _SECURITYKEY_H_
+#ifndef _SECURITY_KEY_H_
+#define _SECURITY_KEY_H_
 
 extern "C" {
 #include "Ngap_SecurityKey.h"
@@ -35,12 +35,13 @@ class SecurityKey {
 
   bool encode(Ngap_SecurityKey_t&);
   bool decode(Ngap_SecurityKey_t&);
+  bool getSecurityKey(uint8_t*& buffer, size_t& size);
   bool getSecurityKey(uint8_t*& buffer);
-  void setSecurityKey(uint8_t* buffer);
+  void setSecurityKey(uint8_t* buffer, const size_t& size = 256);
 
  private:
-  uint8_t* securitykeybuffer;
-  size_t buffersize;
+  uint8_t* buffer_;
+  size_t size_;
 };
 
 }  // namespace ngap

@@ -35,8 +35,8 @@ class NAS_PDU {
 
   bool encode(Ngap_NAS_PDU_t&);
   bool decode(Ngap_NAS_PDU_t&);
-  bool getNasPdu(uint8_t*& buffer, size_t& size) const;
-  void setNasPdu(uint8_t* buffer, size_t size);
+  bool get(uint8_t*& buffer, size_t& size) const;
+  void set(uint8_t* buffer, size_t size);
 
  private:
   char* buffer_;

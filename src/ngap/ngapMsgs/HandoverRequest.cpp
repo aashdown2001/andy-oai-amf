@@ -192,11 +192,10 @@ void HandoverRequest::setUESecurityCapabilities(
   ie->id            = Ngap_ProtocolIE_ID_id_UESecurityCapabilities;
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_HandoverRequestIEs__value_PR_UESecurityCapabilities;
-  ueSecurityCapabilities.setUESecurityCapabilities(
+  ueSecurityCapabilities.set(
       nREncryptionAlgs, nRIntegrityProtectionAlgs, eUTRAEncryptionAlgs,
       eUTRAIntegrityProtectionAlgs);
-  ueSecurityCapabilities.encode2UESecurityCapabilities(
-      (ie->value.choice.UESecurityCapabilities));
+  ueSecurityCapabilities.encode((ie->value.choice.UESecurityCapabilities));
 
   int ret = ASN_SEQUENCE_ADD(&handoverRequestIEs->protocolIEs.list, ie);
   if (ret != 0) Logger::ngap().error("Encode UESecurityCapabilities IE error");

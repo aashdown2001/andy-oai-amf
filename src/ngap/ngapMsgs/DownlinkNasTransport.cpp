@@ -163,7 +163,7 @@ bool DownLinkNasTransportMsg::getRanPagingPriority(
 
 //------------------------------------------------------------------------------
 void DownLinkNasTransportMsg::setNasPdu(uint8_t* nas, size_t sizeofnas) {
-  nasPdu.setNasPdu(nas, sizeofnas);
+  nasPdu.set(nas, sizeofnas);
 
   Ngap_DownlinkNASTransport_IEs_t* ie =
       (Ngap_DownlinkNASTransport_IEs_t*) calloc(
@@ -185,7 +185,7 @@ void DownLinkNasTransportMsg::setNasPdu(uint8_t* nas, size_t sizeofnas) {
 
 //------------------------------------------------------------------------------
 bool DownLinkNasTransportMsg::getNasPdu(uint8_t*& nas, size_t& sizeofnas) {
-  if (!nasPdu.getNasPdu(nas, sizeofnas)) return false;
+  if (!nasPdu.get(nas, sizeofnas)) return false;
   return true;
 }
 

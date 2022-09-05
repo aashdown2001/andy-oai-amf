@@ -40,9 +40,9 @@ void PDUSessionResourceModifyItemModReq::setPDUSessionResourceModifyItemModReq(
   pDUSessionID     = m_pDUSessionID;
   uint8_t* nas_buf = nullptr;
   size_t nas_len   = 0;
-  m_nAS_PDU.getNasPdu(nas_buf, nas_len);
+  m_nAS_PDU.get(nas_buf, nas_len);
   if (!nAS_PDU) nAS_PDU = new NAS_PDU();
-  nAS_PDU->setNasPdu(nas_buf, nas_len);
+  nAS_PDU->set(nas_buf, nas_len);
   pDUSessionResourceModifyRequestTransfer =
       m_pDUSessionResourceModifyRequestTransfer;
   s_NSSAI->setSd(m_s_NSSAI.getSd());

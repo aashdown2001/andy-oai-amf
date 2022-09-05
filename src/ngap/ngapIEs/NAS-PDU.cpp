@@ -48,7 +48,7 @@ bool NAS_PDU::decode(Ngap_NAS_PDU_t& nas_pdu) {
 }
 
 //------------------------------------------------------------------------------
-bool NAS_PDU::getNasPdu(uint8_t*& buffer, size_t& size) const {
+bool NAS_PDU::get(uint8_t*& buffer, size_t& size) const {
   buffer = (uint8_t*) buffer_;
   size   = size_;
   if (!buffer_) return false;
@@ -58,7 +58,7 @@ bool NAS_PDU::getNasPdu(uint8_t*& buffer, size_t& size) const {
 }
 
 //------------------------------------------------------------------------------
-void NAS_PDU::setNasPdu(uint8_t* buffer, size_t size) {
+void NAS_PDU::set(uint8_t* buffer, size_t size) {
   buffer_ = (char*) buffer;
   size_   = size;
 }

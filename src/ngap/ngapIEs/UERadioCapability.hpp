@@ -19,8 +19,8 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _UERADIOCAPABILITY_H_
-#define _UERADIOCAPABILITY_H_
+#ifndef _UE_RADIO_CAPABILITY_H_
+#define _UE_RADIO_CAPABILITY_H_
 
 extern "C" {
 #include "Ngap_UERadioCapability.h"
@@ -33,14 +33,14 @@ class UERadioCapability {
   UERadioCapability();
   virtual ~UERadioCapability();
 
-  bool encode2UERadioCapability(Ngap_UERadioCapability_t& ueRadioCapability);
-  bool decodefromUERadioCapability(Ngap_UERadioCapability_t& ueRadioCapability);
-  bool getUERadioCapability(uint8_t*& buffer, size_t& size);
-  void setUERadioCapability(uint8_t* buffer, size_t size);
+  bool encode(Ngap_UERadioCapability_t& ueRadioCapability);
+  bool decode(Ngap_UERadioCapability_t& ueRadioCapability);
+  bool get(uint8_t*& buffer, size_t& size);
+  void set(uint8_t* buffer, size_t size);
 
  private:
-  char* ueRadioCapabilitybuffer;
-  size_t sizeofueRadioCapabilitybuffer;
+  char* buffer_;
+  size_t size_;
 };
 
 }  // namespace ngap

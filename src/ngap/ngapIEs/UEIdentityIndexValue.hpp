@@ -36,10 +36,8 @@ class UEIdentityIndexValue {
   void set(const uint16_t& index);
   bool get(uint16_t& index) const;
 
-  bool encode2UEIdentityIndexValue(
-      Ngap_UEIdentityIndexValue_t* ue_identity_index_value);
-  bool decodefromUEIdentityIndexValue(
-      Ngap_UEIdentityIndexValue_t* ue_identity_index_value);
+  bool encode(Ngap_UEIdentityIndexValue_t& ue_identity_index_value);
+  bool decode(const Ngap_UEIdentityIndexValue_t& ue_identity_index_value);
 
  private:
   uint16_t index_;
