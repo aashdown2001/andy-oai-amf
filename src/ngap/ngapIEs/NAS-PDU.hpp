@@ -38,9 +38,15 @@ class NAS_PDU {
   bool get(uint8_t*& buffer, size_t& size) const;
   void set(uint8_t* buffer, size_t size);
 
+  bool get(OCTET_STRING_t& pdu) const;
+  bool get(NAS_PDU& nas_pdu) const;
+  bool set(const OCTET_STRING_t& pdu);
+  bool set(const NAS_PDU& nas_pdu);
+
  private:
-  char* buffer_;
-  size_t size_;
+  // char* buffer_;
+  // size_t size_;
+  OCTET_STRING_t pdu_;
 };
 
 }  // namespace ngap

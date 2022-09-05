@@ -31,9 +31,9 @@ UEPagingIdentity::~UEPagingIdentity() {}
 
 //------------------------------------------------------------------------------
 void UEPagingIdentity::setUEPagingIdentity(
-    const std::string& setid, const std::string& pointer,
+    const std::string& set_id, const std::string& pointer,
     const std::string& tmsi) {
-  fiveGSTmsi.set(setid, pointer, tmsi);
+  fiveGSTmsi.set(set_id, pointer, tmsi);
 }
 
 //------------------------------------------------------------------------------
@@ -43,8 +43,8 @@ void UEPagingIdentity::getUEPagingIdentity(std::string& _5g_s_tmsi) {
 
 //------------------------------------------------------------------------------
 void UEPagingIdentity::getUEPagingIdentity(
-    std::string& setid, std::string& pointer, std::string& tmsi) {
-  fiveGSTmsi.get(setid, pointer, tmsi);
+    std::string& set_id, std::string& pointer, std::string& tmsi) {
+  fiveGSTmsi.get(set_id, pointer, tmsi);
 }
 
 //------------------------------------------------------------------------------
