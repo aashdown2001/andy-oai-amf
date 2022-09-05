@@ -1076,8 +1076,12 @@ void amf_n2::handle_itti_message(
 
   conv::bstring_2_octet_string(
       itti_msg.n2sm, item.pduSessionResourceModifyRequestTransfer);
-  item.s_nssai.sd  = itti_msg.s_NSSAI.getSd();
-  item.s_nssai.sst = itti_msg.s_NSSAI.getSst();
+  S_Nssai tmp  = {};
+  tmp.sd       = itti_msg.s_NSSAI.getSd();
+  tmp.sst      = itti_msg.s_NSSAI.getSst();
+  item.s_nssai = std::optional<S_Nssai>(tmp);
+  // item.s_nssai.sd  = itti_msg.s_NSSAI.getSd();
+  // item.s_nssai.sst = itti_msg.s_NSSAI.getSst();
 
   // TODO:
   uint8_t* nas_pdu = (uint8_t*) calloc(1, blength(itti_msg.nas) + 1);
