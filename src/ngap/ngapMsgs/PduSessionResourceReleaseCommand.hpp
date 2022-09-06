@@ -28,6 +28,8 @@
 #include "NAS-PDU.hpp"
 #include "NgapUEMessage.hpp"
 
+#include <optional>
+
 namespace ngap {
 
 class PduSessionResourceReleaseCommandMsg : public NgapUEMessage {
@@ -42,7 +44,7 @@ class PduSessionResourceReleaseCommandMsg : public NgapUEMessage {
   bool decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) override;
 
   void setRanPagingPriority(const uint8_t& priority);
-  int getRanPagingPriority();
+  bool getRanPagingPriority(uint8_t& priority);
 
   void setNasPdu(const bstring& pdu);
   bool getNasPdu(bstring& pdu);
@@ -55,8 +57,8 @@ class PduSessionResourceReleaseCommandMsg : public NgapUEMessage {
  private:
   Ngap_PDUSessionResourceReleaseCommand_t* pduSessionResourceReleaseCommandIEs;
 
-  RANPagingPriority* ranPagingPriority;  // Optional
-  NAS_PDU* nasPdu;                       // Optional
+  std::optional<RANPagingPriority> ranPagingPriority;  // Optional
+  std::optional<NAS_PDU> nasPdu;                       // Optional
   PDUSessionResourceToReleaseListRelCmd
       pduSessionResourceToReleaseList;  // Mandatory
 };
