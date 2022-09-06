@@ -1137,6 +1137,7 @@ void amf_n2::handle_itti_message(
 
   release_cmd_msg->setAmfUeNgapId(itti_msg.amf_ue_ngap_id);
   release_cmd_msg->setRanUeNgapId(itti_msg.ran_ue_ngap_id);
+  // TODO: Should be removed
   // uint8_t* nas_pdu = (uint8_t*) calloc(1, blength(itti_msg.nas) + 1);
   // uint8_t* buf_tmp = (uint8_t*) bdata(itti_msg.nas);
   // if (buf_tmp != nullptr) memcpy(nas_pdu, buf_tmp, blength(itti_msg.nas));

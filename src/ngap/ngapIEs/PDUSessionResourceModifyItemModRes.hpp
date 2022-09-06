@@ -22,9 +22,7 @@
 #ifndef _PDU_SESSION_RESOURCE_MODIFY_ITEM_MOD_RES_H_
 #define _PDU_SESSION_RESOURCE_MODIFY_ITEM_MOD_RES_H_
 
-#include "NAS-PDU.hpp"
 #include "PDUSessionID.hpp"
-#include "S-NSSAI.hpp"
 
 extern "C" {
 #include "Ngap_PDUSessionResourceModifyItemModRes.h"
