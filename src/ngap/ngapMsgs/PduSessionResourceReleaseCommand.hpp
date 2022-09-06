@@ -44,8 +44,8 @@ class PduSessionResourceReleaseCommandMsg : public NgapUEMessage {
   void setRanPagingPriority(const uint8_t& priority);
   int getRanPagingPriority();
 
-  void setNasPdu(uint8_t* nas, size_t sizeofnas);
-  bool getNasPdu(uint8_t*& nas, size_t& sizeofnas);
+  void setNasPdu(const bstring& pdu);
+  bool getNasPdu(bstring& pdu);
 
   void setPduSessionResourceToReleaseList(
       const std::vector<PDUSessionResourceToReleaseItem_t>& list);

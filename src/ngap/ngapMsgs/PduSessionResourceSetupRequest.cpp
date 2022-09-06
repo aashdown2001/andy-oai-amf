@@ -20,6 +20,8 @@
  */
 
 #include "PduSessionResourceSetupRequest.hpp"
+
+#include "conversions.hpp"
 #include "logger.hpp"
 
 extern "C" {
@@ -164,10 +166,10 @@ int PduSessionResourceSetupRequestMsg::getRanPagingPriority() {
 }
 
 //------------------------------------------------------------------------------
-void PduSessionResourceSetupRequestMsg::setNasPdu(uint8_t* nas, size_t size) {
+void PduSessionResourceSetupRequestMsg::setNasPdu(const bstring& pdu) {
   if (!nasPdu) nasPdu = new NAS_PDU();
 
-  nasPdu->set(nas, size);
+  nasPdu->set(pdu);
 
   Ngap_PDUSessionResourceSetupRequestIEs_t* ie =
       (Ngap_PDUSessionResourceSetupRequestIEs_t*) calloc(
@@ -189,12 +191,9 @@ void PduSessionResourceSetupRequestMsg::setNasPdu(uint8_t* nas, size_t size) {
 }
 
 //------------------------------------------------------------------------------
-bool PduSessionResourceSetupRequestMsg::getNasPdu(
-    uint8_t*& nas, size_t& sizeofnas) {
+bool PduSessionResourceSetupRequestMsg::getNasPdu(bstring& pdu) {
   if (!nasPdu) return false;
-  if (!nasPdu->get(nas, sizeofnas)) return false;
-
-  return true;
+  return nasPdu->get(pdu);
 }
 
 //------------------------------------------------------------------------------
@@ -207,10 +206,9 @@ void PduSessionResourceSetupRequestMsg::setPduSessionResourceSetupRequestList(
     PDUSessionID pDUSessionID                  = {};
     pDUSessionID.set(list[i].pduSessionId);
     NAS_PDU* m_nAS_PDU = nullptr;
-    if (list[i].pduSessionNAS_PDU) {
+    if (conv::check_bstring(list[i].nas_pdu)) {
       m_nAS_PDU = new NAS_PDU();
-      m_nAS_PDU->set(
-          list[i].pduSessionNAS_PDU, list[i].sizeofpduSessionNAS_PDU);
+      m_nAS_PDU->set(list[i].nas_pdu);
     }
     S_NSSAI s_NSSAI = {};
     s_NSSAI.setSst(list[i].s_nssai.sst);
@@ -269,12 +267,8 @@ bool PduSessionResourceSetupRequestMsg::getPduSessionResourceSetupRequestList(
     s_NSSAI.getSst(request.s_nssai.sst);
     s_NSSAI.getSd(request.s_nssai.sd);
     if (nAS_PDU) {
-      nAS_PDU->get(request.pduSessionNAS_PDU, request.sizeofpduSessionNAS_PDU);
-    } else {
-      request.pduSessionNAS_PDU       = nullptr;
-      request.sizeofpduSessionNAS_PDU = 0;
+      nAS_PDU->get(request.nas_pdu);
     }
-
     list.push_back(request);
   }
 

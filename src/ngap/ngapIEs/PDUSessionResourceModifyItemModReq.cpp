@@ -39,11 +39,8 @@ void PDUSessionResourceModifyItemModReq::set(
     const std::optional<S_NSSAI>& s_nssai) {
   pdu_session_id_ = pdu_session_id;
   if (nas_pdu.has_value()) {
-    uint8_t* nas_buf = nullptr;
-    size_t nas_len   = 0;
-    nas_pdu.value().get(nas_buf, nas_len);
     NAS_PDU tmp = {};
-    tmp.set(nas_buf, nas_len);
+    tmp.set(nas_pdu.value());
     nas_pdu_ = std::optional<NAS_PDU>(tmp);
   }
 
@@ -103,11 +100,8 @@ void PDUSessionResourceModifyItemModReq::get(
   pdu_session_id = pdu_session_id_;
   nas_pdu        = *nas_pdu_;
   if (nas_pdu_.has_value()) {
-    NAS_PDU tmp      = {};
-    uint8_t* nas_buf = nullptr;
-    size_t nas_len   = 0;
-    nas_pdu_.value().get(nas_buf, nas_len);
-    tmp.set(nas_buf, nas_len);
+    NAS_PDU tmp = {};
+    tmp.set(nas_pdu.value());
     nas_pdu = std::optional<NAS_PDU>(tmp);
   }
 

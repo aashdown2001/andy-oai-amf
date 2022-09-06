@@ -331,9 +331,10 @@ void InitialContextSetupRequestMsg::setPduSessionResourceSetupRequestList(
     PDUSessionID pDUSessionID                                           = {};
     pDUSessionID.set(list[i].pduSessionId);
     std::optional<NAS_PDU> nAS_PDU = std::nullopt;
-    if (list[i].pduSessionNAS_PDU) {
+
+    if (conv::check_bstring(list[i].nas_pdu)) {
       NAS_PDU tmp = {};
-      tmp.set(list[i].pduSessionNAS_PDU, list[i].sizeofpduSessionNAS_PDU);
+      tmp.set(list[i].nas_pdu);
       nAS_PDU = std::optional<NAS_PDU>(tmp);
     }
     S_NSSAI s_NSSAI = {};
@@ -396,13 +397,8 @@ bool InitialContextSetupRequestMsg::getPduSessionResourceSetupRequestList(
     s_NSSAI.getSst(request.s_nssai.sst);
     s_NSSAI.getSd(request.s_nssai.sd);
     if (nAS_PDU.has_value()) {
-      nAS_PDU.value().get(
-          request.pduSessionNAS_PDU, request.sizeofpduSessionNAS_PDU);
-    } else {
-      request.pduSessionNAS_PDU       = nullptr;
-      request.sizeofpduSessionNAS_PDU = 0;
+      nAS_PDU.value().get(request.nas_pdu);
     }
-
     list.push_back(request);
   }
 
@@ -533,9 +529,9 @@ bool InitialContextSetupRequestMsg::getSecurityKey(uint8_t*& key) {
 }
 
 //------------------------------------------------------------------------------
-void InitialContextSetupRequestMsg::setNasPdu(uint8_t* nas, size_t size) {
+void InitialContextSetupRequestMsg::setNasPdu(const bstring& pdu) {
   NAS_PDU tmp = {};
-  tmp.set(nas, size);
+  tmp.set(pdu);
   nasPdu = std::optional<NAS_PDU>(tmp);
 
   Ngap_InitialContextSetupRequestIEs_t* ie =
@@ -557,12 +553,9 @@ void InitialContextSetupRequestMsg::setNasPdu(uint8_t* nas, size_t size) {
 }
 
 //------------------------------------------------------------------------------
-bool InitialContextSetupRequestMsg::getNasPdu(
-    uint8_t*& nas, size_t& sizeofnas) {
+bool InitialContextSetupRequestMsg::getNasPdu(bstring& pdu) {
   if (!nasPdu.has_value()) return false;
-  if (!nasPdu.value().get(nas, sizeofnas)) return false;
-
-  return true;
+  return nasPdu.value().get(pdu);
 }
 
 //------------------------------------------------------------------------------

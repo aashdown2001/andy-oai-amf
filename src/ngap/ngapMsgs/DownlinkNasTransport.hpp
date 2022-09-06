@@ -52,8 +52,8 @@ class DownLinkNasTransportMsg : public NgapUEMessage {
   bool setRanPagingPriority(const uint32_t&);  // 1~256
   bool getRanPagingPriority(uint32_t&);
 
-  void setNasPdu(uint8_t* nas, size_t sizeofnas);
-  bool getNasPdu(uint8_t*& nas, size_t& sizeofnas);
+  void setNasPdu(const bstring& pdu);
+  bool getNasPdu(bstring& pdu);
 
   void setMobilityRestrictionList(const MobilityRestrictionList&);
   bool getMobilityRestrictionList(MobilityRestrictionList&) const;

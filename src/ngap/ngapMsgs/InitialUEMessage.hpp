@@ -46,8 +46,8 @@ class InitialUEMessageMsg : public NgapMessage {
   void setRanUENgapID(const uint32_t& value);
   bool getRanUENgapID(uint32_t& value);
 
-  void setNasPdu(uint8_t* nas, size_t size);
-  bool getNasPdu(uint8_t*& nas, size_t& size);
+  void setNasPdu(const bstring& pdu);
+  bool getNasPdu(bstring& pdu);
 
   void setUserLocationInfoNR(
       const struct NrCgi_s& cig, const struct Tai_s& tai);

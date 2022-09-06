@@ -135,10 +135,10 @@ int PduSessionResourceReleaseCommandMsg::getRanPagingPriority() {
 }
 
 //------------------------------------------------------------------------------
-void PduSessionResourceReleaseCommandMsg::setNasPdu(uint8_t* nas, size_t size) {
+void PduSessionResourceReleaseCommandMsg::setNasPdu(const bstring& pdu) {
   if (!nasPdu) nasPdu = new NAS_PDU();
 
-  nasPdu->set(nas, size);
+  nasPdu->set(pdu);
 
   Ngap_PDUSessionResourceReleaseCommandIEs_t* ie =
       (Ngap_PDUSessionResourceReleaseCommandIEs_t*) calloc(
@@ -161,12 +161,9 @@ void PduSessionResourceReleaseCommandMsg::setNasPdu(uint8_t* nas, size_t size) {
 }
 
 //------------------------------------------------------------------------------
-bool PduSessionResourceReleaseCommandMsg::getNasPdu(
-    uint8_t*& nas, size_t& sizeofnas) {
+bool PduSessionResourceReleaseCommandMsg::getNasPdu(bstring& pdu) {
   if (!nasPdu) return false;
-  if (!nasPdu->get(nas, sizeofnas)) return false;
-
-  return true;
+  return nasPdu->get(pdu);
 }
 
 //------------------------------------------------------------------------------

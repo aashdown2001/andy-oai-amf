@@ -50,7 +50,7 @@ bool PDUSessionResourceModifyListModRes::
             1, sizeof(Ngap_PDUSessionResourceModifyItemModRes_t));
 
     if (!request) return false;
-    if (!pdu.encode2PDUSessionResourceModifyItemModRes(*request)) return false;
+    if (!pdu.encode(*request)) return false;
     if (ASN_SEQUENCE_ADD(&m_pduSessionResourceModifyListModRes.list, request) !=
         0)
       return false;
@@ -69,9 +69,8 @@ bool PDUSessionResourceModifyListModRes::
   for (int i = 0; i < numberofPDUSessions; i++) {
     PDUSessionResourceModifyItemModRes pduSessionResourceModifyItemModRes = {};
 
-    if (!pduSessionResourceModifyItemModRes
-             .decodefromPDUSessionResourceModifyItemModRes(
-                 *pduSessionResourceSetupListSURes.list.array[i]))
+    if (!pduSessionResourceModifyItemModRes.decode(
+            *pduSessionResourceSetupListSURes.list.array[i]))
       return false;
     pduSessionResourceModifyListModRes.push_back(
         pduSessionResourceModifyItemModRes);

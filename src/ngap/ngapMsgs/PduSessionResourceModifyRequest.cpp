@@ -21,6 +21,7 @@
 
 #include "PduSessionResourceModifyRequest.hpp"
 
+#include "conversions.hpp"
 #include "logger.hpp"
 
 extern "C" {
@@ -141,8 +142,8 @@ void PduSessionResourceModifyRequestMsg::setPduSessionResourceModifyRequestList(
     PDUSessionID pDUSessionID = {};
     pDUSessionID.set(list[i].pduSessionId);
     NAS_PDU nAS_PDU = {};
-    if (list[i].pduSessionNAS_PDU) {
-      nAS_PDU.set(list[i].pduSessionNAS_PDU, list[i].sizeofpduSessionNAS_PDU);
+    if (conv::check_bstring(list[i].nas_pdu)) {
+      nAS_PDU.set(list[i].nas_pdu);
     }
     std::optional<S_NSSAI> s_NSSAI = std::nullopt;
     if (list[i].s_nssai.has_value()) {
@@ -195,8 +196,7 @@ bool PduSessionResourceModifyRequestMsg::getPduSessionResourceModifyRequestList(
   pduSessionResourceModifyList.get(m_pduSessionResourceModifyItemModReq);
 
   for (int i = 0; i < m_pduSessionResourceModifyItemModReq.size(); i++) {
-    PDUSessionResourceModifyRequestItem_t request = {
-        .pduSessionNAS_PDU = nullptr, .sizeofpduSessionNAS_PDU = 0};
+    PDUSessionResourceModifyRequestItem_t request = {};
 
     PDUSessionID pDUSessionID      = {};
     std::optional<NAS_PDU> nAS_PDU = std::nullopt;
@@ -207,9 +207,7 @@ bool PduSessionResourceModifyRequestMsg::getPduSessionResourceModifyRequestList(
         s_NSSAI);
 
     pDUSessionID.get(request.pduSessionId);
-    if (nAS_PDU.has_value())
-      nAS_PDU.value().get(
-          request.pduSessionNAS_PDU, request.sizeofpduSessionNAS_PDU);
+    if (nAS_PDU.has_value()) nAS_PDU.value().get(request.nas_pdu);
     if (s_NSSAI.has_value()) {
       S_Nssai tmp = {};
       s_NSSAI.value().getSd(tmp.sd);

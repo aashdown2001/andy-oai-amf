@@ -88,8 +88,8 @@ void UplinkNASTransportMsg::setRanUeNgapId(const uint32_t& ran_ue_ngap_id) {
 }
 
 //------------------------------------------------------------------------------
-void UplinkNASTransportMsg::setNasPdu(uint8_t* nas, size_t sizeofnas) {
-  nasPdu.set(nas, sizeofnas);
+void UplinkNASTransportMsg::setNasPdu(const bstring& pdu) {
+  nasPdu.set(pdu);
 
   Ngap_UplinkNASTransport_IEs_t* ie = (Ngap_UplinkNASTransport_IEs_t*) calloc(
       1, sizeof(Ngap_UplinkNASTransport_IEs_t));
@@ -109,10 +109,8 @@ void UplinkNASTransportMsg::setNasPdu(uint8_t* nas, size_t sizeofnas) {
 }
 
 //------------------------------------------------------------------------------
-bool UplinkNASTransportMsg::getNasPdu(uint8_t*& nas, size_t& sizeofnas) {
-  if (!nasPdu.get(nas, sizeofnas)) return false;
-
-  return true;
+bool UplinkNASTransportMsg::getNasPdu(bstring& pdu) {
+  return nasPdu.get(pdu);
 }
 
 //------------------------------------------------------------------------------

@@ -22,6 +22,7 @@
 #ifndef _NGAPIESSTRUCT_H_
 #define _NGAPIESSTRUCT_H_
 
+#include "bstrlib.h"
 #include <optional>
 #include <string>
 #include <vector>
@@ -108,16 +109,18 @@ typedef struct Guami_s {
 
 typedef struct {
   uint8_t pduSessionId;
-  uint8_t* pduSessionNAS_PDU;
-  size_t sizeofpduSessionNAS_PDU;
+  // uint8_t* pduSessionNAS_PDU;
+  // size_t sizeofpduSessionNAS_PDU;
+  bstring nas_pdu;
   S_Nssai s_nssai;
   OCTET_STRING_t pduSessionResourceSetupRequestTransfer;
 } PDUSessionResourceSetupRequestItem_t;
 
 typedef struct {
   uint8_t pduSessionId;
-  uint8_t* pduSessionNAS_PDU;
-  size_t sizeofpduSessionNAS_PDU;
+  // uint8_t* pduSessionNAS_PDU;
+  // size_t sizeofpduSessionNAS_PDU;
+  bstring nas_pdu;
   std::optional<S_Nssai> s_nssai;
   OCTET_STRING_t pduSessionResourceModifyRequestTransfer;
 } PDUSessionResourceModifyRequestItem_t;

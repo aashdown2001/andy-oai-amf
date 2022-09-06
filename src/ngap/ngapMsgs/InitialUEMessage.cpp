@@ -71,8 +71,8 @@ void InitialUEMessageMsg::setRanUENgapID(const uint32_t& value) {
 }
 
 //------------------------------------------------------------------------------
-void InitialUEMessageMsg::setNasPdu(uint8_t* nas, size_t size) {
-  nasPdu.set(nas, size);
+void InitialUEMessageMsg::setNasPdu(const bstring& pdu) {
+  nasPdu.set(pdu);
 
   Ngap_InitialUEMessage_IEs_t* ie = (Ngap_InitialUEMessage_IEs_t*) calloc(
       1, sizeof(Ngap_InitialUEMessage_IEs_t));
@@ -347,9 +347,8 @@ bool InitialUEMessageMsg::getRanUENgapID(uint32_t& value) {
 }
 
 //------------------------------------------------------------------------------
-bool InitialUEMessageMsg::getNasPdu(uint8_t*& nas, size_t& size) {
-  if (!nasPdu.get(nas, size)) return false;
-  return true;
+bool InitialUEMessageMsg::getNasPdu(bstring& pdu) {
+  return nasPdu.get(pdu);
 }
 
 //------------------------------------------------------------------------------

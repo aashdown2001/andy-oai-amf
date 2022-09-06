@@ -38,21 +38,15 @@ NAS_PDU::~NAS_PDU() {}
 //------------------------------------------------------------------------------
 bool NAS_PDU::encode(Ngap_NAS_PDU_t& nas_pdu) {
   if (!pdu_.buf) return false;
-  return conv::octet_string_2_octet_string(nas_pdu, pdu_);
-  // int ret = OCTET_STRING_fromBuf(&nas_pdu, buffer_, size_);
-  // if (ret != 0) return false;
-  // return true;
+  return conv::bstring_2_octet_string(pdu_bstring, nas_pdu);
 }
 
 //------------------------------------------------------------------------------
 bool NAS_PDU::decode(Ngap_NAS_PDU_t& nas_pdu) {
   if (!nas_pdu.buf) return false;
-  return conv::octet_string_2_octet_string(pdu_, nas_pdu);
-  // buffer_ = (char*) calloc(nas_pdu.size, sizeof(char));
-  // memcpy(buffer_, nas_pdu.buf, nas_pdu.size);
-  // size_   = nas_pdu.size;
-  // return true;
+  return conv::octet_string_2_bstring(nas_pdu, pdu_bstring);
 }
+/*
 
 //------------------------------------------------------------------------------
 bool NAS_PDU::get(uint8_t*& buffer, size_t& size) const {
@@ -62,35 +56,47 @@ bool NAS_PDU::get(uint8_t*& buffer, size_t& size) const {
   size = pdu_.size;
   return true;
 }
-
+*/
 //------------------------------------------------------------------------------
 void NAS_PDU::set(uint8_t* buffer, size_t size) {
   if (!buffer) return;
-  pdu_.buf = (uint8_t*) calloc(size, sizeof(uint8_t));
-  memcpy(pdu_.buf, buffer, size);
-  pdu_.size = size;
+  pdu_bstring = blk2bstr(buffer, size);
   return;
 }
 
 //------------------------------------------------------------------------------
 bool NAS_PDU::get(OCTET_STRING_t& pdu) const {
-  return conv::octet_string_2_octet_string(pdu, pdu_);
+  conv::bstring_2_octet_string(pdu_bstring, pdu);
+  return true;
 }
 
 //------------------------------------------------------------------------------
 bool NAS_PDU::set(const OCTET_STRING_t& pdu) {
-  return conv::octet_string_2_octet_string(pdu_, pdu);
+  conv::octet_string_2_bstring(pdu, pdu_bstring);
+  return true;
 }
 
 //------------------------------------------------------------------------------
 bool NAS_PDU::get(NAS_PDU& nas_pdu) const {
-  return nas_pdu.set(pdu_);
+  return nas_pdu.set(pdu_bstring);
 }
 
 //------------------------------------------------------------------------------
 bool NAS_PDU::set(const NAS_PDU& nas_pdu) {
-  OCTET_STRING_t pdu = {};
-  nas_pdu.get(pdu);
-  return conv::octet_string_2_octet_string(pdu_, pdu);
+  bstring pdu = {};
+  if (!nas_pdu.get(pdu)) return false;
+  return set(pdu);
+}
+
+//------------------------------------------------------------------------------
+bool NAS_PDU::get(bstring& pdu) const {
+  pdu = bstrcpy(pdu_bstring);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool NAS_PDU::set(const bstring& pdu) {
+  pdu_bstring = bstrcpy(pdu);
+  return true;
 }
 }  // namespace ngap

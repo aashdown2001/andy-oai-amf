@@ -103,8 +103,8 @@ class InitialContextSetupRequestMsg : public NgapUEMessage {
   void setUERadioCapability(uint8_t* buf, size_t size);
   void getUERadioCapability(uint8_t* buf, size_t& size);
 
-  void setNasPdu(uint8_t* nas, size_t size);
-  bool getNasPdu(uint8_t*& nas, size_t& size);
+  void setNasPdu(const bstring& pdu);
+  bool getNasPdu(bstring& pdu);
 
  private:
   Ngap_InitialContextSetupRequest_t* initialContextSetupRequestIEs;

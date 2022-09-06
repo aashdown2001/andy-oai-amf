@@ -661,10 +661,10 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
           unc->s_setid, unc->s_pointer, unc->s_tmsi);
     }
 
-    uint8_t* nas_buf = nullptr;
-    size_t nas_len   = 0;
-    if (init_ue_msg.initUeMsg->getNasPdu(nas_buf, nas_len)) {
-      itti_msg->nas_buf = blk2bstr(nas_buf, nas_len);
+    // uint8_t* nas_buf = nullptr;
+    // size_t nas_len   = 0;
+    if (init_ue_msg.initUeMsg->getNasPdu(itti_msg->nas_buf)) {
+      // itti_msg->nas_buf = blk2bstr(nas_buf, nas_len);
     } else {
       Logger::amf_n2().error("Missing IE NAS-PDU");
       return;
@@ -748,10 +748,10 @@ void amf_n2::handle_itti_message(itti_ul_nas_transport& ul_nas_transport) {
   itti_msg->amf_ue_ngap_id              = amf_ue_ngap_id;
   itti_msg->ran_ue_ngap_id              = ran_ue_ngap_id;
   itti_msg->is_guti_valid               = false;
-  uint8_t* nas_buf                      = nullptr;
-  size_t nas_len                        = 0;
-  if (ul_nas_transport.ulNas->getNasPdu(nas_buf, nas_len)) {
-    itti_msg->nas_msg = blk2bstr(nas_buf, nas_len);
+  // uint8_t* nas_buf                      = nullptr;
+  // size_t nas_len                        = 0;
+  if (ul_nas_transport.ulNas->getNasPdu(itti_msg->nas_msg)) {
+    // itti_msg->nas_msg = blk2bstr(nas_buf, nas_len);
   } else {
     Logger::amf_n2().error("Missing IE NAS-PDU");
     return;
@@ -802,9 +802,9 @@ void amf_n2::handle_itti_message(itti_dl_nas_transport& dl_nas_transport) {
       std::make_unique<DownLinkNasTransportMsg>();
   ngap_msg->setAmfUeNgapId(dl_nas_transport.amf_ue_ngap_id);
   ngap_msg->setRanUeNgapId(dl_nas_transport.ran_ue_ngap_id);
-  ngap_msg->setNasPdu(
-      (uint8_t*) bdata(bstrcpy(dl_nas_transport.nas)),
-      blength(dl_nas_transport.nas));
+  ngap_msg->setNasPdu(dl_nas_transport.nas);
+  //    (uint8_t*) bdata(bstrcpy(dl_nas_transport.nas)),
+  //    blength(dl_nas_transport.nas));
   uint8_t buffer[BUFFER_SIZE_1024];
   int encoded_size = ngap_msg->encode2Buffer(buffer, BUFFER_SIZE_1024);
   bstring b        = blk2bstr(buffer, encoded_size);
@@ -848,7 +848,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
       0xe000, 0xe000, 0xe000,
       0xe000);  // TODO: remove hardcoded value
   msg->setSecurityKey((uint8_t*) bdata(itti_msg.kgnb));
-  msg->setNasPdu((uint8_t*) bdata(itti_msg.nas), blength(itti_msg.nas));
+  msg->setNasPdu(itti_msg.nas);
 
   // Get the list allowed NSSAI from the common PLMN between gNB and AMF
   std::vector<S_Nssai> list;
@@ -930,7 +930,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
           "S_NSSAI (SST, SD) %s, %s", item.s_nssai.sst.c_str(),
           item.s_nssai.sd.c_str());
 
-      item.pduSessionNAS_PDU = NULL;
+      // item.pduSessionNAS_PDU = NULL;
       if (itti_msg.is_n2sm_avaliable) {
         if (blength(itti_msg.n2sm) != 0) {
           conv::bstring_2_octet_string(
@@ -986,12 +986,13 @@ void amf_n2::handle_itti_message(
   std::vector<PDUSessionResourceSetupRequestItem_t> list;
   PDUSessionResourceSetupRequestItem_t item = {};
   item.pduSessionId                         = itti_msg.pdu_session_id;
-  uint8_t* nas_pdu = (uint8_t*) calloc(1, blength(itti_msg.nas) + 1);
-  uint8_t* buf_tmp = (uint8_t*) bdata(itti_msg.nas);
-  if (buf_tmp != nullptr) memcpy(nas_pdu, buf_tmp, blength(itti_msg.nas));
-  nas_pdu[blength(itti_msg.nas)] = '\0';
-  item.pduSessionNAS_PDU         = nas_pdu;
-  item.sizeofpduSessionNAS_PDU   = blength(itti_msg.nas);
+  // uint8_t* nas_pdu = (uint8_t*) calloc(1, blength(itti_msg.nas) + 1);
+  // uint8_t* buf_tmp = (uint8_t*) bdata(itti_msg.nas);
+  // if (buf_tmp != nullptr) memcpy(nas_pdu, buf_tmp, blength(itti_msg.nas));
+  // nas_pdu[blength(itti_msg.nas)] = '\0';
+  // item.pduSessionNAS_PDU         = nas_pdu;
+  // item.sizeofpduSessionNAS_PDU   = blength(itti_msg.nas);
+  item.nas_pdu = bstrcpy(itti_msg.nas);
 
   // Get NSSAI from PDU Session Context
   std::shared_ptr<nas_context> nc = {};
@@ -1083,13 +1084,14 @@ void amf_n2::handle_itti_message(
   // item.s_nssai.sd  = itti_msg.s_NSSAI.getSd();
   // item.s_nssai.sst = itti_msg.s_NSSAI.getSst();
 
-  // TODO:
-  uint8_t* nas_pdu = (uint8_t*) calloc(1, blength(itti_msg.nas) + 1);
-  uint8_t* buf_tmp = (uint8_t*) bdata(itti_msg.nas);
-  if (buf_tmp != nullptr) memcpy(nas_pdu, buf_tmp, blength(itti_msg.nas));
-  nas_pdu[blength(itti_msg.nas)] = '\0';
-  item.pduSessionNAS_PDU         = nas_pdu;
-  item.sizeofpduSessionNAS_PDU   = blength(itti_msg.nas);
+  // TODO: to be removed
+  // uint8_t* nas_pdu = (uint8_t*) calloc(1, blength(itti_msg.nas) + 1);
+  // uint8_t* buf_tmp = (uint8_t*) bdata(itti_msg.nas);
+  // if (buf_tmp != nullptr) memcpy(nas_pdu, buf_tmp, blength(itti_msg.nas));
+  // nas_pdu[blength(itti_msg.nas)] = '\0';
+  // item.pduSessionNAS_PDU         = nas_pdu;
+  // item.sizeofpduSessionNAS_PDU   = blength(itti_msg.nas);
+  item.nas_pdu = bstrcpy(itti_msg.nas);
   list.push_back(item);
 
   modify_request_msg->setPduSessionResourceModifyRequestList(list);
@@ -1106,7 +1108,6 @@ void amf_n2::handle_itti_message(
   bstring b = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(gc->sctp_assoc_id, unc->sctp_stream_send, &b);
   // free memory
-  free_wrapper((void**) &nas_pdu);
   bdestroy_wrapper(&b);
 }
 
@@ -1136,11 +1137,11 @@ void amf_n2::handle_itti_message(
 
   release_cmd_msg->setAmfUeNgapId(itti_msg.amf_ue_ngap_id);
   release_cmd_msg->setRanUeNgapId(itti_msg.ran_ue_ngap_id);
-  uint8_t* nas_pdu = (uint8_t*) calloc(1, blength(itti_msg.nas) + 1);
-  uint8_t* buf_tmp = (uint8_t*) bdata(itti_msg.nas);
-  if (buf_tmp != nullptr) memcpy(nas_pdu, buf_tmp, blength(itti_msg.nas));
-  nas_pdu[blength(itti_msg.nas)] = '\0';
-  release_cmd_msg->setNasPdu(nas_pdu, blength(itti_msg.nas));
+  // uint8_t* nas_pdu = (uint8_t*) calloc(1, blength(itti_msg.nas) + 1);
+  // uint8_t* buf_tmp = (uint8_t*) bdata(itti_msg.nas);
+  // if (buf_tmp != nullptr) memcpy(nas_pdu, buf_tmp, blength(itti_msg.nas));
+  // nas_pdu[blength(itti_msg.nas)] = '\0';
+  release_cmd_msg->setNasPdu(itti_msg.nas);
 
   std::vector<PDUSessionResourceToReleaseItem_t> list;
   PDUSessionResourceToReleaseItem_t item = {};
@@ -1163,7 +1164,7 @@ void amf_n2::handle_itti_message(
   bstring b = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(gc->sctp_assoc_id, unc->sctp_stream_send, &b);
   // free memory
-  free_wrapper((void**) &nas_pdu);
+  // free_wrapper((void**) &nas_pdu);
   bdestroy_wrapper(&b);
 }
 
@@ -1684,11 +1685,11 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
                 supi, curl_responses.begin()->first, psc)) {
           PDUSessionResourceSetupRequestItem_t item = {};
           item.pduSessionId                         = psc->pdu_session_id;
-          item.s_nssai.sst       = std::to_string(psc->snssai.sST);
-          item.s_nssai.sd        = psc->snssai.sD;
-          item.pduSessionNAS_PDU = nullptr;
-          unsigned int data_len  = n2_sm.length();
-          unsigned char* data    = (unsigned char*) malloc(data_len + 1);
+          item.s_nssai.sst = std::to_string(psc->snssai.sST);
+          item.s_nssai.sd  = psc->snssai.sD;
+          // item.pduSessionNAS_PDU = nullptr;
+          unsigned int data_len = n2_sm.length();
+          unsigned char* data   = (unsigned char*) malloc(data_len + 1);
           memset(data, 0, data_len + 1);
           memcpy((void*) data, (void*) n2_sm.c_str(), data_len);
           item.pduSessionResourceSetupRequestTransfer.buf  = data;
