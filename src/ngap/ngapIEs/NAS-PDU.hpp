@@ -50,7 +50,6 @@ class NAS_PDU {
   bool set(const NAS_PDU& nas_pdu);
 
  private:
-  OCTET_STRING_t pdu_;
   bstring pdu_bstring;
 };
 

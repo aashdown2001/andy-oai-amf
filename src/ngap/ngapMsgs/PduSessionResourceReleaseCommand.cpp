@@ -103,7 +103,7 @@ void PduSessionResourceReleaseCommandMsg::setRanUeNgapId(
 
 //------------------------------------------------------------------------------
 void PduSessionResourceReleaseCommandMsg::setRanPagingPriority(
-    const uint8_t& priority) {
+    const uint32_t& priority) {
   RANPagingPriority tmp = {};
   tmp.set(priority);
   ranPagingPriority = std::optional<RANPagingPriority>(tmp);
@@ -131,7 +131,7 @@ void PduSessionResourceReleaseCommandMsg::setRanPagingPriority(
 
 //------------------------------------------------------------------------------
 bool PduSessionResourceReleaseCommandMsg::getRanPagingPriority(
-    uint8_t& priority) {
+    uint32_t& priority) {
   if (!ranPagingPriority.has_value()) return false;
   priority = ranPagingPriority.value().get();
   return true;

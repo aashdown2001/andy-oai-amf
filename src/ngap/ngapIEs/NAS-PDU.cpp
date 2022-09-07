@@ -25,19 +25,13 @@
 namespace ngap {
 
 //------------------------------------------------------------------------------
-NAS_PDU::NAS_PDU() {
-  // buffer_ = nullptr;
-  // size_   = -1;
-  pdu_.buf  = nullptr;
-  pdu_.size = -1;
-}
+NAS_PDU::NAS_PDU() {}
 
 //------------------------------------------------------------------------------
 NAS_PDU::~NAS_PDU() {}
 
 //------------------------------------------------------------------------------
 bool NAS_PDU::encode(Ngap_NAS_PDU_t& nas_pdu) {
-  if (!pdu_.buf) return false;
   return conv::bstring_2_octet_string(pdu_bstring, nas_pdu);
 }
 

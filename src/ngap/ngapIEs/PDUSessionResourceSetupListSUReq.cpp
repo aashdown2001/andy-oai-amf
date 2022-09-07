@@ -49,7 +49,7 @@ bool PDUSessionResourceSetupListSUReq::encode2PDUSessionResourceSetupListSUReq(
         (Ngap_PDUSessionResourceSetupItemSUReq_t*) calloc(
             1, sizeof(Ngap_PDUSessionResourceSetupItemSUReq_t));
     if (!request) return false;
-    if (!item.encode2PDUSessionResourceSetupItemSUReq(request)) return false;
+    if (!item.encode(request)) return false;
     if (ASN_SEQUENCE_ADD(&pduSessionResourceSetupListSUReq->list, request) != 0)
       return false;
   }
@@ -64,8 +64,7 @@ bool PDUSessionResourceSetupListSUReq::
             pduSessionResourceSetupListSUReq) {
   for (int i = 0; i < pduSessionResourceSetupListSUReq->list.count; i++) {
     PDUSessionResourceSetupItemSUReq item = {};
-    if (!item.decodefromPDUSessionResourceSetupItemSUReq(
-            pduSessionResourceSetupListSUReq->list.array[i]))
+    if (!item.decode(pduSessionResourceSetupListSUReq->list.array[i]))
       return false;
     itemSUReqList.push_back(item);
   }

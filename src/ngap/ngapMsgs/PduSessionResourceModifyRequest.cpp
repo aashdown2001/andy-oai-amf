@@ -101,7 +101,7 @@ void PduSessionResourceModifyRequestMsg::setRanUeNgapId(
 
 //------------------------------------------------------------------------------
 void PduSessionResourceModifyRequestMsg::setRanPagingPriority(
-    const uint8_t& priority) {
+    const uint32_t& priority) {
   if (!ranPagingPriority) ranPagingPriority = new RANPagingPriority();
 
   ranPagingPriority->set(priority);

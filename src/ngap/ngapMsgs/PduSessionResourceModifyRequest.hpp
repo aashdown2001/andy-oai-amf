@@ -43,7 +43,7 @@ class PduSessionResourceModifyRequestMsg : public NgapUEMessage {
   void setRanUeNgapId(const uint32_t& id) override;
   bool decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) override;
 
-  void setRanPagingPriority(const uint8_t& priority);
+  void setRanPagingPriority(const uint32_t& priority);
   int getRanPagingPriority();
 
   void setNasPdu(const bstring& pdu);
