@@ -35,8 +35,8 @@ namespace ngap {
 //------------------------------------------------------------------------------
 RerouteNASRequest::RerouteNASRequest() : NgapMessage() {
   rerouteNASRequestIEs = nullptr;
-  amfUeNgapId          = nullptr;
-  allowedNssai         = nullptr;
+  amfUeNgapId          = std::nullopt;
+  allowedNssai         = std::nullopt;
 
   NgapMessage::setMessageType(NgapMessageType::REROUTE_NAS_REQUEST);
   initialize();
@@ -53,8 +53,9 @@ void RerouteNASRequest::initialize() {
 
 //------------------------------------------------------------------------------
 void RerouteNASRequest::setAmfUeNgapId(const unsigned long& id) {
-  if (!amfUeNgapId) amfUeNgapId = new AMF_UE_NGAP_ID();
-  amfUeNgapId->set(id);
+  AMF_UE_NGAP_ID tmp = {};
+  tmp.set(id);
+  amfUeNgapId = std::optional<AMF_UE_NGAP_ID>(tmp);
 
   Ngap_RerouteNASRequest_IEs_t* ie = (Ngap_RerouteNASRequest_IEs_t*) calloc(
       1, sizeof(Ngap_RerouteNASRequest_IEs_t));
@@ -62,7 +63,8 @@ void RerouteNASRequest::setAmfUeNgapId(const unsigned long& id) {
   ie->criticality   = Ngap_Criticality_ignore;
   ie->value.present = Ngap_RerouteNASRequest_IEs__value_PR_AMF_UE_NGAP_ID;
 
-  int ret = amfUeNgapId->encode2AMF_UE_NGAP_ID(ie->value.choice.AMF_UE_NGAP_ID);
+  int ret = amfUeNgapId.value().encode2AMF_UE_NGAP_ID(
+      ie->value.choice.AMF_UE_NGAP_ID);
   if (!ret) {
     Logger::ngap().error("Encode AMF_UE_NGAP_ID IE error!");
     free_wrapper((void**) &ie);
@@ -74,9 +76,10 @@ void RerouteNASRequest::setAmfUeNgapId(const unsigned long& id) {
 }
 
 //------------------------------------------------------------------------------
-unsigned long RerouteNASRequest::getAmfUeNgapId() {
-  if (!amfUeNgapId) return RETURNerror;
-  return amfUeNgapId->get();
+bool RerouteNASRequest::getAmfUeNgapId(unsigned long& id) {
+  if (!amfUeNgapId.has_value()) return false;
+  id = amfUeNgapId->get();
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -107,7 +110,8 @@ uint32_t RerouteNASRequest::getRanUeNgapId() {
 
 //------------------------------------------------------------------------------
 void RerouteNASRequest::setAllowedNssai(const std::vector<S_Nssai>& list) {
-  if (!allowedNssai) allowedNssai = new AllowedNSSAI();
+  AllowedNSSAI tmp = {};
+
   std::vector<S_NSSAI> snssaiList;
   for (int i = 0; i < list.size(); i++) {
     S_NSSAI snssai = {};
@@ -120,7 +124,8 @@ void RerouteNASRequest::setAllowedNssai(const std::vector<S_Nssai>& list) {
     snssai.setSd(sd);
     snssaiList.push_back(snssai);
   }
-  allowedNssai->set(snssaiList);
+  tmp.set(snssaiList);
+  allowedNssai = std::optional<AllowedNSSAI>(tmp);
 
   Ngap_RerouteNASRequest_IEs_t* ie = (Ngap_RerouteNASRequest_IEs_t*) calloc(
       1, sizeof(Ngap_RerouteNASRequest_IEs_t));
@@ -128,7 +133,7 @@ void RerouteNASRequest::setAllowedNssai(const std::vector<S_Nssai>& list) {
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_RerouteNASRequest_IEs__value_PR_AllowedNSSAI;
 
-  int ret = allowedNssai->encode(&ie->value.choice.AllowedNSSAI);
+  int ret = allowedNssai.value().encode(&ie->value.choice.AllowedNSSAI);
   if (!ret) {
     Logger::ngap().error("Encode AllowedNSSAI IE error!");
     free_wrapper((void**) &ie);
@@ -141,10 +146,10 @@ void RerouteNASRequest::setAllowedNssai(const std::vector<S_Nssai>& list) {
 
 //------------------------------------------------------------------------------
 bool RerouteNASRequest::getAllowedNssai(std::vector<S_Nssai>& list) {
-  if (!allowedNssai) return false;
+  if (!allowedNssai.has_value()) return false;
 
   std::vector<S_NSSAI> snssaiList;
-  allowedNssai->get(snssaiList);
+  allowedNssai.value().get(snssaiList);
   for (std::vector<S_NSSAI>::iterator it = std::begin(snssaiList);
        it < std::end(snssaiList); ++it) {
     S_Nssai s_nssai = {};
@@ -233,13 +238,14 @@ bool RerouteNASRequest::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_ignore &&
             rerouteNASRequestIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_RerouteNASRequest_IEs__value_PR_AMF_UE_NGAP_ID) {
-          amfUeNgapId = new AMF_UE_NGAP_ID();
-          if (!amfUeNgapId->decodefromAMF_UE_NGAP_ID(
+          AMF_UE_NGAP_ID tmp = {};
+          if (!tmp.decodefromAMF_UE_NGAP_ID(
                   rerouteNASRequestIEs->protocolIEs.list.array[i]
                       ->value.choice.AMF_UE_NGAP_ID)) {
             Logger::ngap().error("Decoded NGAP AMF_UE_NGAP_ID IE error");
             return false;
           }
+          amfUeNgapId = std::optional<AMF_UE_NGAP_ID>(tmp);
         } else {
           Logger::ngap().error("Decoded NGAP AMF_UE_NGAP_ID IE error");
           return false;
@@ -294,13 +300,14 @@ bool RerouteNASRequest::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_reject &&
             rerouteNASRequestIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_RerouteNASRequest_IEs__value_PR_AllowedNSSAI) {
-          allowedNssai = new AllowedNSSAI();
+          AllowedNSSAI tmp = {};
           if (!allowedNssai->decode(
                   &rerouteNASRequestIEs->protocolIEs.list.array[i]
                        ->value.choice.AllowedNSSAI)) {
             Logger::ngap().error("Decoded NGAP AllowedNSSAI IE error");
             return false;
           }
+          allowedNssai = std::optional<AllowedNSSAI>(tmp);
         } else {
           Logger::ngap().error("Decoded NGAP AllowedNSSAI IE error");
           return false;

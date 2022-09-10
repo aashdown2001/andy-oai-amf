@@ -41,8 +41,7 @@ class RerouteNASRequest : public NgapMessage {
   bool decodeFromPdu(Ngap_NGAP_PDU_t* ngap_msg_pdu) override;
 
   void setAmfUeNgapId(const unsigned long& id);  // 40 bits
-  unsigned long getAmfUeNgapId();
-  void getAmfUeNgapId(std::string& amf_set_id);
+  bool getAmfUeNgapId(unsigned long& id);
 
   void setRanUeNgapId(const uint32_t& id);  // 32 bits
   uint32_t getRanUeNgapId();
@@ -59,11 +58,11 @@ class RerouteNASRequest : public NgapMessage {
  private:
   Ngap_RerouteNASRequest_t* rerouteNASRequestIEs;
 
-  RAN_UE_NGAP_ID ranUeNgapId;   // Mandatory
-  AMF_UE_NGAP_ID* amfUeNgapId;  // Optional
-  OCTET_STRING_t ngapMessage;   // Mandatory
-  AMFSetID amfSetID;            // Mandatory
-  AllowedNSSAI* allowedNssai;   // Optional
+  RAN_UE_NGAP_ID ranUeNgapId;                 // Mandatory
+  std::optional<AMF_UE_NGAP_ID> amfUeNgapId;  // Optional
+  OCTET_STRING_t ngapMessage;                 // Mandatory
+  AMFSetID amfSetID;                          // Mandatory
+  std::optional<AllowedNSSAI> allowedNssai;   // Optional
   // SourceToTarget-AMFInformationReroute //Optional
 };
 

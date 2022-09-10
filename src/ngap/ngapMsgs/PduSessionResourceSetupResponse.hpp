@@ -60,6 +60,7 @@ class PduSessionResourceSetupResponseMsg : public NgapUEMessage {
       pduSessionResourceSetupResponseList;  // Optional
   std::optional<PDUSessionResourceFailedToSetupListSURes>
       pduSessionResourceFailedToSetupResponseList;  // Optional
+  // TODO: Criticality Diagnostics (Optional)
 };
 
 }  // namespace ngap
