@@ -228,8 +228,7 @@ void PduSessionResourceSetupRequestMsg::setPduSessionResourceSetupRequestList(
     itemSUReqList.push_back(itemSUReq);
   }
 
-  pduSessionResourceSetupRequestList.setPDUSessionResourceSetupListSUReq(
-      itemSUReqList);
+  pduSessionResourceSetupRequestList.set(itemSUReqList);
 
   Ngap_PDUSessionResourceSetupRequestIEs_t* ie =
       (Ngap_PDUSessionResourceSetupRequestIEs_t*) calloc(
@@ -239,9 +238,8 @@ void PduSessionResourceSetupRequestMsg::setPduSessionResourceSetupRequestList(
   ie->value.present =
       Ngap_PDUSessionResourceSetupRequestIEs__value_PR_PDUSessionResourceSetupListSUReq;
 
-  int ret = pduSessionResourceSetupRequestList
-                .encode2PDUSessionResourceSetupListSUReq(
-                    &ie->value.choice.PDUSessionResourceSetupListSUReq);
+  int ret = pduSessionResourceSetupRequestList.encode(
+      &ie->value.choice.PDUSessionResourceSetupListSUReq);
   if (!ret) {
     Logger::ngap().error(
         "Encode NGAP PDUSessionResourceSetupListSUReq IE error");
@@ -260,8 +258,7 @@ void PduSessionResourceSetupRequestMsg::setPduSessionResourceSetupRequestList(
 bool PduSessionResourceSetupRequestMsg::getPduSessionResourceSetupRequestList(
     std::vector<PDUSessionResourceSetupRequestItem_t>& list) {
   std::vector<PDUSessionResourceSetupItemSUReq> itemSUReqList;
-  pduSessionResourceSetupRequestList.getPDUSessionResourceSetupListSUReq(
-      itemSUReqList);
+  pduSessionResourceSetupRequestList.get(itemSUReqList);
 
   for (auto& item : itemSUReqList) {
     PDUSessionResourceSetupRequestItem_t request = {};
@@ -391,11 +388,9 @@ bool PduSessionResourceSetupRequestMsg::decodeFromPdu(
             pduSessionResourceSetupRequestIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_PDUSessionResourceSetupRequestIEs__value_PR_PDUSessionResourceSetupListSUReq) {
-          if (!pduSessionResourceSetupRequestList
-                   .decodefromPDUSessionResourceSetupListSUReq(
-                       &pduSessionResourceSetupRequestIEs->protocolIEs.list
-                            .array[i]
-                            ->value.choice.PDUSessionResourceSetupListSUReq)) {
+          if (!pduSessionResourceSetupRequestList.decode(
+                  &pduSessionResourceSetupRequestIEs->protocolIEs.list.array[i]
+                       ->value.choice.PDUSessionResourceSetupListSUReq)) {
             Logger::ngap().error(
                 "Decoded NGAP PDUSessionResourceSetupListSUReq IE error");
             return false;
