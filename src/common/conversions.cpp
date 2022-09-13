@@ -19,15 +19,7 @@
  *      contact@openairinterface.org
  */
 
-/*! \file conversions.cpp
- \brief
- \author Sebastien ROUX
- \company Eurecom
- */
 #include "conversions.hpp"
-
-#include "amf.hpp"
-#include "logger.hpp"
 
 #include <arpa/inet.h>
 #include <ctype.h>
@@ -35,7 +27,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+
 #include <boost/algorithm/string.hpp>
+
+#include "amf.hpp"
+#include "logger.hpp"
 
 static const char hex_to_ascii_table[16] = {
     '0', '1', '2', '3', '4', '5', '6', '7',
@@ -199,11 +195,9 @@ unsigned char* conv::format_string_as_hex(std::string str) {
 
   unsigned char* data = (unsigned char*) malloc(str_len + 1);
   memset(data, 0, str_len + 1);
-
   memcpy((void*) data, (void*) str.c_str(), str_len);
 
   std::cout << "Data: " << data << " (" << str_len << " bytes)" << std::endl;
-
   std::cout << "Data (formatted): \n";
   for (int i = 0; i < str_len; i++) {
     char datatmp[3] = {0};
@@ -237,13 +231,14 @@ char* conv::bstring2charString(bstring b) {
   uint8_t* value = (uint8_t*) bdata(b);
   for (int i = 0; i < blength(b); i++) buf[i] = (char) value[i];
   buf[blength(b)] = '\0';
-  free_wrapper((void**) &value);
+  // free_wrapper((void**) &value);
+  value = nullptr;
   return buf;
 }
 
 //------------------------------------------------------------------------------
 void conv::msg_str_2_msg_hex(std::string msg, bstring& b) {
-  std::string msg_hex_str;
+  std::string msg_hex_str = {};
   convert_string_2_hex(msg, msg_hex_str);
   printf("tmp string: %s\n", msg_hex_str.c_str());
   unsigned int msg_len = msg_hex_str.length();
@@ -254,6 +249,8 @@ void conv::msg_str_2_msg_hex(std::string msg, bstring& b) {
   uint8_t* msg_hex = (uint8_t*) malloc(msg_len / 2 + 1);
   conv::ascii_to_hex(msg_hex, (const char*) data);
   b = blk2bstr(msg_hex, (msg_len / 2));
+  free_wrapper((void**) &data);
+  free_wrapper((void**) &msg_hex);
 }
 
 //------------------------------------------------------------------------------

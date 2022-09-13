@@ -32,23 +32,36 @@
 #include <stdint.h>
 
 #include "nas_ie_header.hpp"
+#include <optional>
+
 namespace nas {
 
 class S_NSSAI {
  public:
   S_NSSAI();
-  S_NSSAI(uint8_t iei);
-  S_NSSAI(const uint8_t iei, SNSSAI_s snssai);
+  // S_NSSAI(uint8_t iei);
+  S_NSSAI(std::optional<uint8_t> iei, SNSSAI_s snssai);
   ~S_NSSAI();
-  void setS_NSSAI(SNSSAI_s snssai);
+  // void setS_NSSAI(SNSSAI_s snssai);
   int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
-  void getValue(SNSSAI_s& snssai);
+  int decodefrombuffer(uint8_t* buf, int len, const bool is_option = true);
+  void getValue(SNSSAI_t& snssai);
+  void SetSNSSAI(
+      std::optional<int8_t> iei, uint8_t sst, std::optional<int32_t> sd,
+      std::optional<int8_t> mapped_hplmn_sst,
+      std::optional<int32_t> mapped_hplmn_sd);
+  uint8_t GetLength();
+  std::string ToString();
 
  private:
-  uint8_t _iei;
+  // uint8_t _iei;
+  std::optional<int8_t> iei_;
   uint8_t length;
-  SNSSAI_s SNSSAI;
+  // SNSSAI_s SNSSAI;
+  uint8_t sst_;
+  std::optional<int32_t> sd_;
+  std::optional<int8_t> mapped_hplmn_sst_;
+  std::optional<int32_t> mapped_hplmn_sd_;
 };
 
 }  // namespace nas

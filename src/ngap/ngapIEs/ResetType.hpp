@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author
- \date 2021
- \email: contact@openairinterface.org
- */
-
 #ifndef _RESET_TYPE_H_
 #define _RESET_TYPE_H_
 

@@ -19,36 +19,27 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_n11.hpp
- \brief
- \author Keliang DU (BUPT), Tien-Thinh NGUYEN (EURECOM)
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _AMF_SBI_H_
+#define _AMF_SBI_H_
 
-#ifndef _AMF_N11_H_
-#define _AMF_N11_H_
-
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <map>
 #include <shared_mutex>
 #include <string>
 
 #include "AuthenticationInfo.h"
 #include "UEAuthenticationCtx.h"
-#include "itti_msg_n11.hpp"
 #include "itti_msg_sbi.hpp"
 #include "pdu_session_context.hpp"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
-
 namespace amf_application {
 
-class amf_n11 {
+class amf_sbi {
  public:
-  amf_n11();
-  ~amf_n11();
+  amf_sbi();
+  ~amf_sbi();
 
   /*
    * Handle ITTI message (Nsmf_PDUSessionCreateSMContext) to create a new PDU
@@ -90,34 +81,34 @@ class amf_n11 {
 
   /*
    * Handle ITTI message to get the Slice Selection Subscription Data from UDM
-   * @param [itti_n11_slice_selection_subscription_data&]: ITTI message
+   * @param [itti_sbi_slice_selection_subscription_data&]: ITTI message
    * @return void
    */
   void handle_itti_message(
-      itti_n11_slice_selection_subscription_data& itti_msg);
+      itti_sbi_slice_selection_subscription_data& itti_msg);
 
   /*
    * Handle ITTI message to get the Network Slice Selection Information from
    * NSSF
-   * @param [itti_n11_network_slice_selection_information&]: ITTI message
+   * @param [itti_sbi_network_slice_selection_information&]: ITTI message
    * @return void
    */
   void handle_itti_message(
-      itti_n11_network_slice_selection_information& itti_msg);
+      itti_sbi_network_slice_selection_information& itti_msg);
 
   /*
    * Handle ITTI message to reroute N1 message to the targer AMF
-   * @param [itti_n11_n1_message_notify&]: ITTI message
+   * @param [itti_sbi_n1_message_notify&]: ITTI message
    * @return void
    */
-  void handle_itti_message(itti_n11_n1_message_notify& itti_msg);
+  void handle_itti_message(itti_sbi_n1_message_notify& itti_msg);
 
   /*
    * Handle ITTI message to discover NF instance information from NRF
-   * @param [itti_n11_nf_instance_discovery&]: ITTI message
+   * @param [itti_sbi_nf_instance_discovery&]: ITTI message
    * @return void
    */
-  void handle_itti_message(itti_n11_nf_instance_discovery& itti_msg);
+  void handle_itti_message(itti_sbi_nf_instance_discovery& itti_msg);
 
   /*
    * Handle request to create a new PDU Session
@@ -151,25 +142,24 @@ class amf_n11 {
 
   /*
    * Handle ITTI message to register to NRF
-   * @param [itti_n11_register_nf_instance_request&]: ITTI message
+   * @param [itti_sbi_register_nf_instance_request&]: ITTI message
    * @return void
    */
   void register_nf_instance(
-      std::shared_ptr<itti_n11_register_nf_instance_request> msg);
+      std::shared_ptr<itti_sbi_register_nf_instance_request> msg);
 
   /*
    * Send the request to update PDU session context at SMF
    * @param [const std::string&] supi: SUPI
    * @param [std::shared_ptr<pdu_session_context>&] psc: Pointer to the PDU
    * Session Context
-   * @param [const std::string&] smf_addr: SMF's Address
    * @param [bstring] sm_msg: SM message
    * @param [const std::string&] dnn: DNN
    * @return void
    */
   void send_pdu_session_update_sm_context_request(
       const std::string& supi, std::shared_ptr<pdu_session_context>& psc,
-      const std::string& smf_addr, bstring sm_msg, const std::string& dnn);
+      bstring sm_msg, const std::string& dnn);
 
   /*
    * Select SMF from the configuration file

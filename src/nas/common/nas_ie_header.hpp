@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file nas_ie_header.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "5GMMCapability.hpp"
 #include "5GSMobilityIdentity.hpp"
 #include "5GSRegistrationType.hpp"
@@ -87,3 +80,4 @@
 #include "_5GS_Update_Type.hpp"
 #include "nas_mm_plain_header.hpp"
 #include "struct.hpp"
+#include "Ie_Const.hpp"

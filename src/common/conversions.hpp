@@ -19,27 +19,20 @@
  *      contact@openairinterface.org
  */
 
-/*! \file conversions.hpp
- \brief
- \author Sebastien ROUX, Lionel Gauthier
- \company Eurecom
- \email: lionel.gauthier@eurecom.fr
- */
-
 #ifndef FILE_CONVERSIONS_HPP_SEEN
 #define FILE_CONVERSIONS_HPP_SEEN
+
 #include <netinet/in.h>
 #include <stdint.h>
 
-#include <string>
-
 #include <iostream>
+#include <string>
 
 #include "bstrlib.h"
 
 extern "C" {
-#include "dynamic_memory_check.h"
 #include "OCTET_STRING.h"
+#include "dynamic_memory_check.h"
 }
 
 /* Used to format an uint32_t containing an ipv4 address */
@@ -71,8 +64,9 @@ class conv {
   static unsigned char* format_string_as_hex(std::string str);
   static void convert_string_2_hex(
       std::string& input_str, std::string& output_str);
-  void octet_string_2_bstring(const OCTET_STRING_t& octet_str, bstring& b_str);
-  void bstring_2_octet_string(bstring& b_str, OCTET_STRING_t& octet_str);
+  static void octet_string_2_bstring(
+      const OCTET_STRING_t& octet_str, bstring& b_str);
+  static void bstring_2_octet_string(bstring& b_str, OCTET_STRING_t& octet_str);
   static void sd_string_to_int(const std::string& sd_str, uint32_t& sd);
 };
 #endif /* FILE_CONVERSIONS_HPP_SEEN */

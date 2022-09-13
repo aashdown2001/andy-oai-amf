@@ -201,12 +201,10 @@ bool InitialContextSetupResponseMsg::decodeFromPdu(
                                             .choice.InitialContextSetupResponse;
     } else {
       Logger::ngap().error("Check InitialContextSetupResponse message error");
-
       return false;
     }
   } else {
     Logger::ngap().error("MessageType error");
-
     return false;
   }
   for (int i = 0; i < initialContextSetupResponseIEs->protocolIEs.list.count;

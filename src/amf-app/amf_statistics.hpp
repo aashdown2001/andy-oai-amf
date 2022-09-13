@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_statistics.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _STATISTICS_H_
 #define _STATISTICS_H_
 
@@ -131,7 +124,7 @@ class statistics {
    */
   uint32_t get_number_connected_gnbs() const;
 
- public:
+ private:
   uint32_t gNB_connected;
   uint32_t UE_connected;
   uint32_t UE_registred;

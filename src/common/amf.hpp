@@ -19,19 +19,13 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf.hpp
- \brief
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef __AMF_HPP
 #define __AMF_HPP
 
 #include "3gpp_23.003.h"
-#include "string.h"
 #include "inttypes.h"
 #include "stdio.h"
+#include "string.h"
 
 // for CURL
 constexpr auto CURL_MIME_BOUNDARY = "----Boundary";
@@ -47,6 +41,8 @@ constexpr auto CURL_MIME_BOUNDARY = "----Boundary";
 
 #define GNB_UE_NGAP_ID_FMT "%" PRIu32
 #define AMF_UE_NGAP_ID_FMT "%" PRIu64
+
+constexpr long INVALID_AMF_UE_NGAP_ID = -1;
 
 // Event Subscription IDs)
 typedef uint32_t evsub_id_t;
@@ -69,9 +65,6 @@ constexpr uint64_t SECONDS_SINCE_FIRST_EPOCH = 2208988800;
 #define NAS_MESSAGE_DOWNLINK 1
 #define NAS_MESSAGE_UPLINK 0
 
-const uint32_t SD_NO_VALUE               = 0xFFFFFF;
-const uint8_t SST_MAX_STANDARDIZED_VALUE = 127;
-
 typedef enum {
   PlainNasMsg                                              = 0x0,
   IntegrityProtected                                       = 0x1,
@@ -80,4 +73,7 @@ typedef enum {
   IntegrityProtectedAndCipheredWithNew5GNASSecurityContext = 0x4,
 } SecurityHeaderType_t;
 
+constexpr uint32_t DEFAULT_HTTP1_PORT  = 80;
+constexpr uint32_t DEFAULT_HTTP2_PORT  = 8080;
+constexpr auto DEFAULT_SBI_API_VERSION = "v1";
 #endif

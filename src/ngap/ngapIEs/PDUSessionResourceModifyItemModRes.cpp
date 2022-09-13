@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author
- \date
- \email: contact@openairinterface.org
- */
-
 #include "PDUSessionResourceModifyItemModRes.hpp"
 
 #include <iostream>

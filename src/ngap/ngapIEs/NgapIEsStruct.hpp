@@ -19,12 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
 #ifndef _NGAPIESSTRUCT_H_
 #define _NGAPIESSTRUCT_H_
 
@@ -145,6 +139,10 @@ typedef struct {
   uint8_t pduSessionId;
   OCTET_STRING_t pduSessionResourceReleaseResponseTransfer;
 } PDUSessionResourceReleasedItem_t;
+
+typedef struct {
+  uint8_t pduSessionId;
+} PDUSessionResourceCxtRelCplItem_t;
 
 typedef struct {
   std::string ip_address;

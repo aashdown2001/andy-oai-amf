@@ -32,6 +32,10 @@
 
 #include <iostream>
 #include <vector>
+#include "spdlog/fmt/fmt.h"
+
+#include "3gpp_23.003.h"
+
 extern "C" {
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"
@@ -55,6 +59,26 @@ typedef struct SNSSAI_s {
     length    = s.length;
     return *this;
   }
+
+  std::string ToString() {
+    std::string s;
+    s.append(fmt::format("SST {:#x}", sst));
+
+    if (length >= (SST_LENGTH + SD_LENGTH)) {
+      s.append(fmt::format(" SD {:#x}", sd));
+    }
+
+    if ((length == (SST_LENGTH + SST_LENGTH)) ||
+        (length >= (SST_LENGTH + SD_LENGTH + SST_LENGTH))) {
+      s.append(fmt::format(" M-HPLMN SST {:#x}", mHplmnSst));
+    }
+
+    if (length == (SST_LENGTH + SD_LENGTH + SST_LENGTH + SD_LENGTH)) {
+      s.append(fmt::format(" M-HPLMN SD {:#x}", mHplmnSd));
+    }
+    return s;
+  }
+
 } SNSSAI_t;
 
 typedef struct {
@@ -62,15 +86,18 @@ typedef struct {
   uint8_t ie_len;
   bstring ie_value;
 } IE_t;
+
 typedef struct {
   uint8_t ie_type;
   uint16_t ie_len;
   bstring ie_value;
 } IE_t_E;
+
 typedef struct {
   uint8_t payloadContainerType : 4;
   std::vector<IE_t> optionalIE;
 } PayloadContainerEntry;
+
 typedef struct IMEISV_s {
   bstring identity;
 } IMEISV_t;

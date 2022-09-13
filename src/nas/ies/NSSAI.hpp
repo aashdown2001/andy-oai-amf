@@ -34,8 +34,6 @@
 
 #include "nas_ie_header.hpp"
 
-#define SST_LENGTH 1
-#define SD_LENGTH 3
 namespace nas {
 
 class NSSAI {
@@ -52,7 +50,7 @@ class NSSAI {
  private:
   uint8_t _iei;
   uint8_t length;
-  std::vector<struct SNSSAI_s> S_NSSAI;
+  std::vector<struct SNSSAI_s> S_NSSAIs;
 };
 
 }  // namespace nas
