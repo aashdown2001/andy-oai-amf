@@ -43,9 +43,6 @@ class UeRadioCapabilityInfoIndicationMsg : public NgapUEMessage {
   void setRanUeNgapId(const uint32_t& id) override;
   bool decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) override;
 
-  void setUERadioCapability(uint8_t* buf, size_t size);
-  bool getUERadioCapability(uint8_t*& buf, size_t& size);
-
   void setUERadioCapability(const OCTET_STRING_t& capability);
   void getUERadioCapability(OCTET_STRING_t& capability);
 
@@ -60,8 +57,9 @@ class UeRadioCapabilityInfoIndicationMsg : public NgapUEMessage {
   Ngap_UERadioCapabilityInfoIndication_t* ueRadioCapabilityInfoIndicationIEs;
   // AMF_UE_NGAP_ID //Mandatory
   // RAN_UE_NGAP_ID //Mandatory
-  UERadioCapability ueRadioCapability;                     // Mandatory
-  UERadioCapabilityForPaging* ueRadioCapabilityForPaging;  // Optional
+  UERadioCapability ueRadioCapability;  // Mandatory
+  std::optional<UERadioCapabilityForPaging>
+      ueRadioCapabilityForPaging;  // Optional
 };
 
 }  // namespace ngap
