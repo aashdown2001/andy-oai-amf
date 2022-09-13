@@ -94,12 +94,12 @@ void UEContextReleaseCompleteMsg::setUserLocationInfoNR(
     userLocationInformation = new UserLocationInformation();
 
   UserLocationInformationNR information_nr = {};
-  NR_CGI nR_CGI                            = {};
-  nR_CGI.setNR_CGI(cig.mcc, cig.mnc, cig.nrCellID);
+  NR_CGI nr_cgi                            = {};
+  nr_cgi.setNR_CGI(cig.mcc, cig.mnc, cig.nrCellID);
 
   TAI tai_nr = {};
   tai_nr.setTAI(tai);
-  information_nr.set(nR_CGI, tai_nr);
+  information_nr.set(nr_cgi, tai_nr);
   userLocationInformation->setInformation(information_nr);
 
   Ngap_UEContextReleaseComplete_IEs* ie =
@@ -129,13 +129,13 @@ void UEContextReleaseCompleteMsg::getUserLocationInfoNR(
     UserLocationInformationNR information_nr = {};
     if (!userLocationInformation->getInformation(information_nr)) return;
 
-    NR_CGI nR_CGI = {};
+    NR_CGI nr_cgi = {};
     TAI tai_nr    = {};
-    information_nr.get(nR_CGI, tai_nr);
+    information_nr.get(nr_cgi, tai_nr);
     PlmnId plmnId_cgi             = {};
     NRCellIdentity nRCellIdentity = {};
 
-    nR_CGI.getNR_CGI(plmnId_cgi, nRCellIdentity);
+    nr_cgi.getNR_CGI(plmnId_cgi, nRCellIdentity);
     cig.nrCellID = nRCellIdentity.getNRCellIdentity();
     plmnId_cgi.getMcc(cig.mcc);
     plmnId_cgi.getMnc(cig.mnc);
@@ -155,19 +155,19 @@ void UEContextReleaseCompleteMsg::setPduSessionResourceCxtRelCplList(
     const std::vector<PDUSessionResourceCxtRelCplItem_t>& list) {
   PDUSessionResourceListCxtRelCpl m_pduSessionResourceListCxtRelCpl = {};
 
-  std::vector<PDUSessionResourceItemCxtRelCpl> cxtRelCplList;
+  std::vector<PDUSessionResourceItemCxtRelCpl> cxt_rel_cpl_list;
 
   for (int i = 0; i < list.size(); i++) {
     PDUSessionResourceItemCxtRelCpl item = {};
-    PDUSessionID pDUSessionID            = {};
-    pDUSessionID.set(list[i].pduSessionId);
+    PDUSessionID pdu_session_id          = {};
+    pdu_session_id.set(list[i].pduSessionId);
 
-    item.setPDUSessionResourceItemCxtRelCpl(pDUSessionID);
-    cxtRelCplList.push_back(item);
+    item.set(pdu_session_id);
+    cxt_rel_cpl_list.push_back(item);
   }
 
   m_pduSessionResourceListCxtRelCpl.setPDUSessionResourceListCxtRelCpl(
-      cxtRelCplList);
+      cxt_rel_cpl_list);
 
   Ngap_UEContextReleaseComplete_IEs* ie =
       (Ngap_UEContextReleaseComplete_IEs*) calloc(
@@ -201,20 +201,20 @@ void UEContextReleaseCompleteMsg::setPduSessionResourceCxtRelCplList(
 //------------------------------------------------------------------------------
 bool UEContextReleaseCompleteMsg::getPduSessionResourceCxtRelCplList(
     std::vector<PDUSessionResourceCxtRelCplItem_t>& list) {
-  std::vector<PDUSessionResourceItemCxtRelCpl> cxtRelCplList;
+  std::vector<PDUSessionResourceItemCxtRelCpl> cxt_rel_cpl_list;
 
   if (pduSessionResourceListCxtRelCpl.has_value()) {
     pduSessionResourceListCxtRelCpl.value().getPDUSessionResourceListCxtRelCpl(
-        cxtRelCplList);
+        cxt_rel_cpl_list);
   } else {
     return false;
   }
 
-  for (auto& item : cxtRelCplList) {
+  for (auto& item : cxt_rel_cpl_list) {
     PDUSessionResourceCxtRelCplItem_t rel = {};
-    PDUSessionID pDUSessionID             = {};
-    item.getPDUSessionResourceItemCxtRelCpl(pDUSessionID);
-    pDUSessionID.get(rel.pduSessionId);
+    PDUSessionID pdu_session_id           = {};
+    item.get(pdu_session_id);
+    pdu_session_id.get(rel.pduSessionId);
     list.push_back(rel);
   }
   return true;

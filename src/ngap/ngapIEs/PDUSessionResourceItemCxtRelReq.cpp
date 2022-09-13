@@ -19,41 +19,41 @@
  *      contact@openairinterface.org
  */
 
-#include "PDUSessionResourceItemCxtRelCpl.hpp"
+#include "PDUSessionResourceItemCxtRelReq.hpp"
 
 namespace ngap {
 
 //------------------------------------------------------------------------------
-PDUSessionResourceItemCxtRelCpl::PDUSessionResourceItemCxtRelCpl() {}
+PDUSessionResourceItemCxtRelReq::PDUSessionResourceItemCxtRelReq() {}
 
 //------------------------------------------------------------------------------
-PDUSessionResourceItemCxtRelCpl::~PDUSessionResourceItemCxtRelCpl() {}
+PDUSessionResourceItemCxtRelReq::~PDUSessionResourceItemCxtRelReq() {}
 
 //------------------------------------------------------------------------------
-void PDUSessionResourceItemCxtRelCpl::set(const PDUSessionID& pdu_session_id) {
+void PDUSessionResourceItemCxtRelReq::set(const PDUSessionID& pdu_session_id) {
   pdu_session_id_ = pdu_session_id;
 }
 
 //------------------------------------------------------------------------------
-void PDUSessionResourceItemCxtRelCpl::get(PDUSessionID& pdu_session_id) {
+void PDUSessionResourceItemCxtRelReq::get(PDUSessionID& pdu_session_id) {
   pdu_session_id = pdu_session_id_;
 }
 
 //------------------------------------------------------------------------------
-bool PDUSessionResourceItemCxtRelCpl::encode(
-    Ngap_PDUSessionResourceItemCxtRelCpl_t*
-        pdu_session_resource_item_cxt_rel_cpl) {
+bool PDUSessionResourceItemCxtRelReq::encode(
+    Ngap_PDUSessionResourceItemCxtRelReq_t*
+        pdu_session_resource_item_cxt_rel_req) {
   if (!pdu_session_id_.encode(
-          pdu_session_resource_item_cxt_rel_cpl->pDUSessionID))
+          pdu_session_resource_item_cxt_rel_req->pDUSessionID))
     return false;
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool PDUSessionResourceItemCxtRelCpl::decode(
-    Ngap_PDUSessionResourceItemCxtRelCpl_t*
-        pdu_session_resource_item_cxt_rel_cpl) {
-  pdu_session_id_.set(pdu_session_resource_item_cxt_rel_cpl->pDUSessionID);
+bool PDUSessionResourceItemCxtRelReq::decode(
+    Ngap_PDUSessionResourceItemCxtRelReq_t*
+        pdu_session_resource_item_cxt_rel_req) {
+  pdu_session_id_.set(pdu_session_resource_item_cxt_rel_req->pDUSessionID);
   return true;
 }
 

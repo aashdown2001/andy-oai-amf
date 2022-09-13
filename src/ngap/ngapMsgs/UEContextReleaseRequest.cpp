@@ -30,7 +30,9 @@ using namespace ngap;
 
 //------------------------------------------------------------------------------
 UEContextReleaseRequestMsg::UEContextReleaseRequestMsg() : NgapUEMessage() {
-  ies = nullptr;
+  ies                                    = nullptr;
+  pdu_session_resource_list_cxt_rel_req_ = std::nullopt;
+
   setMessageType(NgapMessageType::UE_CONTEXT_RELEASE_REQUEST);
   initialize();
 }
@@ -81,6 +83,44 @@ void UEContextReleaseRequestMsg::setRanUeNgapId(
   }
   ret = ASN_SEQUENCE_ADD(&ies->protocolIEs.list, ie);
   if (ret != 0) Logger::ngap().error("Encode NGAP RAN_UE_NGAP_ID IE error");
+}
+
+//------------------------------------------------------------------------------
+void UEContextReleaseRequestMsg::setPDUSessionResourceList(
+    const PDUSessionResourceListCxtRelReq&
+        pdu_session_resource_list_cxt_rel_req) {
+  pdu_session_resource_list_cxt_rel_req_ =
+      std::optional<PDUSessionResourceListCxtRelReq>(
+          pdu_session_resource_list_cxt_rel_req);
+
+  Ngap_UEContextReleaseRequest_IEs* ie =
+      (Ngap_UEContextReleaseRequest_IEs*) calloc(
+          1, sizeof(Ngap_UEContextReleaseRequest_IEs));
+  ie->id          = Ngap_ProtocolIE_ID_id_PDUSessionResourceListCxtRelReq;
+  ie->criticality = Ngap_Criticality_reject;
+  ie->value.present =
+      Ngap_UEContextReleaseRequest_IEs__value_PR_PDUSessionResourceListCxtRelReq;
+  int ret = pdu_session_resource_list_cxt_rel_req_.value().encode(
+      ie->value.choice.PDUSessionResourceListCxtRelReq);
+  if (!ret) {
+    Logger::ngap().error(
+        "Encode NGAP PDUSessionResourceListCxtRelReq IE error");
+    free_wrapper((void**) &ie);
+    return;
+  }
+  ret = ASN_SEQUENCE_ADD(&ies->protocolIEs.list, ie);
+  if (ret != 0)
+    Logger::ngap().error(
+        "Encode NGAP PDUSessionResourceListCxtRelReq IE error");
+}
+
+//------------------------------------------------------------------------------
+bool UEContextReleaseRequestMsg::getPDUSessionResourceList(
+    PDUSessionResourceListCxtRelReq& pdu_session_resource_list_cxt_rel_req) {
+  if (!pdu_session_resource_list_cxt_rel_req_.has_value()) return false;
+  pdu_session_resource_list_cxt_rel_req =
+      pdu_session_resource_list_cxt_rel_req_.value();
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -167,6 +207,26 @@ bool UEContextReleaseRequestMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
           }
         } else {
           Logger::ngap().error("Decode NGAP RAN_UE_NGAP_ID IE error");
+          return false;
+        }
+      } break;
+      case Ngap_ProtocolIE_ID_id_PDUSessionResourceListCxtRelReq: {
+        if (ies->protocolIEs.list.array[i]->criticality ==
+                Ngap_Criticality_reject &&
+            ies->protocolIEs.list.array[i]->value.present ==
+                Ngap_UEContextReleaseRequest_IEs__value_PR_PDUSessionResourceListCxtRelReq) {
+          PDUSessionResourceListCxtRelReq tmp = {};
+          if (!tmp.decode(ies->protocolIEs.list.array[i]
+                              ->value.choice.PDUSessionResourceListCxtRelReq)) {
+            Logger::ngap().error(
+                "Decode NGAP PDUSessionResourceListCxtRelReq IE error");
+            return false;
+          }
+          pdu_session_resource_list_cxt_rel_req_ =
+              std::optional<PDUSessionResourceListCxtRelReq>(tmp);
+        } else {
+          Logger::ngap().error(
+              "Decode NGAP PDUSessionResourceListCxtRelReq IE error");
           return false;
         }
       } break;

@@ -19,41 +19,61 @@
  *      contact@openairinterface.org
  */
 
-#include "PDUSessionResourceItemCxtRelCpl.hpp"
+#include "PDUSessionResourceListCxtRelReq.hpp"
 
 namespace ngap {
 
 //------------------------------------------------------------------------------
-PDUSessionResourceItemCxtRelCpl::PDUSessionResourceItemCxtRelCpl() {}
+PDUSessionResourceListCxtRelReq::PDUSessionResourceListCxtRelReq() {}
 
 //------------------------------------------------------------------------------
-PDUSessionResourceItemCxtRelCpl::~PDUSessionResourceItemCxtRelCpl() {}
+PDUSessionResourceListCxtRelReq::~PDUSessionResourceListCxtRelReq() {}
 
 //------------------------------------------------------------------------------
-void PDUSessionResourceItemCxtRelCpl::set(const PDUSessionID& pdu_session_id) {
-  pdu_session_id_ = pdu_session_id;
+void PDUSessionResourceListCxtRelReq::set(
+    const std::vector<PDUSessionResourceItemCxtRelReq>& list) {
+  item_list_.clear();
+  for (auto i : list) {
+    item_list_.push_back(i);
+  }
 }
 
 //------------------------------------------------------------------------------
-void PDUSessionResourceItemCxtRelCpl::get(PDUSessionID& pdu_session_id) {
-  pdu_session_id = pdu_session_id_;
+void PDUSessionResourceListCxtRelReq::get(
+    std::vector<PDUSessionResourceItemCxtRelReq>& list) {
+  list.clear();
+  for (auto i : item_list_) {
+    list.push_back(i);
+  }
 }
 
 //------------------------------------------------------------------------------
-bool PDUSessionResourceItemCxtRelCpl::encode(
-    Ngap_PDUSessionResourceItemCxtRelCpl_t*
-        pdu_session_resource_item_cxt_rel_cpl) {
-  if (!pdu_session_id_.encode(
-          pdu_session_resource_item_cxt_rel_cpl->pDUSessionID))
-    return false;
+bool PDUSessionResourceListCxtRelReq::encode(
+    Ngap_PDUSessionResourceListCxtRelReq_t&
+        pdu_session_resource_list_cxt_rel_req) {
+  for (auto& cxt_rel_req : item_list_) {
+    Ngap_PDUSessionResourceItemCxtRelReq_t* item =
+        (Ngap_PDUSessionResourceItemCxtRelReq_t*) calloc(
+            1, sizeof(Ngap_PDUSessionResourceItemCxtRelReq_t));
+    if (!item) return false;
+    if (!cxt_rel_req.encode(item)) return false;
+    if (ASN_SEQUENCE_ADD(&pdu_session_resource_list_cxt_rel_req.list, item) !=
+        0)
+      return false;
+  }
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool PDUSessionResourceItemCxtRelCpl::decode(
-    Ngap_PDUSessionResourceItemCxtRelCpl_t*
-        pdu_session_resource_item_cxt_rel_cpl) {
-  pdu_session_id_.set(pdu_session_resource_item_cxt_rel_cpl->pDUSessionID);
+bool PDUSessionResourceListCxtRelReq::decode(
+    const Ngap_PDUSessionResourceListCxtRelReq_t&
+        pdu_session_resource_list_cxt_rel_req) {
+  for (int i = 0; i < pdu_session_resource_list_cxt_rel_req.list.count; i++) {
+    PDUSessionResourceItemCxtRelReq item = {};
+    if (!item.decode(pdu_session_resource_list_cxt_rel_req.list.array[i]))
+      return false;
+    item_list_.push_back(item);
+  }
   return true;
 }
 

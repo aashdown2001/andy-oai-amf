@@ -19,34 +19,32 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _PDU_SESSION_RESOURCE_ITEM_CXT_REL_CPL_H_
-#define _PDU_SESSION_RESOURCE_ITEM_CXT_REL_CPL_H_
+#ifndef _PDU_SESSION_RESOURCE_ITEM_CXT_REL_REQ_H_
+#define _PDU_SESSION_RESOURCE_ITEM_CXT_REL_REQ_H_
 
 #include "PDUSessionID.hpp"
 
 extern "C" {
-#include "Ngap_PDUSessionResourceItemCxtRelCpl.h"
+#include "Ngap_PDUSessionResourceItemCxtRelReq.h"
 }
 
 namespace ngap {
 
-class PDUSessionResourceItemCxtRelCpl {
+class PDUSessionResourceItemCxtRelReq {
  public:
-  PDUSessionResourceItemCxtRelCpl();
-  virtual ~PDUSessionResourceItemCxtRelCpl();
+  PDUSessionResourceItemCxtRelReq();
+  virtual ~PDUSessionResourceItemCxtRelReq();
 
   void set(const PDUSessionID& pdu_session_id);
   void get(PDUSessionID& pdu_session_id);
 
-  bool encode(Ngap_PDUSessionResourceItemCxtRelCpl_t*
-                  pdu_session_resource_item_cxt_rel_cpl);
-  bool decode(Ngap_PDUSessionResourceItemCxtRelCpl_t*
-                  pdu_session_resource_item_cxt_rel_cpl);
+  bool encode(Ngap_PDUSessionResourceItemCxtRelReq_t*
+                  pdu_session_resource_item_cxt_rel_req);
+  bool decode(Ngap_PDUSessionResourceItemCxtRelReq_t*
+                  pdu_session_resource_item_cxt_rel_req);
 
  private:
   PDUSessionID pdu_session_id_;  // Mandatory
-  // TODO (not defined in ASN1C) OCTET_STRING_t
-  // pdu_session_resource_release_response_transfer_; //Optional
 };
 
 }  // namespace ngap
