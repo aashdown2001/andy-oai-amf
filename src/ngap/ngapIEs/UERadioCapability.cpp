@@ -21,44 +21,44 @@
 
 #include "UERadioCapability.hpp"
 
+#include "conversions.hpp"
+
 namespace ngap {
 
 //------------------------------------------------------------------------------
-UERadioCapability::UERadioCapability() {
-  buffer_ = nullptr;
-  size_   = -1;
-}
+UERadioCapability::UERadioCapability() {}
 
 //------------------------------------------------------------------------------
 UERadioCapability::~UERadioCapability() {}
 
 //------------------------------------------------------------------------------
 bool UERadioCapability::encode(Ngap_UERadioCapability_t& ueRadioCapability) {
-  int ret = OCTET_STRING_fromBuf(&ueRadioCapability, buffer_, size_);
-  if (ret != 0) return false;
-  return true;
+  return conv::octet_string_copy(ueRadioCapability, ue_radio_capability_);
 }
 
 //------------------------------------------------------------------------------
 bool UERadioCapability::decode(Ngap_UERadioCapability_t& ueRadioCapability) {
-  buffer_ = (char*) ueRadioCapability.buf;
-  size_   = ueRadioCapability.size;
-  return true;
+  return conv::octet_string_copy(ue_radio_capability_, ueRadioCapability);
 }
 
 //------------------------------------------------------------------------------
-bool UERadioCapability::get(uint8_t*& buffer, size_t& size) {
-  buffer = (uint8_t*) buffer_;
-  size   = size_;
-  if (!buffer_) return false;
-  if (size_ < 0) return false;
-
-  return true;
+bool UERadioCapability::set(const OCTET_STRING_t& capability) {
+  return conv::octet_string_copy(ue_radio_capability_, capability);
 }
 
 //------------------------------------------------------------------------------
-void UERadioCapability::set(uint8_t* buffer, size_t size) {
-  buffer_ = (char*) buffer;
-  size_   = size;
+bool UERadioCapability::get(OCTET_STRING_t& capability) {
+  return conv::octet_string_copy(capability, ue_radio_capability_);
 }
+
+//------------------------------------------------------------------------------
+bool UERadioCapability::set(const bstring& capability) {
+  return conv::bstring_2_octet_string(capability, ue_radio_capability_);
+}
+
+//------------------------------------------------------------------------------
+bool UERadioCapability::get(bstring& capability) {
+  return conv::octet_string_2_bstring(ue_radio_capability_, capability);
+}
+
 }  // namespace ngap

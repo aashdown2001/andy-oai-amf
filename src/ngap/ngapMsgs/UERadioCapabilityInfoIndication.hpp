@@ -24,6 +24,7 @@
 
 #include "UERadioCapabilityForPaging.hpp"
 #include "NgapUEMessage.hpp"
+#include "UERadioCapability.hpp"
 
 extern "C" {
 #include "Ngap_UERadioCapabilityInfoIndication.h"
@@ -49,15 +50,17 @@ class UeRadioCapabilityInfoIndicationMsg : public NgapUEMessage {
   void getUERadioCapability(OCTET_STRING_t& capability);
 
   void setUERadioCapabilityForPaging(
-      uint8_t* nr, size_t sizeofnr, uint8_t* eutra, size_t sizeofeutra);
+      const OCTET_STRING_t& ue_radio_capability_for_paging_of_nr,
+      const OCTET_STRING_t& ue_radio_capability_for_paging_of_eutra);
   bool getUERadioCapabilityForPaging(
-      uint8_t*& nr, size_t& sizeofnr, uint8_t*& eutra, size_t& sizeofeutra);
+      OCTET_STRING_t& ue_radio_capability_for_paging_of_nr,
+      OCTET_STRING_t& ue_radio_capability_for_paging_of_eutra);
 
  private:
   Ngap_UERadioCapabilityInfoIndication_t* ueRadioCapabilityInfoIndicationIEs;
   // AMF_UE_NGAP_ID //Mandatory
   // RAN_UE_NGAP_ID //Mandatory
-  OCTET_STRING_t ueRadioCapability;                        // Mandatory
+  UERadioCapability ueRadioCapability;                     // Mandatory
   UERadioCapabilityForPaging* ueRadioCapabilityForPaging;  // Optional
 };
 

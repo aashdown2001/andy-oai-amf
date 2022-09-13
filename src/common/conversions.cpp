@@ -407,3 +407,9 @@ bool conv::check_bstring(const bstring& b_str) {
     return false;
   return true;
 }
+
+//------------------------------------------------------------------------------
+bool conv::check_octet_string(const OCTET_STRING_t& octet_str) {
+  if (!octet_str.buf or (octet_str.size == 0)) return false;
+  return true;
+}

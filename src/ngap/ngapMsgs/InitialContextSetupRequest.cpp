@@ -560,9 +560,9 @@ bool InitialContextSetupRequestMsg::getNasPdu(bstring& pdu) {
 
 //------------------------------------------------------------------------------
 void InitialContextSetupRequestMsg::setUERadioCapability(
-    uint8_t* buffer, size_t size) {
+    const bstring& ue_radio_capability) {
   UERadioCapability tmp = {};
-  tmp.set(buffer, size);
+  tmp.set(ue_radio_capability);
   ueRadioCapability = std::optional<UERadioCapability>(tmp);
 
   Ngap_InitialContextSetupRequestIEs_t* ie =
@@ -587,9 +587,9 @@ void InitialContextSetupRequestMsg::setUERadioCapability(
 
 //------------------------------------------------------------------------------
 void InitialContextSetupRequestMsg::getUERadioCapability(
-    uint8_t* buffer, size_t& size) {
+    bstring& ue_radio_capability) {
   if (!ueRadioCapability.has_value()) return;
-  ueRadioCapability.value().get(buffer, size);
+  ueRadioCapability.value().get(ue_radio_capability);
 }
 
 //------------------------------------------------------------------------------

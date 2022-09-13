@@ -48,8 +48,9 @@ class UERadioCapabilityForPaging {
       UERadioCapabilityForPagingOfEUTRA* m_ueRadioCapabilityForPagingOfEUTRA);
 
  private:
-  UERadioCapabilityForPagingOfNR* ueRadioCapabilityForPagingOfNR;
-  UERadioCapabilityForPagingOfEUTRA* ueRadioCapabilityForPagingOfEUTRA;
+  UERadioCapabilityForPagingOfNR* ueRadioCapabilityForPagingOfNR;  // Optional
+  UERadioCapabilityForPagingOfEUTRA*
+      ueRadioCapabilityForPagingOfEUTRA;  // Optional
 };
 
 }  // namespace ngap

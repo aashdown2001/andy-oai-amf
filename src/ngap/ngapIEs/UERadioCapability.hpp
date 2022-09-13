@@ -22,6 +22,8 @@
 #ifndef _UE_RADIO_CAPABILITY_H_
 #define _UE_RADIO_CAPABILITY_H_
 
+#include "bstrlib.h"
+
 extern "C" {
 #include "Ngap_UERadioCapability.h"
 }
@@ -35,12 +37,15 @@ class UERadioCapability {
 
   bool encode(Ngap_UERadioCapability_t& ueRadioCapability);
   bool decode(Ngap_UERadioCapability_t& ueRadioCapability);
-  bool get(uint8_t*& buffer, size_t& size);
-  void set(uint8_t* buffer, size_t size);
+
+  bool set(const OCTET_STRING_t& capability);
+  bool get(OCTET_STRING_t& capability);
+
+  bool set(const bstring& capability);
+  bool get(bstring& capability);
 
  private:
-  char* buffer_;
-  size_t size_;
+  OCTET_STRING_t ue_radio_capability_;
 };
 
 }  // namespace ngap

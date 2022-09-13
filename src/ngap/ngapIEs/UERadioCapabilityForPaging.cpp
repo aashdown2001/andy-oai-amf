@@ -39,7 +39,7 @@ bool UERadioCapabilityForPaging::encode2UERadioCapabilityForPaging(
     ueRadioCapabilityForPaging->uERadioCapabilityForPagingOfNR =
         (Ngap_UERadioCapabilityForPagingOfNR_t*) calloc(
             1, sizeof(Ngap_UERadioCapabilityForPagingOfNR_t));
-    if (!ueRadioCapabilityForPagingOfNR->encode2UERadioCapabilityForPagingOfNR(
+    if (!ueRadioCapabilityForPagingOfNR->encode(
             ueRadioCapabilityForPaging->uERadioCapabilityForPagingOfNR))
       return false;
   }
@@ -47,9 +47,8 @@ bool UERadioCapabilityForPaging::encode2UERadioCapabilityForPaging(
     ueRadioCapabilityForPaging->uERadioCapabilityForPagingOfEUTRA =
         (Ngap_UERadioCapabilityForPagingOfEUTRA_t*) calloc(
             1, sizeof(Ngap_UERadioCapabilityForPagingOfEUTRA_t));
-    if (!ueRadioCapabilityForPagingOfEUTRA
-             ->encode2UERadioCapabilityForPagingOfEUTRA(
-                 ueRadioCapabilityForPaging->uERadioCapabilityForPagingOfEUTRA))
+    if (!ueRadioCapabilityForPagingOfEUTRA->encode(
+            ueRadioCapabilityForPaging->uERadioCapabilityForPagingOfEUTRA))
       return false;
   }
 
@@ -61,16 +60,14 @@ bool UERadioCapabilityForPaging::decodefromUERadioCapabilityForPaging(
     Ngap_UERadioCapabilityForPaging_t* ueRadioCapabilityForPaging) {
   if (ueRadioCapabilityForPaging->uERadioCapabilityForPagingOfNR) {
     ueRadioCapabilityForPagingOfNR = new UERadioCapabilityForPagingOfNR();
-    if (!ueRadioCapabilityForPagingOfNR
-             ->decodefromUERadioCapabilityForPagingOfNR(
-                 ueRadioCapabilityForPaging->uERadioCapabilityForPagingOfNR))
+    if (!ueRadioCapabilityForPagingOfNR->decode(
+            ueRadioCapabilityForPaging->uERadioCapabilityForPagingOfNR))
       return false;
   }
   if (ueRadioCapabilityForPaging->uERadioCapabilityForPagingOfEUTRA) {
     ueRadioCapabilityForPagingOfEUTRA = new UERadioCapabilityForPagingOfEUTRA();
-    if (!ueRadioCapabilityForPagingOfEUTRA
-             ->decodefromUERadioCapabilityForPagingOfEUTRA(
-                 ueRadioCapabilityForPaging->uERadioCapabilityForPagingOfEUTRA))
+    if (!ueRadioCapabilityForPagingOfEUTRA->decode(
+            ueRadioCapabilityForPaging->uERadioCapabilityForPagingOfEUTRA))
       return false;
   }
 

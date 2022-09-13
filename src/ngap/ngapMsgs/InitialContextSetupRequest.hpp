@@ -100,8 +100,8 @@ class InitialContextSetupRequestMsg : public NgapUEMessage {
   void setSecurityKey(uint8_t* key);   // 256bits
   bool getSecurityKey(uint8_t*& key);  // 256bits
 
-  void setUERadioCapability(uint8_t* buf, size_t size);
-  void getUERadioCapability(uint8_t* buf, size_t& size);
+  void setUERadioCapability(const bstring& ue_radio_capability);
+  void getUERadioCapability(bstring& ue_radio_capability);
 
   void setNasPdu(const bstring& pdu);
   bool getNasPdu(bstring& pdu);

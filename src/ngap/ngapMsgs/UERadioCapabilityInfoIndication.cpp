@@ -21,6 +21,7 @@
 
 #include "UERadioCapabilityInfoIndication.hpp"
 
+#include "conversions.hpp"
 #include "logger.hpp"
 
 extern "C" {
@@ -101,7 +102,7 @@ void UeRadioCapabilityInfoIndicationMsg::setRanUeNgapId(
 //------------------------------------------------------------------------------
 void UeRadioCapabilityInfoIndicationMsg::setUERadioCapability(
     const OCTET_STRING_t& capability) {
-  ueRadioCapability = capability;
+  ueRadioCapability.set(capability);
 
   Ngap_UERadioCapabilityInfoIndicationIEs_t* ie =
       (Ngap_UERadioCapabilityInfoIndicationIEs_t*) calloc(
@@ -111,16 +112,13 @@ void UeRadioCapabilityInfoIndicationMsg::setUERadioCapability(
   ie->value.present =
       Ngap_UERadioCapabilityInfoIndicationIEs__value_PR_UERadioCapability;
 
-  int ret = OCTET_STRING_fromBuf(
-      &ie->value.choice.UERadioCapability, (char*) ueRadioCapability.buf,
-      ueRadioCapability.size);
-  if (!ret) {
+  if (!ueRadioCapability.encode(ie->value.choice.UERadioCapability)) {
     Logger::ngap().error("Encode NGAP UERadioCapability IE error");
     free_wrapper((void**) &ie);
     return;
   }
 
-  ret = ASN_SEQUENCE_ADD(
+  int ret = ASN_SEQUENCE_ADD(
       &ueRadioCapabilityInfoIndicationIEs->protocolIEs.list, ie);
   if (ret != 0) Logger::ngap().error("Encode NGAP UERadioCapability IE error");
 }
@@ -128,27 +126,27 @@ void UeRadioCapabilityInfoIndicationMsg::setUERadioCapability(
 //------------------------------------------------------------------------------
 void UeRadioCapabilityInfoIndicationMsg::getUERadioCapability(
     OCTET_STRING_t& capability) {
-  capability = ueRadioCapability;
+  ueRadioCapability.get(capability);
 }
 
 //------------------------------------------------------------------------------
 void UeRadioCapabilityInfoIndicationMsg::setUERadioCapabilityForPaging(
-    uint8_t* nr, size_t sizeofnr, uint8_t* eutra, size_t sizeofeutra) {
+    const OCTET_STRING_t& ue_radio_capability_for_paging_of_nr,
+    const OCTET_STRING_t& ue_radio_capability_for_paging_of_eutra) {
   if (!ueRadioCapabilityForPaging)
     ueRadioCapabilityForPaging = new UERadioCapabilityForPaging();
   UERadioCapabilityForPagingOfNR* m_ueRadioCapabilityForPagingOfNR = nullptr;
   UERadioCapabilityForPagingOfEUTRA* m_ueRadioCapabilityForPagingOfEUTRA =
       nullptr;
-  if (nr && sizeofnr > 0) {
+  if (conv::check_octet_string(ue_radio_capability_for_paging_of_nr)) {
     m_ueRadioCapabilityForPagingOfNR = new UERadioCapabilityForPagingOfNR();
-    m_ueRadioCapabilityForPagingOfNR->setUERadioCapabilityForPagingOfNR(
-        nr, sizeofnr);
+    m_ueRadioCapabilityForPagingOfNR->set(ue_radio_capability_for_paging_of_nr);
   }
-  if (eutra && sizeofeutra > 0) {
+  if (conv::check_octet_string(ue_radio_capability_for_paging_of_eutra)) {
     m_ueRadioCapabilityForPagingOfEUTRA =
         new UERadioCapabilityForPagingOfEUTRA();
-    m_ueRadioCapabilityForPagingOfEUTRA->setUERadioCapabilityForPagingOfEUTRA(
-        eutra, sizeofeutra);
+    m_ueRadioCapabilityForPagingOfEUTRA->set(
+        ue_radio_capability_for_paging_of_eutra);
   }
   ueRadioCapabilityForPaging->setUERadioCapabilityForPaging(
       m_ueRadioCapabilityForPagingOfNR, m_ueRadioCapabilityForPagingOfEUTRA);
@@ -177,7 +175,8 @@ void UeRadioCapabilityInfoIndicationMsg::setUERadioCapabilityForPaging(
 
 //------------------------------------------------------------------------------
 bool UeRadioCapabilityInfoIndicationMsg::getUERadioCapabilityForPaging(
-    uint8_t*& nr, size_t& sizeofnr, uint8_t*& eutra, size_t& sizeofeutra) {
+    OCTET_STRING_t& ue_radio_capability_for_paging_of_nr,
+    OCTET_STRING_t& ue_radio_capability_for_paging_of_eutra) {
   if (!ueRadioCapabilityForPaging) return false;
   UERadioCapabilityForPagingOfNR* m_ueRadioCapabilityForPagingOfNR;
   UERadioCapabilityForPagingOfEUTRA* m_ueRadioCapabilityForPagingOfEUTRA;
@@ -187,13 +186,13 @@ bool UeRadioCapabilityInfoIndicationMsg::getUERadioCapabilityForPaging(
     return false;
 
   if (m_ueRadioCapabilityForPagingOfNR) {
-    if (!m_ueRadioCapabilityForPagingOfNR->getUERadioCapabilityForPagingOfNR(
-            nr, sizeofnr))
+    if (!m_ueRadioCapabilityForPagingOfNR->get(
+            ue_radio_capability_for_paging_of_nr))
       return false;
   }
   if (m_ueRadioCapabilityForPagingOfEUTRA) {
-    if (!m_ueRadioCapabilityForPagingOfEUTRA
-             ->getUERadioCapabilityForPagingOfEUTRA(eutra, sizeofeutra))
+    if (!m_ueRadioCapabilityForPagingOfEUTRA->get(
+            ue_radio_capability_for_paging_of_eutra))
       return false;
   }
 
@@ -268,9 +267,9 @@ bool UeRadioCapabilityInfoIndicationMsg::decodeFromPdu(
             ueRadioCapabilityInfoIndicationIEs->protocolIEs.list.array[i]
                     ->value.present ==
                 Ngap_UERadioCapabilityInfoIndicationIEs__value_PR_UERadioCapability) {
-          ueRadioCapability =
+          ueRadioCapability.set(
               ueRadioCapabilityInfoIndicationIEs->protocolIEs.list.array[i]
-                  ->value.choice.UERadioCapability;
+                  ->value.choice.UERadioCapability);
         } else {
           Logger::ngap().error("Decoded NGAP UERadioCapability IE error");
           return false;

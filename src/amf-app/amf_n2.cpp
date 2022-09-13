@@ -878,13 +878,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
   if (itti_msg.is_sr or itti_msg.is_pdu_exist) {
     // Set UE RAdio Capability if available
     if (gc->ue_radio_cap_ind) {
-      bstring ueCapability = gc->ue_radio_cap_ind;
-      uint8_t* uecap       = (uint8_t*) calloc(1, blength(ueCapability) + 1);
-      uint8_t* buf_tmp     = (uint8_t*) bdata(ueCapability);
-      if (buf_tmp != nullptr) memcpy(uecap, buf_tmp, blength(ueCapability));
-      uecap[blength(ueCapability)] = '\0';
-      msg->setUERadioCapability(uecap, (size_t) blength(ueCapability));
-      free(uecap);
+      msg->setUERadioCapability(gc->ue_radio_cap_ind);
     }
 
     if (itti_msg.is_sr)
