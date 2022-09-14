@@ -27,7 +27,6 @@
 #include "S-NSSAI.hpp"
 
 #include <optional>
-#include <vector>
 
 extern "C" {
 #include "Ngap_PDUSessionResourceSetupItemCxtReq.h"
@@ -43,16 +42,16 @@ class PDUSessionResourceSetupItemCxtReq {
   void set(
       const PDUSessionID& m_pDUSessionID,
       const std::optional<NAS_PDU>& m_nAS_PDU, const S_NSSAI& m_s_NSSAI,
-      const OCTET_STRING_t& m_pDUSessionResourceSetupRequestTransfer);
+      const OCTET_STRING_t& pdu_session_resource_setup_request_transfer);
   void get(
       PDUSessionID& m_pDUSessionID, std::optional<NAS_PDU>& m_nAS_PDU,
       S_NSSAI& m_s_NSSAI,
-      OCTET_STRING_t& m_pDUSessionResourceSetupRequestTransfer) const;
+      OCTET_STRING_t& pdu_session_resource_setup_request_transfer) const;
 
   bool encode(Ngap_PDUSessionResourceSetupItemCxtReq_t*
-                  pduSessionResourceSetupItemCxtReq);
+                  pdu_session_resource_setup_item_cxt_req);
   bool decode(Ngap_PDUSessionResourceSetupItemCxtReq_t*
-                  pduSessionResourceSetupItemCxtReq);
+                  pdu_session_resource_setup_item_cxt_req);
 
  private:
   PDUSessionID pdu_session_id_;                                 // Mandatory

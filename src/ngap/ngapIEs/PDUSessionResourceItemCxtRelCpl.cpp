@@ -51,7 +51,7 @@ bool PDUSessionResourceItemCxtRelCpl::encode(
 
 //------------------------------------------------------------------------------
 bool PDUSessionResourceItemCxtRelCpl::decode(
-    Ngap_PDUSessionResourceItemCxtRelCpl_t*
+    const Ngap_PDUSessionResourceItemCxtRelCpl_t* const
         pdu_session_resource_item_cxt_rel_cpl) {
   pdu_session_id_.set(pdu_session_resource_item_cxt_rel_cpl->pDUSessionID);
   return true;

@@ -19,50 +19,47 @@
  *      contact@openairinterface.org
  */
 
-#include "PDUSessionResourceHandoverList.hpp"
+#include "PDUSessionResourceToReleaseListHOCmd.hpp"
 
 namespace ngap {
 
 //------------------------------------------------------------------------------
-PDUSessionResourceHandoverList::PDUSessionResourceHandoverList() {}
+PDUSessionResourceToReleaseListHOCmd::PDUSessionResourceToReleaseListHOCmd() {}
 
 //------------------------------------------------------------------------------
-PDUSessionResourceHandoverList::~PDUSessionResourceHandoverList() {}
+PDUSessionResourceToReleaseListHOCmd::~PDUSessionResourceToReleaseListHOCmd() {}
 
 //------------------------------------------------------------------------------
-void PDUSessionResourceHandoverList::set(
+void PDUSessionResourceToReleaseListHOCmd::set(
     const std::vector<PDUSessionResourceItem>& list) {
   item_list_ = list;
 }
 
 //------------------------------------------------------------------------------
-void PDUSessionResourceHandoverList::get(
+void PDUSessionResourceToReleaseListHOCmd::get(
     std::vector<PDUSessionResourceItem>& list) {
   list = item_list_;
 }
 
 //------------------------------------------------------------------------------
-bool PDUSessionResourceHandoverList::encode(
-    Ngap_PDUSessionResourceHandoverList_t& list) {
+bool PDUSessionResourceToReleaseListHOCmd::encode(
+    Ngap_PDUSessionResourceToReleaseListHOCmd_t& list) const {
   for (auto& item : item_list_) {
-    Ngap_PDUSessionResourceHandoverItem_t* handoverItem =
-        (Ngap_PDUSessionResourceHandoverItem_t*) calloc(
-            1, sizeof(Ngap_PDUSessionResourceHandoverItem_t));
-
-    if (!handoverItem) return false;
-    if (!item.encode(handoverItem)) return false;
-    if (ASN_SEQUENCE_ADD(&list.list, handoverItem) != 0) return false;
+    Ngap_PDUSessionResourceToReleaseItemHOCmd_t* rel =
+        (Ngap_PDUSessionResourceToReleaseItemHOCmd_t*) calloc(
+            1, sizeof(Ngap_PDUSessionResourceToReleaseItemHOCmd_t));
+    if (!rel) return false;
+    if (!item.encode(rel)) return false;
+    if (ASN_SEQUENCE_ADD(&list.list, rel) != 0) return false;
   }
-
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool PDUSessionResourceHandoverList::decode(
-    const Ngap_PDUSessionResourceHandoverList_t& list) {
+bool PDUSessionResourceToReleaseListHOCmd::decode(
+    const Ngap_PDUSessionResourceToReleaseListHOCmd_t& list) {
   for (int i = 0; i < list.list.count; i++) {
     PDUSessionResourceItem item = {};
-
     if (!item.decode(list.list.array[i])) return false;
     item_list_.push_back(item);
   }

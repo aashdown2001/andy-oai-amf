@@ -109,8 +109,6 @@ typedef struct Guami_s {
 
 typedef struct {
   uint8_t pduSessionId;
-  // uint8_t* pduSessionNAS_PDU;
-  // size_t sizeofpduSessionNAS_PDU;
   bstring nas_pdu;
   S_Nssai s_nssai;
   OCTET_STRING_t pduSessionResourceSetupRequestTransfer;
@@ -118,8 +116,6 @@ typedef struct {
 
 typedef struct {
   uint8_t pduSessionId;
-  // uint8_t* pduSessionNAS_PDU;
-  // size_t sizeofpduSessionNAS_PDU;
   bstring nas_pdu;
   std::optional<S_Nssai> s_nssai;
   OCTET_STRING_t pduSessionResourceModifyRequestTransfer;
@@ -256,6 +252,11 @@ typedef struct gNBId_s {
   uint32_t id;
   uint8_t bit_length;
 } gNBId_t;  // 22bits to 32bits
+
+typedef struct {
+  uint8_t pduSessionId;
+  OCTET_STRING_t HandoverCommandTransfer;
+} PDUSessionResourceHandoverItem_t;
 
 }  // namespace ngap
 

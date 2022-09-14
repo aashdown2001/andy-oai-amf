@@ -19,34 +19,31 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _PDU_SESSION_RESOURCE_ITEM_CXT_REL_CPL_H_
-#define _PDU_SESSION_RESOURCE_ITEM_CXT_REL_CPL_H_
+#ifndef _PDU_SESSION_RESOURCE_TO_RELEASE_LIST_HO_CMD_H_
+#define _PDU_SESSION_RESOURCE_TO_RELEASE_LIST_HO_CMD_H_
 
-#include "PDUSessionID.hpp"
+#include "PDUSessionResourceItem.hpp"
+#include <vector>
 
 extern "C" {
-#include "Ngap_PDUSessionResourceItemCxtRelCpl.h"
+#include "Ngap_PDUSessionResourceToReleaseListHOCmd.h"
 }
 
 namespace ngap {
 
-class PDUSessionResourceItemCxtRelCpl {
+class PDUSessionResourceToReleaseListHOCmd {
  public:
-  PDUSessionResourceItemCxtRelCpl();
-  virtual ~PDUSessionResourceItemCxtRelCpl();
+  PDUSessionResourceToReleaseListHOCmd();
+  virtual ~PDUSessionResourceToReleaseListHOCmd();
 
-  void set(const PDUSessionID& pdu_session_id);
-  void get(PDUSessionID& pdu_session_id);
+  void set(const std::vector<PDUSessionResourceItem>& list);
+  void get(std::vector<PDUSessionResourceItem>& list);
 
-  bool encode(Ngap_PDUSessionResourceItemCxtRelCpl_t*
-                  pdu_session_resource_item_cxt_rel_cpl);
-  bool decode(const Ngap_PDUSessionResourceItemCxtRelCpl_t* const
-                  pdu_session_resource_item_cxt_rel_cpl);
+  bool encode(Ngap_PDUSessionResourceToReleaseListHOCmd_t& list) const;
+  bool decode(const Ngap_PDUSessionResourceToReleaseListHOCmd_t& list);
 
  private:
-  PDUSessionID pdu_session_id_;  // Mandatory
-  // TODO (not defined in ASN1C) OCTET_STRING_t
-  // pdu_session_resource_release_response_transfer_; //Optional
+  std::vector<PDUSessionResourceItem> item_list_;
 };
 
 }  // namespace ngap

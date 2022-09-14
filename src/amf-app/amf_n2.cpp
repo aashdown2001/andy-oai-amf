@@ -1819,8 +1819,8 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
   handovercommand->setHandoverType(Ngap_HandoverType_intra5gs);
 
   PDUSessionResourceHandoverList handoverList = {};
-  std::vector<PDUSessionResourceHandoverItem> handoverItemList;
-  PDUSessionResourceHandoverItem handoverItem = {};
+  std::vector<PDUSessionResourceItem> handoverItemList;
+  PDUSessionResourceItem handoverItem = {};
 
   // TODO: wait for response from SMF and transfer T-RAN N3 information/ or
   // T-UPF to the source gNB
@@ -1847,10 +1847,9 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
         pDUSessionID.set(pduSessionIDValue);
         OCTET_STRING_fromBuf(
             &handoverCommandTransfer, n2_sm.c_str(), n2_sm.length());
-        handoverItem.setPDUSessionResourceHandoverItem(
-            pDUSessionID, handoverCommandTransfer);
+        handoverItem.set(pDUSessionID, handoverCommandTransfer);
         handoverItemList.push_back(handoverItem);
-        handoverList.setPDUSessionResourceHandoverList(handoverItemList);
+        handoverList.set(handoverItemList);
 
         std::shared_ptr<pdu_session_context> psc = {};
         if (amf_app_inst->find_pdu_session_context(
