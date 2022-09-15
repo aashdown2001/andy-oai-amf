@@ -30,6 +30,7 @@ extern "C" {
 #include "Ngap_PDUSessionResourceHandoverItem.h"
 #include "Ngap_PDUSessionResourceAdmittedItem.h"
 #include "Ngap_PDUSessionResourceFailedToSetupItemHOAck.h"
+#include "Ngap_PDUSessionResourceItemHORqd.h"
 }
 
 namespace ngap {
@@ -100,14 +101,15 @@ class PDUSessionResourceItem {
   // TODO: PDU Session Resource Item
 
   // HANDOVER REQUIRED
-  // TODO: PDU Session Resource Item
+  // PDU Session Resource Item
+  bool encode(Ngap_PDUSessionResourceItemHORqd_t* item) const;
+  bool decode(const Ngap_PDUSessionResourceItemHORqd_t* const item);
 
   // HANDOVER COMMAND
-  // TODO: PDU Session Resource Handover Item
+  // PDU Session Resource Handover Item
   bool encode(Ngap_PDUSessionResourceHandoverItem_t* item) const;
   bool decode(const Ngap_PDUSessionResourceHandoverItem_t* const item);
-
-  // TODO: PDU Session Resource to Release Item
+  // PDU Session Resource to Release Item
   bool encode(Ngap_PDUSessionResourceToReleaseItemHOCmd_t* item) const;
   bool decode(const Ngap_PDUSessionResourceToReleaseItemHOCmd_t* const item);
 

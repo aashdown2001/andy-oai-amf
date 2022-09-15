@@ -77,6 +77,18 @@ bool PDUSessionResourceItem::decode(
 
 //------------------------------------------------------------------------------
 bool PDUSessionResourceItem::encode(
+    Ngap_PDUSessionResourceItemHORqd_t* item) const {
+  return encode(item->pDUSessionID, item->handoverRequiredTransfer);
+}
+
+//------------------------------------------------------------------------------
+bool PDUSessionResourceItem::decode(
+    const Ngap_PDUSessionResourceItemHORqd_t* const item) {
+  return decode(item->pDUSessionID, item->handoverRequiredTransfer);
+}
+
+//------------------------------------------------------------------------------
+bool PDUSessionResourceItem::encode(
     Ngap_PDUSessionResourceHandoverItem_t* item) const {
   return encode(item->pDUSessionID, item->handoverCommandTransfer);
 }

@@ -1485,20 +1485,23 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
       "Handover Required, Choice of Cause %d, Cause %ld",
       (int) itti_msg.handoverReq->getChoiceOfCause(),
       itti_msg.handoverReq->getCauseValue());
-  Logger::amf_n2().debug(
-      "Handover Required, DirectForwardingPathAvailability %d",
-      itti_msg.handoverReq->getDirectForwardingPathAvailability());
+  long direct_forward_path_availability = {};
+  if (itti_msg.handoverReq->getDirectForwardingPathAvailability(
+          direct_forward_path_availability))
+    Logger::amf_n2().debug(
+        "Handover Required, DirectForwardingPathAvailability %ld",
+        direct_forward_path_availability);
 
   unc->gnb_assoc_id = itti_msg.assoc_id;
   unc->ncc++;
   unc->ng_ue_state = NGAP_UE_HANDOVER;
 
-  GlobalgNBId TargetGlobalgNBId = {};
-  TAI tai                       = {};
-  itti_msg.handoverReq->getTargetID(TargetGlobalgNBId, tai);
+  GlobalgNBId target_global_gnb_id = {};
+  TAI tai                          = {};
+  itti_msg.handoverReq->getTargetID(target_global_gnb_id, tai);
   ngap::PlmnId plmn = {};
   GNB_ID gnbid      = {};
-  TargetGlobalgNBId.get(plmn, gnbid);
+  target_global_gnb_id.get(plmn, gnbid);
   std::string mcc = {};
   std::string mnc = {};
   plmn.getMcc(mcc);
@@ -1511,16 +1514,16 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
       "gNBId 0x%x)",
       mcc.c_str(), mnc.c_str(), gnb_id_value);
 
-  string mccSelectTAI = {};
-  string mncSelectTAI = {};
-  uint32_t tac        = {};
+  string mcc_select_tai = {};
+  string mnc_select_tai = {};
+  uint32_t tac          = {};
 
-  tai.getTAI(mccSelectTAI, mncSelectTAI, tac);
+  tai.getTAI(mcc_select_tai, mnc_select_tai, tac);
   Logger::amf_n2().debug(
       "Handover Required: Target ID selected TAI PLMN (MCC %s, MNC %s, TAC %x)",
-      mccSelectTAI.c_str(), mncSelectTAI.c_str(), tac);
+      mcc_select_tai.c_str(), mnc_select_tai.c_str(), tac);
 
-  OCTET_STRING_t sourceTotarget =
+  OCTET_STRING_t source_to_target =
       itti_msg.handoverReq->getSourceToTarget_TransparentContainer();
 
   // TODO: T-AMF selection, for now use the same AMF
@@ -1538,26 +1541,26 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   handover_request->setUESecurityCapabilities(
       0xe000, 0xe000, 0xe000, 0xe000);  // TODO: remove hardcoded values
 
-  handover_request->setSourceToTarget_TransparentContainer(sourceTotarget);
+  handover_request->setSourceToTarget_TransparentContainer(source_to_target);
 
   // Allowed NSSAI
-  std::vector<S_NSSAI> Allowed_Nssai;
+  std::vector<S_NSSAI> allowed_nssai;
   for (int i = 0; i < amf_cfg.plmn_list.size(); i++) {
     for (int j = 0; j < amf_cfg.plmn_list[i].slice_list.size(); j++) {
       S_Nssai s_tmp;
       S_NSSAI s_nssai = {};
       s_nssai.setSst(amf_cfg.plmn_list[i].slice_list[j].sst);
       s_nssai.setSd(amf_cfg.plmn_list[i].slice_list[j].sd);
-      Allowed_Nssai.push_back(s_nssai);
+      allowed_nssai.push_back(s_nssai);
     }
   }
-  handover_request->setAllowedNSSAI(Allowed_Nssai);
+  handover_request->setAllowedNSSAI(allowed_nssai);
 
   // GUAMI, PLMN
-  ngap::PlmnId m_plmnId = {};
-  m_plmnId.set(amf_cfg.guami.mcc, amf_cfg.guami.mnc);
+  ngap::PlmnId plmn_id = {};
+  plmn_id.set(amf_cfg.guami.mcc, amf_cfg.guami.mnc);
 
-  handover_request->setMobilityRestrictionList(m_plmnId);
+  handover_request->setMobilityRestrictionList(plmn_id);
   handover_request->setGUAMI(
       amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
       amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer);
@@ -1599,23 +1602,24 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
         "Decoding PDU Session Resource List IE error or IE missing");
   }
 
-  std::vector<PDUSessionResourceItemHORqd> itemHORqdList;
-  pDUSessionResourceListHORqd.getPDUSessionResourceListHORqd(itemHORqdList);
+  std::vector<PDUSessionResourceItem> item_ho_required_list;
+  pDUSessionResourceListHORqd.get(item_ho_required_list);
 
   std::map<uint8_t, boost::shared_future<std::string>> curl_responses;
 
   // Send PDUSessionUpdateSMContextRequest to SMF for all PDU sessions included
   // in HO Required message
-  for (auto& item : itemHORqdList) {
-    PDUSessionID pDUSessionID               = {};
-    OCTET_STRING_t handoverRequiredTransfer = {};
-    item.getPDUSessionResourceItemHORqd(pDUSessionID, handoverRequiredTransfer);
-    uint8_t pduSessionIDValue = 0;
-    pDUSessionID.get(pduSessionIDValue);
+  for (auto& item : item_ho_required_list) {
+    PDUSessionID pdu_session_id               = {};
+    OCTET_STRING_t handover_required_transfer = {};
+    item.get(pdu_session_id, handover_required_transfer);
+    uint8_t pdu_session_id_value = 0;
+    pdu_session_id.get(pdu_session_id_value);
 
-    Logger::ngap().debug("PDU Session ID %d", pduSessionIDValue);
+    Logger::ngap().debug("PDU Session ID %d", pdu_session_id_value);
     std::shared_ptr<pdu_session_context> psc = {};
-    if (amf_app_inst->find_pdu_session_context(supi, pduSessionIDValue, psc)) {
+    if (amf_app_inst->find_pdu_session_context(
+            supi, pdu_session_id_value, psc)) {
       // Generate a promise and associate this promise to the curl handle
       uint32_t promise_id = amf_app_inst->generate_promise_id();
       Logger::amf_n2().debug("Promise ID generated %d", promise_id);
@@ -1634,9 +1638,9 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
           std::make_shared<itti_nsmf_pdusession_update_sm_context>(
               TASK_NGAP, TASK_AMF_SBI);
 
-      itti_msg->pdu_session_id = pduSessionIDValue;
-      itti_msg->n2sm =
-          blk2bstr(handoverRequiredTransfer.buf, handoverRequiredTransfer.size);
+      itti_msg->pdu_session_id = pdu_session_id_value;
+      itti_msg->n2sm           = blk2bstr(
+          handover_required_transfer.buf, handover_required_transfer.size);
       itti_msg->is_n2sm_set    = true;
       itti_msg->n2sm_info_type = "HANDOVER_REQUIRED";
       itti_msg->ho_state       = "PREPARING";
@@ -1839,20 +1843,20 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
           "Got result for PDU Session ID %d", curl_responses.begin()->first);
       if (n2_sm.size() > 0) {
         result                                 = result && true;
-        uint8_t pduSessionIDValue              = curl_responses.begin()->first;
+        uint8_t pdu_session_id_value           = curl_responses.begin()->first;
         unsigned int data_len                  = n2_sm.length();
-        PDUSessionID pDUSessionID              = {};
+        PDUSessionID pdu_session_id            = {};
         OCTET_STRING_t handoverCommandTransfer = {};
-        pDUSessionID.set(pduSessionIDValue);
+        pdu_session_id.set(pdu_session_id_value);
         OCTET_STRING_fromBuf(
             &handoverCommandTransfer, n2_sm.c_str(), n2_sm.length());
-        handoverItem.set(pDUSessionID, handoverCommandTransfer);
+        handoverItem.set(pdu_session_id, handoverCommandTransfer);
         handoverItemList.push_back(handoverItem);
         handoverList.set(handoverItemList);
 
         std::shared_ptr<pdu_session_context> psc = {};
         if (amf_app_inst->find_pdu_session_context(
-                supi, pduSessionIDValue, psc)) {
+                supi, pdu_session_id_value, psc)) {
           psc->is_ho_accepted = true;
         }
       } else {

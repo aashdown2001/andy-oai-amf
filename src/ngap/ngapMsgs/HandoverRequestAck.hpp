@@ -67,8 +67,8 @@ class HandoverRequestAck : public NgapUEMessage {
   PDUSessionResourceAdmittedList pduSessionResourceAdmittedList;  // Mandatory
   std::optional<PDUSessionResourceFailedToSetupListHOAck>
       PDUSessionResourceFailedToSetupList;
-  OCTET_STRING_t TargetToSource_TransparentContainer;     // Mandatory
-  Ngap_CriticalityDiagnostics_t* CriticalityDiagnostics;  // Optional
+  OCTET_STRING_t TargetToSource_TransparentContainer;     // TODO: Mandatory
+  Ngap_CriticalityDiagnostics_t* CriticalityDiagnostics;  // TODO: Optional
 };
 
 }  // namespace ngap

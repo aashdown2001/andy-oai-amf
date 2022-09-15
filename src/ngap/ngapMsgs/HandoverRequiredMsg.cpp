@@ -30,7 +30,7 @@ namespace ngap {
 
 //------------------------------------------------------------------------------
 HandoverRequiredMsg::HandoverRequiredMsg() : NgapUEMessage() {
-  directForwardingPathAvailability = nullptr;
+  directForwardingPathAvailability = std::nullopt;
   handoverRequiredIEs              = nullptr;
 
   setMessageType(NgapMessageType::HANDOVER_REQUIRED);
@@ -129,11 +129,11 @@ bool HandoverRequiredMsg::getPDUSessionResourceList(
 }
 
 //------------------------------------------------------------------------------
-long HandoverRequiredMsg::getDirectForwardingPathAvailability() {
-  if (directForwardingPathAvailability)
-    return *directForwardingPathAvailability;
-  else
-    return 0;
+bool HandoverRequiredMsg::getDirectForwardingPathAvailability(
+    long& value) const {
+  if (directForwardingPathAvailability.has_value()) return false;
+  value = directForwardingPathAvailability.value();
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -237,10 +237,9 @@ bool HandoverRequiredMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
             handoverRequiredIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_HandoverRequiredIEs__value_PR_DirectForwardingPathAvailability) {
           directForwardingPathAvailability =
-              new Ngap_DirectForwardingPathAvailability_t();
-          *directForwardingPathAvailability =
-              handoverRequiredIEs->protocolIEs.list.array[i]
-                  ->value.choice.DirectForwardingPathAvailability;
+              std::optional<Ngap_DirectForwardingPathAvailability_t>(
+                  handoverRequiredIEs->protocolIEs.list.array[i]
+                      ->value.choice.DirectForwardingPathAvailability);
         } else {
           Logger::ngap().error(
               "Decoded NGAP DirectForwardingPathAvailability IE error");
@@ -252,7 +251,7 @@ bool HandoverRequiredMsg::decodeFromPdu(Ngap_NGAP_PDU_t* ngapMsgPdu) {
                 Ngap_Criticality_reject &&
             handoverRequiredIEs->protocolIEs.list.array[i]->value.present ==
                 Ngap_HandoverRequiredIEs__value_PR_PDUSessionResourceListHORqd) {
-          if (!pDUSessionResourceList.decodefromPDUSessionResourceListHORqd(
+          if (!pDUSessionResourceList.decode(
                   &handoverRequiredIEs->protocolIEs.list.array[i]
                        ->value.choice.PDUSessionResourceListHORqd)) {
             Logger::ngap().error(
