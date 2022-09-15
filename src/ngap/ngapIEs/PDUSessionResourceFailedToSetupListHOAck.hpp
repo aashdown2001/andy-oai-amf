@@ -19,37 +19,32 @@
  *      contact@openairinterface.org
  */
 
-#ifndef PDU_SESSION_RESOURCE_ADMITTED_ITEM_H_
-#define PDU_SESSION_RESOURCE_ADMITTED_ITEM_H_
+#ifndef PDU_SESSION_RESOURCE_FAILED_TO_SETUP_LIST_HO_ACK_H_
+#define PDU_SESSION_RESOURCE_FAILED_TO_SETUP_LIST_HO_ACK_H_
 
-#include "PDUSessionID.hpp"
-#include "PDUSessionResourceHandoverRequestAckTransfer.hpp"
+#include "PDUSessionResourceItem.hpp"
+
+#include <vector>
+
 extern "C" {
-#include "Ngap_PDUSessionResourceAdmittedItem.h"
+#include "Ngap_PDUSessionResourceFailedToSetupListHOAck.h"
 }
 
 namespace ngap {
 
-class PDUSessionResourceAdmittedItem {
+class PDUSessionResourceFailedToSetupListHOAck {
  public:
-  PDUSessionResourceAdmittedItem();
-  virtual ~PDUSessionResourceAdmittedItem();
+  PDUSessionResourceFailedToSetupListHOAck();
+  virtual ~PDUSessionResourceFailedToSetupListHOAck();
 
-  void setPDUSessionResourceAdmittedItem(
-      const PDUSessionID& m_pDUSessionID,
-      const OCTET_STRING_t& m_handoverRequestAckTransfer);
-  void getPDUSessionResourceAdmittedItem(
-      PDUSessionID& m_pDUSessionID,
-      OCTET_STRING_t& m_handoverRequestAckTransfer);
+  void set(const std::vector<PDUSessionResourceItem>& list);
+  void get(std::vector<PDUSessionResourceItem>& list);
 
-  bool encode2PDUSessionResourceAdmittedItem(
-      Ngap_PDUSessionResourceAdmittedItem_t* pdUSessionResourceAdmittedItem);
-  bool decodefromPDUSessionResourceAdmittedItem(
-      Ngap_PDUSessionResourceAdmittedItem_t* pdUSessionResourceAdmittedItem);
+  bool encode(Ngap_PDUSessionResourceFailedToSetupListHOAck_t* list);
+  bool decode(Ngap_PDUSessionResourceFailedToSetupListHOAck_t* List);
 
  private:
-  PDUSessionID pDUSessionID;                  // Mandatory
-  OCTET_STRING_t handoverRequestAckTransfer;  // Mandatory
+  std::vector<PDUSessionResourceItem> item_list_;
 };
 
 }  // namespace ngap

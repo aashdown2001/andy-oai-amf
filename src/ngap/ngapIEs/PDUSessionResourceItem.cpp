@@ -100,4 +100,31 @@ bool PDUSessionResourceItem::decode(
   return decode(
       item->pDUSessionID, item->handoverPreparationUnsuccessfulTransfer);
 }
+
+//------------------------------------------------------------------------------
+bool PDUSessionResourceItem::encode(
+    Ngap_PDUSessionResourceAdmittedItem_t* item) const {
+  return encode(item->pDUSessionID, item->handoverRequestAcknowledgeTransfer);
+}
+
+//------------------------------------------------------------------------------
+bool PDUSessionResourceItem::decode(
+    const Ngap_PDUSessionResourceAdmittedItem_t* const item) {
+  return decode(item->pDUSessionID, item->handoverRequestAcknowledgeTransfer);
+}
+
+//------------------------------------------------------------------------------
+bool PDUSessionResourceItem::encode(
+    Ngap_PDUSessionResourceFailedToSetupItemHOAck_t* item) const {
+  return encode(
+      item->pDUSessionID, item->handoverResourceAllocationUnsuccessfulTransfer);
+}
+
+//------------------------------------------------------------------------------
+bool PDUSessionResourceItem::decode(
+    const Ngap_PDUSessionResourceFailedToSetupItemHOAck_t* const item) {
+  return decode(
+      item->pDUSessionID, item->handoverResourceAllocationUnsuccessfulTransfer);
+}
+
 }  // namespace ngap

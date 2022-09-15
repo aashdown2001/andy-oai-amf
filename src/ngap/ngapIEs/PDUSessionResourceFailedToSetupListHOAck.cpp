@@ -19,35 +19,37 @@
  *      contact@openairinterface.org
  */
 
-#include "PDUSessionResourceAdmittedList.hpp"
+#include "PDUSessionResourceFailedToSetupListHOAck.hpp"
 
 namespace ngap {
 
 //------------------------------------------------------------------------------
-PDUSessionResourceAdmittedList::PDUSessionResourceAdmittedList() {}
+PDUSessionResourceFailedToSetupListHOAck::
+    PDUSessionResourceFailedToSetupListHOAck() {}
 
 //------------------------------------------------------------------------------
-PDUSessionResourceAdmittedList::~PDUSessionResourceAdmittedList() {}
+PDUSessionResourceFailedToSetupListHOAck::
+    ~PDUSessionResourceFailedToSetupListHOAck() {}
 
 //------------------------------------------------------------------------------
-void PDUSessionResourceAdmittedList::set(
+void PDUSessionResourceFailedToSetupListHOAck::set(
     const std::vector<PDUSessionResourceItem>& list) {
   item_list_ = list;
 }
 
 //------------------------------------------------------------------------------
-void PDUSessionResourceAdmittedList::get(
+void PDUSessionResourceFailedToSetupListHOAck::get(
     std::vector<PDUSessionResourceItem>& list) {
   list = item_list_;
 }
 
 //------------------------------------------------------------------------------
-bool PDUSessionResourceAdmittedList::encode(
-    Ngap_PDUSessionResourceAdmittedList_t* list) {
+bool PDUSessionResourceFailedToSetupListHOAck::encode(
+    Ngap_PDUSessionResourceFailedToSetupListHOAck_t* list) {
   for (auto& item : item_list_) {
-    Ngap_PDUSessionResourceAdmittedItem_t* response =
-        (Ngap_PDUSessionResourceAdmittedItem_t*) calloc(
-            1, sizeof(Ngap_PDUSessionResourceAdmittedItem_t));
+    Ngap_PDUSessionResourceFailedToSetupItemHOAck_t* response =
+        (Ngap_PDUSessionResourceFailedToSetupItemHOAck_t*) calloc(
+            1, sizeof(Ngap_PDUSessionResourceFailedToSetupItemHOAck_t));
     if (!response) return false;
     if (!item.encode(response)) return false;
     if (ASN_SEQUENCE_ADD(&list->list, response) != 0) return false;
@@ -57,8 +59,8 @@ bool PDUSessionResourceAdmittedList::encode(
 }
 
 //------------------------------------------------------------------------------
-bool PDUSessionResourceAdmittedList::decode(
-    Ngap_PDUSessionResourceAdmittedList_t* list) {
+bool PDUSessionResourceFailedToSetupListHOAck::decode(
+    Ngap_PDUSessionResourceFailedToSetupListHOAck_t* list) {
   for (int i = 0; i < list->list.count; i++) {
     PDUSessionResourceItem item = {};
     if (!item.decode(list->list.array[i])) return false;

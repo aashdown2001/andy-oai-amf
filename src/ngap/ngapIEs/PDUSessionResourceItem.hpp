@@ -28,6 +28,8 @@ extern "C" {
 #include "Ngap_PDUSessionResourceSetupItemCxtRes.h"
 #include "Ngap_PDUSessionResourceToReleaseItemHOCmd.h"
 #include "Ngap_PDUSessionResourceHandoverItem.h"
+#include "Ngap_PDUSessionResourceAdmittedItem.h"
+#include "Ngap_PDUSessionResourceFailedToSetupItemHOAck.h"
 }
 
 namespace ngap {
@@ -114,7 +116,12 @@ class PDUSessionResourceItem {
 
   // HANDOVER REQUEST ACKNOWLEDGE
   // TODO: PDU Session Resource Admitted Item
+  bool encode(Ngap_PDUSessionResourceAdmittedItem_t* item) const;
+  bool decode(const Ngap_PDUSessionResourceAdmittedItem_t* const item);
   // TODO: PDU Session Resource Failed to Setup Item
+  bool encode(Ngap_PDUSessionResourceFailedToSetupItemHOAck_t* item) const;
+  bool decode(
+      const Ngap_PDUSessionResourceFailedToSetupItemHOAck_t* const item);
 
   // PATH SWITCH REQUEST
   // TODO: PDU Session Resource to be Switched in Downlink Item
