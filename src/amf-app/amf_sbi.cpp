@@ -523,15 +523,13 @@ void amf_sbi::handle_itti_message(
   Logger::amf_sbi().debug("SMF URI: %s", remote_uri.c_str());
 
   nlohmann::json pdu_session_release_request;
-  pdu_session_release_request["supi"]          = itti_msg.supi.c_str();
-  pdu_session_release_request["dnn"]           = psc->dnn.c_str();
-  pdu_session_release_request["sNssai"]["sst"] = psc->snssai.sST;
-  pdu_session_release_request["sNssai"]["sd"]  = psc->snssai.sD;
-  pdu_session_release_request["pduSessionId"]  = psc->pdu_session_id;
   pdu_session_release_request["cause"] = "REL_DUE_TO_REACTIVATION";  // TODO:
-  pdu_session_release_request["ngApCause"] = "radioNetwork";
-  std::string msg_body                     = pdu_session_release_request.dump();
-  uint8_t http_version                     = 1;
+  // pdu_session_release_request["ngApCause"] = "radioNetwork";
+  // TODO: 5gMmCauseValue
+  // TODO: UserLocation
+  // TODO: N2SmInfo
+  std::string msg_body = pdu_session_release_request.dump();
+  uint8_t http_version = 1;
   if (amf_cfg.support_features.use_http2) http_version = 2;
 
   nlohmann::json response_json = {};
