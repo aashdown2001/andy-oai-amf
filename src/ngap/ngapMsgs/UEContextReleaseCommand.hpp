@@ -56,8 +56,7 @@ class UEContextReleaseCommandMsg : public NgapMessage {
   Ngap_UEContextReleaseCommand_t* ies;
   AMF_UE_NGAP_ID amfUeNgapId;
   std::optional<RAN_UE_NGAP_ID>
-      ranUeNgapId;  // CHOICE UE NGAP IDs: AMF UE NGAP ID
-
+      ranUeNgapId;   // CHOICE UE NGAP IDs: AMF UE NGAP ID
   Cause causeValue;  // Mandatory
 };
 
