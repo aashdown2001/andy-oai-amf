@@ -1585,8 +1585,7 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   Authentication_5gaka::handover_ncc_derive_knh(
       ulcount, 0x01, kamf, kgnb, knh, unc->ncc);
   bstring knh_bs = blk2bstr(knh, 32);
-  handover_request->setSecurityContext(
-      unc->ncc /*NCC count*/, (uint8_t*) bdata(knh_bs));
+  handover_request->setSecurityContext(unc->ncc /*NCC count*/, knh_bs);
 
   string supi = "imsi-" + nc->imsi;
   Logger::amf_n2().debug(

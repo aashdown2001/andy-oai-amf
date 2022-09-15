@@ -21,9 +21,6 @@
 
 #include "MobilityRestrictionList.hpp"
 
-#include <iostream>
-
-using namespace std;
 namespace ngap {
 //------------------------------------------------------------------------------
 MobilityRestrictionList::MobilityRestrictionList() {}

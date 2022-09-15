@@ -32,6 +32,7 @@
 
 extern "C" {
 #include "OCTET_STRING.h"
+#include "BIT_STRING.h"
 #include "dynamic_memory_check.h"
 }
 
@@ -67,6 +68,10 @@ class conv {
       const OCTET_STRING_t& octet_str, bstring& b_str);
   static bool bstring_2_octet_string(
       const bstring& b_str, OCTET_STRING_t& octet_str);
+  static bool octet_string_2_bit_string(
+      const OCTET_STRING_t& octet_str, BIT_STRING_t& bit_str,
+      const uint8_t& bits_unused);
+  static bool bstring_2_bit_string(const bstring& b_str, BIT_STRING_t& bit_str);
   static bool sd_string_to_int(const std::string& sd_str, uint32_t& sd);
   static bool string_to_int(
       const std::string& str, uint32_t& value, const uint8_t& base);
