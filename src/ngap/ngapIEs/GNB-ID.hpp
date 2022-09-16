@@ -22,29 +22,34 @@
 #ifndef _GNB_ID_H_
 #define _GNB_ID_H_
 
+#include "NgapIEsStruct.hpp"
+#include <optional>
+
 extern "C" {
 #include "Ngap_GNB-ID.h"
 }
 
 namespace ngap {
 
+constexpr uint8_t NGAP_GNB_ID_SIZE_MAX = 32;
+constexpr uint8_t NGAP_GNB_ID_SIZE_MIN = 22;
+
 class GNB_ID {
  public:
   GNB_ID();
   virtual ~GNB_ID();
 
-  bool encode2bitstring(Ngap_GNB_ID_t&);
-  bool decodefrombitstring(Ngap_GNB_ID_t&);
-  void setValue(uint32_t gnbId);
-  long getValue();
-
-  void setValue(uint32_t id, uint8_t bit_length);
+  bool encode(Ngap_GNB_ID_t&);
+  bool decode(Ngap_GNB_ID_t&);
+  void setValue(const gNBId_t& gnb_id);
+  bool setValue(const uint32_t& id, const uint8_t& bit_length);
+  // long getValue() const;
+  bool get(gNBId_t& gnb_id) const;
+  bool get(uint32_t& id) const;
 
  private:
-  struct gNBId_s {
-    uint32_t id;
-    uint8_t bit_length;
-  } gNBId;  // 22bits to 32bits
+  std::optional<gNBId_t> gnb_id_;  // 22bits to 32bits
+  Ngap_GNB_ID_PR present_;
 };
 
 }  // namespace ngap

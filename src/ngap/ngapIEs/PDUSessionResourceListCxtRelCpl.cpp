@@ -55,7 +55,7 @@ bool PDUSessionResourceListCxtRelCpl::encode2PDUSessionResourceListCxtRelCpl(
         (Ngap_PDUSessionResourceItemCxtRelCpl_t*) calloc(
             1, sizeof(Ngap_PDUSessionResourceItemCxtRelCpl_t));
     if (!item) return false;
-    if (!cxtRelCpl.encode2PDUSessionResourceItemCxtRelCpl(item)) return false;
+    if (!cxtRelCpl.encode(item)) return false;
     if (ASN_SEQUENCE_ADD(&pduSessionResourceListCxtRelCpl.list, item) != 0)
       return false;
   }
@@ -68,8 +68,7 @@ bool PDUSessionResourceListCxtRelCpl::decodefromPDUSessionResourceListCxtRelCpl(
         pduSessionResourceListCxtRelCpl) {
   for (int i = 0; i < pduSessionResourceListCxtRelCpl.list.count; i++) {
     PDUSessionResourceItemCxtRelCpl item = {};
-    if (!item.decodefromPDUSessionResourceItemCxtRelCpl(
-            pduSessionResourceListCxtRelCpl.list.array[i]))
+    if (!item.decode(pduSessionResourceListCxtRelCpl.list.array[i]))
       return false;
     cxtRelCplList.push_back(item);
   }

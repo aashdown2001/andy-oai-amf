@@ -48,7 +48,7 @@ class MessageType {
   void setValuePresent(Ngap_SuccessfulOutcome__value_PR m_valuePresent);
   void setValuePresent(Ngap_UnsuccessfulOutcome__value_PR m_valuePresent);
 
-  // void decodefrompdu(Ngap_NGAP_PDU_t*);
+  // void decodeFromPdu(Ngap_NGAP_PDU_t*);
   Ngap_ProcedureCode_t getProcedureCode();
   Ngap_NGAP_PDU_PR getTypeOfMessage();
   Ngap_Criticality getCriticality();

@@ -19,26 +19,25 @@
  *      contact@openairinterface.org
  */
 
-#include "UEAssociationLogicalNGConnectionItem.hpp"
+#include "UEAssociatedLogicalNGConnectionItem.hpp"
+#include "logger.hpp"
 
 extern "C" {
 #include "dynamic_memory_check.h"
 }
 
-#include <iostream>
-using namespace std;
-
 namespace ngap {
 
-UEAssociationLogicalNGConnectionItem::UEAssociationLogicalNGConnectionItem() {
-  amfUeNgapId = nullptr;
-  ranUeNgapId = nullptr;
+UEAssociatedLogicalNGConnectionItem::UEAssociatedLogicalNGConnectionItem() {
+  amf_ue_ngap_id_ = std::nullopt;
+  ran_ue_ngap_id_ = std::nullopt;
 }
 
 //------------------------------------------------------------------------------
-void UEAssociationLogicalNGConnectionItem::setAmfUeNgapId(unsigned long id) {
-  if (!amfUeNgapId) amfUeNgapId = new AMF_UE_NGAP_ID();
-  amfUeNgapId->setAMF_UE_NGAP_ID(id);
+bool UEAssociatedLogicalNGConnectionItem::setAmfUeNgapId(const uint64_t& id) {
+  AMF_UE_NGAP_ID tmp = {};
+  if (!tmp.set(id)) return false;
+  amf_ue_ngap_id_ = std::optional<AMF_UE_NGAP_ID>(tmp);
 
   Ngap_DownlinkNASTransport_IEs_t* ie =
       (Ngap_DownlinkNASTransport_IEs_t*) calloc(
@@ -47,28 +46,28 @@ void UEAssociationLogicalNGConnectionItem::setAmfUeNgapId(unsigned long id) {
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_DownlinkNASTransport_IEs__value_PR_AMF_UE_NGAP_ID;
 
-  int ret = amfUeNgapId->encode2AMF_UE_NGAP_ID(ie->value.choice.AMF_UE_NGAP_ID);
+  int ret = amf_ue_ngap_id_.value().encode2AMF_UE_NGAP_ID(
+      ie->value.choice.AMF_UE_NGAP_ID);
   if (!ret) {
-    cout << "encode AMF_UE_NGAP_ID IE error" << endl;
+    Logger::ngap().error("Encode AMF_UE_NGAP_ID IE error");
   }
   free_wrapper((void**) &ie);
-  return;
+  return true;
 }
 
 //------------------------------------------------------------------------------
-bool UEAssociationLogicalNGConnectionItem::getAmfUeNgapId(unsigned long& id) {
-  if (amfUeNgapId) {
-    id = amfUeNgapId->getAMF_UE_NGAP_ID();
+bool UEAssociatedLogicalNGConnectionItem::getAmfUeNgapId(uint64_t& id) {
+  if (amf_ue_ngap_id_.has_value()) {
+    id = amf_ue_ngap_id_.value().get();
     return true;
   }
   return false;
 }
 
 //------------------------------------------------------------------------------
-void UEAssociationLogicalNGConnectionItem::setRanUeNgapId(
-    uint32_t ran_ue_ngap_id) {
-  if (!ranUeNgapId) ranUeNgapId = new RAN_UE_NGAP_ID();
-  ranUeNgapId->setRanUeNgapId(ran_ue_ngap_id);
+void UEAssociatedLogicalNGConnectionItem::setRanUeNgapId(
+    const uint32_t& ran_ue_ngap_id) {
+  ran_ue_ngap_id_ = std::make_optional<RAN_UE_NGAP_ID>(ran_ue_ngap_id);
 
   Ngap_DownlinkNASTransport_IEs_t* ie =
       (Ngap_DownlinkNASTransport_IEs_t*) calloc(
@@ -77,77 +76,74 @@ void UEAssociationLogicalNGConnectionItem::setRanUeNgapId(
   ie->criticality   = Ngap_Criticality_reject;
   ie->value.present = Ngap_DownlinkNASTransport_IEs__value_PR_RAN_UE_NGAP_ID;
 
-  int ret = ranUeNgapId->encode2RAN_UE_NGAP_ID(ie->value.choice.RAN_UE_NGAP_ID);
+  int ret = ran_ue_ngap_id_.value().encode(ie->value.choice.RAN_UE_NGAP_ID);
   if (!ret) {
-    cout << "Encode RAN_UE_NGAP_ID IE error" << endl;
+    Logger::ngap().error("Encode RAN_UE_NGAP_ID IE error");
   }
   free_wrapper((void**) &ie);
   return;
 }
 
 //------------------------------------------------------------------------------
-bool UEAssociationLogicalNGConnectionItem::getRanUeNgapId(
+bool UEAssociatedLogicalNGConnectionItem::getRanUeNgapId(
     uint32_t& ran_ue_ngap_id) {
-  if (ranUeNgapId) {
-    ran_ue_ngap_id = ranUeNgapId->getRanUeNgapId();
+  if (ran_ue_ngap_id_.has_value()) {
+    ran_ue_ngap_id = ran_ue_ngap_id_.value().get();
     return true;
   }
   return false;
 }
 
 //------------------------------------------------------------------------------
-bool UEAssociationLogicalNGConnectionItem::encode(
+void UEAssociatedLogicalNGConnectionItem::set(
+    UEAssociatedLogicalNGConnectionItem& item) {
+  if (amf_ue_ngap_id_.has_value()) {
+    item.setAmfUeNgapId(amf_ue_ngap_id_.value().get());
+  }
+  if (ran_ue_ngap_id_.has_value()) {
+    item.setRanUeNgapId(ran_ue_ngap_id_.value().get());
+  }
+}
+
+//------------------------------------------------------------------------------
+bool UEAssociatedLogicalNGConnectionItem::encode(
     Ngap_UE_associatedLogicalNG_connectionItem_t& item) {
   item.aMF_UE_NGAP_ID = new Ngap_AMF_UE_NGAP_ID_t();
-  amfUeNgapId->encode2AMF_UE_NGAP_ID(*item.aMF_UE_NGAP_ID);
+  amf_ue_ngap_id_.value().encode2AMF_UE_NGAP_ID(*item.aMF_UE_NGAP_ID);
   item.rAN_UE_NGAP_ID = new Ngap_RAN_UE_NGAP_ID_t();
-  ranUeNgapId->encode2RAN_UE_NGAP_ID(*item.rAN_UE_NGAP_ID);
+  ran_ue_ngap_id_.value().encode(*item.rAN_UE_NGAP_ID);
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool UEAssociationLogicalNGConnectionItem::encode(
+bool UEAssociatedLogicalNGConnectionItem::encode(
     Ngap_UE_associatedLogicalNG_connectionItem_t* item) {
   item->aMF_UE_NGAP_ID = new Ngap_AMF_UE_NGAP_ID_t();
-  amfUeNgapId->encode2AMF_UE_NGAP_ID(*item->aMF_UE_NGAP_ID);
+  amf_ue_ngap_id_.value().encode2AMF_UE_NGAP_ID(*item->aMF_UE_NGAP_ID);
   item->rAN_UE_NGAP_ID = new Ngap_RAN_UE_NGAP_ID_t();
-  ranUeNgapId->encode2RAN_UE_NGAP_ID(*item->rAN_UE_NGAP_ID);
+  ran_ue_ngap_id_.value().encode(*item->rAN_UE_NGAP_ID);
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool UEAssociationLogicalNGConnectionItem::encode(
-    UEAssociationLogicalNGConnectionItem& item) {
-  item.amfUeNgapId = new AMF_UE_NGAP_ID();
-  item.amfUeNgapId = amfUeNgapId;
-  item.ranUeNgapId = new RAN_UE_NGAP_ID();
-  item.ranUeNgapId = ranUeNgapId;
-  return true;
-}
-
-//------------------------------------------------------------------------------
-bool UEAssociationLogicalNGConnectionItem::decode(
-    UEAssociationLogicalNGConnectionItem& item) {
-  if (!amfUeNgapId) amfUeNgapId = new AMF_UE_NGAP_ID();
-  amfUeNgapId->setAMF_UE_NGAP_ID(item.amfUeNgapId->getAMF_UE_NGAP_ID());
-  if (!ranUeNgapId) ranUeNgapId = new RAN_UE_NGAP_ID();
-  ranUeNgapId->setRanUeNgapId(item.ranUeNgapId->getRanUeNgapId());
-  return true;
-}
-
-//------------------------------------------------------------------------------
-bool UEAssociationLogicalNGConnectionItem::decode(
+bool UEAssociatedLogicalNGConnectionItem::decode(
     Ngap_UE_associatedLogicalNG_connectionItem_t* item) {
-  if (!amfUeNgapId) amfUeNgapId = new AMF_UE_NGAP_ID();
-  if (!amfUeNgapId->decodefromAMF_UE_NGAP_ID(*item->aMF_UE_NGAP_ID)) {
-    cout << "Decoded NGAP AMF_UE_NGAP_ID IE error" << endl;
-    return false;
+  if (item->aMF_UE_NGAP_ID) {
+    AMF_UE_NGAP_ID tmp = {};
+    if (!tmp.decodefromAMF_UE_NGAP_ID(*item->aMF_UE_NGAP_ID)) {
+      Logger::ngap().error("Decoded NGAP AMF_UE_NGAP_ID IE error");
+      return false;
+    }
+    amf_ue_ngap_id_ = std::optional<AMF_UE_NGAP_ID>(tmp);
   }
 
-  ranUeNgapId = new RAN_UE_NGAP_ID();
-  if (!ranUeNgapId->decodefromRAN_UE_NGAP_ID(*item->rAN_UE_NGAP_ID)) {
-    cout << "Decoded NGAP RAN_UE_NGAP_ID IE error" << endl;
-    return false;
+  if (item->rAN_UE_NGAP_ID) {
+    RAN_UE_NGAP_ID tmp = {};
+    if (!tmp.decode(*item->rAN_UE_NGAP_ID)) {
+      Logger::ngap().error("Decoded NGAP RAN_UE_NGAP_ID IE error");
+      return false;
+    }
+    ran_ue_ngap_id_ = std::optional<RAN_UE_NGAP_ID>(tmp);
   }
   return true;
 }

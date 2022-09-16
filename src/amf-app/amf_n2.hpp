@@ -56,7 +56,8 @@ class amf_n2 : public ngap::ngap_app {
    * @param [std::shared_ptr<itti_ng_setup_request>]: ITTI message
    * @return void
    */
-  void handle_itti_message(std::shared_ptr<itti_ng_setup_request> ng_setup_req);
+  void handle_itti_message(
+      std::shared_ptr<itti_ng_setup_request>& ng_setup_req);
 
   /*
    * Handle ITTI message (NG Reset)

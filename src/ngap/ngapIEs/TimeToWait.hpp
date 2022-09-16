@@ -33,15 +33,16 @@ namespace ngap {
 class TimeToWait {
  public:
   TimeToWait();
+  TimeToWait(e_Ngap_TimeToWait);
   virtual ~TimeToWait();
 
-  bool encode2TimeToWait(Ngap_TimeToWait_t*);
-  bool decodefromTimeToWait(Ngap_TimeToWait_t*);
+  bool encode(Ngap_TimeToWait_t&);
+  bool decode(Ngap_TimeToWait_t&);
   void setValue(e_Ngap_TimeToWait);
   long getValue();
 
  private:
-  long timeValue;
+  long time_;
 };
 }  // namespace ngap
 

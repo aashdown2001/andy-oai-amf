@@ -121,7 +121,7 @@ int CriticalityDiagnostics::encode2pdu(Ngap_NGSetupFailure_t* ngSetupFailure) {
 }
 
 //------------------------------------------------------------------------------
-bool CriticalityDiagnostics::decodefrompdu(Ngap_CriticalityDiagnostics_t* pdu) {
+bool CriticalityDiagnostics::decodeFromPdu(Ngap_CriticalityDiagnostics_t* pdu) {
   // timeValue = *pdu;
   if (pdu->procedureCode) {
     procedureCodeIsSet = true;
@@ -141,7 +141,7 @@ bool CriticalityDiagnostics::decodefrompdu(Ngap_CriticalityDiagnostics_t* pdu) {
     iEsCriticalityDiagnostics =
         new IEsCriticalityDiagnostics[numberOfIEsCriticalityDiagnostics]();
     for (int i = 0; i < numberOfIEsCriticalityDiagnostics; i++) {
-      iEsCriticalityDiagnostics[i].decodefrompdu(
+      iEsCriticalityDiagnostics[i].decodeFromPdu(
           pdu->iEsCriticalityDiagnostics->list.array[i]);
     }
   }

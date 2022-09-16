@@ -33,13 +33,13 @@ class DefaultPagingDRX {
   DefaultPagingDRX();
   virtual ~DefaultPagingDRX();
 
-  void setValue(e_Ngap_PagingDRX m_pagingDrx);
-  int getValue();
-  bool encode2DefaultPagingDRX(Ngap_PagingDRX_t&);
-  bool decodefromDefaultPagingDRX(Ngap_PagingDRX_t&);
+  void setValue(const e_Ngap_PagingDRX& paging_drx);
+  int getValue() const;
+  bool encode(Ngap_PagingDRX_t&);
+  bool decode(const Ngap_PagingDRX_t&);
 
  private:
-  int pagingDrx;
+  int paging_drx_;
 };
 
 }  // namespace ngap

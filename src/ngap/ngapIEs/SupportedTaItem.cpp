@@ -64,7 +64,7 @@ void SupportedTaItem::getBroadcastPlmnList(
 
 //------------------------------------------------------------------------------
 bool SupportedTaItem::encode2SupportedTaItem(Ngap_SupportedTAItem_t* ta) {
-  if (!tac.encode2octetstring(ta->tAC)) return false;
+  if (!tac.encode(ta->tAC)) return false;
 
   for (std::vector<BroadcastPLMNItem>::iterator it =
            std::begin(broadcastPLMNList);
@@ -80,7 +80,7 @@ bool SupportedTaItem::encode2SupportedTaItem(Ngap_SupportedTAItem_t* ta) {
 
 //------------------------------------------------------------------------------
 bool SupportedTaItem::decodefromSupportedTaItem(Ngap_SupportedTAItem_t* pdu) {
-  if (!tac.decodefromoctetstring(pdu->tAC)) return false;
+  if (!tac.decode(pdu->tAC)) return false;
   for (int i = 0; i < pdu->broadcastPLMNList.list.count; i++) {
     BroadcastPLMNItem item = {};
     if (!item.decodefromBroadcastPLMNItem(pdu->broadcastPLMNList.list.array[i]))

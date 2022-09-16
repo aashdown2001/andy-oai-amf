@@ -30,6 +30,8 @@
 #include "SupportedTAList.hpp"
 #include "NgapMessage.hpp"
 
+#include <optional>
+
 namespace ngap {
 
 class NGSetupRequestMsg : public NgapMessage {
@@ -41,7 +43,8 @@ class NGSetupRequestMsg : public NgapMessage {
 
   void setGlobalRanNodeID(
       const std::string& mcc, const std::string& mnc,
-      const Ngap_GlobalRANNodeID_PR& ranNodeType, const uint32_t& ranNodeId);
+      const Ngap_GlobalRANNodeID_PR& ranNodeType, const uint32_t& ranNodeId,
+      const uint8_t& ran_node_id_size);
   bool getGlobalGnbID(uint32_t& gnbId, std::string& mcc, std::string& mnc);
 
   void setRanNodeName(const std::string& ranNodeName);
@@ -58,10 +61,10 @@ class NGSetupRequestMsg : public NgapMessage {
  private:
   Ngap_NGSetupRequest_t* ngSetupRequestIEs;
 
-  GlobalRanNodeId globalRanNodeId;    // Mandatory
-  RanNodeName* ranNodeName;           // Optional
-  SupportedTAList supportedTAList;    // Mandatory
-  DefaultPagingDRX defaultPagingDrx;  // Mandatory
+  GlobalRanNodeId globalRanNodeId;         // Mandatory
+  std::optional<RanNodeName> ranNodeName;  // Optional
+  SupportedTAList supportedTAList;         // Mandatory
+  DefaultPagingDRX defaultPagingDrx;       // Mandatory
   // TODO: UE Retention Information (Optional)
 };
 

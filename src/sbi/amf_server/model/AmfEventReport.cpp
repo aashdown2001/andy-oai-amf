@@ -23,6 +23,7 @@ AmfEventReport::AmfEventReport() {
   m_SubscriptionId           = "";
   m_SubscriptionIdIsSet      = false;
   m_AnyUe                    = false;
+  m_AmfUeNgapId              = 0;
   m_AnyUeIsSet               = false;
   m_Supi                     = "";
   m_SupiIsSet                = false;
