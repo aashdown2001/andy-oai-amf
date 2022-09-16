@@ -68,6 +68,7 @@ extern "C" {
 using namespace nas;
 using namespace amf_application;
 using namespace config;
+using namespace boost::placeholders;
 
 extern itti_mw* itti_inst;
 extern amf_n1* amf_n1_inst;
@@ -3091,6 +3092,8 @@ void amf_n1::ue_initiate_de_registration_handle(
 
     bstring b = blk2bstr(buffer, encoded_size);
     itti_send_dl_nas_buffer_to_task_n2(b, ran_ue_ngap_id, amf_ue_ngap_id);
+    // sleep 100ms
+    usleep(200000);
   }
 
   set_5gmm_state(nc, _5GMM_DEREGISTERED);
