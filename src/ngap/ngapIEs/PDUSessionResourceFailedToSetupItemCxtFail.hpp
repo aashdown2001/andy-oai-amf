@@ -49,7 +49,8 @@ class PDUSessionResourceFailedToSetupItemCxtFail {
 
  private:
   PDUSessionID pdu_session_id_;  // Mandatory
-  OCTET_STRING_t pdu_session_resource_setup_unsuccessful_transfer_;  // Mandatory
+  OCTET_STRING_t
+      pdu_session_resource_setup_unsuccessful_transfer_;  // Mandatory
 };
 
 }  // namespace ngap

@@ -157,7 +157,10 @@ std::string conv::toString(const struct in6_addr& in6addr) {
 void conv::convert_string_2_hex(
     std::string& input_str, std::string& output_str) {
   unsigned char* data = (unsigned char*) malloc(input_str.length() + 1);
-  if (!data) return;
+  if (!data) {
+    free_wrapper((void**) &data);
+    return;
+  }
   memset(data, 0, input_str.length() + 1);
   memcpy((void*) data, (void*) input_str.c_str(), input_str.length());
 
@@ -167,7 +170,11 @@ void conv::convert_string_2_hex(
   printf("\n");
 
   char* datahex = (char*) malloc(input_str.length() * 2 + 1);
-  if (!datahex) return;
+  if (!datahex) {
+    free_wrapper((void**) &datahex);
+    free_wrapper((void**) &data);
+    return;
+  }
   memset(datahex, 0, input_str.length() * 2 + 1);
 
   for (int i = 0; i < input_str.length(); i++)
@@ -185,7 +192,10 @@ unsigned char* conv::format_string_as_hex(std::string str) {
   if (!datavalue) return nullptr;
 
   unsigned char* data = (unsigned char*) malloc(str_len + 1);
-  if (!data) return nullptr;
+  if (!data) {
+    free_wrapper((void**) &data);
+    return nullptr;
+  }
   memset(data, 0, str_len + 1);
   memcpy((void*) data, (void*) str.c_str(), str_len);
 
@@ -238,13 +248,19 @@ void conv::msg_str_2_msg_hex(std::string msg, bstring& b) {
   printf("tmp string: %s\n", msg_hex_str.c_str());
   unsigned int msg_len = msg_hex_str.length();
   char* data           = (char*) malloc(msg_len + 1);
-  if (!data) return;
+  if (!data) {
+    free_wrapper((void**) &data);
+    return;
+  }
 
   memset(data, 0, msg_len + 1);
   memcpy((void*) data, (void*) msg_hex_str.c_str(), msg_len);
   printf("data: %s\n", data);
   uint8_t* msg_hex = (uint8_t*) malloc(msg_len / 2 + 1);
-  if (!msg_hex) return;
+  if (!msg_hex) {
+    free_wrapper((void**) &msg_hex);
+    return;
+  }
 
   conv::ascii_to_hex(msg_hex, (const char*) data);
   b = blk2bstr(msg_hex, (msg_len / 2));

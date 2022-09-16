@@ -128,8 +128,10 @@ void HandoverCommandMsg::setNASSecurityParametersFromNGRAN(
       Ngap_HandoverCommandIEs__value_PR_NASSecurityParametersFromNGRAN;
   if (!conv::octet_string_copy(
           ie->value.choice.NASSecurityParametersFromNGRAN,
-          nASSecurityParametersFromNGRAN.value()))
+          nASSecurityParametersFromNGRAN.value())) {
+    free_wrapper((void**) &ie);
     return;
+  }
 
   int ret = ASN_SEQUENCE_ADD(&handoverCommandIEs->protocolIEs.list, ie);
   if (ret != 0)

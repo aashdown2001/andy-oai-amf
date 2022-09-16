@@ -34,6 +34,7 @@ namespace ngap {
 //------------------------------------------------------------------------------
 HandoverPreparationFailure::HandoverPreparationFailure() : NgapUEMessage() {
   hoPreparationFailureIEs = nullptr;
+  criticalityDiagnostics  = nullptr;
 
   setMessageType(NgapMessageType::HANDOVER_PREPARATION_FAILURE);
   initialize();
