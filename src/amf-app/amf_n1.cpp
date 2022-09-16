@@ -3241,8 +3241,8 @@ void amf_n1::ul_nas_transport_handle(
       itti_msg->amf_ue_ngap_id = amf_ue_ngap_id;
       itti_msg->req_type       = request_type;
       itti_msg->pdu_sess_id    = pdu_session_id;
-      itti_msg->dnn            = dnn;
-      itti_msg->sm_msg         = sm_msg;
+      itti_msg->dnn            = bstrcpy(dnn);
+      itti_msg->sm_msg         = bstrcpy(sm_msg);
       itti_msg->snssai.sST     = snssai.sst;
       itti_msg->snssai.sD      = std::to_string(snssai.sd);
       itti_msg->plmn.mnc       = plmn.mnc;

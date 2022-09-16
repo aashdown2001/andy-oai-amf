@@ -34,13 +34,14 @@ ARG BASE_IMAGE=ubuntu:bionic
 FROM oai-amf-base:latest as oai-amf-builder
 
 # Copying source code
+RUN rm -Rf /openair-amf/
 WORKDIR /openair-amf/
 COPY . /openair-amf
-RUN cp -Rf /openair-amf-ext-ref /openair-amf/build/ext
 
 # Building AMF
 WORKDIR /openair-amf/build/scripts
 RUN ldconfig && \
+    cp -Rf /openair-amf-ext-ref /openair-amf/build/ext && \
     ./build_amf --clean --Verbose --build-type Release --jobs && \
     ldd /openair-amf/build/amf/build/amf && \
     mv /openair-amf/build/amf/build/amf /openair-amf/build/amf/build/oai_amf

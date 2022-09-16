@@ -39,7 +39,7 @@ class CriticalityDiagnostics {
   virtual ~CriticalityDiagnostics();
 
   int encode2pdu(Ngap_NGSetupFailure_t*);
-  bool decodefrompdu(Ngap_CriticalityDiagnostics_t*);
+  bool decodeFromPdu(Ngap_CriticalityDiagnostics_t*);
   void setProcedureCodeValue(Ngap_ProcedureCode_t);
   void setTriggeringMessageValue(Ngap_TriggeringMessage_t);
   void setCriticalityValue(Ngap_Criticality_t);

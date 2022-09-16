@@ -28,6 +28,7 @@ extern "C" {
 #include "Ngap_AMFName.h"
 }
 
+constexpr uint8_t AMF_NAME_SIZE_MAX = 150;
 namespace ngap {
 
 class AmfName {
@@ -35,13 +36,13 @@ class AmfName {
   AmfName();
   virtual ~AmfName();
 
-  bool encode2AmfName(Ngap_AMFName_t*);
-  bool decodefromAmfName(Ngap_AMFName_t*);
-  void setValue(const std::string m_amfName);
-  void getValue(std::string&);
+  bool encode(Ngap_AMFName_t*);
+  bool decode(const Ngap_AMFName_t*);
+  bool setValue(const std::string& amf_name);
+  void getValue(std::string& amf_name) const;
 
  private:
-  char* amfname;
+  std::string amf_name_;
 };
 }  // namespace ngap
 

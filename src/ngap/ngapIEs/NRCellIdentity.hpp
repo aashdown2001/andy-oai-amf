@@ -33,8 +33,8 @@ class NRCellIdentity {
   NRCellIdentity();
   virtual ~NRCellIdentity();
 
-  bool encode2bitstring(Ngap_NRCellIdentity_t& nRCellIdentity);
-  bool decodefrombitstring(Ngap_NRCellIdentity_t& nRCellIdentity);
+  bool encode(Ngap_NRCellIdentity_t& nRCellIdentity);
+  bool decode(Ngap_NRCellIdentity_t& nRCellIdentity);
 
   unsigned long getNRCellIdentity();
   void setNRCellIdentity(unsigned long m_nrcellidentity);

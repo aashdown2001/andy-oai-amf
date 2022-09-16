@@ -78,6 +78,7 @@ int ngap_amf_handle_ng_setup_request(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }
@@ -124,6 +125,7 @@ int ngap_amf_handle_initial_ue_message(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }
@@ -152,6 +154,7 @@ int ngap_amf_handle_uplink_nas_transport(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }
@@ -183,13 +186,15 @@ int ngap_amf_handle_initial_context_setup_response(
     Logger::ngap().debug(
         "Decode PduSessionResourceSetupResponseList IE error or this IE is not "
         "available");
-    return 0;
+    // TODO:
+    return RETURNok;
   }
 
   Logger::ngap().debug(
       "Sending ITTI Initial Context Setup Response to TASK_AMF_SBI");
   auto itti_msg = std::make_shared<itti_nsmf_pdusession_update_sm_context>(
       TASK_NGAP, TASK_AMF_SBI);
+  // TODO: with multiple PDU sessions
   itti_msg->pdu_session_id = list[0].pduSessionId;
   itti_msg->n2sm           = blk2bstr(
       list[0].pduSessionResourceSetupResponseTransfer.buf,
@@ -204,6 +209,7 @@ int ngap_amf_handle_initial_context_setup_response(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_SBI",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }
@@ -244,6 +250,7 @@ int ngap_amf_handle_ue_radio_cap_indication(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }
@@ -271,6 +278,7 @@ int ngap_amf_handle_ue_context_release_request(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }
@@ -309,6 +317,7 @@ int ngap_amf_handle_ue_context_release_complete(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }
@@ -372,6 +381,7 @@ int ngap_amf_handle_pdu_session_resource_release_response(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_SBI",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }
@@ -438,8 +448,9 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
       Logger::ngap().error(
           "Could not send ITTI message %s to task TASK_AMF_SBI",
           i->get_msg_name());
+      return RETURNerror;
     }
-    return 0;
+    return RETURNok;
   }
 
   // TTN: Should be removed
@@ -573,6 +584,7 @@ int ngap_amf_handle_pdu_session_resource_modify_response(
       Logger::ngap().error(
           "Could not send ITTI message %s to task TASK_AMF_SBI",
           itti_msg->get_msg_name());
+      return RETURNerror;
     }
   }
 
@@ -737,6 +749,7 @@ int handover_preparation(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }
@@ -782,6 +795,7 @@ int handover_notification(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }
@@ -812,6 +826,7 @@ int handover_request(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }
@@ -895,6 +910,7 @@ int ng_reset(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
 
   return RETURNok;
@@ -1196,6 +1212,7 @@ int uplink_ran_status_transfer(
     Logger::ngap().error(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         itti_msg->get_msg_name());
+    return RETURNerror;
   }
   return RETURNok;
 }

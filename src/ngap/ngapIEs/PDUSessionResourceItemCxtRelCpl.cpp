@@ -30,32 +30,30 @@ PDUSessionResourceItemCxtRelCpl::PDUSessionResourceItemCxtRelCpl() {}
 PDUSessionResourceItemCxtRelCpl::~PDUSessionResourceItemCxtRelCpl() {}
 
 //------------------------------------------------------------------------------
-void PDUSessionResourceItemCxtRelCpl::setPDUSessionResourceItemCxtRelCpl(
-    const PDUSessionID& m_pDUSessionID) {
-  pDUSessionID = m_pDUSessionID;
+void PDUSessionResourceItemCxtRelCpl::set(const PDUSessionID& pdu_session_id) {
+  pdu_session_id_ = pdu_session_id;
 }
 
 //------------------------------------------------------------------------------
-void PDUSessionResourceItemCxtRelCpl::getPDUSessionResourceItemCxtRelCpl(
-    PDUSessionID& m_pDUSessionID) {
-  m_pDUSessionID = pDUSessionID;
+void PDUSessionResourceItemCxtRelCpl::get(PDUSessionID& pdu_session_id) {
+  pdu_session_id = pdu_session_id_;
 }
 
 //------------------------------------------------------------------------------
-bool PDUSessionResourceItemCxtRelCpl::encode2PDUSessionResourceItemCxtRelCpl(
-    Ngap_PDUSessionResourceItemCxtRelCpl_t* pduSessionResourceItemCxtRelCpl) {
-  if (!pDUSessionID.encode2PDUSessionID(
-          pduSessionResourceItemCxtRelCpl->pDUSessionID))
+bool PDUSessionResourceItemCxtRelCpl::encode(
+    Ngap_PDUSessionResourceItemCxtRelCpl_t*
+        pdu_session_resource_item_cxt_rel_cpl) {
+  if (!pdu_session_id_.encode(
+          pdu_session_resource_item_cxt_rel_cpl->pDUSessionID))
     return false;
-
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool PDUSessionResourceItemCxtRelCpl::decodefromPDUSessionResourceItemCxtRelCpl(
-    Ngap_PDUSessionResourceItemCxtRelCpl_t* pduSessionResourceItemCxtRelCpl) {
-  pDUSessionID.setPDUSessionID(pduSessionResourceItemCxtRelCpl->pDUSessionID);
-
+bool PDUSessionResourceItemCxtRelCpl::decode(
+    const Ngap_PDUSessionResourceItemCxtRelCpl_t* const
+        pdu_session_resource_item_cxt_rel_cpl) {
+  pdu_session_id_.set(pdu_session_resource_item_cxt_rel_cpl->pDUSessionID);
   return true;
 }
 

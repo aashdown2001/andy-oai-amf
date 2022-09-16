@@ -28,6 +28,7 @@ extern "C" {
 
 #include <string>
 
+constexpr uint8_t RAN_NODE_NAME_SIZE_MAX = 150;
 namespace ngap {
 
 class RanNodeName {
@@ -35,13 +36,14 @@ class RanNodeName {
   RanNodeName();
   virtual ~RanNodeName();
 
-  void setValue(const std::string ranName);
-  bool encode2RanNodeName(Ngap_RANNodeName_t*);
-  bool decodefromRanNodeName(Ngap_RANNodeName_t*);
-  bool getValue(std::string& ranName);
+  bool setValue(const std::string& value);
+  void getValue(std::string& value) const;
+
+  bool encode(Ngap_RANNodeName_t&);
+  bool decode(Ngap_RANNodeName_t&);
 
  private:
-  char* ranNodeName;
+  std::string ran_node_name_;
 };
 
 }  // namespace ngap

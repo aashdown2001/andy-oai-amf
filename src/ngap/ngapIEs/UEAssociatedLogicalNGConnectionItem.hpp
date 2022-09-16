@@ -19,11 +19,13 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_ITEM_H_
-#define _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_ITEM_H_
+#ifndef _UE_ASSOCIATED_LOGICAL_NG_CONNECTION_ITEM_H_
+#define _UE_ASSOCIATED_LOGICAL_NG_CONNECTION_ITEM_H_
 
 #include "AMF-UE-NGAP-ID.hpp"
 #include "RAN-UE-NGAP-ID.hpp"
+
+#include <optional>
 
 extern "C" {
 #include "Ngap_ProtocolIE-Field.h"
@@ -32,25 +34,25 @@ extern "C" {
 
 namespace ngap {
 
-class UEAssociationLogicalNGConnectionItem {
+class UEAssociatedLogicalNGConnectionItem {
  public:
-  UEAssociationLogicalNGConnectionItem();
-  virtual ~UEAssociationLogicalNGConnectionItem(){};
+  UEAssociatedLogicalNGConnectionItem();
+  virtual ~UEAssociatedLogicalNGConnectionItem(){};
 
-  void setAmfUeNgapId(unsigned long id);
-  bool getAmfUeNgapId(unsigned long& id);
-  void setRanUeNgapId(uint32_t id);
+  bool setAmfUeNgapId(const uint64_t& id);
+  bool getAmfUeNgapId(uint64_t& id);
+  void setRanUeNgapId(const uint32_t& id);
   bool getRanUeNgapId(uint32_t& id);
+
+  void set(UEAssociatedLogicalNGConnectionItem& item);
 
   bool encode(Ngap_UE_associatedLogicalNG_connectionItem_t& item);
   bool encode(Ngap_UE_associatedLogicalNG_connectionItem_t* item);
-  bool encode(UEAssociationLogicalNGConnectionItem& item);
   bool decode(Ngap_UE_associatedLogicalNG_connectionItem_t* item);
-  bool decode(UEAssociationLogicalNGConnectionItem& item);
 
  private:
-  AMF_UE_NGAP_ID* amfUeNgapId;
-  RAN_UE_NGAP_ID* ranUeNgapId;
+  std::optional<AMF_UE_NGAP_ID> amf_ue_ngap_id_;  // Optional
+  std::optional<RAN_UE_NGAP_ID> ran_ue_ngap_id_;  // Optional
 };
 
 }  // namespace ngap

@@ -58,7 +58,7 @@ void IEsCriticalityDiagnostics::encode2pdu(
 }
 
 //------------------------------------------------------------------------------
-void IEsCriticalityDiagnostics::decodefrompdu(
+void IEsCriticalityDiagnostics::decodeFromPdu(
     Ngap_CriticalityDiagnostics_IE_Item_t* pdu) {
   criticality   = pdu->iECriticality;
   protocolIE_ID = pdu->iE_ID;
