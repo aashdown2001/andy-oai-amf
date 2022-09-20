@@ -19,43 +19,13 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef FILE_3GPP_24_007_SEEN
+#define FILE_3GPP_24_007_SEEN
 
-#ifndef _NAS_MM_PLAIN_HEADER_H_
-#define _NAS_MM_PLAIN_HEADER_H_
+#include <stdint.h>
 
-#include "ExtendedProtocolDiscriminator.hpp"
-#include "NasMessageType.hpp"
-#include "SecurityHeaderType.hpp"
-
-namespace nas {
-
-class NasMmPlainHeader {
- public:
-  void setHeader(uint8_t epd_, uint8_t security_header_type, uint8_t msg_type_);
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len);
-  void setEpdIE(const uint8_t epd);
-  void setSecurityHeaderTypeIE(const uint8_t type);
-  void setMessageTypeIE(const uint8_t type);
-  uint8_t getEpdIE();
-  uint8_t getSecurityHeaderTypeIE();
-  uint8_t getMessageType();
-
- private:
-  ExtendedProtocolDiscriminator ie_epd;
-  SecurityHeaderType ie_secu_header_type;
-  NasMessageType ie_msg_type;
-  uint8_t epd;
-  uint8_t secu_header_type;
-  uint8_t msg_type;
-};
-
-}  // namespace nas
+// Extended Protocol Discriminator (EPD)
+constexpr uint8_t kEpd5gsSessionManagementMessage  = 0b00101110;
+constexpr uint8_t kEpd5gsMobilityManagementMessage = 0b01111110;
 
 #endif

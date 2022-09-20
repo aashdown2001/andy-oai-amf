@@ -19,23 +19,64 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "SecurityHeaderType.hpp"
+
+#include "3gpp_ts24501.hpp"
+#include "common_defs.h"
+#include "logger.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
-void SecurityHeaderType::setValue(const uint8_t value) {
-  secu_header_type = 0x0f & value;
+SecurityHeaderType::SecurityHeaderType() {}
+
+//------------------------------------------------------------------------------
+SecurityHeaderType::~SecurityHeaderType() {}
+
+//------------------------------------------------------------------------------
+void SecurityHeaderType::Set(
+    const uint8_t& secu_header_type, const uint8_t& spare) {
+  secu_header_type_ = 0x0f & secu_header_type;
+  spare_            = spare & 0xf0;
 }
 
 //------------------------------------------------------------------------------
-uint8_t SecurityHeaderType::getValue() {
-  return secu_header_type & 0x0f;
+void SecurityHeaderType::Get(uint8_t& secu_header_type) const {
+  secu_header_type = secu_header_type_ & 0x0f;
+}
+
+//------------------------------------------------------------------------------
+uint8_t SecurityHeaderType::Get() const {
+  return (secu_header_type_ & 0x0f);
+}
+
+//------------------------------------------------------------------------------
+uint32_t SecurityHeaderType::Encode(uint8_t* buf, uint32_t len) {
+  if (len < kSecurityHeaderIeSize) {
+    Logger::nas_mm().error(
+        "Buffer length is less than %d octet", kSecurityHeaderIeSize);
+    return KEncodeDecodeError;
+  }
+  uint8_t value = (secu_header_type_ & 0x0f) | (spare_ & 0xf0);
+
+  uint32_t encoded_size = 0;
+  ENCODE_U8(buf, value, encoded_size);
+  return encoded_size;
+}
+
+//------------------------------------------------------------------------------
+uint32_t SecurityHeaderType::Decode(const uint8_t* const buf, uint32_t len) {
+  if (len < kSecurityHeaderIeSize) {
+    Logger::nas_mm().error(
+        "Buffer length is less than %s octet", kSecurityHeaderIeSize);
+    return KEncodeDecodeError;
+  }
+  uint8_t value;
+  uint32_t decoded_size = 0;
+  DECODE_U8(buf, value, decoded_size);
+
+  secu_header_type_ = 0x0f & value;
+  spare_            = value & 0xf0;
+
+  return decoded_size;
 }

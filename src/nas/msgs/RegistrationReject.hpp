@@ -29,7 +29,7 @@
 #ifndef _RegistrationReject_H_
 #define _RegistrationReject_H_
 
-#include "nas_ie_header.hpp"
+#include "NasIeHeader.hpp"
 
 namespace nas {
 

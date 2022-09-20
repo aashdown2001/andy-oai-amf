@@ -29,7 +29,7 @@
 #ifndef _ULNASTransport_H_
 #define _ULNASTransport_H_
 
-#include "nas_ie_header.hpp"
+#include "NasIeHeader.hpp"
 
 namespace nas {
 

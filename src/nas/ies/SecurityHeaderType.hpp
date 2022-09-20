@@ -19,27 +19,30 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _SECURITY_HEADER_TYPE_H_
 #define _SECURITY_HEADER_TYPE_H_
 
 #include <stdint.h>
 
+constexpr uint8_t kSecurityHeaderIeSize = 1;
+
 namespace nas {
 
 class SecurityHeaderType {
  public:
-  void setValue(const uint8_t value);
-  uint8_t getValue();
+  SecurityHeaderType();
+  virtual ~SecurityHeaderType();
+
+  void Set(const uint8_t& secu_header_type, const uint8_t& spare = 0);
+  void Get(uint8_t& secu_header_type) const;
+  uint8_t Get() const;
+
+  uint32_t Encode(uint8_t* buf, uint32_t len);
+  uint32_t Decode(const uint8_t* const buf, uint32_t len);
 
  private:
-  uint8_t secu_header_type : 4;
+  uint8_t spare_ : 4;
+  uint8_t secu_header_type_ : 4;
 };
 
 }  // namespace nas

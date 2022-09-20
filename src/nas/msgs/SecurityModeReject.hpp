@@ -29,7 +29,7 @@
 #ifndef _SecurityModeReject_H_
 #define _SecurityModeReject_H_
 
-#include "nas_ie_header.hpp"
+#include "NasIeHeader.hpp"
 
 namespace nas {
 

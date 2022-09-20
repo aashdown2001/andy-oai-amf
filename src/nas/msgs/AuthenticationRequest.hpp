@@ -29,7 +29,7 @@
 #ifndef _AuthenticationRequest_H_
 #define _AuthenticationRequest_H_
 
-#include "nas_ie_header.hpp"
+#include "NasIeHeader.hpp"
 
 namespace nas {
 

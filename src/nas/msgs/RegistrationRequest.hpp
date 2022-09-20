@@ -36,7 +36,7 @@
 #include <string>
 #include <vector>
 
-#include "nas_ie_header.hpp"
+#include "NasIeHeader.hpp"
 using namespace std;
 namespace nas {
 

@@ -19,32 +19,40 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _NAS_MM_PLAIN_HEADER_H_
+#define _NAS_MM_PLAIN_HEADER_H_
 
-#ifndef _RegistrationComplete_H_
-#define _RegistrationComplete_H_
+#include "ExtendedProtocolDiscriminator.hpp"
+#include "NasMessageType.hpp"
+#include "SecurityHeaderType.hpp"
 
-#include "NasIeHeader.hpp"
+constexpr uint8_t kNasMmPlainHeaderLength = 3;
 
 namespace nas {
 
-class RegistrationComplete {
+class NasMmPlainHeader {
  public:
-  RegistrationComplete();
-  ~RegistrationComplete();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
-  void setHeader(uint8_t security_header_type);
-  void setSOR_Transparent_Container(uint8_t header, uint8_t* value);
+  void setHeader(
+      const uint8_t& epd, const uint8_t& security_header_type,
+      const uint8_t& msg_type);
 
- public:
-  NasMmPlainHeader* plain_header;
-  SOR_Transparent_Container* ie_sor_transparent_container;
+  int encode2buffer(uint8_t* buf, int len);
+  int decodefrombuffer(const uint8_t* const buf, int len);
+
+  void SetEpd(const uint8_t epd);
+  uint8_t GetEpd();
+
+  void SetSecurityHeaderType(const uint8_t type);
+  uint8_t GetSecurityHeaderType();
+
+  void SetMessageType(const uint8_t type);
+  uint8_t GetMessageType();
+
+ private:
+  ExtendedProtocolDiscriminator epd_;  // Mandatory
+  // TODO: Spare half octet (1/2 octet)
+  SecurityHeaderType secu_header_type_;  // Mandatory (1/2 octet)
+  NasMessageType msg_type_;              // Mandatory
 };
 
 }  // namespace nas

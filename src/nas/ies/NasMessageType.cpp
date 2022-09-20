@@ -19,23 +19,55 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "NasMessageType.hpp"
+
+#include "3gpp_ts24501.hpp"
+#include "common_defs.h"
+#include "logger.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
-void NasMessageType::setValue(const uint8_t type) {
-  m_type = type;
+NasMessageType::NasMessageType() {}
+
+//------------------------------------------------------------------------------
+NasMessageType::~NasMessageType() {}
+
+//------------------------------------------------------------------------------
+void NasMessageType::Set(const uint8_t& message_type) {
+  message_type_ = message_type;
 }
 
 //------------------------------------------------------------------------------
-uint8_t NasMessageType::getValue() {
-  return m_type;
+void NasMessageType::Get(uint8_t& message_type) const {
+  message_type = message_type_;
+}
+
+//------------------------------------------------------------------------------
+uint8_t NasMessageType::Get() const {
+  return message_type_;
+}
+
+//------------------------------------------------------------------------------
+uint32_t NasMessageType::Encode(uint8_t* buf, uint32_t len) {
+  if (len < kNasMessageTypeIeSize) {
+    Logger::nas_mm().error(
+        "Buffer length is less than %d octet", kNasMessageTypeIeSize);
+    return KEncodeDecodeError;
+  }
+  uint32_t encoded_size = 0;
+  ENCODE_U8(buf, message_type_, encoded_size);
+  return encoded_size;
+}
+
+//------------------------------------------------------------------------------
+uint32_t NasMessageType::Decode(const uint8_t* const buf, uint32_t len) {
+  if (len < kNasMessageTypeIeSize) {
+    Logger::nas_mm().error(
+        "Buffer length is less than %s octet", kNasMessageTypeIeSize);
+    return KEncodeDecodeError;
+  }
+  uint32_t decoded_size = 0;
+  DECODE_U8(buf, message_type_, decoded_size);
+  return decoded_size;
 }

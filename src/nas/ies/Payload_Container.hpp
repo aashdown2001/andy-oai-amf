@@ -33,7 +33,7 @@
 #include <iostream>
 #include <vector>
 
-#include "nas_ie_header.hpp"
+#include "NasIeHeader.hpp"
 extern "C" {
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"

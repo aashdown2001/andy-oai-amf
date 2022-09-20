@@ -22,6 +22,8 @@
 #ifndef _3GPP_TS_24501_H_
 #define _3GPP_TS_24501_H_
 
+#include "3gpp24.007.hpp"
+
 #include <string>
 #include <vector>
 
@@ -184,5 +186,7 @@ static const std::vector<std::string> nas_ciphering_algorithm_list_e2str = {
 #define DEREGISTRATION_TYPE_MASK 0b00001000
 
 #define NAS_MESSAGE_MIN_LENGTH 3
+
+constexpr uint8_t KEncodeDecodeError = 0;
 
 #endif

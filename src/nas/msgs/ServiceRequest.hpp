@@ -32,7 +32,7 @@
 #include <string>
 
 #include "bstrlib.h"
-#include "nas_ie_header.hpp"
+#include "NasIeHeader.hpp"
 
 using namespace std;
 

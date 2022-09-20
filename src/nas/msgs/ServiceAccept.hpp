@@ -33,7 +33,7 @@
 
 #include <string>
 
-#include "nas_ie_header.hpp"
+#include "NasIeHeader.hpp"
 
 namespace nas {
 

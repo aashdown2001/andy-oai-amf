@@ -19,28 +19,29 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _EPD_H_
-#define _EPD_H_
+#ifndef EXTENDED_PROTOCOL_DISCRIMINATOR_H_
+#define EXTENDED_PROTOCOL_DISCRIMINATOR_H_
 
 #include <stdint.h>
+
+constexpr uint8_t kEdpIeSize = 1;
 
 namespace nas {
 
 class ExtendedProtocolDiscriminator {
  public:
-  void encode2buffer(uint8_t* buf, int len);
-  void setValue(const uint8_t epd);
-  uint8_t getValue();
+  ExtendedProtocolDiscriminator();
+  virtual ~ExtendedProtocolDiscriminator();
+
+  void Set(const uint8_t& epd);
+  void Get(uint8_t& epd) const;
+  uint8_t Get() const;
+
+  uint32_t Encode(uint8_t* buf, uint32_t len);
+  uint32_t Decode(const uint8_t* const buf, uint32_t len);
 
  private:
-  uint8_t m_epd;
+  uint8_t epd_;
 };
 
 }  // namespace nas

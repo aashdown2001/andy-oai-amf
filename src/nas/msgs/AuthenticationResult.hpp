@@ -29,7 +29,7 @@
 #ifndef _AuthenticationResult_H_
 #define _AuthenticationResult_H_
 
-#include "nas_ie_header.hpp"
+#include "NasIeHeader.hpp"
 
 namespace nas {
 

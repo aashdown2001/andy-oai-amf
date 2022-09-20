@@ -29,7 +29,7 @@
 #ifndef _DEREGISTRATION_REQUEST_H_
 #define _DEREGISTRATION_REQUEST_H_
 
-#include "nas_ie_header.hpp"
+#include "NasIeHeader.hpp"
 
 using namespace std;
 namespace nas {

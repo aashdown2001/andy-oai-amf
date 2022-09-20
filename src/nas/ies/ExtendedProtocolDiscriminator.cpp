@@ -19,26 +19,54 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "ExtendedProtocolDiscriminator.hpp"
+
+#include "3gpp_ts24501.hpp"
+#include "common_defs.h"
+#include "logger.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
-void ExtendedProtocolDiscriminator::setValue(const uint8_t epd) {
-  m_epd = epd;
+ExtendedProtocolDiscriminator::ExtendedProtocolDiscriminator() {}
+
+//------------------------------------------------------------------------------
+ExtendedProtocolDiscriminator::~ExtendedProtocolDiscriminator() {}
+
+//------------------------------------------------------------------------------
+void ExtendedProtocolDiscriminator::Set(const uint8_t& epd) {
+  epd_ = epd;
 }
 
 //------------------------------------------------------------------------------
-uint8_t ExtendedProtocolDiscriminator::getValue() {
-  return m_epd;
+void ExtendedProtocolDiscriminator::Get(uint8_t& epd) const {
+  epd = epd_;
 }
 
 //------------------------------------------------------------------------------
-void ExtendedProtocolDiscriminator::encode2buffer(uint8_t* buf, int len) {}
+uint8_t ExtendedProtocolDiscriminator::Get() const {
+  return epd_;
+}
+
+//------------------------------------------------------------------------------
+uint32_t ExtendedProtocolDiscriminator::Encode(uint8_t* buf, uint32_t len) {
+  if (len < kEdpIeSize) {
+    Logger::nas_mm().error("Buffer length is less than %d octet", kEdpIeSize);
+    return KEncodeDecodeError;
+  }
+  uint32_t encoded_size = 0;
+  ENCODE_U8(buf, epd_, encoded_size);
+  return encoded_size;
+}
+
+//------------------------------------------------------------------------------
+uint32_t ExtendedProtocolDiscriminator::Decode(
+    const uint8_t* const buf, uint32_t len) {
+  if (len < kEdpIeSize) {
+    Logger::nas_mm().error("Buffer length is less than %s octet", kEdpIeSize);
+    return KEncodeDecodeError;
+  }
+  uint32_t decoded_size = 0;
+  DECODE_U8(buf, epd_, decoded_size);
+  return decoded_size;
+}

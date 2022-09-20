@@ -19,6 +19,7 @@
  *      contact@openairinterface.org
  */
 
+#include "NasMmPlainHeader.hpp"
 #include "5GMMCapability.hpp"
 #include "5GSMobilityIdentity.hpp"
 #include "5GSRegistrationType.hpp"
@@ -78,6 +79,5 @@
 #include "_5GS_Registration_Result.hpp"
 #include "_5GS_Tracking_Area_Identity.hpp"
 #include "_5GS_Update_Type.hpp"
-#include "nas_mm_plain_header.hpp"
 #include "struct.hpp"
 #include "Ie_Const.hpp"

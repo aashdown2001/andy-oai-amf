@@ -31,7 +31,7 @@
 
 #include <stdint.h>
 
-#include "nas_ie_header.hpp"
+#include "NasIeHeader.hpp"
 #include <optional>
 
 namespace nas {
