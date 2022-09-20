@@ -19,17 +19,13 @@
  *      contact@openairinterface.org
  */
 
-/*! \file 5GMMCapability.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __5GMMCapability_H_
-#define __5GMMCapability_H_
+#ifndef _5GMM_CAPABILITY_H_
+#define _5GMM_CAPABILITY_H_
 
 #include <stdint.h>
+
+constexpr uint8_t k5gmmCapabilityMinimumLength = 3;
+constexpr uint8_t k5gmmCapabilityMaximumLength = 15;
 
 namespace nas {
 
@@ -38,15 +34,17 @@ class _5GMMCapability {
   _5GMMCapability();
   _5GMMCapability(const uint8_t iei, uint8_t value);
   ~_5GMMCapability();
+
   void setValue(uint8_t iei, uint8_t value);
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
   uint8_t getValue();
+
+  int encode2buffer(uint8_t* buf, int len);
+  int decodefrombuffer(uint8_t* buf, int len, bool is_option = true);
 
  private:
   uint8_t m_iei;
-  uint8_t m_value;
-  int length;
+  uint8_t octet3_;  // minimum length of 3 octets
+  uint8_t length;
 };
 
 }  // namespace nas
