@@ -32,6 +32,7 @@ namespace ngap {
 //------------------------------------------------------------------------------
 UplinkNASTransportMsg::UplinkNASTransportMsg() : NgapUEMessage() {
   uplinkNASTransportIEs = nullptr;
+
   setMessageType(NgapMessageType::UPLINK_NAS_TRANSPORT);
   initialize();
 }

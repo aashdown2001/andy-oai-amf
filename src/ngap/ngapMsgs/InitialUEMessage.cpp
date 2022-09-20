@@ -36,7 +36,7 @@ InitialUEMessageMsg::InitialUEMessageMsg() : NgapMessage() {
   amfSetId            = std::nullopt;
   allowedNssai        = std::nullopt;
 
-  NgapMessage::setMessageType(NgapMessageType::NG_SETUP_RESPONSE);
+  NgapMessage::setMessageType(NgapMessageType::INITIAL_UE_MESSAGE);
   initialize();
 }
 

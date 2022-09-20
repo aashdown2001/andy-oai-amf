@@ -33,6 +33,7 @@ UEContextReleaseCompleteMsg::UEContextReleaseCompleteMsg() : NgapUEMessage() {
   ies                             = nullptr;
   userLocationInformation         = nullptr;
   pduSessionResourceListCxtRelCpl = std::nullopt;
+
   setMessageType(NgapMessageType::UE_CONTEXT_RELEASE_COMPLETE);
   initialize();
 }
