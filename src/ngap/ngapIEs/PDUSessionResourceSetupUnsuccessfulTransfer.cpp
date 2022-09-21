@@ -128,7 +128,7 @@ void PduSessionResourceSetupUnSuccessfulTransferIE::setCauseMisc(
 }
 
 //------------------------------------------------------------------------------
-int PduSessionResourceSetupUnSuccessfulTransferIE::encode2buffer(
+int PduSessionResourceSetupUnSuccessfulTransferIE::encode2Buffer(
     uint8_t* buf, int buf_size) {
   asn_fprint(
       stderr, &asn_DEF_Ngap_PDUSessionResourceSetupUnsuccessfulTransfer,

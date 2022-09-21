@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _5GS_REGISTRATION_TYPE_H_
 #define _5GS_REGISTRATION_TYPE_H_
 
@@ -36,21 +29,26 @@ namespace nas {
 class _5GSRegistrationType {
  public:
   _5GSRegistrationType();
-  _5GSRegistrationType(bool is_for, uint8_t type);
-  _5GSRegistrationType(uint8_t iei, bool is_for, uint8_t type);
+  _5GSRegistrationType(bool follow_on_req, uint8_t type);
+  _5GSRegistrationType(uint8_t iei, bool follow_on_req, uint8_t type);
   ~_5GSRegistrationType();
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
-  int encode2buffer(uint8_t* buf, int len);
+
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option = false);
+  int encode2Buffer(uint8_t* buf, int len);
+
+  void set(
+      const bool& follow_on_req, const uint8_t& type, const uint8_t& iei = 0);
 
   void setFollowOnReq(const bool is);
-  void setRegType(const uint8_t type);
   bool isFollowOnReq();
+
+  void setRegType(const uint8_t type);
   uint8_t getRegType();
 
  private:
-  uint8_t iei : 4;
-  bool is_for;
-  uint8_t reg_type : 3;
+  uint8_t iei_ : 4;
+  bool follow_on_req_;
+  uint8_t reg_type_ : 3;
 };
 
 }  // namespace nas

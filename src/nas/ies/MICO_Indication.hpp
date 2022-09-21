@@ -40,8 +40,8 @@ class MICO_Indication {
   MICO_Indication(bool sprti, bool raai);
   ~MICO_Indication();
 
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
 
   void setSPRTI(bool value);
   void setRAAI(bool value);

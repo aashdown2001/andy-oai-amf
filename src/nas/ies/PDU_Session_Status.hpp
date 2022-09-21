@@ -40,8 +40,8 @@ class PDU_Session_Status {
   PDU_Session_Status(const uint8_t iei, uint16_t value);
   ~PDU_Session_Status();
   void setValue(uint8_t iei, uint16_t value);
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   uint16_t getValue();
 
  private:

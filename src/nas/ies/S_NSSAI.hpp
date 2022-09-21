@@ -43,8 +43,8 @@ class S_NSSAI {
   S_NSSAI(std::optional<uint8_t> iei, SNSSAI_s snssai);
   ~S_NSSAI();
   // void setS_NSSAI(SNSSAI_s snssai);
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, const bool is_option = true);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, const bool is_option = true);
   void getValue(SNSSAI_t& snssai);
   void SetSNSSAI(
       std::optional<int8_t> iei, uint8_t sst, std::optional<int32_t> sd,

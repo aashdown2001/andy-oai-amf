@@ -40,8 +40,8 @@ class Authentication_Parameter_RAND {
   Authentication_Parameter_RAND(const uint8_t iei, uint8_t* value);
   ~Authentication_Parameter_RAND();
   // void setValue(uint8_t iei, uint8_t value);
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   uint8_t* getValue();
 
  private:

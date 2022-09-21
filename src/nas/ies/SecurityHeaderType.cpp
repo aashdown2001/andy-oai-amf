@@ -21,7 +21,7 @@
 
 #include "SecurityHeaderType.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "common_defs.h"
 #include "logger.hpp"
 
@@ -51,10 +51,11 @@ uint8_t SecurityHeaderType::Get() const {
 }
 
 //------------------------------------------------------------------------------
-uint32_t SecurityHeaderType::Encode(uint8_t* buf, uint32_t len) {
-  if (len < kSecurityHeaderIeSize) {
+int SecurityHeaderType::Encode(uint8_t* buf, const uint32_t& len) {
+  if (len < kType1IeSize) {
     Logger::nas_mm().error(
-        "Buffer length is less than %d octet", kSecurityHeaderIeSize);
+        "Buffer length is less than the minimum length of this IE (%s octet)",
+        kType1IeSize);
     return KEncodeDecodeError;
   }
   uint8_t value = (secu_header_type_ & 0x0f) | (spare_ & 0xf0);
@@ -65,13 +66,14 @@ uint32_t SecurityHeaderType::Encode(uint8_t* buf, uint32_t len) {
 }
 
 //------------------------------------------------------------------------------
-uint32_t SecurityHeaderType::Decode(const uint8_t* const buf, uint32_t len) {
-  if (len < kSecurityHeaderIeSize) {
+int SecurityHeaderType::Decode(const uint8_t* const buf, const uint32_t& len) {
+  if (len < kType1IeSize) {
     Logger::nas_mm().error(
-        "Buffer length is less than %s octet", kSecurityHeaderIeSize);
+        "Buffer length is less than the minimum length of this IE (%s octet)",
+        kType1IeSize);
     return KEncodeDecodeError;
   }
-  uint8_t value;
+  uint8_t value         = 0;
   uint32_t decoded_size = 0;
   DECODE_U8(buf, value, decoded_size);
 

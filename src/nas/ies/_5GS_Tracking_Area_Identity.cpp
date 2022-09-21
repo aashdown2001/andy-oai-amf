@@ -126,7 +126,7 @@ uint32_t _5GS_Tracking_Area_Identity::getTAC() {
 }
 
 //------------------------------------------------------------------------------
-int _5GS_Tracking_Area_Identity::encode2buffer(uint8_t* buf, int len) {
+int _5GS_Tracking_Area_Identity::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "encoding _5GS_Tracking_Area_Identity iei(0x%x)", _iei);
   if (len < 7) {
@@ -172,7 +172,7 @@ int _5GS_Tracking_Area_Identity::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GS_Tracking_Area_Identity::decodefrombuffer(
+int _5GS_Tracking_Area_Identity::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug(
       "decoding _5GS_Tracking_Area_Identity iei(0x%x)", *buf);

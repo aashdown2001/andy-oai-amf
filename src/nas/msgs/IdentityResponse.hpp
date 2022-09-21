@@ -37,8 +37,8 @@ class IdentityResponse {
  public:
   IdentityResponse();
   ~IdentityResponse();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
   void setHeader(uint8_t security_header_type);
   void setSUCI_SUPI_format_IMSI(
       const string mcc, const string mnc, const string routingInd,

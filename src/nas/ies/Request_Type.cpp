@@ -63,7 +63,7 @@ uint8_t Request_Type::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int Request_Type::encode2buffer(uint8_t* buf, int len) {
+int Request_Type::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding Request_Type iei(0x%x)", _iei);
   if (len < 1) {
     Logger::nas_mm().error("len is less than 1");
@@ -82,7 +82,7 @@ int Request_Type::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Request_Type::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
+int Request_Type::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding Request_Type iei(0x%x)", *buf);
   int decoded_size = 0;
   uint8_t octet    = 0;

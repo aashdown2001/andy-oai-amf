@@ -93,7 +93,7 @@ uint8_t PLMN_List::getMNC_MCC3() {
 }
 
 //------------------------------------------------------------------------------
-int PLMN_List::encode2buffer(uint8_t* buf, int len) {
+int PLMN_List::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding PLMN_List iei(0x%x)", _iei);
   if (len < 5) {
     Logger::nas_mm().error("len is less than 5");
@@ -120,7 +120,7 @@ int PLMN_List::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int PLMN_List::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
+int PLMN_List::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding PLMN_List iei(0x%x)", *buf);
   int decoded_size = 0;
   if (is_option) {

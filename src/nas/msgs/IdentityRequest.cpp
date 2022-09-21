@@ -28,7 +28,7 @@
 
 #include "IdentityRequest.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "logger.hpp"
 
 using namespace nas;
@@ -56,19 +56,19 @@ void IdentityRequest::set_5GS_Identity_Type(uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-int IdentityRequest::encode2buffer(uint8_t* buf, int len) {
+int IdentityRequest::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding IdentityRequest message");
   int encoded_size = 0;
   if (!plain_header) {
     Logger::nas_mm().error("Mandatory IE missing Header");
     return 0;
   }
-  if (!(plain_header->encode2buffer(buf, len))) return 0;
+  if (!(plain_header->encode2Buffer(buf, len))) return 0;
   encoded_size += 3;
   if (!_5gs_identity_type) {
     Logger::nas_mm().warn("IE _5gs_identity_type is not available");
   } else {
-    if (int size = _5gs_identity_type->encode2buffer(
+    if (int size = _5gs_identity_type->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -82,13 +82,13 @@ int IdentityRequest::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int IdentityRequest::decodefrombuffer(
+int IdentityRequest::decodeFromBuffer(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("decoding IdentityRequest message");
   int decoded_size   = 3;
   plain_header       = header;
   _5gs_identity_type = new _5GS_Identity_Type();
-  decoded_size += _5gs_identity_type->decodefrombuffer(
+  decoded_size += _5gs_identity_type->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("decoded_size(%d)", decoded_size);
   Logger::nas_mm().debug(

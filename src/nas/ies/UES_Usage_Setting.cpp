@@ -64,7 +64,7 @@ bool UES_Usage_Setting::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int UES_Usage_Setting::encode2buffer(uint8_t* buf, int len) {
+int UES_Usage_Setting::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding UES_Usage_Setting iei(0x%x)", _iei);
   if (len < 3) {
     //	Logger::nas_mm().error("len is less than %d", length);
@@ -89,7 +89,7 @@ int UES_Usage_Setting::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int UES_Usage_Setting::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
+int UES_Usage_Setting::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding UES_Usage_Setting iei(0x%x)", *buf);
   int decoded_size = 0;
   if (is_option) {

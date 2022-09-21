@@ -38,8 +38,8 @@ class NSSAI_Inclusion_Mode {
   NSSAI_Inclusion_Mode();
   NSSAI_Inclusion_Mode(const uint8_t iei, uint8_t value);
   ~NSSAI_Inclusion_Mode();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void setValue(const uint8_t value);
   uint8_t getValue();
 

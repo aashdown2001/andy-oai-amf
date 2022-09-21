@@ -76,7 +76,7 @@ uint8_t PDU_Session_Reactivation_Result_Error_Cause::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int PDU_Session_Reactivation_Result_Error_Cause::encode2buffer(
+int PDU_Session_Reactivation_Result_Error_Cause::encode2Buffer(
     uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "encoding PDU_Session_Reactivation_Result_Error_Cause iei(0x%x)", _iei);
@@ -108,7 +108,7 @@ int PDU_Session_Reactivation_Result_Error_Cause::encode2buffer(
 }
 
 //------------------------------------------------------------------------------
-int PDU_Session_Reactivation_Result_Error_Cause::decodefrombuffer(
+int PDU_Session_Reactivation_Result_Error_Cause::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug(
       "decoding PDU_Session_Reactivation_Result_Error_Cause iei(0x%x)", *buf);

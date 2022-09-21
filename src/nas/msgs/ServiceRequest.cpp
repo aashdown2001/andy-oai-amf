@@ -28,7 +28,7 @@
 
 #include "ServiceRequest.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "logger.hpp"
 
 using namespace nas;
@@ -92,7 +92,7 @@ void ServiceRequest::setNAS_Message_Container(bstring value) {
 }
 
 //------------------------------------------------------------------------------
-int ServiceRequest::encode2buffer(uint8_t* buf, int len) {
+int ServiceRequest::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding ServiceRequest message...");
   int encoded_size = 0;
   if (!plain_header) {
@@ -111,10 +111,10 @@ int ServiceRequest::encode2buffer(uint8_t* buf, int len) {
     Logger::nas_mm().error("Mandatory IE missing ie_5g_s_tmsi");
     return 0;
   }
-  if (!(plain_header->encode2buffer(buf, len))) return 0;
+  if (!(plain_header->encode2Buffer(buf, len))) return 0;
   encoded_size += 3;
-  if (ie_ngKSI->encode2buffer(buf + encoded_size, len - encoded_size) != -1) {
-    if (ie_service_type->encode2buffer(
+  if (ie_ngKSI->encode2Buffer(buf + encoded_size, len - encoded_size) != -1) {
+    if (ie_service_type->encode2Buffer(
             buf + encoded_size, len - encoded_size) != -1) {
       encoded_size++;
     } else {
@@ -126,7 +126,7 @@ int ServiceRequest::encode2buffer(uint8_t* buf, int len) {
     return 0;
   }
   int size =
-      ie_5g_s_tmsi->encode2buffer(buf + encoded_size, len - encoded_size);
+      ie_5g_s_tmsi->encode2Buffer(buf + encoded_size, len - encoded_size);
   if (size != 0) {
     encoded_size += size;
   } else {
@@ -136,7 +136,7 @@ int ServiceRequest::encode2buffer(uint8_t* buf, int len) {
   if (!ie_uplink_data_status) {
     Logger::nas_mm().warn("IE ie_uplink_data_status is not available");
   } else {
-    size = ie_uplink_data_status->encode2buffer(
+    size = ie_uplink_data_status->encode2Buffer(
         buf + encoded_size, len - encoded_size);
     if (size != 0) {
       encoded_size += size;
@@ -148,7 +148,7 @@ int ServiceRequest::encode2buffer(uint8_t* buf, int len) {
   if (!ie_PDU_session_status) {
     Logger::nas_mm().warn("IE ie_PDU_session_status is not available");
   } else {
-    size = ie_PDU_session_status->encode2buffer(
+    size = ie_PDU_session_status->encode2Buffer(
         buf + encoded_size, len - encoded_size);
     if (size != 0) {
       encoded_size += size;
@@ -160,7 +160,7 @@ int ServiceRequest::encode2buffer(uint8_t* buf, int len) {
   if (!ie_allowed_PDU_session_status) {
     Logger::nas_mm().warn("IE ie_allowed_PDU_session_status is not available");
   } else {
-    size = ie_allowed_PDU_session_status->encode2buffer(
+    size = ie_allowed_PDU_session_status->encode2Buffer(
         buf + encoded_size, len - encoded_size);
     if (size != 0) {
       encoded_size += size;
@@ -172,7 +172,7 @@ int ServiceRequest::encode2buffer(uint8_t* buf, int len) {
   if (!ie_nas_message_container) {
     Logger::nas_mm().warn("IE ie_nas_message_container is not available");
   } else {
-    size = ie_nas_message_container->encode2buffer(
+    size = ie_nas_message_container->encode2Buffer(
         buf + encoded_size, len - encoded_size);
     if (size != 0) {
       encoded_size += size;
@@ -186,20 +186,20 @@ int ServiceRequest::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int ServiceRequest::decodefrombuffer(
+int ServiceRequest::decodeFromBuffer(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding ServiceRequest message");
   int decoded_size = 3;
   plain_header     = header;
   ie_ngKSI         = new NasKeySetIdentifier();
-  decoded_size += ie_ngKSI->decodefrombuffer(
+  decoded_size += ie_ngKSI->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, false);
   ie_service_type = new ServiceType();
-  decoded_size += ie_service_type->decodefrombuffer(
+  decoded_size += ie_service_type->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, true);
   decoded_size++;
   ie_5g_s_tmsi = new _5GSMobilityIdentity();
-  decoded_size += ie_5g_s_tmsi->decodefrombuffer(
+  decoded_size += ie_5g_s_tmsi->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First optional IE (0x%x)", octet);
@@ -208,7 +208,7 @@ int ServiceRequest::decodefrombuffer(
       case 0x40: {
         Logger::nas_mm().debug("Decoding ie_uplink_data_status (IEI: 0x40)");
         ie_uplink_data_status = new UplinkDataStatus();
-        decoded_size += ie_uplink_data_status->decodefrombuffer(
+        decoded_size += ie_uplink_data_status->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -216,7 +216,7 @@ int ServiceRequest::decodefrombuffer(
       case 0x50: {
         Logger::nas_mm().debug("Decoding ie_PDU_session_status (IEI: 0x50)");
         ie_PDU_session_status = new PDU_Session_Status();
-        decoded_size += ie_PDU_session_status->decodefrombuffer(
+        decoded_size += ie_PDU_session_status->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -225,7 +225,7 @@ int ServiceRequest::decodefrombuffer(
         Logger::nas_mm().debug(
             "Decoding ie_allowed_PDU_session_status (IEI: 0x25)");
         ie_allowed_PDU_session_status = new Allowed_PDU_Session_Status();
-        decoded_size += ie_allowed_PDU_session_status->decodefrombuffer(
+        decoded_size += ie_allowed_PDU_session_status->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -233,7 +233,7 @@ int ServiceRequest::decodefrombuffer(
       case 0x71: {
         Logger::nas_mm().debug("Decoding ie_nas_message_container(IEI: 0x71)");
         ie_nas_message_container = new NAS_Message_Container();
-        decoded_size += ie_nas_message_container->decodefrombuffer(
+        decoded_size += ie_nas_message_container->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

@@ -28,7 +28,7 @@
 
 #include "SecurityModeReject.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "logger.hpp"
 
 using namespace nas;
@@ -56,19 +56,19 @@ void SecurityModeReject::set_5GMM_Cause(uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-int SecurityModeReject::encode2buffer(uint8_t* buf, int len) {
+int SecurityModeReject::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding SecurityModeReject message");
   int encoded_size = 0;
   if (!plain_header) {
     Logger::nas_mm().error("Mandatory IE missing Header");
     return 0;
   }
-  if (!(plain_header->encode2buffer(buf, len))) return 0;
+  if (!(plain_header->encode2Buffer(buf, len))) return 0;
   encoded_size += 3;
   if (!ie_5gmm_cause) {
     Logger::nas_mm().warn("IE ie_5gmm_cause is not available");
   } else {
-    if (int size = ie_5gmm_cause->encode2buffer(
+    if (int size = ie_5gmm_cause->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -81,13 +81,13 @@ int SecurityModeReject::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int SecurityModeReject::decodefrombuffer(
+int SecurityModeReject::decodeFromBuffer(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("decoding SecurityModeReject message");
   int decoded_size = 3;
   plain_header     = header;
   ie_5gmm_cause    = new _5GMM_Cause();
-  decoded_size += ie_5gmm_cause->decodefrombuffer(
+  decoded_size += ie_5gmm_cause->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("decoded_size(%d)", decoded_size);
   uint8_t octet = *(buf + decoded_size);

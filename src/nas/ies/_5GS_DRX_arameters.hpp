@@ -39,8 +39,8 @@ class _5GS_DRX_arameters {
   _5GS_DRX_arameters(uint8_t iei);
   _5GS_DRX_arameters(const uint8_t iei, uint8_t value);
   ~_5GS_DRX_arameters();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void setValue(uint8_t value);
   uint8_t getValue();
 

@@ -76,7 +76,7 @@ bool UE_Status::getN1() {
 }
 
 //------------------------------------------------------------------------------
-int UE_Status::encode2buffer(uint8_t* buf, int len) {
+int UE_Status::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding UE_Status iei(0x%x)", _iei);
   if (len < 3) {
     //	Logger::nas_mm().error("len is less than %d", length);
@@ -99,7 +99,7 @@ int UE_Status::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int UE_Status::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
+int UE_Status::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding UE_Status iei(0x%x)", *buf);
   int decoded_size = 0;
   if (is_option) {

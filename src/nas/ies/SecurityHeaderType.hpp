@@ -24,8 +24,6 @@
 
 #include <stdint.h>
 
-constexpr uint8_t kSecurityHeaderIeSize = 1;
-
 namespace nas {
 
 class SecurityHeaderType {
@@ -37,8 +35,8 @@ class SecurityHeaderType {
   void Get(uint8_t& secu_header_type) const;
   uint8_t Get() const;
 
-  uint32_t Encode(uint8_t* buf, uint32_t len);
-  uint32_t Decode(const uint8_t* const buf, uint32_t len);
+  int Encode(uint8_t* buf, const uint32_t& len);
+  int Decode(const uint8_t* const buf, const uint32_t& len);
 
  private:
   uint8_t spare_ : 4;

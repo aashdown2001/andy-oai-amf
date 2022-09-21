@@ -21,7 +21,7 @@
 
 #include "ULNASTransport.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "logger.hpp"
 
 using namespace nas;
@@ -175,19 +175,19 @@ void ULNASTransport::setRelease_Assistance_Indication(uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-int ULNASTransport::encode2buffer(uint8_t* buf, int len) {
+int ULNASTransport::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding ULNASTransport message");
   int encoded_size = 0;
   if (!plain_header) {
     Logger::nas_mm().error("Mandatory IE missing Header");
     return 0;
   }
-  if (!(plain_header->encode2buffer(buf, len))) return 0;
+  if (!(plain_header->encode2Buffer(buf, len))) return 0;
   encoded_size += 3;
   if (!ie_payload_container_type) {
     Logger::nas_mm().warn("IE ie_payload_container_type is not available");
   } else {
-    if (int size = ie_payload_container_type->encode2buffer(
+    if (int size = ie_payload_container_type->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -198,7 +198,7 @@ int ULNASTransport::encode2buffer(uint8_t* buf, int len) {
   if (!ie_payload_container) {
     Logger::nas_mm().warn("IE ie_payload_container is not available");
   } else {
-    if (int size = ie_payload_container->encode2buffer(
+    if (int size = ie_payload_container->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -209,7 +209,7 @@ int ULNASTransport::encode2buffer(uint8_t* buf, int len) {
   if (!ie_pdu_session_identity_2) {
     Logger::nas_mm().warn("IE ie_pdu_session_identity_2 is not available");
   } else {
-    if (int size = ie_pdu_session_identity_2->encode2buffer(
+    if (int size = ie_pdu_session_identity_2->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -220,7 +220,7 @@ int ULNASTransport::encode2buffer(uint8_t* buf, int len) {
   if (!ie_old_pdu_session_identity_2) {
     Logger::nas_mm().warn("IE ie_old_pdu_session_identity_2 is not available");
   } else {
-    if (int size = ie_old_pdu_session_identity_2->encode2buffer(
+    if (int size = ie_old_pdu_session_identity_2->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -232,7 +232,7 @@ int ULNASTransport::encode2buffer(uint8_t* buf, int len) {
   if (!ie_request_type) {
     Logger::nas_mm().warn("IE ie_request_type is not available");
   } else {
-    if (int size = ie_request_type->encode2buffer(
+    if (int size = ie_request_type->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -244,7 +244,7 @@ int ULNASTransport::encode2buffer(uint8_t* buf, int len) {
     Logger::nas_mm().warn("IE ie_s_nssai is not available");
   } else {
     if (int size =
-            ie_s_nssai->encode2buffer(buf + encoded_size, len - encoded_size)) {
+            ie_s_nssai->encode2Buffer(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("encoding ie ie_s_nssai  error");
@@ -255,7 +255,7 @@ int ULNASTransport::encode2buffer(uint8_t* buf, int len) {
     Logger::nas_mm().warn("IE ie_dnn is not available");
   } else {
     if (int size =
-            ie_dnn->encode2buffer(buf + encoded_size, len - encoded_size)) {
+            ie_dnn->encode2Buffer(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("encoding ie ie_dnn  error");
@@ -265,7 +265,7 @@ int ULNASTransport::encode2buffer(uint8_t* buf, int len) {
   if (!ie_additional_information) {
     Logger::nas_mm().warn("IE ie_additional_information is not available");
   } else {
-    if (int size = ie_additional_information->encode2buffer(
+    if (int size = ie_additional_information->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -276,7 +276,7 @@ int ULNASTransport::encode2buffer(uint8_t* buf, int len) {
   if (!ie_ma_pdu_session_information) {
     Logger::nas_mm().warn("IE ie_ma_pdu_session_information is not available");
   } else {
-    if (int size = ie_ma_pdu_session_information->encode2buffer(
+    if (int size = ie_ma_pdu_session_information->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -289,7 +289,7 @@ int ULNASTransport::encode2buffer(uint8_t* buf, int len) {
     Logger::nas_mm().warn(
         "IE ie_release_assistance_indication is not available");
   } else {
-    if (int size = ie_release_assistance_indication->encode2buffer(
+    if (int size = ie_release_assistance_indication->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -304,16 +304,16 @@ int ULNASTransport::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int ULNASTransport::decodefrombuffer(
+int ULNASTransport::decodeFromBuffer(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding ULNASTransport message");
   int decoded_size          = 3;
   plain_header              = header;
   ie_payload_container_type = new Payload_Container_Type();
-  decoded_size += ie_payload_container_type->decodefrombuffer(
+  decoded_size += ie_payload_container_type->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   ie_payload_container = new Payload_Container();
-  decoded_size += ie_payload_container->decodefrombuffer(
+  decoded_size += ie_payload_container->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false,
       ie_payload_container_type->getValue());
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
@@ -325,7 +325,7 @@ int ULNASTransport::decodefrombuffer(
       case 0x8: {
         Logger::nas_mm().debug("Decoding IEI (0x8)");
         ie_request_type = new Request_Type();
-        decoded_size += ie_request_type->decodefrombuffer(
+        decoded_size += ie_request_type->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -333,7 +333,7 @@ int ULNASTransport::decodefrombuffer(
       case 0xA: {
         Logger::nas_mm().debug("Decoding IEI (0xA)");
         ie_ma_pdu_session_information = new MA_PDU_Session_Information();
-        decoded_size += ie_ma_pdu_session_information->decodefrombuffer(
+        decoded_size += ie_ma_pdu_session_information->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -341,7 +341,7 @@ int ULNASTransport::decodefrombuffer(
       case 0xF: {
         Logger::nas_mm().debug("Decoding IEI (0xF)");
         ie_release_assistance_indication = new Release_Assistance_Indication();
-        decoded_size += ie_release_assistance_indication->decodefrombuffer(
+        decoded_size += ie_release_assistance_indication->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -354,7 +354,7 @@ int ULNASTransport::decodefrombuffer(
       case 0x12: {
         Logger::nas_mm().debug("Decoding IEI (0x12)");
         ie_pdu_session_identity_2 = new PDU_Session_Identity_2();
-        decoded_size += ie_pdu_session_identity_2->decodefrombuffer(
+        decoded_size += ie_pdu_session_identity_2->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -362,7 +362,7 @@ int ULNASTransport::decodefrombuffer(
       case 0x59: {
         Logger::nas_mm().debug("Decoding IEI (0x59)");
         ie_old_pdu_session_identity_2 = new PDU_Session_Identity_2();
-        decoded_size += ie_old_pdu_session_identity_2->decodefrombuffer(
+        decoded_size += ie_old_pdu_session_identity_2->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -370,7 +370,7 @@ int ULNASTransport::decodefrombuffer(
       case 0x22: {
         Logger::nas_mm().debug("Decoding IEI (0x22)");
         ie_s_nssai = new S_NSSAI();
-        decoded_size += ie_s_nssai->decodefrombuffer(
+        decoded_size += ie_s_nssai->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -378,7 +378,7 @@ int ULNASTransport::decodefrombuffer(
       case 0x25: {
         Logger::nas_mm().debug("Decoding IEI (0x25)");
         ie_dnn = new DNN();
-        decoded_size += ie_dnn->decodefrombuffer(
+        decoded_size += ie_dnn->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -386,7 +386,7 @@ int ULNASTransport::decodefrombuffer(
       case 0x24: {
         Logger::nas_mm().debug("Decoding IEI (0x24)");
         ie_additional_information = new Additional_Information();
-        decoded_size += ie_additional_information->decodefrombuffer(
+        decoded_size += ie_additional_information->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

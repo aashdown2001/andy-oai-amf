@@ -65,7 +65,7 @@ uint8_t GPRS_Timer_2::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int GPRS_Timer_2::encode2buffer(uint8_t* buf, int len) {
+int GPRS_Timer_2::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding GPRS_Timer_2 iei(0x%x)", _iei);
   if (len < 3) {
     Logger::nas_mm().error("len is less than 3");
@@ -91,7 +91,7 @@ int GPRS_Timer_2::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int GPRS_Timer_2::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
+int GPRS_Timer_2::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding GPRS_Timer_2 iei(0x%x)", *buf);
   int decoded_size = 0;
   if (is_option) {

@@ -27,7 +27,7 @@
 
 #include "3gpp_29.500.h"
 #include "3gpp_29.502.h"
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "AmfEventReport.h"
 #include "amf.hpp"
 #include "amf_app.hpp"

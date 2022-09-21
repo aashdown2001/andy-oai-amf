@@ -55,7 +55,7 @@ uint8_t Payload_Container_Type::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int Payload_Container_Type::encode2buffer(uint8_t* buf, int len) {
+int Payload_Container_Type::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding Payload_Container_Type IE iei(0x%x)", _iei);
   if (len < 1) {
     Logger::nas_mm().error("len is less than one");
@@ -78,7 +78,7 @@ int Payload_Container_Type::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Payload_Container_Type::decodefrombuffer(
+int Payload_Container_Type::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding Payload_Container_Type IE");
   if (len < 1) {

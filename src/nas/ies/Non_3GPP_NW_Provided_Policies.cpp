@@ -55,7 +55,7 @@ uint8_t Non_3GPP_NW_Provided_Policies::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int Non_3GPP_NW_Provided_Policies::encode2buffer(uint8_t* buf, int len) {
+int Non_3GPP_NW_Provided_Policies::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "Encoding Non_3GPP_NW_Provided_Policies IE iei(0x%x)", _iei);
   if (len < 1) {
@@ -80,7 +80,7 @@ int Non_3GPP_NW_Provided_Policies::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Non_3GPP_NW_Provided_Policies::decodefrombuffer(
+int Non_3GPP_NW_Provided_Policies::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding Non_3GPP_NW_Provided_Policies IE");
   if (len < 1) {

@@ -28,7 +28,7 @@
 
 #include "DeregistrationAccept.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "String2Value.hpp"
 #include "logger.hpp"
 
@@ -51,21 +51,21 @@ void DeregistrationAccept::setHeader(uint8_t security_header_type) {
 }
 
 //------------------------------------------------------------------------------
-int DeregistrationAccept::encode2buffer(uint8_t* buf, int len) {
+int DeregistrationAccept::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding De-registration Accept message");
   int encoded_size = 0;
   if (!plain_header) {
     Logger::nas_mm().error("Mandatory IE missing Header");
     return 0;
   }
-  encoded_size = plain_header->encode2buffer(buf, len);
+  encoded_size = plain_header->encode2Buffer(buf, len);
   Logger::nas_mm().debug(
       "Encoded De-registration Accept message len (%d)", encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int DeregistrationAccept::decodefrombuffer(
+int DeregistrationAccept::decodeFromBuffer(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding De-registrationReject message");
   int decoded_size = 3;

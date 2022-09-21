@@ -49,8 +49,8 @@ class _5GS_Update_Type {
   uint8_t get_5GS_PNB_CIoT();
   bool getNG_RAN();
   bool getSMS();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
 
  private:
   uint8_t _iei;

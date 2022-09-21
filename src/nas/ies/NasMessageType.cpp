@@ -21,14 +21,15 @@
 
 #include "NasMessageType.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "common_defs.h"
 #include "logger.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
-NasMessageType::NasMessageType() {}
+NasMessageType::NasMessageType(const uint8_t& message_type)
+    : message_type_(message_type) {}
 
 //------------------------------------------------------------------------------
 NasMessageType::~NasMessageType() {}
@@ -49,10 +50,11 @@ uint8_t NasMessageType::Get() const {
 }
 
 //------------------------------------------------------------------------------
-uint32_t NasMessageType::Encode(uint8_t* buf, uint32_t len) {
-  if (len < kNasMessageTypeIeSize) {
+int NasMessageType::Encode(uint8_t* buf, const uint32_t& len) {
+  if (len < kType1IeSize) {
     Logger::nas_mm().error(
-        "Buffer length is less than %d octet", kNasMessageTypeIeSize);
+        "Buffer length is less than the minimum length of this IE (%s octet)",
+        kType1IeSize);
     return KEncodeDecodeError;
   }
   uint32_t encoded_size = 0;
@@ -61,10 +63,11 @@ uint32_t NasMessageType::Encode(uint8_t* buf, uint32_t len) {
 }
 
 //------------------------------------------------------------------------------
-uint32_t NasMessageType::Decode(const uint8_t* const buf, uint32_t len) {
-  if (len < kNasMessageTypeIeSize) {
+int NasMessageType::Decode(const uint8_t* const buf, const uint32_t& len) {
+  if (len < kType1IeSize) {
     Logger::nas_mm().error(
-        "Buffer length is less than %s octet", kNasMessageTypeIeSize);
+        "Buffer length is less than the minimum length of this IE (%s octet)",
+        kType1IeSize);
     return KEncodeDecodeError;
   }
   uint32_t decoded_size = 0;

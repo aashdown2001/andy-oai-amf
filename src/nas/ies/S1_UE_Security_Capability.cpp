@@ -86,7 +86,7 @@ uint8_t S1_UE_Security_Capability::getEIASel() {
 }
 
 //------------------------------------------------------------------------------
-int S1_UE_Security_Capability::encode2buffer(uint8_t* buf, int len) {
+int S1_UE_Security_Capability::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding S1_UE_Security_Capability iei(0x%x)", _iei);
   if (len < length) {
     Logger::nas_mm().error("len is less than %d", length);
@@ -112,7 +112,7 @@ int S1_UE_Security_Capability::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int S1_UE_Security_Capability::decodefrombuffer(
+int S1_UE_Security_Capability::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding S1_UE_Security_Capability iei(0x%x)", *buf);
   int decoded_size = 0;

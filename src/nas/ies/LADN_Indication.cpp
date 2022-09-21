@@ -66,7 +66,7 @@ bool LADN_Indication::getValue(std::vector<bstring>& ladn) {
 }
 
 //------------------------------------------------------------------------------
-int LADN_Indication::encode2buffer(uint8_t* buf, int len) {
+int LADN_Indication::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding LADN_Indication IEI (0x%x)", _iei);
   if (len < length) {
     Logger::nas_mm().error("Len is less than %d", length);
@@ -92,7 +92,7 @@ int LADN_Indication::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int LADN_Indication::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
+int LADN_Indication::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding LADN_Indication IEI (0x%x)", *buf);
   int decoded_size = 0;
   if (is_option) {

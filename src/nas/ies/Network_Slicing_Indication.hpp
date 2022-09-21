@@ -39,8 +39,8 @@ class Network_Slicing_Indication {
   Network_Slicing_Indication(uint8_t iei);
   Network_Slicing_Indication(const uint8_t iei, bool dcni, bool nssci);
   ~Network_Slicing_Indication();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void setDCNI(bool value);
   void setNSSCI(bool value);
   bool getDCNI();

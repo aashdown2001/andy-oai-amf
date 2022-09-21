@@ -77,7 +77,7 @@ uint8_t UENetworkCapability::getEIASel() {
 }
 
 //------------------------------------------------------------------------------
-int UENetworkCapability::encode2buffer(uint8_t* buf, int len) {
+int UENetworkCapability::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding UENetworkCapability IEI (0x%x)", _iei);
   if (len < length) {
     Logger::nas_mm().error("Len is less than %d", length);
@@ -105,7 +105,7 @@ int UENetworkCapability::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int UENetworkCapability::decodefrombuffer(
+int UENetworkCapability::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding UENetworkCapability IEI");
   int decoded_size = 0;

@@ -62,7 +62,7 @@ void NAS_Message_Container::getValue(bstring& value) {
 }
 
 //------------------------------------------------------------------------------
-int NAS_Message_Container::encode2buffer(uint8_t* buf, int len) {
+int NAS_Message_Container::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding NAS_Message_Container IEI 0x%x", _iei);
   if (len < length) {
     Logger::nas_mm().error("Len is less than %d", length);
@@ -89,7 +89,7 @@ int NAS_Message_Container::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int NAS_Message_Container::decodefrombuffer(
+int NAS_Message_Container::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding NAS_Message_Container iei (0x%x)", *buf);
   int decoded_size = 0;

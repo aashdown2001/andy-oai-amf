@@ -28,7 +28,7 @@
 
 #include "_5GSDeregistrationType.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "logger.hpp"
 
 using namespace nas;
@@ -83,7 +83,7 @@ void _5GSDeregistrationType::get(uint8_t& type) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSDeregistrationType::encode2buffer(uint8_t* buf, int len) {
+int _5GSDeregistrationType::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().error("Encoding 5GSDeregistrationType IE");
   if (len < 1) {
     Logger::nas_mm().error(
@@ -95,7 +95,7 @@ int _5GSDeregistrationType::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSDeregistrationType::decodefrombuffer(uint8_t* buf, int len) {
+int _5GSDeregistrationType::decodeFromBuffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding 5GSDeregistrationType");
   u1.b = *buf;
 

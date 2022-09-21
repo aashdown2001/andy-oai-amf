@@ -63,7 +63,7 @@ uint8_t* Authentication_Parameter_AUTN::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int Authentication_Parameter_AUTN::encode2buffer(uint8_t* buf, int len) {
+int Authentication_Parameter_AUTN::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "Encoding Authentication_Parameter_AUTN IEI (0x%x)", _iei);
   if (len < 18) {
@@ -91,7 +91,7 @@ int Authentication_Parameter_AUTN::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Authentication_Parameter_AUTN::decodefrombuffer(
+int Authentication_Parameter_AUTN::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug(
       "Decoding Authentication_Parameter_AUTN IEI (0x%x)", *buf);

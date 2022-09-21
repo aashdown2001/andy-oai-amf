@@ -55,8 +55,8 @@ class UESecurityCapability {
 
   void setLength(uint8_t len);
   uint8_t getLength();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
 
  private:
   uint8_t _iei;

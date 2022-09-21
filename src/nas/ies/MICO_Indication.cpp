@@ -52,7 +52,7 @@ MICO_Indication::MICO_Indication() {}
 MICO_Indication::~MICO_Indication(){};
 
 //------------------------------------------------------------------------------
-int MICO_Indication::encode2buffer(uint8_t* buf, int len) {
+int MICO_Indication::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding MICO_Indication IE iei (0x%x)", iei);
   if (len < 1) {
     Logger::nas_mm().error("Len is less than one");
@@ -75,7 +75,7 @@ int MICO_Indication::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int MICO_Indication::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
+int MICO_Indication::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding MICO_Indication IE");
   if (len < 1) {
     Logger::nas_mm().error("Len is less than one");

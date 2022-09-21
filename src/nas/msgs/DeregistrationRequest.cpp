@@ -30,7 +30,7 @@
 
 #include <string>
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "conversions.hpp"
 #include "logger.hpp"
 #include "String2Value.hpp"
@@ -160,7 +160,7 @@ void DeregistrationRequest::setIMEI_IMEISV() {}
 void DeregistrationRequest::set5G_S_TMSI() {}
 
 //------------------------------------------------------------------------------
-int DeregistrationRequest::encode2buffer(uint8_t* buf, int len) {
+int DeregistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding DeregistrationRequest message");
   int encoded_size = 0;
   if (!plain_header) {
@@ -179,11 +179,11 @@ int DeregistrationRequest::encode2buffer(uint8_t* buf, int len) {
     Logger::nas_mm().error("Mandatory IE missing ie_5gs_mobility_id");
     return 0;
   }
-  if (!(plain_header->encode2buffer(buf, len))) return 0;
+  if (!(plain_header->encode2Buffer(buf, len))) return 0;
   encoded_size += 3;
-  if (!(ie_deregistrationtype->encode2buffer(
+  if (!(ie_deregistrationtype->encode2Buffer(
           buf + encoded_size, len - encoded_size))) {
-    if (!(ie_ngKSI->encode2buffer(buf + encoded_size, len - encoded_size))) {
+    if (!(ie_ngKSI->encode2Buffer(buf + encoded_size, len - encoded_size))) {
       encoded_size += 1;
     } else {
       Logger::nas_mm().error("Encoding IE ie_ngKSI error");
@@ -193,7 +193,7 @@ int DeregistrationRequest::encode2buffer(uint8_t* buf, int len) {
     Logger::nas_mm().error("Encoding IE Deregistration Type error");
     return 0;
   }
-  if (int size = ie_5gs_mobility_id->encode2buffer(
+  if (int size = ie_5gs_mobility_id->encode2Buffer(
           buf + encoded_size, len - encoded_size)) {
     encoded_size += size;
   } else {
@@ -207,20 +207,20 @@ int DeregistrationRequest::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int DeregistrationRequest::decodefrombuffer(
+int DeregistrationRequest::decodeFromBuffer(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding DeregistrationRequest message");
   int decoded_size      = 3;
   plain_header          = header;
   ie_deregistrationtype = new _5GSDeregistrationType();
-  decoded_size += ie_deregistrationtype->decodefrombuffer(
+  decoded_size += ie_deregistrationtype->decodeFromBuffer(
       buf + decoded_size, len - decoded_size);
   ie_ngKSI = new NasKeySetIdentifier();
-  decoded_size += ie_ngKSI->decodefrombuffer(
+  decoded_size += ie_ngKSI->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, true);
   decoded_size++;
   ie_5gs_mobility_id = new _5GSMobilityIdentity();
-  decoded_size += ie_5gs_mobility_id->decodefrombuffer(
+  decoded_size += ie_5gs_mobility_id->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug(
       "Decoded DeregistrationRequest message (len %d)", decoded_size);

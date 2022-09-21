@@ -56,7 +56,7 @@ void EAP_Message::getValue(bstring& eap) {
 }
 
 //------------------------------------------------------------------------------
-int EAP_Message::encode2buffer(uint8_t* buf, int len) {
+int EAP_Message::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding EAP_Message iei(0x%x)", _iei);
   if (len < length) {
     Logger::nas_mm().error("len is less than %d", length);
@@ -77,7 +77,7 @@ int EAP_Message::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int EAP_Message::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
+int EAP_Message::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding EAP_Message iei (0x%x)", *buf);
   int decoded_size = 0;
   if (is_option) {

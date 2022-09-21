@@ -61,7 +61,7 @@ uint8_t _5GS_DRX_arameters::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int _5GS_DRX_arameters::encode2buffer(uint8_t* buf, int len) {
+int _5GS_DRX_arameters::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding _5GS_DRX_arameters iei(0x%x)", _iei);
   if (len < 3) {
     return 0;
@@ -83,7 +83,7 @@ int _5GS_DRX_arameters::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GS_DRX_arameters::decodefrombuffer(
+int _5GS_DRX_arameters::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding _5GS_DRX_arameters iei(0x%x)", *buf);
   int decoded_size = 0;

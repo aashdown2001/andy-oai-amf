@@ -51,7 +51,7 @@ uint8_t _5GMMCapability::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int _5GMMCapability::encode2buffer(uint8_t* buf, int len) {
+int _5GMMCapability::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding _5GMMCapability IEI (0x%x)", m_iei);
   if (len < length) {
     Logger::nas_mm().error("Len is less than %d", length);
@@ -78,7 +78,7 @@ int _5GMMCapability::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GMMCapability::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
+int _5GMMCapability::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   uint8_t decoded_size = 0;
 
   Logger::nas_mm().debug("Decoding _5GMMCapability IEI (0x%x)", *buf);

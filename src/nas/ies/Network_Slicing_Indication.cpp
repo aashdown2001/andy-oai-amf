@@ -74,7 +74,7 @@ bool Network_Slicing_Indication::getNSSCI() {
 }
 
 //------------------------------------------------------------------------------
-int Network_Slicing_Indication::encode2buffer(uint8_t* buf, int len) {
+int Network_Slicing_Indication::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "Encoding Network_Slicing_Indication iei (0x%x)", _iei);
   if (len < 1) {
@@ -101,7 +101,7 @@ int Network_Slicing_Indication::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Network_Slicing_Indication::decodefrombuffer(
+int Network_Slicing_Indication::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   if (len < 1) {
     Logger::nas_mm().error("Len is less than one");

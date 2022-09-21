@@ -89,7 +89,7 @@ class _5GSMobilityIdentity {
   _5GSMobilityIdentity();
   ~_5GSMobilityIdentity();
   void setIEI(uint8_t _iei);
-  int encode2buffer(uint8_t* buf, int len);
+  int encode2Buffer(uint8_t* buf, int len);
   int suci_encode2buffer(uint8_t* buf, int len);
   int _5g_guti_encode2buffer(uint8_t* buf, int len);
   int encodeMssMnc2buffer(string mcc, string mnc, uint8_t* buf);
@@ -98,7 +98,7 @@ class _5GSMobilityIdentity {
   int _5g_s_tmsi_encode2buffer(uint8_t* buf, int len);
   int _5g_s_tmsi_decodefrombuffer(uint8_t* buf, int len);
 
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   int suci_decodefrombuffer(uint8_t* buf, int len, int length);
   int _5g_guti_decodefrombuffer(uint8_t* buf, int len);
   void set5GGUTI(

@@ -700,7 +700,7 @@ void amf_n1::identity_response_handle(
     const uint32_t ran_ue_ngap_id, const long amf_ue_ngap_id,
     bstring plain_msg) {
   auto identity_response = std::make_unique<IdentityResponse>();
-  if (!identity_response->decodefrombuffer(
+  if (!identity_response->decodeFromBuffer(
           NULL, (uint8_t*) bdata(plain_msg), blength(plain_msg))) {
     Logger::amf_n1().error("Decode Identity Response error");
     return;
@@ -837,7 +837,7 @@ void amf_n1::service_request_handle(
   }
   std::unique_ptr<ServiceRequest> service_request =
       std::make_unique<ServiceRequest>();
-  service_request->decodefrombuffer(
+  service_request->decodeFromBuffer(
       nullptr, (uint8_t*) bdata(nas), blength(nas));
   // bdestroy_wrapper(&nas);
   std::unique_ptr<ServiceAccept> service_accept =
@@ -903,7 +903,7 @@ void amf_n1::service_request_handle(
               "NAS Message Container contains a Service Request, handling ...");
           std::unique_ptr<ServiceRequest> service_request_nas =
               std::make_unique<ServiceRequest>();
-          service_request_nas->decodefrombuffer(
+          service_request_nas->decodeFromBuffer(
               nullptr, (uint8_t*) bdata(plain_msg), blength(plain_msg));
           bdestroy_wrapper(&plain_msg);
 
@@ -936,7 +936,7 @@ void amf_n1::service_request_handle(
     Logger::amf_n1().debug("There is no PDU session to be activated");
     service_accept->setPDU_session_status(0x0000);
     uint8_t buffer[BUFFER_SIZE_256];
-    int encoded_size = service_accept->encode2buffer(buffer, BUFFER_SIZE_256);
+    int encoded_size = service_accept->encode2Buffer(buffer, BUFFER_SIZE_256);
     bstring protected_nas = nullptr;
     encode_nas_message_protected(
         secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
@@ -986,7 +986,7 @@ void amf_n1::service_request_handle(
     }
 
     uint8_t buffer[BUFFER_SIZE_256];
-    int encoded_size = service_accept->encode2buffer(buffer, BUFFER_SIZE_256);
+    int encoded_size = service_accept->encode2Buffer(buffer, BUFFER_SIZE_256);
     bstring protected_nas = nullptr;
     encode_nas_message_protected(
         secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
@@ -1034,8 +1034,7 @@ void amf_n1::registration_request_handle(
   std::unique_ptr<RegistrationRequest> registration_request =
       std::make_unique<RegistrationRequest>();
 
-  registration_request->decodefrombuffer(
-      nullptr, (uint8_t*) bdata(reg), blength(reg));
+  registration_request->decodeFromBuffer((uint8_t*) bdata(reg), blength(reg));
 
   // TODO: Use set function
   nc->registration_request = blk2bstr((uint8_t*) bdata(reg), blength(reg));
@@ -1337,8 +1336,8 @@ void amf_n1::registration_request_handle(
   if (is_messagecontainer) {
     std::unique_ptr<RegistrationRequest> registration_request_msg_container =
         std::make_unique<RegistrationRequest>();
-    registration_request_msg_container->decodefrombuffer(
-        nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
+    registration_request_msg_container->decodeFromBuffer(
+        (uint8_t*) bdata(nas_msg), blength(nas_msg));
 
     if (!registration_request_msg_container->getRequestedNssai(
             nc->requestedNssai)) {
@@ -1645,7 +1644,7 @@ void amf_n1::send_registration_reject_msg(
   registration_reject->set_5GMM_Cause(cause_value);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size =
-      registration_reject->encode2buffer(buffer, BUFFER_SIZE_1024);
+      registration_reject->encode2Buffer(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Registration-Reject message buffer", buffer, encoded_size);
   if (!encoded_size) {
@@ -1727,7 +1726,7 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context>& nc) {
     identity_request->setHeader(PLAIN_5GS_MSG);
     identity_request->set_5GS_Identity_Type(SUCI);
     uint8_t buffer[BUFFER_SIZE_256];
-    int encoded_size = identity_request->encode2buffer(buffer, BUFFER_SIZE_256);
+    int encoded_size = identity_request->encode2Buffer(buffer, BUFFER_SIZE_256);
 
     std::shared_ptr<itti_dl_nas_transport> dnt =
         std::make_shared<itti_dl_nas_transport>(TASK_AMF_N1, TASK_AMF_N2);
@@ -2173,7 +2172,7 @@ bool amf_n1::start_authentication_procedure(
   uint8_t* autn = nc->_5g_av[vindex].autn;
   if (autn) auth_request->setAuthentication_Parameter_AUTN(autn);
   uint8_t buffer[1024] = {0};
-  int encoded_size     = auth_request->encode2buffer(buffer, 1024);
+  int encoded_size     = auth_request->encode2Buffer(buffer, 1024);
   if (!encoded_size) {
     Logger::nas_mm().error("Encode Authentication Request message error");
     return false;
@@ -2236,7 +2235,7 @@ void amf_n1::authentication_response_handle(
   // Decode AUTHENTICATION RESPONSE message
   auto auth_response = std::make_unique<AuthenticationResponse>();
 
-  auth_response->decodefrombuffer(
+  auth_response->decodeFromBuffer(
       nullptr, (uint8_t*) bdata(plain_msg), blength(plain_msg));
   bstring resStar = nullptr;
   bool isAuthOk   = true;
@@ -2326,7 +2325,7 @@ void amf_n1::authentication_failure_handle(
   // 1. decode AUTHENTICATION FAILURE message
   auto auth_failure = std::make_unique<AuthenticationFailure>();
 
-  auth_failure->decodefrombuffer(
+  auth_failure->decodeFromBuffer(
       NULL, (uint8_t*) bdata(plain_msg), blength(plain_msg));
   uint8_t mm_cause = auth_failure->get5GMmCause();
   if (mm_cause == -1) {
@@ -2462,7 +2461,7 @@ bool amf_n1::start_security_mode_control_procedure(
   smc->setIMEISV_Request(0xe1);  // TODO: remove hardcoded value
   smc->setAdditional_5G_Security_Information(true, false);
   uint8_t buffer[BUFFER_SIZE_1024];
-  int encoded_size = smc->encode2buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = smc->encode2Buffer(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Security-Mode-Command message buffer", buffer, encoded_size);
 
@@ -2527,7 +2526,7 @@ void amf_n1::security_mode_complete_handle(
   }
   // Decode Security Mode Complete
   auto security_mode_complete = std::make_unique<SecurityModeComplete>();
-  security_mode_complete->decodefrombuffer(
+  security_mode_complete->decodeFromBuffer(
       nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
 
   comUt::print_buffer(
@@ -2549,9 +2548,8 @@ void amf_n1::security_mode_complete_handle(
       // Decode registration request message
       std::unique_ptr<RegistrationRequest> registration_request =
           std::make_unique<RegistrationRequest>();
-      registration_request->decodefrombuffer(
-          nullptr, (uint8_t*) bdata(nas_msg_container),
-          blength(nas_msg_container));
+      registration_request->decodeFromBuffer(
+          (uint8_t*) bdata(nas_msg_container), blength(nas_msg_container));
       // bdestroy_wrapper(&nas_msg_container);  // free buffer
 
       // Get Requested NSSAI (Optional IE), if provided
@@ -2607,7 +2605,7 @@ void amf_n1::security_mode_complete_handle(
   // registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size =
-      registration_accept->encode2buffer(buffer, BUFFER_SIZE_1024);
+      registration_accept->encode2Buffer(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Registration-Accept message buffer", buffer, encoded_size);
   if (!encoded_size) {
@@ -2986,7 +2984,7 @@ void amf_n1::ue_initiate_de_registration_handle(
 
   // Decode NAS message
   auto dereg_request = std::make_unique<DeregistrationRequest>();
-  dereg_request->decodefrombuffer(NULL, (uint8_t*) bdata(nas), blength(nas));
+  dereg_request->decodeFromBuffer(NULL, (uint8_t*) bdata(nas), blength(nas));
 
   // TODO: validate 5G Mobile Identity
   uint8_t mobile_id_type = 0;
@@ -3080,7 +3078,7 @@ void amf_n1::ue_initiate_de_registration_handle(
     dereg_accept->setHeader(PLAIN_5GS_MSG);
 
     uint8_t buffer[BUFFER_SIZE_512] = {0};
-    int encoded_size = dereg_accept->encode2buffer(buffer, BUFFER_SIZE_512);
+    int encoded_size = dereg_accept->encode2Buffer(buffer, BUFFER_SIZE_512);
 
     comUt::print_buffer(
         "amf_n1", "De-registration Accept message buffer", buffer,
@@ -3192,7 +3190,7 @@ void amf_n1::ul_nas_transport_handle(
   // Decode UL_NAS_TRANSPORT message
   Logger::amf_n1().debug("Handling UL NAS Transport");
   auto ul_nas = std::make_unique<ULNASTransport>();
-  ul_nas->decodefrombuffer(NULL, (uint8_t*) bdata(nas), blength(nas));
+  ul_nas->decodeFromBuffer(NULL, (uint8_t*) bdata(nas), blength(nas));
   uint8_t payload_type   = ul_nas->getPayloadContainerType();
   uint8_t pdu_session_id = ul_nas->getPduSessionId();
   uint8_t request_type   = ul_nas->getRequestType();
@@ -3291,7 +3289,7 @@ void amf_n1::run_mobility_registration_update_procedure(
       amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
 
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
-  int encoded_size = reg_accept->encode2buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = reg_accept->encode2Buffer(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Registration-Accept Message Buffer", buffer, encoded_size);
   if (!encoded_size) {
@@ -3384,7 +3382,7 @@ void amf_n1::run_periodic_registration_update_procedure(
 
   reg_accept->set_5GS_Network_Feature_Support(0x01, 0x00);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
-  int encoded_size = reg_accept->encode2buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = reg_accept->encode2Buffer(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Registration-Accept Message Buffer", buffer, encoded_size);
   if (!encoded_size) {
@@ -3424,8 +3422,8 @@ void amf_n1::run_periodic_registration_update_procedure(
   // decoding REGISTRATION request
   std::unique_ptr<RegistrationRequest> registration_request =
       std::make_unique<RegistrationRequest>();
-  registration_request->decodefrombuffer(
-      nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
+  registration_request->decodeFromBuffer(
+      (uint8_t*) bdata(nas_msg), blength(nas_msg));
   // bdestroy_wrapper(&nas_msg);  // free buffer
 
   // Encoding REGISTRATION ACCEPT
@@ -3455,7 +3453,7 @@ void amf_n1::run_periodic_registration_update_procedure(
 
   reg_accept->set_5GS_Network_Feature_Support(0x01, 0x00);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
-  int encoded_size = reg_accept->encode2buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = reg_accept->encode2Buffer(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Registration-Accept Message Buffer", buffer, encoded_size);
   if (!encoded_size) {

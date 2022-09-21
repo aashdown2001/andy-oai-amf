@@ -56,7 +56,7 @@ void Authentication_Response_Parameter::getValue(bstring& para) {
 }
 
 //------------------------------------------------------------------------------
-int Authentication_Response_Parameter::encode2buffer(uint8_t* buf, int len) {
+int Authentication_Response_Parameter::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "Encoding Authentication_Response_Parameter IEI 0x%x", _iei);
   if (len < 18) {
@@ -82,7 +82,7 @@ int Authentication_Response_Parameter::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Authentication_Response_Parameter::decodefrombuffer(
+int Authentication_Response_Parameter::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug(
       "Decoding Authentication_Response_Parameter IEI 0x%x", *buf);

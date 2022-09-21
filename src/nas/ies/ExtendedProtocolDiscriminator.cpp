@@ -21,14 +21,15 @@
 
 #include "ExtendedProtocolDiscriminator.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "common_defs.h"
 #include "logger.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
-ExtendedProtocolDiscriminator::ExtendedProtocolDiscriminator() {}
+ExtendedProtocolDiscriminator::ExtendedProtocolDiscriminator(const uint8_t& epd)
+    : epd_(epd) {}
 
 //------------------------------------------------------------------------------
 ExtendedProtocolDiscriminator::~ExtendedProtocolDiscriminator() {}
@@ -49,9 +50,11 @@ uint8_t ExtendedProtocolDiscriminator::Get() const {
 }
 
 //------------------------------------------------------------------------------
-uint32_t ExtendedProtocolDiscriminator::Encode(uint8_t* buf, uint32_t len) {
-  if (len < kEdpIeSize) {
-    Logger::nas_mm().error("Buffer length is less than %d octet", kEdpIeSize);
+int ExtendedProtocolDiscriminator::Encode(uint8_t* buf, const uint32_t& len) {
+  if (len < kType1IeSize) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%s octet)",
+        kType1IeSize);
     return KEncodeDecodeError;
   }
   uint32_t encoded_size = 0;
@@ -60,10 +63,12 @@ uint32_t ExtendedProtocolDiscriminator::Encode(uint8_t* buf, uint32_t len) {
 }
 
 //------------------------------------------------------------------------------
-uint32_t ExtendedProtocolDiscriminator::Decode(
-    const uint8_t* const buf, uint32_t len) {
-  if (len < kEdpIeSize) {
-    Logger::nas_mm().error("Buffer length is less than %s octet", kEdpIeSize);
+int ExtendedProtocolDiscriminator::Decode(
+    const uint8_t* const buf, const uint32_t& len) {
+  if (len < kType1IeSize) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%s octet)",
+        kType1IeSize);
     return KEncodeDecodeError;
   }
   uint32_t decoded_size = 0;

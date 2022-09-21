@@ -19,12 +19,19 @@
  *      contact@openairinterface.org
  */
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "common_defs.h"
 #include "logger.hpp"
 #include "NasMmPlainHeader.hpp"
 
 using namespace nas;
+
+//------------------------------------------------------------------------------
+NasMmPlainHeader::NasMmPlainHeader(const uint8_t& epd, const uint8_t& msg_type)
+    : epd_(epd), msg_type_(msg_type) {}
+
+//------------------------------------------------------------------------------
+NasMmPlainHeader::~NasMmPlainHeader() {}
 
 //------------------------------------------------------------------------------
 void NasMmPlainHeader::SetEpd(const uint8_t epd) {
@@ -66,7 +73,7 @@ void NasMmPlainHeader::setHeader(
 }
 
 //------------------------------------------------------------------------------
-int NasMmPlainHeader::encode2buffer(uint8_t* buf, int len) {
+int NasMmPlainHeader::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding NasMmPlainHeader");
   if (len < kNasMmPlainHeaderLength) {
     Logger::nas_mm().error("buffer length is less than 3 octets");
@@ -101,7 +108,7 @@ int NasMmPlainHeader::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int NasMmPlainHeader::decodefrombuffer(const uint8_t* const buf, int len) {
+int NasMmPlainHeader::decodeFromBuffer(const uint8_t* const buf, int len) {
   Logger::nas_mm().debug("Decoding NasMmPlainHeader");
   uint32_t decoded_size = 0;
   if (len < kNasMmPlainHeaderLength) {

@@ -28,7 +28,7 @@
 #include <libconfig.h++>
 
 #include "3gpp_29.502.h"
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "amf_app.hpp"
 #include "conversions.hpp"
 #include "fqdn.hpp"

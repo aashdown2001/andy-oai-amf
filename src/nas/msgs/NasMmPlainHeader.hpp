@@ -32,12 +32,15 @@ namespace nas {
 
 class NasMmPlainHeader {
  public:
+  NasMmPlainHeader(){};
+  NasMmPlainHeader(const uint8_t& epd, const uint8_t& msg_type);
+  virtual ~NasMmPlainHeader();
   void setHeader(
       const uint8_t& epd, const uint8_t& security_header_type,
       const uint8_t& msg_type);
 
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(const uint8_t* const buf, int len);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(const uint8_t* const buf, int len);
 
   void SetEpd(const uint8_t epd);
   uint8_t GetEpd();

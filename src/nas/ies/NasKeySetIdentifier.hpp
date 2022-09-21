@@ -19,15 +19,8 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _NasKeySetIdentifier_H
-#define _NasKeySetIdentifier_H
+#ifndef _NAS_KEY_SET_IDENTIFIER_H
+#define _NAS_KEY_SET_IDENTIFIER_H
 
 #include <stdint.h>
 
@@ -36,12 +29,13 @@ namespace nas {
 class NasKeySetIdentifier {
  public:
   NasKeySetIdentifier();
-  NasKeySetIdentifier(const uint8_t iei, uint8_t tsc, uint8_t key_id);
-  NasKeySetIdentifier(uint8_t tsc, uint8_t key_id);
+  NasKeySetIdentifier(
+      const uint8_t& iei, const uint8_t& tsc, const uint8_t& key_id);
+  NasKeySetIdentifier(const uint8_t& tsc, const uint8_t& key_id);
   ~NasKeySetIdentifier();
 
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option, bool is_high);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option, bool is_high);
 
   void setTypeOfSecurityContext(uint8_t type);
   void setNasKeyIdentifier(uint8_t id);
@@ -49,9 +43,9 @@ class NasKeySetIdentifier {
   uint8_t getasKeyIdentifier();
 
  private:
-  uint8_t iei;
-  uint8_t tsc;
-  uint8_t key_id;
+  uint8_t iei_;
+  uint8_t tsc_;
+  uint8_t key_id_;
 };
 
 }  // namespace nas

@@ -38,7 +38,7 @@ namespace nas {
 class _5GSTrackingAreaIdList {
  public:
   _5GSTrackingAreaIdList(uint8_t iei, std::vector<p_tai_t> tai_list);
-  int encode2buffer(uint8_t* buf, int len);
+  int encode2Buffer(uint8_t* buf, int len);
 
  private:
   uint8_t m_iei;

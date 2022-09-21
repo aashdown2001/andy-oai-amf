@@ -22,15 +22,10 @@
 #ifndef _3GPP_TS_24501_H_
 #define _3GPP_TS_24501_H_
 
-#include "3gpp24.007.hpp"
+#include "3gpp_24.007.hpp"
 
 #include <string>
 #include <vector>
-
-/********** epd type **************/
-
-#define EPD_5GS_MM_MSG 0b01111110
-#define EPD_5GS_SM_MSG 0b00101110
 
 /********** security header type **************/
 
@@ -83,6 +78,13 @@
 #define NO_FOLLOW_ON_REQ_PENDING false
 #define FOLLOW_ON_REQ_PENDING true
 
+enum class RegistrationTypeEnum {
+  INITIAL_REGISTRATION           = 0b001,
+  MOBILITY_REGISTRATION_UPDATING = 0b010,
+  PERIODIC_REGISTRATION_UPDATING = 0b011,
+  EMERGENCY_REGISTRATION         = 0b100,
+  RESERVED                       = 0b111
+};
 #define INITIAL_REGISTRATION 0b001
 #define MOBILITY_REGISTRATION_UPDATING 0b010
 #define PERIODIC_REGISTRATION_UPDATING 0b011
@@ -187,6 +189,6 @@ static const std::vector<std::string> nas_ciphering_algorithm_list_e2str = {
 
 #define NAS_MESSAGE_MIN_LENGTH 3
 
-constexpr uint8_t KEncodeDecodeError = 0;
+constexpr int KEncodeDecodeError = -1;
 
 #endif

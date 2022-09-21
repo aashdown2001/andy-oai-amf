@@ -28,7 +28,7 @@
 
 #include "IdentityResponse.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "logger.hpp"
 
 using namespace nas;
@@ -80,19 +80,19 @@ void IdentityResponse::setIMEI_IMEISV() {}
 void IdentityResponse::set5G_S_TMSI() {}
 
 //------------------------------------------------------------------------------
-int IdentityResponse::encode2buffer(uint8_t* buf, int len) {
+int IdentityResponse::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding IdentityResponse message");
   int encoded_size = 0;
   if (!plain_header) {
     Logger::nas_mm().error("Mandatory IE missing Header");
     return 0;
   }
-  if (!(plain_header->encode2buffer(buf, len))) return 0;
+  if (!(plain_header->encode2Buffer(buf, len))) return 0;
   encoded_size += 3;
   if (!ie_mobility_id) {
     Logger::nas_mm().warn("IE ie_mobility_id is not available");
   } else {
-    if (int size = ie_mobility_id->encode2buffer(
+    if (int size = ie_mobility_id->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -106,13 +106,13 @@ int IdentityResponse::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int IdentityResponse::decodefrombuffer(
+int IdentityResponse::decodeFromBuffer(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("decoding IdentityResponse message");
   int decoded_size = 3;
   plain_header     = header;
   ie_mobility_id   = new _5GSMobilityIdentity();
-  decoded_size += ie_mobility_id->decodefrombuffer(
+  decoded_size += ie_mobility_id->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("decoded_size(%d)", decoded_size);
   Logger::nas_mm().debug(

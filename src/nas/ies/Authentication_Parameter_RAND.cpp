@@ -59,7 +59,7 @@ uint8_t* Authentication_Parameter_RAND::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int Authentication_Parameter_RAND::encode2buffer(uint8_t* buf, int len) {
+int Authentication_Parameter_RAND::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "Encoding Authentication_Parameter_RAND IEI (0x%x)", _iei);
   if (len < 17) {
@@ -87,7 +87,7 @@ int Authentication_Parameter_RAND::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Authentication_Parameter_RAND::decodefrombuffer(
+int Authentication_Parameter_RAND::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug(
       "Decoding Authentication_Parameter_RAND IEI (0x%x)", *buf);

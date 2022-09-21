@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "conversions.hpp"
 #include "String2Value.hpp"
 #include "logger.hpp"
@@ -253,7 +253,7 @@ void _5GSMobilityIdentity::getIMEISV(IMEISV_t& imeisv) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::encode2buffer(uint8_t* buf, int len) {
+int _5GSMobilityIdentity::encode2Buffer(uint8_t* buf, int len) {
   switch (typeOfIdentity) {
     case SUCI: {
       return suci_encode2buffer(buf, len);
@@ -485,7 +485,7 @@ int _5GSMobilityIdentity::imeisv_encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::decodefrombuffer(
+int _5GSMobilityIdentity::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding 5GSMobilityIdentity");
   int decoded_size = 0;

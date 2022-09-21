@@ -42,8 +42,8 @@ class _5GS_Network_Feature_Support {
       const uint8_t iei, uint8_t value, uint8_t value2);
   void setValue(uint8_t value);
   uint8_t getValue();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
 
  private:
   uint8_t _iei;

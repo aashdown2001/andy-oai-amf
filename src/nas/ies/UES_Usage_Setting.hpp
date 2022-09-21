@@ -39,8 +39,8 @@ class UES_Usage_Setting {
   UES_Usage_Setting(uint8_t iei);
   UES_Usage_Setting(const uint8_t iei, bool ues_usage_setting);
   ~UES_Usage_Setting();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void setValue(bool value);
   bool getValue();
 

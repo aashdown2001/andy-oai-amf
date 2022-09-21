@@ -45,8 +45,8 @@ class _5GS_Tracking_Area_Identity {
   void setMNC_MCC2(uint8_t iei, uint8_t value);
   void setMNC_MCC3(uint8_t iei, uint8_t value);
   void setTAC(uint8_t iei, uint32_t value);
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   uint8_t getMNC_MCC1();
   uint8_t getMNC_MCC2();
   uint8_t getMNC_MCC3();

@@ -134,7 +134,7 @@ uint8_t UESecurityCapability::getLength() {
 }
 
 //------------------------------------------------------------------------------
-int UESecurityCapability::encode2buffer(uint8_t* buf, int len) {
+int UESecurityCapability::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding UESecurityCapability IEI 0x%x", _iei);
   if (len < length) {
     Logger::nas_mm().error("len is less than %d", length);
@@ -176,7 +176,7 @@ int UESecurityCapability::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int UESecurityCapability::decodefrombuffer(
+int UESecurityCapability::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding UESecurityCapability IEI 0x%x", *buf);
   int decoded_size = 0;

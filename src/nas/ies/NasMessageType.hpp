@@ -30,15 +30,16 @@ namespace nas {
 
 class NasMessageType {
  public:
-  NasMessageType();
+  NasMessageType(){};  // TODO: = delete;
+  NasMessageType(const uint8_t& message_type);
   virtual ~NasMessageType();
 
   void Set(const uint8_t& message_type);
   void Get(uint8_t& message_type) const;
   uint8_t Get() const;
 
-  uint32_t Encode(uint8_t* buf, uint32_t len);
-  uint32_t Decode(const uint8_t* const buf, uint32_t len);
+  int Encode(uint8_t* buf, const uint32_t& len);
+  int Decode(const uint8_t* const buf, const uint32_t& len);
 
  private:
   uint8_t message_type_;

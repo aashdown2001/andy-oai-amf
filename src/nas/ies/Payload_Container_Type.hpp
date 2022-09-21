@@ -38,8 +38,8 @@ class Payload_Container_Type {
   Payload_Container_Type();
   Payload_Container_Type(const uint8_t iei, uint8_t value);
   ~Payload_Container_Type();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void setValue(const uint8_t value);
   uint8_t getValue();
 

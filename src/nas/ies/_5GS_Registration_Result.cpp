@@ -71,7 +71,7 @@ uint8_t _5GS_Registration_Result::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int _5GS_Registration_Result::encode2buffer(uint8_t* buf, int len) {
+int _5GS_Registration_Result::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding _5GS_Registration_Result iei(0x%x)", _iei);
   if (len < 3) {
     Logger::nas_mm().error("len is less than 3");
@@ -102,7 +102,7 @@ int _5GS_Registration_Result::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GS_Registration_Result::decodefrombuffer(
+int _5GS_Registration_Result::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding _5GS_Registration_Result iei(0x%x)", *buf);
   int decoded_size = 0;

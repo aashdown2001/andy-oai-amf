@@ -37,8 +37,8 @@ class AuthenticationFailure {
  public:
   AuthenticationFailure();
   ~AuthenticationFailure();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
   void setHeader(uint8_t security_header_type);
   void set_5GMM_Cause(uint8_t value);
   void setAuthentication_Failure_Parameter(bstring auts);

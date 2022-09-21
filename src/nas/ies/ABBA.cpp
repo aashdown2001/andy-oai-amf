@@ -61,7 +61,7 @@ uint8_t ABBA::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int ABBA::encode2buffer(uint8_t* buf, int len) {
+int ABBA::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding ABBA IEI (0x%x)", _iei);
   if (len < _length) {
     Logger::nas_mm().error("len is less than %d", _length);
@@ -97,7 +97,7 @@ int ABBA::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int ABBA::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
+int ABBA::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Encoding ABBA IEI (0x%x)", *buf);
   int decoded_size = 0;
   if (is_option) {

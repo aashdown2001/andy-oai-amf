@@ -24,8 +24,10 @@
 
 #include <stdint.h>
 
+constexpr uint8_t kType1IeSize = 1;
+
 // Extended Protocol Discriminator (EPD)
-constexpr uint8_t kEpd5gsSessionManagementMessage  = 0b00101110;
-constexpr uint8_t kEpd5gsMobilityManagementMessage = 0b01111110;
+#define EPD_5GS_MM_MSG 0b01111110
+#define EPD_5GS_SM_MSG 0b00101110
 
 #endif

@@ -44,8 +44,8 @@ class S1_UE_Security_Capability {
   void setEIASel(uint8_t sel);
   uint8_t getEEASel();
   uint8_t getEIASel();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
 
  private:
   uint8_t _iei;

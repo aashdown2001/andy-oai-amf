@@ -63,7 +63,7 @@ uint16_t Allowed_PDU_Session_Status::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int Allowed_PDU_Session_Status::encode2buffer(uint8_t* buf, int len) {
+int Allowed_PDU_Session_Status::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding Allowed_PDU_Session_Status iei(0x%x)", _iei);
   if (len < length) {
     Logger::nas_mm().error("len is less than %d", length);
@@ -90,7 +90,7 @@ int Allowed_PDU_Session_Status::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Allowed_PDU_Session_Status::decodefrombuffer(
+int Allowed_PDU_Session_Status::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding Allowed_PDU_Session_Status iei(0x%x)", *buf);
   int decoded_size = 0;

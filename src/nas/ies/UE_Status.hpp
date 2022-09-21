@@ -39,8 +39,8 @@ class UE_Status {
   UE_Status(uint8_t iei);
   UE_Status(const uint8_t iei, bool n1, bool s1);
   ~UE_Status();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void setN1(bool value);
   void setS1(bool value);
   bool getN1();

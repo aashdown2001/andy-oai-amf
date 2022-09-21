@@ -37,8 +37,8 @@ class SecurityModeComplete {
  public:
   SecurityModeComplete();
   ~SecurityModeComplete();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
   void setHeader(uint8_t security_header_type);
 
   void setIMEISV(IMEISV_t imeisv);

@@ -60,7 +60,7 @@ void Authentication_Failure_Parameter::getValue(bstring& auts) {
 }
 
 //------------------------------------------------------------------------------
-int Authentication_Failure_Parameter::encode2buffer(uint8_t* buf, int len) {
+int Authentication_Failure_Parameter::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "encoding Authentication_Failure_Parameter iei(0x%x)", _iei);
   if (len < length) {
@@ -86,7 +86,7 @@ int Authentication_Failure_Parameter::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Authentication_Failure_Parameter::decodefrombuffer(
+int Authentication_Failure_Parameter::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug(
       "Decoding Authentication_Failure_Parameter iei (0x%x)", *buf);

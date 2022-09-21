@@ -37,8 +37,8 @@ class AuthenticationResult {
  public:
   AuthenticationResult();
   ~AuthenticationResult();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
   void setHeader(uint8_t security_header_type);
   void setngKSI(uint8_t tsc, uint8_t key_set_id);
   void setEAP_Message(bstring eap);

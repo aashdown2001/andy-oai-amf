@@ -40,7 +40,7 @@ _5GSTrackingAreaIdList::_5GSTrackingAreaIdList(
 }
 
 //------------------------------------------------------------------------------
-int _5GSTrackingAreaIdList::encode2buffer(uint8_t* buf, int len) {
+int _5GSTrackingAreaIdList::encode2Buffer(uint8_t* buf, int len) {
   int encoded_size = 0, length = 0;
   if (m_iei) {
     *(buf + encoded_size) = m_iei;

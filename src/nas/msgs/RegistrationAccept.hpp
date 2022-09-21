@@ -37,8 +37,8 @@ class RegistrationAccept {
  public:
   RegistrationAccept();
   ~RegistrationAccept();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
   void setHeader(uint8_t security_header_type);
   void setSOR_Transparent_Container(uint8_t header, uint8_t* value);
   void set_5GS_Registration_Result(

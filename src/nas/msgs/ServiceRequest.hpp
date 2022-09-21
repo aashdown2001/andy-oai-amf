@@ -52,10 +52,10 @@ class ServiceRequest {
   void setPDU_session_status(uint16_t value);
   void setAllowed_PDU_Session_Status(uint16_t value);
   void setNAS_Message_Container(bstring value);
-  int encode2buffer(uint8_t* buf, int len);
+  int encode2Buffer(uint8_t* buf, int len);
 
  public:
-  int decodefrombuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
   bool getngKSI(uint8_t& ng_ksi);
   uint8_t getServiceType();
   bool get5G_S_TMSI(uint16_t& amfSetId, uint8_t& amfPointer, string& tmsi);

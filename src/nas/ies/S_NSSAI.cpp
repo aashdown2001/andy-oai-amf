@@ -172,7 +172,7 @@ std::string S_NSSAI::ToString() {
 }
 
 //------------------------------------------------------------------------------
-int S_NSSAI::encode2buffer(uint8_t* buf, int len) {
+int S_NSSAI::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding S-NSSAI");
   if (len < length) {
     Logger::nas_mm().error("len is less than %d", length);
@@ -207,7 +207,7 @@ int S_NSSAI::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int S_NSSAI::decodefrombuffer(uint8_t* buf, int len, const bool is_option) {
+int S_NSSAI::decodeFromBuffer(uint8_t* buf, int len, const bool is_option) {
   Logger::nas_mm().debug("Decoding S_NSSAI");
   int decoded_size = {0};
 

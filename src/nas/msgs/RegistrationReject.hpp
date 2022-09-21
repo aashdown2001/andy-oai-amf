@@ -37,8 +37,8 @@ class RegistrationReject {
  public:
   RegistrationReject();
   ~RegistrationReject();
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
   void setHeader(uint8_t security_header_type);
   void set_5GMM_Cause(uint8_t value);
   void setGPRS_Timer_2_3346(uint8_t value);

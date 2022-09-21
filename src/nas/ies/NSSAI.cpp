@@ -62,7 +62,7 @@ void NSSAI::getValue(std::vector<struct SNSSAI_s>& nssai) {
 }
 
 //------------------------------------------------------------------------------
-int NSSAI::encode2buffer(uint8_t* buf, int len) {
+int NSSAI::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding NSSAI IEI (0x%x)", _iei);
   if (len < length) {
     Logger::nas_mm().error("len is less than %d", length);
@@ -117,7 +117,7 @@ int NSSAI::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int NSSAI::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
+int NSSAI::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding NSSAI IEI (0x%x)", *buf);
   int decoded_size = 0;
   SNSSAI_s a       = {0, 0, 0, 0};

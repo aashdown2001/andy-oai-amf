@@ -28,7 +28,7 @@
 
 #include "SecurityModeCommand.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "logger.hpp"
 
 using namespace nas;
@@ -119,20 +119,20 @@ void SecurityModeCommand::setS1_UE_Security_Capability(
 }
 
 //------------------------------------------------------------------------------
-int SecurityModeCommand::encode2buffer(uint8_t* buf, int len) {
+int SecurityModeCommand::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding SecurityModeCommand message");
   int encoded_size = 0;
   if (!plain_header) {
     Logger::nas_mm().error("Mandatory IE missing Header");
     return 0;
   }
-  if (!(plain_header->encode2buffer(buf, len))) return 0;
+  if (!(plain_header->encode2Buffer(buf, len))) return 0;
   encoded_size += 3;
   if (!ie_selected_nas_security_algorithms) {
     Logger::nas_mm().warn(
         "IE ie_selected_nas_security_algorithms is not available");
   } else {
-    if (int size = ie_selected_nas_security_algorithms->encode2buffer(
+    if (int size = ie_selected_nas_security_algorithms->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -145,7 +145,7 @@ int SecurityModeCommand::encode2buffer(uint8_t* buf, int len) {
     Logger::nas_mm().warn("IE ie_ngKSI is not available");
   } else {
     if (int size =
-            ie_ngKSI->encode2buffer(buf + encoded_size, len - encoded_size)) {
+            ie_ngKSI->encode2Buffer(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_ngKSI error");
@@ -155,7 +155,7 @@ int SecurityModeCommand::encode2buffer(uint8_t* buf, int len) {
   if (!ie_ue_security_capability) {
     Logger::nas_mm().warn("IE ie_ue_security_capability is not available");
   } else {
-    if (int size = ie_ue_security_capability->encode2buffer(
+    if (int size = ie_ue_security_capability->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -166,7 +166,7 @@ int SecurityModeCommand::encode2buffer(uint8_t* buf, int len) {
   if (!ie_imeisv_request) {
     Logger::nas_mm().warn("IE ie_imeisv_request is not available");
   } else {
-    if (int size = ie_imeisv_request->encode2buffer(
+    if (int size = ie_imeisv_request->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -177,7 +177,7 @@ int SecurityModeCommand::encode2buffer(uint8_t* buf, int len) {
   if (!ie_eps_nas_security_algorithms) {
     Logger::nas_mm().warn("IE ie_eps_nas_security_algorithms is not available");
   } else {
-    if (int size = ie_eps_nas_security_algorithms->encode2buffer(
+    if (int size = ie_eps_nas_security_algorithms->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -189,7 +189,7 @@ int SecurityModeCommand::encode2buffer(uint8_t* buf, int len) {
     Logger::nas_mm().warn(
         "IE ie_additional_5G_security_information is not available");
   } else {
-    if (int size = ie_additional_5G_security_information->encode2buffer(
+    if (int size = ie_additional_5G_security_information->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -201,7 +201,7 @@ int SecurityModeCommand::encode2buffer(uint8_t* buf, int len) {
   if (!ie_eap_message) {
     Logger::nas_mm().warn("IE ie_eap_message is not available");
   } else {
-    if (int size = ie_eap_message->encode2buffer(
+    if (int size = ie_eap_message->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -213,7 +213,7 @@ int SecurityModeCommand::encode2buffer(uint8_t* buf, int len) {
     Logger::nas_mm().warn("IE ie_abba is not available");
   } else {
     if (int size =
-            ie_abba->encode2buffer(buf + encoded_size, len - encoded_size)) {
+            ie_abba->encode2Buffer(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_abba error");
@@ -223,7 +223,7 @@ int SecurityModeCommand::encode2buffer(uint8_t* buf, int len) {
   if (!ie_s1_ue_security_capability) {
     Logger::nas_mm().warn("IE ie_s1_ue_security_capability is not available");
   } else {
-    if (int size = ie_s1_ue_security_capability->encode2buffer(
+    if (int size = ie_s1_ue_security_capability->encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -237,19 +237,19 @@ int SecurityModeCommand::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int SecurityModeCommand::decodefrombuffer(
+int SecurityModeCommand::decodeFromBuffer(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding SecurityModeCommand message");
   int decoded_size                    = 3;
   plain_header                        = header;
   ie_selected_nas_security_algorithms = new NAS_Security_Algorithms();
-  decoded_size += ie_selected_nas_security_algorithms->decodefrombuffer(
+  decoded_size += ie_selected_nas_security_algorithms->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   ie_ngKSI = new NasKeySetIdentifier();
-  decoded_size += ie_ngKSI->decodefrombuffer(
+  decoded_size += ie_ngKSI->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, false);
   ie_ue_security_capability = new UESecurityCapability();
-  decoded_size += ie_ue_security_capability->decodefrombuffer(
+  decoded_size += ie_ue_security_capability->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
   uint8_t octet = *(buf + decoded_size);
@@ -259,7 +259,7 @@ int SecurityModeCommand::decodefrombuffer(
       case 0xE: {
         Logger::nas_mm().debug("Decoding IEI (0xE)");
         ie_imeisv_request = new IMEISV_Request();
-        decoded_size += ie_imeisv_request->decodefrombuffer(
+        decoded_size += ie_imeisv_request->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -269,7 +269,7 @@ int SecurityModeCommand::decodefrombuffer(
       case 0x57: {
         Logger::nas_mm().debug("decoding IEI (0x57)");
         ie_eps_nas_security_algorithms = new EPS_NAS_Security_Algorithms();
-        decoded_size += ie_eps_nas_security_algorithms->decodefrombuffer(
+        decoded_size += ie_eps_nas_security_algorithms->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -278,7 +278,7 @@ int SecurityModeCommand::decodefrombuffer(
         Logger::nas_mm().debug("decoding IEI (0x36)");
         ie_additional_5G_security_information =
             new Additional_5G_Security_Information();
-        decoded_size += ie_additional_5G_security_information->decodefrombuffer(
+        decoded_size += ie_additional_5G_security_information->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -286,7 +286,7 @@ int SecurityModeCommand::decodefrombuffer(
       case 0x78: {
         Logger::nas_mm().debug("decoding IEI (0x78)");
         ie_eap_message = new EAP_Message();
-        decoded_size += ie_eap_message->decodefrombuffer(
+        decoded_size += ie_eap_message->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -294,7 +294,7 @@ int SecurityModeCommand::decodefrombuffer(
       case 0x38: {
         Logger::nas_mm().debug("decoding IEI (0x38)");
         ie_abba = new ABBA();
-        decoded_size += ie_abba->decodefrombuffer(
+        decoded_size += ie_abba->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -302,7 +302,7 @@ int SecurityModeCommand::decodefrombuffer(
       case 0x19: {
         Logger::nas_mm().debug("decoding IEI (0x19)");
         ie_s1_ue_security_capability = new S1_UE_Security_Capability();
-        decoded_size += ie_s1_ue_security_capability->decodefrombuffer(
+        decoded_size += ie_s1_ue_security_capability->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

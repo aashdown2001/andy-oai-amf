@@ -73,7 +73,7 @@ uint8_t Extended_DRX_Parameters::getPaging_time() {
 }
 
 //------------------------------------------------------------------------------
-int Extended_DRX_Parameters::encode2buffer(uint8_t* buf, int len) {
+int Extended_DRX_Parameters::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding Extended_DRX_Parameters iei(0x%x)", _iei);
   if (len < 3) {
     Logger::nas_mm().error("len is less than 3");
@@ -97,7 +97,7 @@ int Extended_DRX_Parameters::encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Extended_DRX_Parameters::decodefrombuffer(
+int Extended_DRX_Parameters::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding Extended_DRX_Parameters iei(0x%x)", *buf);
   int decoded_size = 0;

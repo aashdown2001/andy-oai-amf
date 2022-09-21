@@ -28,7 +28,7 @@
 
 #include "ServiceAccept.hpp"
 
-#include "3gpp_ts24501.hpp"
+#include "3gpp_24.501.hpp"
 #include "logger.hpp"
 using namespace nas;
 
@@ -62,19 +62,19 @@ void ServiceAccept::setPDU_session_reactivation_result(uint16_t value) {
 }
 
 //------------------------------------------------------------------------------
-int ServiceAccept::encode2buffer(uint8_t* buf, int len) {
+int ServiceAccept::encode2Buffer(uint8_t* buf, int len) {
   if (!plain_header) {
     Logger::nas_mm().error("Missing message header");
     return -1;
   }
   int encoded_size = 0;
-  if (!(plain_header->encode2buffer(buf, len))) return -1;
+  if (!(plain_header->encode2Buffer(buf, len))) return -1;
   encoded_size += 3;
   if (ie_PDU_session_status)
-    encoded_size += ie_PDU_session_status->encode2buffer(
+    encoded_size += ie_PDU_session_status->encode2Buffer(
         buf + encoded_size, len - encoded_size);
   if (ie_session_reactivation_result)
-    encoded_size += ie_session_reactivation_result->encode2buffer(
+    encoded_size += ie_session_reactivation_result->encode2Buffer(
         buf + encoded_size, len - encoded_size);
   return encoded_size;
 }

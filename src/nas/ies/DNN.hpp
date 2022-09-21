@@ -45,8 +45,8 @@ class DNN {
   DNN(const uint8_t iei, bstring dnn);
   ~DNN();
   // void setValue(uint8_t iei, uint8_t value);
-  int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int encode2Buffer(uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void getValue(bstring& dnn);
 
  private:
