@@ -19,7 +19,7 @@
 namespace oai::amf::model {
 
 AmfEventReport::AmfEventReport() {
-  m_TimeStamp                = "";
+  m_TimeStamp                = 0;
   m_SubscriptionId           = "";
   m_SubscriptionIdIsSet      = false;
   m_AnyUe                    = false;
@@ -412,10 +412,10 @@ AmfEventState AmfEventReport::getState() const {
 void AmfEventReport::setState(AmfEventState const& value) {
   m_State = value;
 }
-std::string AmfEventReport::getTimeStamp() const {
+uint64_t AmfEventReport::getTimeStamp() const {
   return m_TimeStamp;
 }
-void AmfEventReport::setTimeStamp(std::string const& value) {
+void AmfEventReport::setTimeStamp(uint64_t const& value) {
   m_TimeStamp = value;
 }
 std::string AmfEventReport::getSubscriptionId() const {

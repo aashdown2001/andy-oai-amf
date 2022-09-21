@@ -3113,12 +3113,12 @@ void amf_n1::ue_initiate_de_registration_handle(
   event_sub.ue_loss_of_connectivity(
       supi, DEREGISTERED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
 
+  // TODO: put once this scenario is implemented
   // Trigger UE Loss of Connectivity Status Notify
-  Logger::amf_n1().debug(
-      "Signal the UE Loss of Connectivity Event notification for SUPI %s",
-      supi.c_str());
-  event_sub.ue_loss_of_connectivity(
-      supi, PURGED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
+  // Logger::amf_n1().debug(
+  //     "Signal the UE Loss of Connectivity Event notification for SUPI %s",
+  //     supi.c_str());
+  // event_sub.ue_loss_of_connectivity(supi, PURGED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
 
   if (nc->is_stacs_available) {
     stacs.update_5gmm_state(nc->imsi, "5GMM-DEREGISTERED");
