@@ -32,6 +32,9 @@ namespace ngap {
 //------------------------------------------------------------------------------
 HandoverNotifyMsg::HandoverNotifyMsg() : NgapUEMessage() {
   handoverNotifyIEs = nullptr;
+
+  setMessageType(NgapMessageType::HANDOVER_NOTIFY);
+  initialize();
 }
 
 //------------------------------------------------------------------------------

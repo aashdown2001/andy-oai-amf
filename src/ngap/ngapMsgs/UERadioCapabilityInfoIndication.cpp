@@ -35,6 +35,7 @@ UeRadioCapabilityInfoIndicationMsg::UeRadioCapabilityInfoIndicationMsg()
     : NgapUEMessage() {
   ueRadioCapabilityInfoIndicationIEs = nullptr;
   ueRadioCapabilityForPaging         = std::nullopt;
+
   setMessageType(NgapMessageType::UE_RADIO_CAPABILITY_INFO_INDICATION);
   initialize();
 }

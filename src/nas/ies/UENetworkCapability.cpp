@@ -19,20 +19,12 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "UENetworkCapability.hpp"
 
-#include <iostream>
-
+#include "common_defs.h"
 #include "logger.hpp"
+
 using namespace nas;
-using namespace std;
 
 //------------------------------------------------------------------------------
 UENetworkCapability::UENetworkCapability(uint8_t iei) {
@@ -59,7 +51,7 @@ UENetworkCapability::UENetworkCapability(
   _iei       = iei;
   _5g_EEASel = _5gg_EEASel;
   _5g_EIASel = _5gg_EIASel;
-  length     = 4;  // Minimum length
+  length     = kUeNetworkCapabilityMinimumLength;
   Logger::nas_mm().debug(
       "decoded UENetworkCapability EA(0x%d),IA(0x%d)", _5g_EEASel, _5g_EIASel);
 }
@@ -93,22 +85,21 @@ int UENetworkCapability::encode2buffer(uint8_t* buf, int len) {
   }
   int encoded_size = 0;
   if (_iei) {
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = length - 2;
-    encoded_size++;
-    *(buf + encoded_size) = _5g_EEASel;
-    encoded_size++;
-    *(buf + encoded_size) = _5g_EIASel;
-    encoded_size++;
+    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
+    ENCODE_U8(buf + encoded_size, length - 2, encoded_size);
   } else {
-    *(buf + encoded_size) = length - 1;
-    encoded_size++;
-    *(buf + encoded_size) = _5g_EEASel;
-    encoded_size++;
-    *(buf + encoded_size) = _5g_EIASel;
-    encoded_size++;
+    ENCODE_U8(buf + encoded_size, length - 1, encoded_size);
   }
+
+  ENCODE_U8(buf + encoded_size, _5g_EEASel, encoded_size);
+  ENCODE_U8(buf + encoded_size, _5g_EIASel, encoded_size);
+
+  // TODO: Encode the rest as spare for now
+  uint8_t spare = 0;
+  for (int i = 0; i < (length - encoded_size); i++) {
+    ENCODE_U8(buf + encoded_size, spare, encoded_size);
+  }
+
   Logger::nas_mm().debug("Encoded UENetworkCapability len (%d)", encoded_size);
   return encoded_size;
 }
@@ -118,25 +109,28 @@ int UENetworkCapability::decodefrombuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding UENetworkCapability IEI");
   int decoded_size = 0;
-  int ie_length    = 0;
   if (is_option) {
-    _iei = *(buf + decoded_size);
-    decoded_size++;
+    DECODE_U8(buf + decoded_size, _iei, decoded_size);
   }
-  length = *(buf + decoded_size);
-  decoded_size++;
-  ie_length = length + decoded_size;
 
-  _5g_EEASel = *(buf + decoded_size);
-  decoded_size++;
-  _5g_EIASel = *(buf + decoded_size);
-  decoded_size++;
+  uint8_t ie_len = 0;
+  DECODE_U8(buf + decoded_size, ie_len, decoded_size);
+  length = ie_len + decoded_size;
+
+  DECODE_U8(buf + decoded_size, _5g_EEASel, decoded_size);
+  DECODE_U8(buf + decoded_size, _5g_EIASel, decoded_size);
+
+  // TODO: decode the rest as spare for now
+  uint8_t spare = 0;
+  for (int i = 0; i < (ie_len - 2); i++) {
+    ENCODE_U8(buf + decoded_size, spare, decoded_size);
+  }
   Logger::nas_mm().debug(
       "Decoded UENetworkCapability EA (0x%d), IA (0x%d)", _5g_EEASel,
       _5g_EIASel);
   Logger::nas_mm().debug(
-      "Decoded UENetworkCapability len 0x%d, actual length 0x%d", decoded_size,
-      ie_length);
+      "Decoded UENetworkCapability IE len 0x%d, actual length 0x%d", ie_len,
+      decoded_size);
 
-  return ie_length;
+  return decoded_size;
 }

@@ -19,17 +19,13 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _UENetworkCapability_H
 #define _UENetworkCapability_H
 
 #include <stdint.h>
+
+constexpr uint8_t kUeNetworkCapabilityMinimumLength = 4;
+constexpr uint8_t kUeNetworkCapabilityMaximumLength = 15;
 
 namespace nas {
 
@@ -45,7 +41,7 @@ class UENetworkCapability {
   uint8_t getEEASel();
   uint8_t getEIASel();
   int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int decodefrombuffer(uint8_t* buf, int len, bool is_option = true);
 
  private:
   uint8_t _iei;
