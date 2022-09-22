@@ -782,13 +782,6 @@ void amf_n1::identity_response_handle(
 
     set_5gmm_state(nc, _5GMM_COMMON_PROCEDURE_INITIATED);
 
-    string supi = "imsi-" + nc->imsi;
-    Logger::amf_n1().debug(
-        "Signal the UE Registration State Event notification for SUPI %s",
-        supi.c_str());
-    event_sub.ue_registration_state(supi, _5GMM_COMMON_PROCEDURE_INITIATED, 1);
-    // TODO: Trigger UE Location Report
-
     run_registration_procedure(nc);
   }
 }
