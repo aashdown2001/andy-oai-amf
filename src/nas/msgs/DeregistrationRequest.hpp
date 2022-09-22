@@ -67,7 +67,7 @@ class DeregistrationRequest {
   NasMmPlainHeader* plain_header;
   _5GSDeregistrationType* ie_deregistrationtype;
   NasKeySetIdentifier* ie_ngKSI;
-  _5GSMobilityIdentity* ie_5gs_mobility_id;
+  _5GSMobileIdentity* ie_5gs_mobility_id;
 };
 
 }  // namespace nas

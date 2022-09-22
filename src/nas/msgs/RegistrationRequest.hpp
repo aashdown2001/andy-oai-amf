@@ -148,8 +148,8 @@ class RegistrationRequest : public NasMmPlainHeader {
  public:
   // NasMmPlainHeader* plain_header;
   _5GSRegistrationType ie_5gsregistrationtype;  // Mandatory
-  NasKeySetIdentifier* ie_ngKSI;                // Mandatory
-  _5GSMobilityIdentity* ie_5gs_mobility_id;     // Mandatory
+  NasKeySetIdentifier ie_ngKSI;                 // Mandatory
+  _5GSMobileIdentity* ie_5gs_mobility_id;       // Mandatory
 
   NasKeySetIdentifier* ie_non_current_native_nas_ksi;  // Optional
   _5GMMCapability* ie_5g_mm_capability;                // Optional
@@ -162,7 +162,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   PDU_Session_Status* ie_PDU_session_status;                    // Optional
   MICO_Indication* ie_MICO_indicationl;                         // Optional
   UE_Status* ie_ue_status;                                      // Optional
-  _5GSMobilityIdentity* ie_additional_guti;                     // Optional
+  _5GSMobileIdentity* ie_additional_guti;                       // Optional
   Allowed_PDU_Session_Status* ie_allowed_PDU_session_status;    // Optional
   UES_Usage_Setting* ie_ues_usage_setting;                      // Optional
   _5GS_DRX_arameters* ie_5gs_drx_parameters;                    // Optional

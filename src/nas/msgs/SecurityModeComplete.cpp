@@ -54,7 +54,7 @@ void SecurityModeComplete::setHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void SecurityModeComplete::setIMEISV(IMEISV_t imeisv) {
-  ie_imeisv = new _5GSMobilityIdentity();
+  ie_imeisv = new _5GSMobileIdentity();
   ie_imeisv->setIEI(0x77);
   ie_imeisv->setIMEISV(imeisv);
 }
@@ -66,7 +66,7 @@ void SecurityModeComplete::setNAS_Message_Container(bstring value) {
 
 //------------------------------------------------------------------------------
 void SecurityModeComplete::setNON_IMEISV(IMEISV_t imeisv) {
-  ie_non_imeisvpei = new _5GSMobilityIdentity();
+  ie_non_imeisvpei = new _5GSMobileIdentity();
   ie_non_imeisvpei->setIEI(0x78);
   ie_non_imeisvpei->setIMEISV(imeisv);
 }
@@ -164,7 +164,7 @@ int SecurityModeComplete::decodeFromBuffer(
     switch (octet) {
       case 0x77: {
         Logger::nas_mm().debug("Decoding IEI (0x77)");
-        ie_imeisv = new _5GSMobilityIdentity();
+        ie_imeisv = new _5GSMobileIdentity();
         decoded_size += ie_imeisv->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
       } break;
@@ -176,7 +176,7 @@ int SecurityModeComplete::decodeFromBuffer(
       } break;
       case 0x78: {
         Logger::nas_mm().debug("Decoding IEI (0x78)");
-        ie_non_imeisvpei = new _5GSMobilityIdentity();
+        ie_non_imeisvpei = new _5GSMobileIdentity();
         decoded_size += ie_non_imeisvpei->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
       } break;

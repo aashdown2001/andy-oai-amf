@@ -47,7 +47,10 @@ NasKeySetIdentifier::NasKeySetIdentifier(
 }
 
 //------------------------------------------------------------------------------
-int NasKeySetIdentifier::encode2Buffer(uint8_t* buf, int len) {
+NasKeySetIdentifier::~NasKeySetIdentifier(){};
+
+//------------------------------------------------------------------------------
+int NasKeySetIdentifier::encode2Buffer(uint8_t* buf, const int& len) {
   Logger::nas_mm().debug("Encoding NasKeySetIdentifier IE (IEI 0x%x)", iei_);
   if (len < kType1IeSize) {
     Logger::nas_mm().error(
@@ -73,7 +76,7 @@ int NasKeySetIdentifier::encode2Buffer(uint8_t* buf, int len) {
 
 //------------------------------------------------------------------------------
 int NasKeySetIdentifier::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option, bool is_high) {
+    uint8_t* buf, const int& len, bool is_option, bool is_high) {
   Logger::nas_mm().debug("Decoding NasKeySetIdentifier IE");
 
   if (len < kType1IeSize) {
@@ -109,21 +112,21 @@ int NasKeySetIdentifier::decodeFromBuffer(
 }
 
 //------------------------------------------------------------------------------
-void NasKeySetIdentifier::setTypeOfSecurityContext(uint8_t type) {
+void NasKeySetIdentifier::setTypeOfSecurityContext(const uint8_t& type) {
   tsc_ = 0x01 & type;
 }
 
 //------------------------------------------------------------------------------
-void NasKeySetIdentifier::setNasKeyIdentifier(uint8_t id) {
+void NasKeySetIdentifier::setNasKeyIdentifier(const uint8_t& id) {
   key_id_ = 0x07 & id;
 }
 
 //------------------------------------------------------------------------------
-uint8_t NasKeySetIdentifier::getTypeOfSecurityContext() {
+uint8_t NasKeySetIdentifier::getTypeOfSecurityContext() const {
   return tsc_;
 }
 
 //------------------------------------------------------------------------------
-uint8_t NasKeySetIdentifier::getasKeyIdentifier() {
+uint8_t NasKeySetIdentifier::getNasKeyIdentifier() const {
   return key_id_;
 }

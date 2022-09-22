@@ -19,14 +19,7 @@
  *      contact@openairinterface.org
  */
 
-/*! \file 5GSMobilityIdentity.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#include "5GSMobilityIdentity.hpp"
+#include "5GSMobileIdentity.hpp"
 
 #include <math.h>
 
@@ -38,7 +31,7 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-_5GSMobilityIdentity::_5GSMobilityIdentity() {
+_5GSMobileIdentity::_5GSMobileIdentity() {
   iei              = 0;
   _5g_guti         = nullptr;
   imei_imeisv      = nullptr;
@@ -51,7 +44,7 @@ _5GSMobilityIdentity::_5GSMobilityIdentity() {
 }
 
 //------------------------------------------------------------------------------
-_5GSMobilityIdentity::_5GSMobilityIdentity(
+_5GSMobileIdentity::_5GSMobileIdentity(
     uint8_t _iei, const uint16_t amfSetId, const uint8_t amfPointer,
     const string tmsi) {
   iei                     = _iei;
@@ -71,7 +64,7 @@ _5GSMobilityIdentity::_5GSMobilityIdentity(
 }
 
 //------------------------------------------------------------------------------
-_5GSMobilityIdentity::_5GSMobilityIdentity(
+_5GSMobileIdentity::_5GSMobileIdentity(
     const string mcc, const string mnc, const string routingInd,
     uint8_t protection_sch_id, const string msin) {
   iei                           = 0;
@@ -94,15 +87,15 @@ _5GSMobilityIdentity::_5GSMobilityIdentity(
 }
 
 //------------------------------------------------------------------------------
-_5GSMobilityIdentity::~_5GSMobilityIdentity() {}
+_5GSMobileIdentity::~_5GSMobileIdentity() {}
 
 //------------------------------------------------------------------------------
-void _5GSMobilityIdentity::setIEI(uint8_t _iei) {
+void _5GSMobileIdentity::setIEI(uint8_t _iei) {
   iei = _iei;
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::_5g_s_tmsi_encode2buffer(uint8_t* buf, int len) {
+int _5GSMobileIdentity::_5g_s_tmsi_encode2buffer(uint8_t* buf, int len) {
   int encoded_size = 0;
   if (iei) {
     *buf = iei;
@@ -132,7 +125,7 @@ int _5GSMobilityIdentity::_5g_s_tmsi_encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::_5g_s_tmsi_decodefrombuffer(uint8_t* buf, int len) {
+int _5GSMobileIdentity::_5g_s_tmsi_decodefrombuffer(uint8_t* buf, int len) {
   int decoded_size = 0;
   if (!_5g_s_tmsi) _5g_s_tmsi = (_5G_S_TMSI_t*) calloc(1, sizeof(_5G_S_TMSI_t));
   decoded_size++;  // type of identity
@@ -170,7 +163,7 @@ int _5GSMobilityIdentity::_5g_s_tmsi_decodefrombuffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-bool _5GSMobilityIdentity::get5G_S_TMSI(
+bool _5GSMobileIdentity::get5G_S_TMSI(
     uint16_t& amfSetId, uint8_t& amfPointer, string& tmsi) {
   if (!_5g_s_tmsi) return false;
   amfSetId   = _5g_s_tmsi->amf_set_id;
@@ -180,7 +173,7 @@ bool _5GSMobilityIdentity::get5G_S_TMSI(
 }
 
 //------------------------------------------------------------------------------
-void _5GSMobilityIdentity::set5GGUTI(
+void _5GSMobileIdentity::set5GGUTI(
     const string mcc, const string mnc, uint8_t amf_region_id,
     uint16_t amf_set_id, uint8_t amf_pointer, const uint32_t _5g_tmsi) {
   typeOfIdentity = _5G_GUTI;
@@ -196,7 +189,7 @@ void _5GSMobilityIdentity::set5GGUTI(
 }
 
 //------------------------------------------------------------------------------
-void _5GSMobilityIdentity::setSuciWithSupiImsi(
+void _5GSMobileIdentity::setSuciWithSupiImsi(
     const string& mcc, const string& mnc, const string& routingInd,
     uint8_t protecSchId, const string& msin_digits) {
   if (supi_format_imsi == nullptr)
@@ -211,7 +204,7 @@ void _5GSMobilityIdentity::setSuciWithSupiImsi(
 }
 
 //------------------------------------------------------------------------------
-void _5GSMobilityIdentity::setSuciWithSupiImsi(
+void _5GSMobileIdentity::setSuciWithSupiImsi(
     const string& mcc, const string& mnc, const string& routingInd,
     uint8_t protecSchId, uint8_t home_pki, const string& msin_digits) {
   if (supi_format_imsi == nullptr)
@@ -222,12 +215,12 @@ void _5GSMobilityIdentity::setSuciWithSupiImsi(
 }
 
 //------------------------------------------------------------------------------
-void _5GSMobilityIdentity::getSuciWithSupiImsi(SUCI_imsi_t& ptr) {
+void _5GSMobileIdentity::getSuciWithSupiImsi(SUCI_imsi_t& ptr) {
   ptr = *supi_format_imsi;
 }
 
 //------------------------------------------------------------------------------
-void _5GSMobilityIdentity::get5GGUTI(_5G_GUTI_t& ptr) {
+void _5GSMobileIdentity::get5GGUTI(_5G_GUTI_t& ptr) {
   // ptr = *_5g_guti;
   ptr.mcc           = _5g_guti->mcc;
   ptr.mnc           = _5g_guti->mnc;
@@ -238,8 +231,8 @@ void _5GSMobilityIdentity::get5GGUTI(_5G_GUTI_t& ptr) {
 }
 
 //------------------------------------------------------------------------------
-void _5GSMobilityIdentity::setIMEISV(IMEISV_t imeisv) {
-  typeOfIdentity = IMEISVI;
+void _5GSMobileIdentity::setIMEISV(IMEISV_t imeisv) {
+  typeOfIdentity = IMEISV;
   //  imei_imeisv->odd_even_indic = 1;
   // imei_imeisv->identity = ((uint8_t*)imeisv.identity->data[0] & 0xf0) >> 4;
   length           = blength(imeisv.identity) - 1 + 4;
@@ -248,12 +241,12 @@ void _5GSMobilityIdentity::setIMEISV(IMEISV_t imeisv) {
 }
 
 //------------------------------------------------------------------------------
-void _5GSMobilityIdentity::getIMEISV(IMEISV_t& imeisv) {
+void _5GSMobileIdentity::getIMEISV(IMEISV_t& imeisv) {
   imeisv.identity = bstrcpy(_IMEISV.identity);
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::encode2Buffer(uint8_t* buf, int len) {
+int _5GSMobileIdentity::encode2Buffer(uint8_t* buf, int len) {
   switch (typeOfIdentity) {
     case SUCI: {
       return suci_encode2buffer(buf, len);
@@ -261,7 +254,7 @@ int _5GSMobilityIdentity::encode2Buffer(uint8_t* buf, int len) {
     case _5G_GUTI: {
       return _5g_guti_encode2buffer(buf, len);
     } break;
-    case IMEISVI: {
+    case IMEISV: {
       return imeisv_encode2buffer(buf, len);
     } break;
     case _5G_S_TMSI: {
@@ -272,10 +265,11 @@ int _5GSMobilityIdentity::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::suci_encode2buffer(uint8_t* buf, int len) {
+int _5GSMobileIdentity::suci_encode2buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding SUCI IEI 0x%x", iei);
   if (len < length)
     Logger::nas_mm().debug("error: len is less than %d", length);
+
   int encoded_size = 0;
   if (iei) {
     Logger::nas_mm().debug(
@@ -318,7 +312,7 @@ int _5GSMobilityIdentity::suci_encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::_5g_guti_encode2buffer(uint8_t* buf, int len) {
+int _5GSMobileIdentity::_5g_guti_encode2buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding 5G-GUTI IEI 0x%x", iei);
   if (len < length)
     Logger::nas_mm().debug("Error: len is less than %d", length);
@@ -377,7 +371,7 @@ int _5GSMobilityIdentity::_5g_guti_encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::encodeMssMnc2buffer(
+int _5GSMobileIdentity::encodeMssMnc2buffer(
     string mccstr, string mncstr, uint8_t* buf) {
   int encoded_size = 0;
   int mcc          = fromString<int>(mccstr);
@@ -409,7 +403,7 @@ int _5GSMobilityIdentity::encodeMssMnc2buffer(
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::encodeRoutid2buffer(string routidstr, uint8_t* buf) {
+int _5GSMobileIdentity::encodeRoutid2buffer(string routidstr, uint8_t* buf) {
   Logger::nas_mm().debug("routid(%s)", routidstr.c_str());
   int encoded_size = 0;
   if (routidstr == (const string)("none")) {
@@ -453,12 +447,12 @@ int _5GSMobilityIdentity::encodeRoutid2buffer(string routidstr, uint8_t* buf) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::encodeMSIN2buffer(string msinstr, uint8_t* buf) {
+int _5GSMobileIdentity::encodeMSIN2buffer(string msinstr, uint8_t* buf) {
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::imeisv_encode2buffer(uint8_t* buf, int len) {
+int _5GSMobileIdentity::imeisv_encode2buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding IMEISV IE IEI 0x%x", iei);
   if (len < length)
     Logger::nas_mm().debug("Error: len is less than %d", length);
@@ -472,7 +466,7 @@ int _5GSMobilityIdentity::imeisv_encode2buffer(uint8_t* buf, int len) {
     int size = encode_bstring(
         _IMEISV.identity, (buf + encoded_size), len - encoded_size);
     encoded_size += size;
-    *(buf + 3) |= (0x01 << 3) | IMEISVI;
+    *(buf + 3) |= (0x01 << 3) | IMEISV;
   } else {
   }
   if (!iei) {
@@ -485,7 +479,7 @@ int _5GSMobilityIdentity::imeisv_encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::decodeFromBuffer(
+int _5GSMobileIdentity::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding 5GSMobilityIdentity");
   int decoded_size = 0;
@@ -515,8 +509,8 @@ int _5GSMobilityIdentity::decodeFromBuffer(
           _5g_guti_decodefrombuffer(buf + decoded_size, len - decoded_size);
       return decoded_size;
     } break;
-    case IMEISVI: {
-      typeOfIdentity = IMEISVI;
+    case IMEISV: {
+      typeOfIdentity = IMEISV;
       decoded_size += imeisv_decodefrombuffer(buf + decoded_size, length);
       return decoded_size;
     } break;
@@ -531,7 +525,7 @@ int _5GSMobilityIdentity::decodeFromBuffer(
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::suci_decodefrombuffer(
+int _5GSMobileIdentity::suci_decodefrombuffer(
     uint8_t* buf, int len, int ie_len) {
   Logger::nas_mm().debug("Decoding 5GSMobilityIdentity SUCI");
   int decoded_size = 0;
@@ -638,7 +632,7 @@ int _5GSMobilityIdentity::suci_decodefrombuffer(
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::_5g_guti_decodefrombuffer(uint8_t* buf, int len) {
+int _5GSMobileIdentity::_5g_guti_decodefrombuffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding 5GSMobilityIdentity 5G-GUTI");
   int decoded_size = 0;
   uint8_t octet    = 0;
@@ -695,7 +689,7 @@ int _5GSMobilityIdentity::_5g_guti_decodefrombuffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobilityIdentity::imeisv_decodefrombuffer(uint8_t* buf, int len) {
+int _5GSMobileIdentity::imeisv_decodefrombuffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("decoding 5GSMobilityIdentity IMEISV");
   int decoded_size = 0;
   decode_bstring(

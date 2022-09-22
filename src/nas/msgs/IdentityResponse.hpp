@@ -49,10 +49,10 @@ class IdentityResponse {
   void set5G_GUTI();
   void setIMEI_IMEISV();
   void set5G_S_TMSI();
-  /*** belongs to _5GSMobilityIdentity**/
+  /*** belongs to _5GSMobileIdentity**/
  public:
   NasMmPlainHeader* plain_header;
-  _5GSMobilityIdentity* ie_mobility_id;
+  _5GSMobileIdentity* ie_mobility_id;
 };
 
 }  // namespace nas

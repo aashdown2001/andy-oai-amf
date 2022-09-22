@@ -86,8 +86,8 @@ void DeregistrationRequest::getDeregistrationType(
 //------------------------------------------------------------------------------
 bool DeregistrationRequest::getngKSI(uint8_t& ng_ksi) {
   if (ie_ngKSI) {
-    ng_ksi =
-        (ie_ngKSI->getTypeOfSecurityContext()) | ie_ngKSI->getasKeyIdentifier();
+    ng_ksi = (ie_ngKSI->getTypeOfSecurityContext()) |
+             ie_ngKSI->getNasKeyIdentifier();
     return true;
   } else {
     // ng_ksi = 0;
@@ -106,14 +106,14 @@ void DeregistrationRequest::setSUCI_SUPI_format_IMSI(
     return;
   } else {
     ie_5gs_mobility_id =
-        new _5GSMobilityIdentity(mcc, mnc, routingInd, protection_sch_id, msin);
+        new _5GSMobileIdentity(mcc, mnc, routingInd, protection_sch_id, msin);
   }
 }
 
 //------------------------------------------------------------------------------
 void DeregistrationRequest::getMobilityIdentityType(uint8_t& type) {
   if (ie_5gs_mobility_id) {
-    type = ie_5gs_mobility_id->gettypeOfIdentity();
+    type = ie_5gs_mobility_id->getTypeOfIdentity();
   } else {
     type = 0;
   }
@@ -219,7 +219,7 @@ int DeregistrationRequest::decodeFromBuffer(
   decoded_size += ie_ngKSI->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, true);
   decoded_size++;
-  ie_5gs_mobility_id = new _5GSMobilityIdentity();
+  ie_5gs_mobility_id = new _5GSMobileIdentity();
   decoded_size += ie_5gs_mobility_id->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug(

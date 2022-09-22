@@ -34,13 +34,14 @@ class NasKeySetIdentifier {
   NasKeySetIdentifier(const uint8_t& tsc, const uint8_t& key_id);
   ~NasKeySetIdentifier();
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option, bool is_high);
+  int encode2Buffer(uint8_t* buf, const int& len);
+  int decodeFromBuffer(
+      uint8_t* buf, const int& len, bool is_option, bool is_high);
 
-  void setTypeOfSecurityContext(uint8_t type);
-  void setNasKeyIdentifier(uint8_t id);
-  uint8_t getTypeOfSecurityContext();
-  uint8_t getasKeyIdentifier();
+  void setTypeOfSecurityContext(const uint8_t& type);
+  void setNasKeyIdentifier(const uint8_t& id);
+  uint8_t getTypeOfSecurityContext() const;
+  uint8_t getNasKeyIdentifier() const;
 
  private:
   uint8_t iei_;

@@ -61,7 +61,7 @@ void IdentityResponse::setSUCI_SUPI_format_IMSI(
     return;
   } else {
     ie_mobility_id =
-        new _5GSMobilityIdentity(mcc, mnc, routingInd, protection_sch_id, msin);
+        new _5GSMobileIdentity(mcc, mnc, routingInd, protection_sch_id, msin);
   }
 }
 
@@ -111,7 +111,7 @@ int IdentityResponse::decodeFromBuffer(
   Logger::nas_mm().debug("decoding IdentityResponse message");
   int decoded_size = 3;
   plain_header     = header;
-  ie_mobility_id   = new _5GSMobilityIdentity();
+  ie_mobility_id   = new _5GSMobileIdentity();
   decoded_size += ie_mobility_id->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("decoded_size(%d)", decoded_size);

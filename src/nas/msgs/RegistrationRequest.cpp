@@ -39,7 +39,7 @@ RegistrationRequest::RegistrationRequest()
     : NasMmPlainHeader(EPD_5GS_MM_MSG, REGISTRATION_REQUEST) {
   // plain_header                   = nullptr;
   // ie_5gsregistrationtype         = nullptr;
-  ie_ngKSI                       = nullptr;
+  // ie_ngKSI                       = nullptr;
   ie_5gs_mobility_id             = nullptr;
   ie_non_current_native_nas_ksi  = nullptr;
   ie_5g_mm_capability            = nullptr;
@@ -90,19 +90,15 @@ bool RegistrationRequest::get5GSRegistrationType(
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
-  ie_ngKSI = new NasKeySetIdentifier(tsc, key_set_id);
+  ie_ngKSI.setNasKeyIdentifier(key_set_id);
+  ie_ngKSI.setTypeOfSecurityContext(tsc);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getngKSI(uint8_t& ng_ksi) {
-  if (ie_ngKSI) {
-    ng_ksi =
-        (ie_ngKSI->getTypeOfSecurityContext()) | ie_ngKSI->getasKeyIdentifier();
-    return true;
-  } else {
-    // ng_ksi = 0;
-    return false;
-  }
+  ng_ksi =
+      (ie_ngKSI.getTypeOfSecurityContext()) | ie_ngKSI.getNasKeyIdentifier();
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -116,14 +112,14 @@ void RegistrationRequest::setSUCI_SUPI_format_IMSI(
     return;
   } else {
     ie_5gs_mobility_id =
-        new _5GSMobilityIdentity(mcc, mnc, routingInd, protection_sch_id, msin);
+        new _5GSMobileIdentity(mcc, mnc, routingInd, protection_sch_id, msin);
   }
 }
 
 //------------------------------------------------------------------------------
 uint8_t RegistrationRequest::getMobilityIdentityType() {
   if (ie_5gs_mobility_id) {
-    return ie_5gs_mobility_id->gettypeOfIdentity();
+    return ie_5gs_mobility_id->getTypeOfIdentity();
   } else {
     return 0;
   }
@@ -165,7 +161,7 @@ void RegistrationRequest::setAdditional_GUTI_SUCI_SUPI_format_IMSI(
    choose right interface"); return;
    }
    else {*/
-  ie_additional_guti = new _5GSMobilityIdentity();
+  ie_additional_guti = new _5GSMobileIdentity();
   ie_additional_guti->setIEI(0x77);
   uint32_t tmsi = fromString<uint32_t>(_5g_tmsi);
   ie_additional_guti->set5GGUTI(
@@ -208,7 +204,7 @@ uint8_t RegistrationRequest::getNonCurrentNativeNasKSI() {
   if (ie_non_current_native_nas_ksi) {
     uint8_t a = 0;
     a |= (ie_non_current_native_nas_ksi->getTypeOfSecurityContext()) |
-         (ie_non_current_native_nas_ksi->getasKeyIdentifier());
+         (ie_non_current_native_nas_ksi->getNasKeyIdentifier());
     return a;
   } else {
     return 0;
@@ -557,10 +553,11 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
     */
-  if (!ie_ngKSI) {
+  /*if (!ie_ngKSI) {
     Logger::nas_mm().error("Mandatory IE missing ie_ngKSI");
     return 0;
-  }
+  }*/
+
   if (!ie_5gs_mobility_id) {
     Logger::nas_mm().error("Mandatory IE missing ie_5gs_mobility_id");
     return 0;
@@ -569,21 +566,21 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   encoded_size += 3;
   if (!(ie_5gsregistrationtype.encode2Buffer(
           buf + encoded_size, len - encoded_size))) {
-    if (!(ie_ngKSI->encode2Buffer(buf + encoded_size, len - encoded_size))) {
+    if (!(ie_ngKSI.encode2Buffer(buf + encoded_size, len - encoded_size))) {
       encoded_size += 1;
     } else {
-      Logger::nas_mm().error("encoding ie ie_ngKSI error");
+      Logger::nas_mm().error("Encoding IE ie_ngKSI error");
       return 0;
     }
   } else {
-    Logger::nas_mm().error("encoding ie 5gsregistrationtype error");
+    Logger::nas_mm().error("Encoding IE 5gsregistrationtype error");
     return 0;
   }
   if (int size = ie_5gs_mobility_id->encode2Buffer(
           buf + encoded_size, len - encoded_size)) {
     encoded_size += size;
   } else {
-    Logger::nas_mm().error("encoding ie ie_5gs_mobility_id  error");
+    Logger::nas_mm().error("Encoding IE ie_5gs_mobility_id  error");
     return 0;
   }
   if (!ie_non_current_native_nas_ksi) {
@@ -593,7 +590,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
             buf + encoded_size, len - encoded_size) == 1) {
       encoded_size++;
     } else {
-      Logger::nas_mm().error("encoding ie_non_current_native_nas_ksi  error");
+      Logger::nas_mm().error("Encoding IE_non_current_native_nas_ksi  error");
     }
   }
   if (!ie_5g_mm_capability) {
@@ -843,11 +840,10 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
   // ie_5gsregistrationtype = new _5GSRegistrationType();
   decoded_size += ie_5gsregistrationtype.decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
-  ie_ngKSI = new NasKeySetIdentifier();
-  decoded_size += ie_ngKSI->decodeFromBuffer(
+  decoded_size += ie_ngKSI.decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, true);
   decoded_size++;
-  ie_5gs_mobility_id = new _5GSMobilityIdentity();
+  ie_5gs_mobility_id = new _5GSMobileIdentity();
   decoded_size += ie_5gs_mobility_id->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   uint8_t octet = *(buf + decoded_size);
@@ -958,7 +954,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
       case 0x77: {
         Logger::nas_mm().debug("Decoding IEI (0x77)");
-        ie_additional_guti = new _5GSMobilityIdentity();
+        ie_additional_guti = new _5GSMobileIdentity();
         decoded_size += ie_additional_guti->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

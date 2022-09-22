@@ -95,7 +95,7 @@ void RegistrationAccept::setSUCI_SUPI_format_IMSI(
     return;
   } else {
     ie_5g_guti =
-        new _5GSMobilityIdentity(mcc, mnc, routingInd, protection_sch_id, msin);
+        new _5GSMobileIdentity(mcc, mnc, routingInd, protection_sch_id, msin);
     ie_5g_guti->setIEI(0x77);
   }
 }
@@ -109,7 +109,7 @@ void RegistrationAccept::setSUCI_SUPI_format_IMSI(
 void RegistrationAccept::set5G_GUTI(
     const string mcc, const string mnc, const string amfRegionId,
     const string amfSetId, const string amfPointer, const uint32_t tmsi) {
-  ie_5g_guti   = new _5GSMobilityIdentity();
+  ie_5g_guti   = new _5GSMobileIdentity();
   int regionId = fromString<int>(amfRegionId);
   int setId    = fromString<int>(amfSetId);
   int pointer  = fromString<int>(amfPointer);
@@ -661,7 +661,7 @@ int RegistrationAccept::decodeFromBuffer(
     switch (octet) {
       case 0x77: {
         Logger::nas_mm().debug("Decoding IEI (0x77)");
-        ie_5g_guti = new _5GSMobilityIdentity();
+        ie_5g_guti = new _5GSMobileIdentity();
         decoded_size += ie_5g_guti->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

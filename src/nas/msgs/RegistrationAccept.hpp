@@ -43,7 +43,7 @@ class RegistrationAccept {
   void setSOR_Transparent_Container(uint8_t header, uint8_t* value);
   void set_5GS_Registration_Result(
       bool emergency, bool nssaa, bool sms, uint8_t value);
-  /*** belongs to _5GSMobilityIdentity**/
+  /*** belongs to _5GSMobileIdentity**/
   void setSUCI_SUPI_format_IMSI(
       const string mcc, const string mnc, const string routingInd,
       uint8_t protection_sch_id, const string msin);
@@ -55,7 +55,7 @@ class RegistrationAccept {
       const string amfSetId, const string amfPointer, const uint32_t tmsi);
   void setIMEI_IMEISV();
   void set5G_S_TMSI();
-  /*** belongs to _5GSMobilityIdentity**/
+  /*** belongs to _5GSMobileIdentity**/
   void setEquivalent_PLMNs(
       uint8_t MNC_MCC1, uint8_t MNC_MCC2, uint8_t MNC_MCC3);
   void setALLOWED_NSSAI(std::vector<struct SNSSAI_s> nssai);
@@ -87,7 +87,7 @@ class RegistrationAccept {
  public:
   NasMmPlainHeader* plain_header;
   _5GS_Registration_Result* ie_5gs_registration_result;
-  _5GSMobilityIdentity* ie_5g_guti;
+  _5GSMobileIdentity* ie_5g_guti;
   PLMN_List* ie_equivalent_plmns;
   NSSAI* ie_allowed_nssai;
   Rejected_NSSAI* ie_rejected_nssai;

@@ -68,7 +68,7 @@ class ServiceRequest {
   NasMmPlainHeader* plain_header;
   NasKeySetIdentifier* ie_ngKSI;
   ServiceType* ie_service_type;
-  _5GSMobilityIdentity* ie_5g_s_tmsi;
+  _5GSMobileIdentity* ie_5g_s_tmsi;
   UplinkDataStatus* ie_uplink_data_status;
   PDU_Session_Status* ie_PDU_session_status;
   Allowed_PDU_Session_Status* ie_allowed_PDU_session_status;

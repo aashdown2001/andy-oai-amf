@@ -68,7 +68,7 @@ void ServiceRequest::setServiceType(uint8_t stp) {
 //------------------------------------------------------------------------------
 void ServiceRequest::set5G_S_TMSI(
     uint16_t amfSetId, uint8_t amfPointer, string tmsi) {
-  ie_5g_s_tmsi = new _5GSMobilityIdentity(0x00, amfSetId, amfPointer, tmsi);
+  ie_5g_s_tmsi = new _5GSMobileIdentity(0x00, amfSetId, amfPointer, tmsi);
 }
 
 //------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ int ServiceRequest::decodeFromBuffer(
   decoded_size += ie_service_type->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, true);
   decoded_size++;
-  ie_5g_s_tmsi = new _5GSMobilityIdentity();
+  ie_5g_s_tmsi = new _5GSMobileIdentity();
   decoded_size += ie_5g_s_tmsi->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   uint8_t octet = *(buf + decoded_size);
@@ -248,8 +248,8 @@ int ServiceRequest::decodeFromBuffer(
 //------------------------------------------------------------------------------
 bool ServiceRequest::getngKSI(uint8_t& ng_ksi) {
   if (ie_ngKSI) {
-    ng_ksi =
-        (ie_ngKSI->getTypeOfSecurityContext()) | ie_ngKSI->getasKeyIdentifier();
+    ng_ksi = (ie_ngKSI->getTypeOfSecurityContext()) |
+             ie_ngKSI->getNasKeyIdentifier();
     return true;
   } else {
     return false;

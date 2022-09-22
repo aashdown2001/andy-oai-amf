@@ -85,6 +85,7 @@ enum class RegistrationTypeEnum {
   EMERGENCY_REGISTRATION         = 0b100,
   RESERVED                       = 0b111
 };
+
 #define INITIAL_REGISTRATION 0b001
 #define MOBILITY_REGISTRATION_UPDATING 0b010
 #define PERIODIC_REGISTRATION_UPDATING 0b011
@@ -98,12 +99,22 @@ enum class RegistrationTypeEnum {
 
 /********* 5GSMobilityIdentity **********/
 
+enum class _5GSMobilityIdentityEnum {
+  NO_IDENTITY = 0b000,
+  SUCI        = 0b001,
+  _5G_GUTI    = 0b010,
+  IMEI        = 0b011,
+  _5G_S_TMSI  = 0b100,
+  IMEISV      = 0b101,
+  MAC_ADDRESS = 0b110
+};
+
 #define NO_IDENTITY 0b000
 #define SUCI 0b001
 #define _5G_GUTI 0b010
 #define IMEI 0b011
 #define _5G_S_TMSI 0b100
-#define IMEISVI 0b101
+#define IMEISV 0b101
 #define MAC_ADDRESS 0b110
 
 #define EVEN_IENTITY 0
