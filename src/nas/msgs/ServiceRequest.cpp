@@ -68,7 +68,8 @@ void ServiceRequest::setServiceType(uint8_t stp) {
 //------------------------------------------------------------------------------
 void ServiceRequest::set5G_S_TMSI(
     uint16_t amfSetId, uint8_t amfPointer, string tmsi) {
-  ie_5g_s_tmsi = new _5GSMobileIdentity(0x00, amfSetId, amfPointer, tmsi);
+  ie_5g_s_tmsi = new _5GSMobileIdentity(0x00);
+  ie_5g_s_tmsi->set5G_S_TMSI(amfSetId, amfPointer, tmsi);
 }
 
 //------------------------------------------------------------------------------
