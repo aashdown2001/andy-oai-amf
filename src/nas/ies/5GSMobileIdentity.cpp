@@ -34,10 +34,10 @@ using namespace nas;
 _5GSMobileIdentity::_5GSMobileIdentity() {
   iei              = 0;
   _5g_guti         = std::nullopt;
-  imei_imeisv      = nullptr;
-  supi_format_imsi = nullptr;
+  _imei            = std::nullopt;
+  supi_format_imsi = std::nullopt;
   _5g_s_tmsi       = nullptr;
-  _IMEISV          = {};
+  _IMEISV          = std::nullopt;
   is_no_identity   = false;
   length           = 0;
   typeOfIdentity   = 0;
@@ -58,32 +58,37 @@ _5GSMobileIdentity::_5GSMobileIdentity(
   length         = 0;
 
   _5g_guti         = std::nullopt;
-  imei_imeisv      = nullptr;
-  supi_format_imsi = nullptr;
-  _IMEISV          = {};
+  _imei            = std::nullopt;
+  supi_format_imsi = std::nullopt;
+  _IMEISV          = std::nullopt;
 }
 
 //------------------------------------------------------------------------------
 _5GSMobileIdentity::_5GSMobileIdentity(
     const string mcc, const string mnc, const string routingInd,
     uint8_t protection_sch_id, const string msin) {
-  iei                           = 0;
-  typeOfIdentity                = SUCI;
-  supi_format_imsi              = (SUCI_imsi_t*) calloc(1, sizeof(SUCI_imsi_t));
-  supi_format_imsi->supi_format = SUPI_FORMAT_IMSI;
-  supi_format_imsi->mcc         = mcc;
-  supi_format_imsi->mnc         = mnc;
-  supi_format_imsi->routingIndicator   = routingInd;
-  supi_format_imsi->protectionSchemeId = protection_sch_id;
-  supi_format_imsi->homeNetworkPKI     = HOME_NETWORK_PKI_0_WHEN_PSI_0;
-  supi_format_imsi->msin               = msin;
-  length                               = 10 + ceil(msin.length() / 2);
-  is_no_identity                       = false;
+  SUCI_imsi_t supi_format_imsi_tmp = {};
 
-  _5g_s_tmsi  = nullptr;
-  _5g_guti    = std::nullopt;
-  imei_imeisv = nullptr;
-  _IMEISV     = {};
+  iei                                     = 0;
+  typeOfIdentity                          = SUCI;
+  supi_format_imsi_tmp.supi_format        = SUPI_FORMAT_IMSI;
+  supi_format_imsi_tmp.mcc                = mcc;
+  supi_format_imsi_tmp.mnc                = mnc;
+  supi_format_imsi_tmp.routingIndicator   = routingInd;
+  supi_format_imsi_tmp.protectionSchemeId = protection_sch_id;
+  supi_format_imsi_tmp.homeNetworkPKI     = HOME_NETWORK_PKI_0_WHEN_PSI_0;
+  supi_format_imsi_tmp.msin               = msin;
+  length                                  = 10 + ceil(msin.length() / 2);
+  is_no_identity                          = false;
+
+  supi_format_imsi = std::optional<SUCI_imsi_t>(supi_format_imsi_tmp);
+
+
+  // Clear the other types
+  _5g_s_tmsi = nullptr;
+  _5g_guti   = std::nullopt;
+  _imei      = std::nullopt;
+  _IMEISV    = std::nullopt;
 }
 
 //------------------------------------------------------------------------------
@@ -198,46 +203,56 @@ void _5GSMobileIdentity::get5GGUTI(std::optional<_5G_GUTI_t>& guti) const {
 void _5GSMobileIdentity::setSuciWithSupiImsi(
     const string& mcc, const string& mnc, const string& routingInd,
     uint8_t protecSchId, const string& msin_digits) {
-  if (supi_format_imsi == nullptr)
-    supi_format_imsi = (SUCI_imsi_t*) calloc(1, sizeof(SUCI_imsi_t));
-  supi_format_imsi->supi_format        = SUPI_FORMAT_IMSI;
-  supi_format_imsi->mcc                = mcc;
-  supi_format_imsi->mnc                = mnc;
-  supi_format_imsi->routingIndicator   = routingInd;
-  supi_format_imsi->protectionSchemeId = protecSchId;
-  supi_format_imsi->homeNetworkPKI     = HOME_NETWORK_PKI_0_WHEN_PSI_0;
-  supi_format_imsi->msin               = msin_digits;
+  SUCI_imsi_t supi_format_imsi_tmp = {};
+
+  supi_format_imsi_tmp.supi_format        = SUPI_FORMAT_IMSI;
+  supi_format_imsi_tmp.mcc                = mcc;
+  supi_format_imsi_tmp.mnc                = mnc;
+  supi_format_imsi_tmp.routingIndicator   = routingInd;
+  supi_format_imsi_tmp.protectionSchemeId = protecSchId;
+  supi_format_imsi_tmp.homeNetworkPKI     = HOME_NETWORK_PKI_0_WHEN_PSI_0;
+  supi_format_imsi_tmp.msin               = msin_digits;
+  supi_format_imsi = std::optional<SUCI_imsi_t>(supi_format_imsi_tmp);
 }
 
 //------------------------------------------------------------------------------
 void _5GSMobileIdentity::setSuciWithSupiImsi(
     const string& mcc, const string& mnc, const string& routingInd,
     uint8_t protecSchId, uint8_t home_pki, const string& msin_digits) {
-  if (supi_format_imsi == nullptr)
-    supi_format_imsi = (SUCI_imsi_t*) calloc(1, sizeof(SUCI_imsi_t));
-  supi_format_imsi->supi_format = SUPI_FORMAT_IMSI;
-  supi_format_imsi->mcc         = mcc;
-  supi_format_imsi->mnc         = mnc;
+  SUCI_imsi_t supi_format_imsi_tmp = {};
+
+  supi_format_imsi_tmp.supi_format = SUPI_FORMAT_IMSI;
+  supi_format_imsi_tmp.mcc         = mcc;
+  supi_format_imsi_tmp.mnc         = mnc;
+  supi_format_imsi = std::optional<SUCI_imsi_t>(supi_format_imsi_tmp);
 }
 
 //------------------------------------------------------------------------------
-void _5GSMobileIdentity::getSuciWithSupiImsi(SUCI_imsi_t& ptr) {
-  ptr = *supi_format_imsi;
+bool _5GSMobileIdentity::getSuciWithSupiImsi(SUCI_imsi_t& ptr) {
+  if (!supi_format_imsi.has_value()) return false;
+  ptr = supi_format_imsi.value();
+  return true;
 }
 
 //------------------------------------------------------------------------------
-void _5GSMobileIdentity::setIMEISV(IMEISV_t imeisv) {
+void _5GSMobileIdentity::setIMEISV(const IMEISV_t& imeisv) {
   typeOfIdentity = IMEISV;
+  // TODO: clear the other types
+
   //  imei_imeisv->odd_even_indic = 1;
   // imei_imeisv->identity = ((uint8_t*)imeisv.identity->data[0] & 0xf0) >> 4;
-  length           = blength(imeisv.identity) - 1 + 4;
-  _IMEISV.identity = bstrcpy(imeisv.identity);
-  _IMEISV.identity->data[blength(imeisv.identity) - 1] |= 0xf0;
+  length              = blength(imeisv.identity) - 1 + 4;
+  IMEISV_t IMEISV_tmp = {};
+  IMEISV_tmp.identity = bstrcpy(imeisv.identity);
+  IMEISV_tmp.identity->data[blength(imeisv.identity) - 1] |= 0xf0;
+  _IMEISV = std::optional<IMEISV_t>(IMEISV_tmp);
 }
 
 //------------------------------------------------------------------------------
-void _5GSMobileIdentity::getIMEISV(IMEISV_t& imeisv) {
-  imeisv.identity = bstrcpy(_IMEISV.identity);
+bool _5GSMobileIdentity::getIMEISV(IMEISV_t& imeisv) {
+  if (!_IMEISV.has_value()) return false;
+  imeisv.identity = bstrcpy(_IMEISV.value().identity);
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -262,45 +277,49 @@ int _5GSMobileIdentity::encode2Buffer(uint8_t* buf, int len) {
 //------------------------------------------------------------------------------
 int _5GSMobileIdentity::suci_encode2buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding SUCI IEI 0x%x", iei);
-  if (len < length)
+
+  if (!supi_format_imsi.has_value()) return KEncodeDecodeError;
+  if (len < length) {
     Logger::nas_mm().debug("error: len is less than %d", length);
+    return KEncodeDecodeError;
+  }
 
   int encoded_size = 0;
   if (iei) {
     Logger::nas_mm().debug(
         "Decoding 5GSMobilityIdentity IEI 0x%x", typeOfIdentity);
-    *(buf) = iei;
-    encoded_size++;
-    encoded_size += 2;
-    *(buf + encoded_size) = 0x00 | (SUPI_FORMAT_IMSI << 4) | SUCI;
-    encoded_size += 1;
-    encoded_size += encodeMssMnc2buffer(
-        supi_format_imsi->mcc, supi_format_imsi->mnc, buf + encoded_size);
-    encoded_size += encodeRoutid2buffer(
-        supi_format_imsi->routingIndicator, buf + encoded_size);
-    *(buf + encoded_size) = 0x00 | supi_format_imsi->protectionSchemeId;
-    encoded_size += 1;
-    *(buf + encoded_size) = 0x00 | supi_format_imsi->homeNetworkPKI;
-    encoded_size += 1;
-  } else {
-    encoded_size += 2;
-    *(buf + encoded_size) = 0x00 | (SUPI_FORMAT_IMSI << 4) | SUCI;
-    encoded_size += 1;
-    encoded_size += encodeMssMnc2buffer(
-        supi_format_imsi->mcc, supi_format_imsi->mnc, buf + encoded_size);
-    encoded_size += encodeRoutid2buffer(
-        supi_format_imsi->routingIndicator, buf + encoded_size);
-    *(buf + encoded_size) = 0x00 | supi_format_imsi->protectionSchemeId;
-    encoded_size += 1;
-    *(buf + encoded_size) = 0x00 | supi_format_imsi->homeNetworkPKI;
-    encoded_size += 1;
-    // encoded_size += encodeMSIN2buffer(supi_format_imsi->msin,
-    // buf+encoded_size);
+    ENCODE_U8(buf + encoded_size, iei, encoded_size);
   }
+
+  encoded_size += 2;  // For encode Lengh later on
+
+  // SUPI format + Type of Identity
+  ENCODE_U8(
+      buf + encoded_size, (0x70 & (SUPI_FORMAT_IMSI << 4)) | (0x07 & SUCI),
+      encoded_size);
+  // MCC/MNC
+  encoded_size += encodeMccMnc2buffer(
+      supi_format_imsi.value().mcc, supi_format_imsi.value().mnc,
+      buf + encoded_size);
+
+  // Routing Indicator
+  encoded_size += encodeRoutid2buffer(
+      supi_format_imsi.value().routingIndicator, buf + encoded_size);
+  // Protection Scheme
+  ENCODE_U8(
+      buf + encoded_size, 0x0f & supi_format_imsi.value().protectionSchemeId,
+      encoded_size);
+  // Home network public key identifier
+  ENCODE_U8(
+      buf + encoded_size, supi_format_imsi.value().homeNetworkPKI,
+      encoded_size);
+
+  // Encode Length
+  int encoded_len_ie = 0;
   if (!iei) {
-    *(uint16_t*) buf = encoded_size - 2;
+    ENCODE_U16(buf, encoded_size - 2, encoded_len_ie);
   } else {
-    *(uint16_t*) (buf + 1) = encoded_size - 3;
+    ENCODE_U16(buf + 1, encoded_size - 3, encoded_len_ie);
   }
   Logger::nas_mm().debug("Encoded SUCI IE (len %d octets)", encoded_size);
   return encoded_size;
@@ -321,7 +340,7 @@ int _5GSMobileIdentity::_5g_guti_encode2buffer(uint8_t* buf, int len) {
 
   ENCODE_U8(
       buf + encoded_size, 0xf0 | _5G_GUTI, encoded_size);  // Type of Identity
-  encoded_size += encodeMssMnc2buffer(
+  encoded_size += encodeMccMnc2buffer(
       _5g_guti.value().mcc, _5g_guti.value().mnc, buf + encoded_size);
   ENCODE_U8(buf + encoded_size, _5g_guti.value().amf_region_id, encoded_size);
   ENCODE_U8(
@@ -354,7 +373,7 @@ int _5GSMobileIdentity::_5g_guti_encode2buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSMobileIdentity::encodeMssMnc2buffer(
+int _5GSMobileIdentity::encodeMccMnc2buffer(
     const std::string& mcc_str, const std::string& mnc_str, uint8_t* buf) {
   int encoded_size = 0;
   uint8_t value    = 0;
@@ -441,26 +460,33 @@ int _5GSMobileIdentity::encodeMSIN2buffer(string msinstr, uint8_t* buf) {
 //------------------------------------------------------------------------------
 int _5GSMobileIdentity::imeisv_encode2buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding IMEISV IE IEI 0x%x", iei);
+  if (!_IMEISV.has_value()) return KEncodeDecodeError;
   if (len < length)
     Logger::nas_mm().debug("Error: len is less than %d", length);
   int encoded_size = 0;
   if (iei) {
     Logger::nas_mm().debug(
-        "Decoding 5GSMobilityIdentity IEI 0x%x", typeOfIdentity);
-    *(buf) = iei;
-    encoded_size++;
-    encoded_size += 2;
-    int size = encode_bstring(
-        _IMEISV.identity, (buf + encoded_size), len - encoded_size);
-    encoded_size += size;
-    *(buf + 3) |= (0x01 << 3) | IMEISV;
-  } else {
+        "Encoding 5GSMobilityIdentity IEI 0x%x", typeOfIdentity);
+    ENCODE_U8(buf + encoded_size, iei, encoded_size);
   }
+
+  encoded_size += 2;  // Skip len for now
+
+  int size = encode_bstring(
+      _IMEISV.value().identity, (buf + encoded_size), len - encoded_size);
+  encoded_size += size;
+  // Update Type of identity (3 bits of Octet 4)
+  *(buf + 3) |= (0x01 << 3) | IMEISV;
+  // TODO: odd/even indic
+
+  // Encode length
+  int encoded_len = 0;
   if (!iei) {
-    *(uint16_t*) buf = encoded_size - 2;
+    ENCODE_U16(buf, encoded_size - 2, encoded_len);
   } else {
-    *(uint16_t*) (buf + 1) = encoded_size - 3;
+    ENCODE_U16(buf + 1, encoded_size - 3, encoded_len);
   }
+
   Logger::nas_mm().debug("Encoded IMEISV IE (len %d octets)", encoded_size);
   return encoded_size;
 }
@@ -497,17 +523,19 @@ int _5GSMobileIdentity::decodeFromBuffer(
           _5g_guti_decodefrombuffer(buf + decoded_size, len - decoded_size);
       return decoded_size;
     } break;
-    case IMEISV: {
-      typeOfIdentity = IMEISV;
-      decoded_size += imeisv_decodefrombuffer(buf + decoded_size, length);
-      return decoded_size;
-    } break;
+    // TODO: IMEI
     case _5G_S_TMSI: {
       typeOfIdentity = _5G_S_TMSI;
       decoded_size +=
           _5g_s_tmsi_decodefrombuffer(buf + decoded_size, len - decoded_size);
       return decoded_size;
     } break;
+    case IMEISV: {
+      typeOfIdentity = IMEISV;
+      decoded_size += imeisv_decodefrombuffer(buf + decoded_size, length);
+      return decoded_size;
+    } break;
+    // TODO: MAC Address
     default: {
       // TODO:
     }
@@ -521,27 +549,25 @@ int _5GSMobileIdentity::suci_decodefrombuffer(
   Logger::nas_mm().debug("Decoding 5GSMobilityIdentity SUCI");
   int decoded_size = 0;
   uint8_t octet    = 0;
-  octet            = *buf;
-  decoded_size++;
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+
   switch ((octet & 0x70) >> 4) {
     case SUPI_FORMAT_IMSI: {
-      supi_format_imsi = (SUCI_imsi_t*) calloc(1, sizeof(SUCI_imsi_t));
-      supi_format_imsi->supi_format = SUPI_FORMAT_IMSI;
-      octet                         = *(buf + decoded_size);
-      decoded_size++;
+      SUCI_imsi_t supi_format_imsi_tmp = {};
+      supi_format_imsi_tmp.supi_format = SUPI_FORMAT_IMSI;
+
+      DECODE_U8(buf + decoded_size, octet, decoded_size);
       int mcc = 0, mnc = 0;
       mcc += ((octet & 0x0f) * 100 + ((octet & 0xf0) >> 4) * 10);
-      octet = *(buf + decoded_size);
-      decoded_size++;
+
+      DECODE_U8(buf + decoded_size, octet, decoded_size);
       mcc += (octet & 0x0f);
       if ((octet & 0xf0) == 0xf0) {
-        octet = *(buf + decoded_size);
-        decoded_size++;
+        DECODE_U8(buf + decoded_size, octet, decoded_size);
         mnc += ((octet & 0x0f) * 10 + ((octet & 0xf0) >> 4));
       } else {
         mnc += ((octet & 0xf0) >> 4);
-        octet = *(buf + decoded_size);
-        decoded_size++;
+        DECODE_U8(buf + decoded_size, octet, decoded_size);
         mnc += ((octet & 0x0f) * 100 + ((octet & 0xf0) >> 4) * 10);
       }
       std::string mnc_str = std::to_string(mnc);
@@ -557,21 +583,21 @@ int _5GSMobileIdentity::suci_decodefrombuffer(
 
       Logger::nas_mm().debug(
           "MCC %s, MNC %s", mcc_str.c_str(), mnc_str.c_str());
-      supi_format_imsi->mcc = (const string)(mcc_str);
-      supi_format_imsi->mnc = (const string)(mnc_str);
-      int routid            = 0;
+      supi_format_imsi_tmp.mcc = (const string)(mcc_str);
+      supi_format_imsi_tmp.mnc = (const string)(mnc_str);
+
+      int routid = 0;
       uint8_t digit[4];
-      octet = *(buf + decoded_size);
-      decoded_size++;
+      DECODE_U8(buf + decoded_size, octet, decoded_size);
       digit[0] = octet & 0x0f;
       digit[1] = (octet & 0xf0) >> 4;
-      octet    = *(buf + decoded_size);
-      decoded_size++;
+
+      DECODE_U8(buf + decoded_size, octet, decoded_size);
       digit[2] = octet & 0x0f;
       digit[3] = (octet & 0xf0) >> 4;
       if (!digit[0] && digit[1] == 0x0f && digit[2] == 0x0f &&
           digit[3] == 0x0f) {
-        supi_format_imsi->routingIndicator = (const string)("none");
+        supi_format_imsi_tmp.routingIndicator = (const string)("none");
       } else {
         string result = "";
         for (int i = 0; i < 4; i++) {
@@ -583,40 +609,45 @@ int _5GSMobileIdentity::suci_decodefrombuffer(
             Logger::nas_mm().error(
                 "Decoded routing indicator is not BCD coding");
         }
-        supi_format_imsi->routingIndicator = result;
+        supi_format_imsi_tmp.routingIndicator = result;
         Logger::nas_mm().debug(
             "Decoded routing indicator %s",
-            supi_format_imsi->routingIndicator.c_str());
+            supi_format_imsi_tmp.routingIndicator.c_str());
       }
-      octet = *(buf + decoded_size);
-      decoded_size++;
-      supi_format_imsi->protectionSchemeId = 0x0f & octet;
-      octet                                = *(buf + decoded_size);
-      decoded_size++;
-      supi_format_imsi->homeNetworkPKI = octet;
-      string msin                      = "";
+      // Protection scheme Id
+      DECODE_U8(buf + decoded_size, octet, decoded_size);
+      supi_format_imsi_tmp.protectionSchemeId = 0x0f & octet;
+      // Home network public key identifier
+      DECODE_U8(buf + decoded_size, octet, decoded_size);
+      supi_format_imsi_tmp.homeNetworkPKI = octet;
+
+      // MSIN
+      string msin = "";
       // TODO: get MSIN according to Protection Scheme ID to support
       // ECIES scheme profile A/B
       int digit_low = 0, digit_high = 0, numMsin = ie_len - decoded_size;
       for (int i = 0; i < numMsin; i++) {
-        octet = *(buf + decoded_size);
-        decoded_size++;
+        DECODE_U8(buf + decoded_size, octet, decoded_size);
         digit_high = (octet & 0xf0) >> 4;
         digit_low  = octet & 0x0f;
         msin +=
             ((const string)(std::to_string(digit_low)) +
              (const string)(std::to_string(digit_high)));
       }
-      supi_format_imsi->msin = msin;
+      supi_format_imsi_tmp.msin = msin;
       Logger::nas_mm().debug("Decoded MSIN %s", supi_format_imsi->msin.c_str());
+
+      supi_format_imsi = std::optional<SUCI_imsi_t>(supi_format_imsi_tmp);
       Logger::nas_mm().debug(
           "Decoded 5GSMobilityIdentity SUCI SUPI format IMSI (len %d)",
           decoded_size);
       return decoded_size;
     } break;
     case SUPI_FORMAT_NETWORK_SPECIFIC_IDENTIFIER: {
+      // TODO:
     } break;
     default: {
+      // TODO:
     } break;
   }
   return 0;
@@ -678,16 +709,18 @@ int _5GSMobileIdentity::_5g_guti_decodefrombuffer(uint8_t* buf, int len) {
 
 //------------------------------------------------------------------------------
 int _5GSMobileIdentity::imeisv_decodefrombuffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("decoding 5GSMobilityIdentity IMEISV");
-  int decoded_size = 0;
+  Logger::nas_mm().debug("Decoding 5GSMobilityIdentity IMEISV");
+  int decoded_size    = 0;
+  IMEISV_t IMEISV_tmp = {};
   decode_bstring(
-      &(_IMEISV.identity), len, (buf + decoded_size), len - decoded_size);
+      &(IMEISV_tmp.identity), len, (buf + decoded_size), len - decoded_size);
   decoded_size += len;
   for (int i = 0; i < len; i++) {
     Logger::nas_mm().debug(
-        "decoded 5GSMobilityIdentity IMEISV value(0x%x)",
-        (uint8_t) _IMEISV.identity->data[i]);
+        "Decoded 5GSMobilityIdentity IMEISV value(0x%x)",
+        (uint8_t) IMEISV_tmp.identity->data[i]);
   }
+  _IMEISV = std::optional<IMEISV_t>(IMEISV_tmp);
   Logger::nas_mm().debug(
       "decoded 5GSMobilityIdentity IMEISV len (%d)", decoded_size);
   return decoded_size;

@@ -37,8 +37,8 @@ namespace nas {
 
 // 5G-GUTI
 typedef struct _5G_GUTI_s {
-  string mcc;
-  string mnc;
+  std::string mcc;
+  std::string mnc;
   uint8_t amf_region_id;
   uint8_t amf_set_id;
   uint16_t amf_pointer;
@@ -84,7 +84,7 @@ class _5GSMobileIdentity {
   _5GSMobileIdentity(
       const string mcc, const string mnc, const string routingInd,
       uint8_t protection_sch_id,
-      const string msin);  // SUCI and SUPI format IMSI
+      const string msin);  // TODO: SetSUCI, SUCI and SUPI format IMSI
 
   _5GSMobileIdentity();
   ~_5GSMobileIdentity();
@@ -94,10 +94,11 @@ class _5GSMobileIdentity {
   void setIEI(uint8_t _iei);
 
   int encode2Buffer(uint8_t* buf, int len);
-  int suci_encode2buffer(uint8_t* buf, int len);
   int _5g_guti_encode2buffer(uint8_t* buf, int len);
 
-  int encodeMssMnc2buffer(
+  int suci_encode2buffer(uint8_t* buf, int len);
+
+  int encodeMccMnc2buffer(
       const std::string& mcc_str, const std::string& mnc_str, uint8_t* buf);
 
   int encodeRoutid2buffer(string routid, uint8_t* buf);
@@ -125,24 +126,25 @@ class _5GSMobileIdentity {
   void setSuciWithSupiImsi(
       const string& mcc, const string& mnc, const string& routingInd,
       uint8_t protecSchId, const string& msin_digits);
-  void getSuciWithSupiImsi(SUCI_imsi_t&);
+  bool getSuciWithSupiImsi(SUCI_imsi_t&);
 
   bool get5G_S_TMSI(uint16_t& amfSetId, uint8_t& amfPointer, string& tmsi);
 
-  void setIMEISV(IMEISV_t imeisv);
-  void getIMEISV(IMEISV_t& imeisv);
+  void setIMEISV(const IMEISV_t& imeisv);
+  bool getIMEISV(IMEISV_t& imeisv);
 
  private:
   uint8_t iei;
   uint16_t length;
   uint8_t typeOfIdentity : 3;
 
+  std::optional<SUCI_imsi_t> supi_format_imsi;
   std::optional<_5G_GUTI_t> _5g_guti;
-  IMEI_IMEISV_t* imei_imeisv;
-  SUCI_imsi_t* supi_format_imsi;
+  std::optional<IMEI_IMEISV_t> _imei;  // TODO:
+  std::optional<IMEISV_t> _IMEISV;
+
   _5G_S_TMSI_t* _5g_s_tmsi;
   bool is_no_identity;
-  IMEISV_t _IMEISV;
 };
 
 }  // namespace nas
