@@ -36,9 +36,8 @@ _5GSMobileIdentity::_5GSMobileIdentity() {
   _5g_guti         = std::nullopt;
   _imei            = std::nullopt;
   supi_format_imsi = std::nullopt;
-  _5g_s_tmsi       = nullptr;
+  _5g_s_tmsi       = std::nullopt;
   _IMEISV          = std::nullopt;
-  is_no_identity   = false;
   length           = 0;
   typeOfIdentity   = 0;
 }
@@ -46,49 +45,23 @@ _5GSMobileIdentity::_5GSMobileIdentity() {
 //------------------------------------------------------------------------------
 _5GSMobileIdentity::_5GSMobileIdentity(
     uint8_t _iei, const uint16_t amfSetId, const uint8_t amfPointer,
-    const string tmsi) {
-  iei                     = _iei;
-  typeOfIdentity          = _5G_S_TMSI;
-  _5g_s_tmsi              = (_5G_S_TMSI_t*) calloc(1, sizeof(_5G_S_TMSI_t));
-  _5g_s_tmsi->amf_set_id  = amfSetId;
-  _5g_s_tmsi->amf_pointer = amfPointer;
-  _5g_s_tmsi->_5g_tmsi    = tmsi;
+    const string tmsi) {  // TODO-> set5G-S-TMSI
+  _5G_S_TMSI_t _5g_s_tmsi_tmp = {};
+  iei                         = _iei;
+  typeOfIdentity              = _5G_S_TMSI;
+  _5g_s_tmsi_tmp.amf_set_id   = amfSetId;
+  _5g_s_tmsi_tmp.amf_pointer  = amfPointer;
+  _5g_s_tmsi_tmp._5g_tmsi     = tmsi;
 
-  is_no_identity = false;
-  length         = 0;
+  _5g_s_tmsi = std::optional<_5G_S_TMSI_t>(_5g_s_tmsi_tmp);
 
+  length = 0;
+
+  // Clear the other types
   _5g_guti         = std::nullopt;
   _imei            = std::nullopt;
   supi_format_imsi = std::nullopt;
   _IMEISV          = std::nullopt;
-}
-
-//------------------------------------------------------------------------------
-_5GSMobileIdentity::_5GSMobileIdentity(
-    const string mcc, const string mnc, const string routingInd,
-    uint8_t protection_sch_id, const string msin) {
-  SUCI_imsi_t supi_format_imsi_tmp = {};
-
-  iei                                     = 0;
-  typeOfIdentity                          = SUCI;
-  supi_format_imsi_tmp.supi_format        = SUPI_FORMAT_IMSI;
-  supi_format_imsi_tmp.mcc                = mcc;
-  supi_format_imsi_tmp.mnc                = mnc;
-  supi_format_imsi_tmp.routingIndicator   = routingInd;
-  supi_format_imsi_tmp.protectionSchemeId = protection_sch_id;
-  supi_format_imsi_tmp.homeNetworkPKI     = HOME_NETWORK_PKI_0_WHEN_PSI_0;
-  supi_format_imsi_tmp.msin               = msin;
-  length                                  = 10 + ceil(msin.length() / 2);
-  is_no_identity                          = false;
-
-  supi_format_imsi = std::optional<SUCI_imsi_t>(supi_format_imsi_tmp);
-
-
-  // Clear the other types
-  _5g_s_tmsi = nullptr;
-  _5g_guti   = std::nullopt;
-  _imei      = std::nullopt;
-  _IMEISV    = std::nullopt;
 }
 
 //------------------------------------------------------------------------------
@@ -101,79 +74,96 @@ void _5GSMobileIdentity::setIEI(uint8_t _iei) {
 
 //------------------------------------------------------------------------------
 int _5GSMobileIdentity::_5g_s_tmsi_encode2buffer(uint8_t* buf, int len) {
+  if (!_5g_s_tmsi.has_value()) return KEncodeDecodeError;
+
   int encoded_size = 0;
   if (iei) {
-    *buf = iei;
-    encoded_size++;
+    ENCODE_U8(buf + encoded_size, iei, encoded_size);
   }
-  *(buf + encoded_size) = 0x00;
-  encoded_size++;
-  *(buf + encoded_size) = 0x07;
-  encoded_size++;
-  *(buf + encoded_size) = 0xf0 | _5G_S_TMSI;
-  encoded_size++;
-  *(buf + encoded_size) = ((_5g_s_tmsi->amf_set_id) & 0x03fc) >> 8;
-  encoded_size++;
-  *(buf + encoded_size) = (((_5g_s_tmsi->amf_set_id) & 0x0003) << 6) |
-                          ((_5g_s_tmsi->amf_pointer) & 0x3f);
-  encoded_size++;
-  int tmsi              = fromString<int>(_5g_s_tmsi->_5g_tmsi);
-  *(buf + encoded_size) = tmsi & 0x000000ff;
-  encoded_size += 1;
-  *(buf + encoded_size) = (tmsi & 0x0000ff00) >> 8;
-  encoded_size += 1;
-  *(buf + encoded_size) = (tmsi & 0x00ff0000) >> 16;
-  encoded_size += 1;
-  *(buf + encoded_size) = (tmsi & 0xff000000) >> 24;
-  encoded_size += 1;
+
+  // LENGTH
+  ENCODE_U8(buf + encoded_size, 0x00, encoded_size);
+  ENCODE_U8(buf + encoded_size, 0x07, encoded_size);
+
+  // Type of identity
+  ENCODE_U8(buf + encoded_size, 0xf0 | _5G_S_TMSI, encoded_size);
+
+  // AMF Set ID and AMF Pointer
+  ENCODE_U8(
+      buf + encoded_size, ((_5g_s_tmsi.value().amf_set_id) & 0x03fc) >> 8,
+      encoded_size);
+  ENCODE_U8(
+      buf + encoded_size,
+      (((_5g_s_tmsi.value().amf_set_id) & 0x0003) << 6) |
+          ((_5g_s_tmsi.value().amf_pointer) & 0x3f),
+      encoded_size);
+
+  // 5G-TMSI
+  int tmsi = fromString<int>(_5g_s_tmsi.value()._5g_tmsi);
+  ENCODE_U32(buf + encoded_size, tmsi, encoded_size);
+
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
 int _5GSMobileIdentity::_5g_s_tmsi_decodefrombuffer(uint8_t* buf, int len) {
-  int decoded_size = 0;
-  if (!_5g_s_tmsi) _5g_s_tmsi = (_5G_S_TMSI_t*) calloc(1, sizeof(_5G_S_TMSI_t));
+  int decoded_size            = 0;
+  _5G_S_TMSI_t _5g_s_tmsi_tmp = {};
+
   decoded_size++;  // type of identity
-  uint8_t octet = *(buf + decoded_size);
-  decoded_size++;
-  _5g_s_tmsi->amf_set_id = 0x0000 | ((uint16_t) octet) << 2;
-  octet                  = *(buf + decoded_size);
-  decoded_size++;
-  _5g_s_tmsi->amf_set_id |= (octet & 0xc0) >> 6;
-  _5g_s_tmsi->amf_pointer = octet & 0x3f;
-  uint32_t tmsi           = 0;
-  uint8_t digit[4];
-  octet = *(buf + decoded_size);
-  decoded_size++;
-  Logger::nas_mm().debug("Octet 0x%x", octet);
-  digit[0] = octet;
-  tmsi |= octet;
-  octet = *(buf + decoded_size);
-  decoded_size++;
-  Logger::nas_mm().debug("Octet 0x%x", octet);
-  digit[1] = octet;
-  tmsi |= octet << 8;
-  octet = *(buf + decoded_size);
-  decoded_size++;
-  Logger::nas_mm().debug("Octet 0x%x", octet);
-  digit[2] = octet;
-  tmsi |= octet << 16;
-  octet = *(buf + decoded_size);
-  decoded_size++;
-  Logger::nas_mm().debug("Octet 0x%x", octet);
-  digit[3] = octet;
-  tmsi |= octet << 24;
-  _5g_s_tmsi->_5g_tmsi = conv::tmsi_to_string(tmsi);
+
+  // AMF Set ID and AMF Pointer
+  uint8_t octet = 0;
+
+  //*(buf + decoded_size);
+  // decoded_size++;
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+  _5g_s_tmsi_tmp.amf_set_id = 0x0000 | ((uint16_t) octet) << 2;
+  // octet                  = *(buf + decoded_size);
+  // decoded_size++;
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+  _5g_s_tmsi_tmp.amf_set_id |= (octet & 0xc0) >> 6;
+  _5g_s_tmsi_tmp.amf_pointer = octet & 0x3f;
+
+  // 5G TMSI
+  uint32_t tmsi = 0;
+  DECODE_U32(buf + decoded_size, tmsi, decoded_size);
+  /*
+    uint8_t digit[4];
+   // octet = *(buf + decoded_size);
+   // decoded_size++;
+    Logger::nas_mm().debug("Octet 0x%x", octet);
+    digit[0] = octet;
+    tmsi |= octet;
+    //octet = *(buf + decoded_size);
+    //decoded_size++;
+    Logger::nas_mm().debug("Octet 0x%x", octet);
+    digit[1] = octet;
+    tmsi |= octet << 8;
+    //octet = *(buf + decoded_size);
+    //decoded_size++;
+    Logger::nas_mm().debug("Octet 0x%x", octet);
+    digit[2] = octet;
+    tmsi |= octet << 16;
+    //octet = *(buf + decoded_size);
+    //decoded_size++;
+    Logger::nas_mm().debug("Octet 0x%x", octet);
+    digit[3] = octet;
+    tmsi |= octet << 24;
+  */
+  _5g_s_tmsi_tmp._5g_tmsi = conv::tmsi_to_string(tmsi);
+  _5g_s_tmsi              = std::optional<_5G_S_TMSI_t>(_5g_s_tmsi_tmp);
+
   return decoded_size;
 }
 
 //------------------------------------------------------------------------------
 bool _5GSMobileIdentity::get5G_S_TMSI(
     uint16_t& amfSetId, uint8_t& amfPointer, string& tmsi) {
-  if (!_5g_s_tmsi) return false;
-  amfSetId   = _5g_s_tmsi->amf_set_id;
-  amfPointer = _5g_s_tmsi->amf_pointer;
-  tmsi       = _5g_s_tmsi->_5g_tmsi;
+  if (!_5g_s_tmsi.has_value()) return false;
+  amfSetId   = _5g_s_tmsi.value().amf_set_id;
+  amfPointer = _5g_s_tmsi.value().amf_pointer;
+  tmsi       = _5g_s_tmsi.value()._5g_tmsi;
   return true;
 }
 
@@ -198,7 +188,7 @@ void _5GSMobileIdentity::set5GGUTI(
 void _5GSMobileIdentity::get5GGUTI(std::optional<_5G_GUTI_t>& guti) const {
   guti = _5g_guti;
 }
-
+/*
 //------------------------------------------------------------------------------
 void _5GSMobileIdentity::setSuciWithSupiImsi(
     const string& mcc, const string& mnc, const string& routingInd,
@@ -214,6 +204,33 @@ void _5GSMobileIdentity::setSuciWithSupiImsi(
   supi_format_imsi_tmp.msin               = msin_digits;
   supi_format_imsi = std::optional<SUCI_imsi_t>(supi_format_imsi_tmp);
 }
+*/
+//------------------------------------------------------------------------------
+void _5GSMobileIdentity::setSuciWithSupiImsi(
+    const string mcc, const string mnc, const string routingInd,
+    uint8_t protection_sch_id, const string msin) {
+  // TODO: Set SUCI...
+  SUCI_imsi_t supi_format_imsi_tmp = {};
+
+  iei                                     = 0;
+  typeOfIdentity                          = SUCI;
+  supi_format_imsi_tmp.supi_format        = SUPI_FORMAT_IMSI;
+  supi_format_imsi_tmp.mcc                = mcc;
+  supi_format_imsi_tmp.mnc                = mnc;
+  supi_format_imsi_tmp.routingIndicator   = routingInd;
+  supi_format_imsi_tmp.protectionSchemeId = protection_sch_id;
+  supi_format_imsi_tmp.homeNetworkPKI     = HOME_NETWORK_PKI_0_WHEN_PSI_0;
+  supi_format_imsi_tmp.msin               = msin;
+  length                                  = 10 + ceil(msin.length() / 2);
+
+  supi_format_imsi = std::optional<SUCI_imsi_t>(supi_format_imsi_tmp);
+
+  // Clear the other types
+  _5g_s_tmsi = std::nullopt;
+  _5g_guti   = std::nullopt;
+  _imei      = std::nullopt;
+  _IMEISV    = std::nullopt;
+}
 
 //------------------------------------------------------------------------------
 void _5GSMobileIdentity::setSuciWithSupiImsi(
@@ -225,6 +242,7 @@ void _5GSMobileIdentity::setSuciWithSupiImsi(
   supi_format_imsi_tmp.mcc         = mcc;
   supi_format_imsi_tmp.mnc         = mnc;
   supi_format_imsi = std::optional<SUCI_imsi_t>(supi_format_imsi_tmp);
+  // TODO: clear the other types
 }
 
 //------------------------------------------------------------------------------
@@ -238,9 +256,6 @@ bool _5GSMobileIdentity::getSuciWithSupiImsi(SUCI_imsi_t& ptr) {
 void _5GSMobileIdentity::setIMEISV(const IMEISV_t& imeisv) {
   typeOfIdentity = IMEISV;
   // TODO: clear the other types
-
-  //  imei_imeisv->odd_even_indic = 1;
-  // imei_imeisv->identity = ((uint8_t*)imeisv.identity->data[0] & 0xf0) >> 4;
   length              = blength(imeisv.identity) - 1 + 4;
   IMEISV_t IMEISV_tmp = {};
   IMEISV_tmp.identity = bstrcpy(imeisv.identity);

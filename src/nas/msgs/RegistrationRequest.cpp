@@ -104,8 +104,9 @@ void RegistrationRequest::setSUCI_SUPI_format_IMSI(
         "interface");
     return;
   } else {
-    ie_5gs_mobility_id =
-        new _5GSMobileIdentity(mcc, mnc, routingInd, protection_sch_id, msin);
+    ie_5gs_mobility_id = new _5GSMobileIdentity();
+    ie_5gs_mobility_id->setSuciWithSupiImsi(
+        mcc, mnc, routingInd, protection_sch_id, msin);
   }
 }
 
