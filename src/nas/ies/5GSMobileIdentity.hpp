@@ -23,6 +23,7 @@
 #define _5GS_MOBILE_IDENTITY_H_
 
 #include <stdint.h>
+#include <optional>
 
 #include "struct.hpp"
 extern "C" {
@@ -95,7 +96,10 @@ class _5GSMobileIdentity {
   int encode2Buffer(uint8_t* buf, int len);
   int suci_encode2buffer(uint8_t* buf, int len);
   int _5g_guti_encode2buffer(uint8_t* buf, int len);
-  int encodeMssMnc2buffer(string mcc, string mnc, uint8_t* buf);
+
+  int encodeMssMnc2buffer(
+      const std::string& mcc_str, const std::string& mnc_str, uint8_t* buf);
+
   int encodeRoutid2buffer(string routid, uint8_t* buf);
   int encodeMSIN2buffer(string msinstr, uint8_t* buf);
   int _5g_s_tmsi_encode2buffer(uint8_t* buf, int len);
@@ -105,13 +109,15 @@ class _5GSMobileIdentity {
   int imeisv_decodefrombuffer(uint8_t* buf, int len);
 
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+
   int suci_decodefrombuffer(uint8_t* buf, int len, int length);
   int _5g_guti_decodefrombuffer(uint8_t* buf, int len);
 
   void set5GGUTI(
-      const string mcc, const string mnc, uint8_t amf_region_id,
-      uint16_t amf_set_id, uint8_t amf_pointer, const uint32_t _5g_tmsi);
-  void get5GGUTI(_5G_GUTI_t&);
+      const string& mcc, const string& mnc, const uint8_t& amf_region_id,
+      const uint16_t& amf_set_id, const uint8_t& amf_pointer,
+      const uint32_t& _5g_tmsi);
+  void get5GGUTI(std::optional<_5G_GUTI_t>&) const;
 
   void setSuciWithSupiImsi(
       const string& mcc, const string& mnc, const string& routingInd,
@@ -131,7 +137,7 @@ class _5GSMobileIdentity {
   uint16_t length;
   uint8_t typeOfIdentity : 3;
 
-  _5G_GUTI_t* _5g_guti;
+  std::optional<_5G_GUTI_t> _5g_guti;
   IMEI_IMEISV_t* imei_imeisv;
   SUCI_imsi_t* supi_format_imsi;
   _5G_S_TMSI_t* _5g_s_tmsi;

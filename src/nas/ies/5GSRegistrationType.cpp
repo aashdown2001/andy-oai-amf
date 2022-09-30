@@ -104,7 +104,7 @@ int _5GSRegistrationType::decodeFromBuffer(
 
   Logger::nas_mm().debug(
       "Decoded 5GSRegistrationType IE (%d octet)", decoded_size);
-  return decoded_size;
+  return 0;  // to read NAS Key Set Identifier (1/2 octet)
 }
 
 //------------------------------------------------------------------------------

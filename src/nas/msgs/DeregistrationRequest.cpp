@@ -132,12 +132,15 @@ bool DeregistrationRequest::getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi) {
 //------------------------------------------------------------------------------
 std::string DeregistrationRequest::get_5g_guti() {
   if (ie_5gs_mobility_id) {
-    nas::_5G_GUTI_t guti;
+    std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
     ie_5gs_mobility_id->get5GGUTI(guti);
-    std::string guti_str =
-        guti.mcc + guti.mnc + std::to_string(guti.amf_region_id) +
-        std::to_string(guti.amf_set_id) + std::to_string(guti.amf_pointer) +
-        conv::tmsi_to_string(guti._5g_tmsi);
+    if (!guti.has_value()) return {};
+
+    std::string guti_str = guti.value().mcc + guti.value().mnc +
+                           std::to_string(guti.value().amf_region_id) +
+                           std::to_string(guti.value().amf_set_id) +
+                           std::to_string(guti.value().amf_pointer) +
+                           conv::tmsi_to_string(guti.value()._5g_tmsi);
     Logger::nas_mm().debug("5G GUTI %s", guti_str.c_str());
     return guti_str;
   } else {

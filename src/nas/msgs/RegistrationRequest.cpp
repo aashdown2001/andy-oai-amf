@@ -138,12 +138,15 @@ bool RegistrationRequest::getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi) {
 //------------------------------------------------------------------------------
 std::string RegistrationRequest::get_5g_guti() {
   if (ie_5gs_mobility_id) {
-    nas::_5G_GUTI_t guti;
+    std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
     ie_5gs_mobility_id->get5GGUTI(guti);
-    std::string guti_str =
-        guti.mcc + guti.mnc + std::to_string(guti.amf_region_id) +
-        std::to_string(guti.amf_set_id) + std::to_string(guti.amf_pointer) +
-        conv::tmsi_to_string(guti._5g_tmsi);
+    if (!guti.has_value()) return {};
+
+    std::string guti_str = guti.value().mcc + guti.value().mnc +
+                           std::to_string(guti.value().amf_region_id) +
+                           std::to_string(guti.value().amf_set_id) +
+                           std::to_string(guti.value().amf_pointer) +
+                           conv::tmsi_to_string(guti.value()._5g_tmsi);
     Logger::nas_mm().debug("5G GUTI %s", guti_str.c_str());
     return guti_str;
   } else {
@@ -172,7 +175,9 @@ void RegistrationRequest::setAdditional_GUTI_SUCI_SUPI_format_IMSI(
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getAdditionalGuti(nas::_5G_GUTI_t& guti) {
   if (ie_additional_guti) {
+    std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
     ie_additional_guti->get5GGUTI(guti);
+    if (!guti.has_value()) return false;
     return true;
   } else {
     return false;
