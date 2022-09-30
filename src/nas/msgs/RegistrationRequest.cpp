@@ -30,10 +30,6 @@ using namespace nas;
 //------------------------------------------------------------------------------
 RegistrationRequest::RegistrationRequest()
     : NasMmPlainHeader(EPD_5GS_MM_MSG, REGISTRATION_REQUEST) {
-  // plain_header                   = nullptr;
-  // ie_5gsregistrationtype         = nullptr;
-  // ie_ngKSI                       = nullptr;
-  ie_5gs_mobility_id             = nullptr;
   ie_non_current_native_nas_ksi  = nullptr;
   ie_5g_mm_capability            = nullptr;
   ie_ue_security_capability      = nullptr;
@@ -104,48 +100,35 @@ void RegistrationRequest::setSUCI_SUPI_format_IMSI(
         "interface");
     return;
   } else {
-    ie_5gs_mobility_id = new _5GSMobileIdentity();
-    ie_5gs_mobility_id->setSuciWithSupiImsi(
+    ie_5gs_mobility_id.setSuciWithSupiImsi(
         mcc, mnc, routingInd, protection_sch_id, msin);
   }
 }
 
 //------------------------------------------------------------------------------
 uint8_t RegistrationRequest::getMobilityIdentityType() {
-  if (ie_5gs_mobility_id) {
-    return ie_5gs_mobility_id->getTypeOfIdentity();
-  } else {
-    return 0;
-  }
+  return ie_5gs_mobility_id.getTypeOfIdentity();
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi) {
-  if (ie_5gs_mobility_id) {
-    ie_5gs_mobility_id->getSuciWithSupiImsi(imsi);
-    return true;
-  } else {
-    return false;
-  }
+  ie_5gs_mobility_id.getSuciWithSupiImsi(imsi);
+  return true;
 }
 
 //------------------------------------------------------------------------------
 std::string RegistrationRequest::get_5g_guti() {
-  if (ie_5gs_mobility_id) {
-    std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
-    ie_5gs_mobility_id->get5GGUTI(guti);
-    if (!guti.has_value()) return {};
+  std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
+  ie_5gs_mobility_id.get5GGUTI(guti);
+  if (!guti.has_value()) return {};
 
-    std::string guti_str = guti.value().mcc + guti.value().mnc +
-                           std::to_string(guti.value().amf_region_id) +
-                           std::to_string(guti.value().amf_set_id) +
-                           std::to_string(guti.value().amf_pointer) +
-                           conv::tmsi_to_string(guti.value()._5g_tmsi);
-    Logger::nas_mm().debug("5G GUTI %s", guti_str.c_str());
-    return guti_str;
-  } else {
-    return {};
-  }
+  std::string guti_str = guti.value().mcc + guti.value().mnc +
+                         std::to_string(guti.value().amf_region_id) +
+                         std::to_string(guti.value().amf_set_id) +
+                         std::to_string(guti.value().amf_pointer) +
+                         conv::tmsi_to_string(guti.value()._5g_tmsi);
+  Logger::nas_mm().debug("5G GUTI %s", guti_str.c_str());
+  return guti_str;
 }
 
 //------------------------------------------------------------------------------
@@ -547,20 +530,6 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding RegistrationRequest message");
   int encoded_size = 0;
 
-  /*  if (!ie_5gsregistrationtype) {
-      Logger::nas_mm().error("Mandatory IE missing ie_5gsregistrationtype");
-      return 0;
-    }
-    */
-  /*if (!ie_ngKSI) {
-    Logger::nas_mm().error("Mandatory IE missing ie_ngKSI");
-    return 0;
-  }*/
-
-  if (!ie_5gs_mobility_id) {
-    Logger::nas_mm().error("Mandatory IE missing ie_5gs_mobility_id");
-    return 0;
-  }
   if (!(NasMmPlainHeader::encode2Buffer(buf, len))) return 0;
   encoded_size += 3;
   if (!(ie_5gsregistrationtype.encode2Buffer(
@@ -575,7 +544,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
     Logger::nas_mm().error("Encoding IE 5gsregistrationtype error");
     return 0;
   }
-  if (int size = ie_5gs_mobility_id->encode2Buffer(
+  if (int size = ie_5gs_mobility_id.encode2Buffer(
           buf + encoded_size, len - encoded_size)) {
     encoded_size += size;
   } else {
@@ -842,8 +811,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
   decoded_size += ie_ngKSI.decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, true);
   decoded_size++;
-  ie_5gs_mobility_id = new _5GSMobileIdentity();
-  decoded_size += ie_5gs_mobility_id->decodeFromBuffer(
+  decoded_size += ie_5gs_mobility_id.decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI 0x%x", octet);

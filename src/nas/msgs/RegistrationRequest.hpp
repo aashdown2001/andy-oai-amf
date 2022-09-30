@@ -149,7 +149,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   // NasMmPlainHeader* plain_header;
   _5GSRegistrationType ie_5gsregistrationtype;  // Mandatory
   NasKeySetIdentifier ie_ngKSI;                 // Mandatory
-  _5GSMobileIdentity* ie_5gs_mobility_id;       // Mandatory
+  _5GSMobileIdentity ie_5gs_mobility_id;        // Mandatory
 
   NasKeySetIdentifier* ie_non_current_native_nas_ksi;  // Optional
   _5GMMCapability* ie_5g_mm_capability;                // Optional
