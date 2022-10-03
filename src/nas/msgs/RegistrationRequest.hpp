@@ -156,10 +156,10 @@ class RegistrationRequest : public NasMmPlainHeader {
   std::optional<_5GMMCapability> ie_5g_mm_capability;                // Optional
   std::optional<UESecurityCapability> ie_ue_security_capability;     // Optional
   std::optional<NSSAI> ie_requested_NSSAI;                           // Optional
-  // TODO: Last visited registered TAI
+
+  _5GS_Tracking_Area_Identity* ie_last_visited_registered_TAI;  // Optional
   UENetworkCapability* ie_s1_ue_network_capability;             // Optional
   UplinkDataStatus* ie_uplink_data_status;                      // Optional
-  _5GS_Tracking_Area_Identity* ie_last_visited_registered_TAI;  // Optional
   PDU_Session_Status* ie_PDU_session_status;                    // Optional
   MICO_Indication* ie_MICO_indicationl;                         // Optional
   UE_Status* ie_ue_status;                                      // Optional

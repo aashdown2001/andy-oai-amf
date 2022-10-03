@@ -23,8 +23,9 @@
 
 #include <math.h>
 
-#include "3gpp_24.501.hpp"
 #include "conversions.hpp"
+#include "3gpp_24.501.hpp"
+#include "NasUtils.hpp"
 #include "String2Value.hpp"
 #include "logger.hpp"
 
@@ -300,9 +301,9 @@ int _5GSMobileIdentity::suci_encode2buffer(uint8_t* buf, int len) {
       buf + encoded_size, (0x70 & (SUPI_FORMAT_IMSI << 4)) | (0x07 & SUCI),
       encoded_size);
   // MCC/MNC
-  encoded_size += encodeMccMnc2buffer(
+  encoded_size += NasUtils::encodeMccMnc2Buffer(
       supi_format_imsi.value().mcc, supi_format_imsi.value().mnc,
-      buf + encoded_size);
+      buf + encoded_size, len - encoded_size);
 
   // Routing Indicator
   encoded_size += encodeRoutid2buffer(

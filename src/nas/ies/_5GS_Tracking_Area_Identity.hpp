@@ -19,17 +19,13 @@
  *      contact@openairinterface.org
  */
 
-/*! \file _5GS_Tracking_Area_Identity.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __5GS_Tracking_Area_Identity_H_
-#define __5GS_Tracking_Area_Identity_H_
+#ifndef __5GS_TRACKING_AREA_IDENTITY_H_
+#define __5GS_TRACKING_AREA_IDENTITY_H_
 
 #include <stdint.h>
+#include <string>
+
+constexpr uint8_t k5gsTrackingAreaIdentityLength = 7;
 
 namespace nas {
 
@@ -38,28 +34,49 @@ class _5GS_Tracking_Area_Identity {
   _5GS_Tracking_Area_Identity();
   _5GS_Tracking_Area_Identity(uint8_t iei);
   _5GS_Tracking_Area_Identity(
-      const uint8_t iei, uint8_t MNC_MCC1, uint8_t MNC_MCC2, uint8_t MNC_MCC3,
-      uint32_t TAC);
+      const uint8_t iei, const std::string& mcc, const std::string& mnc,
+      const uint32_t& tac);
+
   ~_5GS_Tracking_Area_Identity();
-  void setMNC_MCC1(uint8_t iei, uint8_t value);
-  void setMNC_MCC2(uint8_t iei, uint8_t value);
-  void setMNC_MCC3(uint8_t iei, uint8_t value);
-  void setTAC(uint8_t iei, uint32_t value);
+
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+
+  void setTAC(const uint32_t& value);
+  uint32_t getTAC() const;
+  void getTAC(uint32_t& value) const;
+
+  void setMcc(const std::string& mcc);
+  void getMcc(std::string& mcc) const;
+
+  void setMnc(const std::string& mnc);
+  void getMnc(std::string& mnc) const;
+
+  /*
+//TODO: to be removed
+  void setMNC_MCC1(uint8_t iei, uint8_t value);
   uint8_t getMNC_MCC1();
+
+  void setMNC_MCC2(uint8_t iei, uint8_t value);
   uint8_t getMNC_MCC2();
+
+  void setMNC_MCC3(uint8_t iei, uint8_t value);
   uint8_t getMNC_MCC3();
-  uint32_t getTAC();
+*/
 
  private:
   uint8_t _iei;
-  uint8_t _MNC_MCC1;
+  /*uint8_t _MNC_MCC1;
   uint8_t _MNC_MCC2;
   uint8_t _MNC_MCC3;
   uint8_t _TAC1;
   uint8_t _TAC2;
   uint8_t _TAC3;
+*/
+
+  std::string mcc_;
+  std::string mnc_;
+  uint32_t tac_;
 };
 }  // namespace nas
 

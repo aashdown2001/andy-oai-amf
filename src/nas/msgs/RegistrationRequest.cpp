@@ -271,8 +271,10 @@ bool RegistrationRequest::getRequestedNssai(
 //------------------------------------------------------------------------------
 void RegistrationRequest::setLast_Visited_Registered_TAI(
     uint8_t MNC_MCC1, uint8_t MNC_MCC2, uint8_t MNC_MCC3, uint32_t TAC) {
-  ie_last_visited_registered_TAI =
-      new _5GS_Tracking_Area_Identity(0x52, MNC_MCC1, MNC_MCC2, MNC_MCC3, TAC);
+  // ie_last_visited_registered_TAI =
+  //    new _5GS_Tracking_Area_Identity(0x52, MNC_MCC1, MNC_MCC2, MNC_MCC3,
+  //    TAC);
+  // TODO:
 }
 
 //------------------------------------------------------------------------------
@@ -621,6 +623,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
     }
   }
 
+  // Last visited registered TAI
   if (!ie_last_visited_registered_TAI) {
     Logger::nas_mm().warn("IE ie_Last_visited_registered_TAI is not available");
   } else {
@@ -632,6 +635,8 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
+
+  // S1 UE network capability
   if (!ie_s1_ue_network_capability) {
     Logger::nas_mm().warn("IE ie_s1_ue_network_capability is not available");
   } else {

@@ -87,6 +87,7 @@ class _5GSMobileIdentity {
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
 
+  // TODO: add len
   int encodeMccMnc2buffer(
       const std::string& mcc_str, const std::string& mnc_str, uint8_t* buf);
 
@@ -114,8 +115,10 @@ class _5GSMobileIdentity {
       const std::string& msin_digits);
   bool getSuciWithSupiImsi(SUCI_imsi_t&);
 
+  // TODO: add len
   int encodeRoutid2buffer(
       std::optional<std::string> routing_indicator, uint8_t* buf);
+  // TODO: add len
   int encodeMSIN2buffer(std::string msinstr, uint8_t* buf);
 
   // TMSI
