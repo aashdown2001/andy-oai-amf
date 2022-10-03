@@ -53,7 +53,7 @@ uint8_t ExtendedProtocolDiscriminator::Get() const {
 int ExtendedProtocolDiscriminator::Encode(uint8_t* buf, const uint32_t& len) {
   if (len < kType1IeSize) {
     Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%s octet)",
+        "Buffer length is less than the minimum length of this IE (%d octet)",
         kType1IeSize);
     return KEncodeDecodeError;
   }
@@ -67,7 +67,7 @@ int ExtendedProtocolDiscriminator::Decode(
     const uint8_t* const buf, const uint32_t& len) {
   if (len < kType1IeSize) {
     Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%s octet)",
+        "Buffer length is less than the minimum length of this IE (%d octet)",
         kType1IeSize);
     return KEncodeDecodeError;
   }

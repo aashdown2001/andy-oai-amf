@@ -33,7 +33,7 @@ RegistrationRequest::RegistrationRequest()
   ie_non_current_native_nas_ksi  = std::nullopt;
   ie_5g_mm_capability            = std::nullopt;
   ie_ue_security_capability      = std::nullopt;
-  ie_requested_NSSAI             = nullptr;
+  ie_requested_NSSAI             = std::nullopt;
   ie_s1_ue_network_capability    = nullptr;
   ie_uplink_data_status          = nullptr;
   ie_last_visited_registered_TAI = nullptr;
@@ -254,14 +254,14 @@ bool RegistrationRequest::getUeSecurityCapability(
 //------------------------------------------------------------------------------
 void RegistrationRequest::setRequested_NSSAI(
     std::vector<struct SNSSAI_s> nssai) {
-  ie_requested_NSSAI = new NSSAI(0x2F, nssai);
+  ie_requested_NSSAI = std::make_optional<NSSAI>(0x2F, nssai);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getRequestedNssai(
     std::vector<struct SNSSAI_s>& nssai) {
-  if (ie_requested_NSSAI) {
-    ie_requested_NSSAI->getValue(nssai);
+  if (ie_requested_NSSAI.has_value()) {
+    ie_requested_NSSAI.value().getValue(nssai);
   } else {
     return false;
   }
@@ -608,17 +608,19 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
     }
   }
 
-  if (!ie_requested_NSSAI) {
-    Logger::nas_mm().warn("IE ie_requested_NSSAI is not available");
+  // Requested NSSAI
+  if (!ie_requested_NSSAI.has_value()) {
+    Logger::nas_mm().warn("IE Requested NSSAI is not available");
   } else {
-    if (int size = ie_requested_NSSAI->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
-      encoded_size += size;
+    if ((encoded_ie_size = ie_requested_NSSAI.value().encode2Buffer(
+             buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
+      Logger::nas_mm().error("Encoding Requested NSSAI error");
+      return KEncodeDecodeError;
     } else {
-      Logger::nas_mm().error("encoding ie_requested_NSSAI  error");
-      return 0;
+      encoded_size += encoded_ie_size;
     }
   }
+
   if (!ie_last_visited_registered_TAI) {
     Logger::nas_mm().warn("IE ie_Last_visited_registered_TAI is not available");
   } else {
@@ -913,10 +915,11 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
       case 0x2F: {
         Logger::nas_mm().debug("Decoding IEI (0x2F)");
-        ie_requested_NSSAI = new NSSAI();
-        decoded_size += ie_requested_NSSAI->decodeFromBuffer(
+        NSSAI ie_requested_NSSAI_tmp = {};
+        decoded_size += ie_requested_NSSAI_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
-        octet = *(buf + decoded_size);
+        ie_requested_NSSAI = std::optional<NSSAI>(ie_requested_NSSAI_tmp);
+        octet              = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
       case 0x52: {

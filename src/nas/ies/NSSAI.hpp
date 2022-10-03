@@ -19,15 +19,8 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __NSSAI_H_
-#define __NSSAI_H_
+#ifndef _NSSAI_H_
+#define _NSSAI_H_
 #include <stdint.h>
 
 #include <vector>
@@ -40,9 +33,8 @@ class NSSAI {
  public:
   NSSAI();
   NSSAI(uint8_t iei);
-  NSSAI(const uint8_t iei, std::vector<struct SNSSAI_s> nssai);
+  NSSAI(const uint8_t iei, const std::vector<struct SNSSAI_s>& nssai);
   ~NSSAI();
-  void setS_NAASI(uint8_t SST);
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void getValue(std::vector<struct SNSSAI_s>& nssai);

@@ -54,7 +54,7 @@ int _5GSRegistrationType::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().error("Encoding 5gsregistrationtype IE");
   if (len < kType1IeSize) {
     Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%s octet)",
+        "Buffer length is less than the minimum length of this IE (%d octet)",
         kType1IeSize);
     return KEncodeDecodeError;
   }
@@ -80,7 +80,7 @@ int _5GSRegistrationType::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   if (len < kType1IeSize) {
     Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%s octet)",
+        "Buffer length is less than the minimum length of this IE (%d octet)",
         kType1IeSize);
     return KEncodeDecodeError;
   }

@@ -54,7 +54,7 @@ int NasKeySetIdentifier::encode2Buffer(uint8_t* buf, const int& len) {
   Logger::nas_mm().debug("Encoding NasKeySetIdentifier IE (IEI 0x%x)", iei_);
   if (len < kType1IeSize) {
     Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%s octet)",
+        "Buffer length is less than the minimum length of this IE (%d octet)",
         kType1IeSize);
     return KEncodeDecodeError;
   }
@@ -81,7 +81,7 @@ int NasKeySetIdentifier::decodeFromBuffer(
 
   if (len < kType1IeSize) {
     Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%s octet)",
+        "Buffer length is less than the minimum length of this IE (%d octet)",
         kType1IeSize);
     return KEncodeDecodeError;
   }
