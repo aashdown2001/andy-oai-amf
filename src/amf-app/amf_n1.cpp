@@ -1285,8 +1285,8 @@ void amf_n1::registration_request_handle(
   // Get non-current native NAS key set identity (Optional IE), used for
   // inter-system change from S1 to N1 Get 5GMM Capability IE (optional), not
   // included for periodic registration updating procedure
-  uint8_t _5g_mm_cap = registration_request->get5GMMCapability();
-  if (_5g_mm_cap == -1) {
+  uint8_t _5g_mm_cap = 0;
+  if (!registration_request->get5GMMCapability(_5g_mm_cap)) {
     Logger::amf_n1().warn("No Optional IE 5GMMCapability available");
   }
   nc->mmCapability = _5g_mm_cap;

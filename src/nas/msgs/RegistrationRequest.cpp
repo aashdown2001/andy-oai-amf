@@ -31,7 +31,7 @@ using namespace nas;
 RegistrationRequest::RegistrationRequest()
     : NasMmPlainHeader(EPD_5GS_MM_MSG, REGISTRATION_REQUEST) {
   ie_non_current_native_nas_ksi  = std::nullopt;
-  ie_5g_mm_capability            = nullptr;
+  ie_5g_mm_capability            = std::nullopt;
   ie_ue_security_capability      = nullptr;
   ie_requested_NSSAI             = nullptr;
   ie_s1_ue_network_capability    = nullptr;
@@ -176,7 +176,7 @@ void RegistrationRequest::setIMEI_IMEISV() {}
 void RegistrationRequest::set5G_S_TMSI() {}
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setNon_current_native_nas_ksi(
+void RegistrationRequest::setNonCurrentNativeNasKSI(
     uint8_t tsc, uint8_t key_set_id) {
   ie_non_current_native_nas_ksi =
       std::make_optional<NasKeySetIdentifier>(0xC, tsc, key_set_id);
@@ -196,15 +196,16 @@ bool RegistrationRequest::getNonCurrentNativeNasKSI(uint8_t& value) const {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::set5G_MM_capability(uint8_t value) {
-  ie_5g_mm_capability = new _5GMMCapability(0x10, value);
+  ie_5g_mm_capability = std::make_optional<_5GMMCapability>(0x10, value);
 }
 
 //------------------------------------------------------------------------------
-uint8_t RegistrationRequest::get5GMMCapability() {
-  if (ie_5g_mm_capability)
-    return ie_5g_mm_capability->getValue();
-  else
-    return 0;
+bool RegistrationRequest::get5GMMCapability(uint8_t& value) {
+  if (ie_5g_mm_capability.has_value()) {
+    value = ie_5g_mm_capability.value().getValue();
+    return true;
+  } else
+    return false;
 }
 
 //------------------------------------------------------------------------------
@@ -562,10 +563,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       Logger::nas_mm().error("Encoding IE_non_current_native_nas_ksi  error");
     }
   }
-  if (!ie_5g_mm_capability) {
+  if (!ie_5g_mm_capability.has_value()) {
     Logger::nas_mm().warn("IE ie_5g_mm_capability is not available");
   } else {
-    if (int size = ie_5g_mm_capability->encode2Buffer(
+    if (int size = ie_5g_mm_capability.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -802,8 +803,9 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
 //------------------------------------------------------------------------------
 int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding RegistrationRequest message");
-  int decoded_size   = 0;
-  int decoded_result = 0;
+  int decoded_size    = 0;
+  int decoded_size_ie = 0;
+  int decoded_result  = 0;
   // plain_header           = header;
   decoded_size = NasMmPlainHeader::decodeFromBuffer(buf, len);
   // ie_5gsregistrationtype = new _5GSRegistrationType();
@@ -859,10 +861,16 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
     }
     switch (octet) {
       case 0x10: {
-        Logger::nas_mm().debug("Decoding IEI (0x10)");
-        ie_5g_mm_capability = new _5GMMCapability();
-        decoded_size += ie_5g_mm_capability->decodeFromBuffer(
-            buf + decoded_size, len - decoded_size, true);
+        Logger::nas_mm().debug("Decoding 5GMMCapability (IEI 0x10)");
+        _5GMMCapability ie_5g_mm_capability_tmp = {};
+        if ((decoded_size_ie = ie_5g_mm_capability_tmp.decodeFromBuffer(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError) {
+          return KEncodeDecodeError;
+        }
+        decoded_size += decoded_size_ie;
+        ie_5g_mm_capability =
+            std::optional<_5GMMCapability>(ie_5g_mm_capability_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;

@@ -71,11 +71,11 @@ class RegistrationRequest : public NasMmPlainHeader {
       uint8_t amf_set_id, uint8_t amf_pointer, const string _5g_tmsi);
   bool getAdditionalGuti(nas::_5G_GUTI_t& guti);
 
-  void setNon_current_native_nas_ksi(uint8_t tsc, uint8_t key_set_id);
+  void setNonCurrentNativeNasKSI(uint8_t tsc, uint8_t key_set_id);
   bool getNonCurrentNativeNasKSI(uint8_t& value) const;
 
   void set5G_MM_capability(uint8_t value);
-  uint8_t get5GMMCapability();
+  bool get5GMMCapability(uint8_t& value);
 
   void setUE_Security_Capability(uint8_t g_EASel, uint8_t g_IASel);
   void setUE_Security_Capability(
@@ -152,7 +152,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   _5GSMobileIdentity ie_5gs_mobility_id;        // Mandatory
 
   std::optional<NasKeySetIdentifier> ie_non_current_native_nas_ksi;  // Optional
-  _5GMMCapability* ie_5g_mm_capability;                              // Optional
+  std::optional<_5GMMCapability> ie_5g_mm_capability;                // Optional
   UESecurityCapability* ie_ue_security_capability;                   // Optional
   NSSAI* ie_requested_NSSAI;                                         // Optional
   // TODO: Last visited registered TAI

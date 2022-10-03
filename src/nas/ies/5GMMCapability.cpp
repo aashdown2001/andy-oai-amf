@@ -21,6 +21,7 @@
 
 #include "5GMMCapability.hpp"
 
+#include "3gpp_24.501.hpp"
 #include "common_defs.h"
 #include "logger.hpp"
 
@@ -79,6 +80,15 @@ int _5GMMCapability::encode2Buffer(uint8_t* buf, int len) {
 
 //------------------------------------------------------------------------------
 int _5GMMCapability::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
+  if ((len < k5gmmCapabilityMinimumLength) or
+      (len > k5gmmCapabilityMaximumLength)) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum/or greater than the maximum "
+        "length of this IE (Min %d octet, Max %d octet)",
+        k5gmmCapabilityMinimumLength, k5gmmCapabilityMaximumLength);
+    return KEncodeDecodeError;
+  }
+
   uint8_t decoded_size = 0;
 
   Logger::nas_mm().debug("Decoding _5GMMCapability IEI (0x%x)", *buf);
