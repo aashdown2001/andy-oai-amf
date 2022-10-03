@@ -602,6 +602,7 @@ int _5GSMobileIdentity::suci_decodefrombuffer(
           digit[3] == 0x0f) {
         supi_format_imsi_tmp.routingIndicator =
             std::nullopt;  // No Routing Indicator is configured
+        Logger::nas_mm().debug("No Routing Indicator is configured");
       } else {
         std::string result = {};
         for (int i = 0; i < 4; i++) {
@@ -613,6 +614,7 @@ int _5GSMobileIdentity::suci_decodefrombuffer(
             Logger::nas_mm().error(
                 "Decoded Routing Indicator is not BCD coding");
         }
+
         supi_format_imsi_tmp.routingIndicator =
             std::optional<std::string>(result);
         Logger::nas_mm().debug(
@@ -640,7 +642,8 @@ int _5GSMobileIdentity::suci_decodefrombuffer(
              (const std::string)(std::to_string(digit_high)));
       }
       supi_format_imsi_tmp.msin = msin;
-      Logger::nas_mm().debug("Decoded MSIN %s", supi_format_imsi->msin.c_str());
+      Logger::nas_mm().debug(
+          "Decoded MSIN %s", supi_format_imsi_tmp.msin.c_str());
 
       supi_format_imsi = std::optional<SUCI_imsi_t>(supi_format_imsi_tmp);
       Logger::nas_mm().debug(

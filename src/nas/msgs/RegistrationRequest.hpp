@@ -72,7 +72,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   bool getAdditionalGuti(nas::_5G_GUTI_t& guti);
 
   void setNon_current_native_nas_ksi(uint8_t tsc, uint8_t key_set_id);
-  uint8_t getNonCurrentNativeNasKSI();
+  bool getNonCurrentNativeNasKSI(uint8_t& value) const;
 
   void set5G_MM_capability(uint8_t value);
   uint8_t get5GMMCapability();
@@ -151,10 +151,10 @@ class RegistrationRequest : public NasMmPlainHeader {
   NasKeySetIdentifier ie_ngKSI;                 // Mandatory
   _5GSMobileIdentity ie_5gs_mobility_id;        // Mandatory
 
-  NasKeySetIdentifier* ie_non_current_native_nas_ksi;  // Optional
-  _5GMMCapability* ie_5g_mm_capability;                // Optional
-  UESecurityCapability* ie_ue_security_capability;     // Optional
-  NSSAI* ie_requested_NSSAI;                           // Optional
+  std::optional<NasKeySetIdentifier> ie_non_current_native_nas_ksi;  // Optional
+  _5GMMCapability* ie_5g_mm_capability;                              // Optional
+  UESecurityCapability* ie_ue_security_capability;                   // Optional
+  NSSAI* ie_requested_NSSAI;                                         // Optional
   // TODO: Last visited registered TAI
   UENetworkCapability* ie_s1_ue_network_capability;             // Optional
   UplinkDataStatus* ie_uplink_data_status;                      // Optional
