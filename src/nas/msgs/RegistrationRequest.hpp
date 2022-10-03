@@ -95,7 +95,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   uint16_t getUplinkDataStatus();
 
   void setLast_Visited_Registered_TAI(
-      uint8_t MNC_MCC1, uint8_t MNC_MCC2, uint8_t MNC_MCC3, uint32_t TAC);
+      const std::string& mcc, const std::string mnc, const uint32_t& tac);
 
   void setPDU_session_status(uint16_t value);
   uint16_t getPduSessionStatus();
@@ -157,22 +157,22 @@ class RegistrationRequest : public NasMmPlainHeader {
   std::optional<UESecurityCapability> ie_ue_security_capability;     // Optional
   std::optional<NSSAI> ie_requested_NSSAI;                           // Optional
 
-  _5GS_Tracking_Area_Identity* ie_last_visited_registered_TAI;  // Optional
-  UENetworkCapability* ie_s1_ue_network_capability;             // Optional
-  UplinkDataStatus* ie_uplink_data_status;                      // Optional
-  PDU_Session_Status* ie_PDU_session_status;                    // Optional
-  MICO_Indication* ie_MICO_indicationl;                         // Optional
-  UE_Status* ie_ue_status;                                      // Optional
-  _5GSMobileIdentity* ie_additional_guti;                       // Optional
-  Allowed_PDU_Session_Status* ie_allowed_PDU_session_status;    // Optional
-  UES_Usage_Setting* ie_ues_usage_setting;                      // Optional
-  _5GS_DRX_arameters* ie_5gs_drx_parameters;                    // Optional
-  EPS_NAS_Message_Container* ie_eps_nas_message_container;      // Optional
-  LADN_Indication* ie_ladn_indication;                          // Optional
-  Payload_Container_Type* ie_payload_container_type;            // Optional
-  Payload_Container* ie_payload_container;                      // Optional
-  Network_Slicing_Indication* ie_network_slicing_indication;    // Optional
-  _5GS_Update_Type* ie_5gs_update_type;                         // Optional
+  _5GSTrackingAreaIdentity* ie_last_visited_registered_TAI;   // Optional
+  UENetworkCapability* ie_s1_ue_network_capability;           // Optional
+  UplinkDataStatus* ie_uplink_data_status;                    // Optional
+  PDU_Session_Status* ie_PDU_session_status;                  // Optional
+  MICO_Indication* ie_MICO_indicationl;                       // Optional
+  UE_Status* ie_ue_status;                                    // Optional
+  _5GSMobileIdentity* ie_additional_guti;                     // Optional
+  Allowed_PDU_Session_Status* ie_allowed_PDU_session_status;  // Optional
+  UES_Usage_Setting* ie_ues_usage_setting;                    // Optional
+  _5GS_DRX_arameters* ie_5gs_drx_parameters;                  // Optional
+  EPS_NAS_Message_Container* ie_eps_nas_message_container;    // Optional
+  LADN_Indication* ie_ladn_indication;                        // Optional
+  Payload_Container_Type* ie_payload_container_type;          // Optional
+  Payload_Container* ie_payload_container;                    // Optional
+  Network_Slicing_Indication* ie_network_slicing_indication;  // Optional
+  _5GS_Update_Type* ie_5gs_update_type;                       // Optional
   // TODO: Mobile station classmark 2
   // TODO: Supported codecs
   NAS_Message_Container* ie_nas_message_container;          // Optional

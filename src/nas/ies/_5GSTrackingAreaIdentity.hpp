@@ -29,15 +29,15 @@ constexpr uint8_t k5gsTrackingAreaIdentityLength = 7;
 
 namespace nas {
 
-class _5GS_Tracking_Area_Identity {
+class _5GSTrackingAreaIdentity {
  public:
-  _5GS_Tracking_Area_Identity();
-  _5GS_Tracking_Area_Identity(uint8_t iei);
-  _5GS_Tracking_Area_Identity(
+  _5GSTrackingAreaIdentity();
+  _5GSTrackingAreaIdentity(uint8_t iei);
+  _5GSTrackingAreaIdentity(
       const uint8_t iei, const std::string& mcc, const std::string& mnc,
       const uint32_t& tac);
 
-  ~_5GS_Tracking_Area_Identity();
+  ~_5GSTrackingAreaIdentity();
 
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
@@ -52,28 +52,8 @@ class _5GS_Tracking_Area_Identity {
   void setMnc(const std::string& mnc);
   void getMnc(std::string& mnc) const;
 
-  /*
-//TODO: to be removed
-  void setMNC_MCC1(uint8_t iei, uint8_t value);
-  uint8_t getMNC_MCC1();
-
-  void setMNC_MCC2(uint8_t iei, uint8_t value);
-  uint8_t getMNC_MCC2();
-
-  void setMNC_MCC3(uint8_t iei, uint8_t value);
-  uint8_t getMNC_MCC3();
-*/
-
  private:
   uint8_t _iei;
-  /*uint8_t _MNC_MCC1;
-  uint8_t _MNC_MCC2;
-  uint8_t _MNC_MCC3;
-  uint8_t _TAC1;
-  uint8_t _TAC2;
-  uint8_t _TAC3;
-*/
-
   std::string mcc_;
   std::string mnc_;
   uint32_t tac_;

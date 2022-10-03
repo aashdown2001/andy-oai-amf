@@ -21,6 +21,7 @@
 
 #include "NasUtils.hpp"
 
+#include "3gpp_24.501.hpp"
 #include "common_defs.h"
 #include "String2Value.hpp"
 #include "logger.hpp"

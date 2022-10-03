@@ -270,11 +270,9 @@ bool RegistrationRequest::getRequestedNssai(
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setLast_Visited_Registered_TAI(
-    uint8_t MNC_MCC1, uint8_t MNC_MCC2, uint8_t MNC_MCC3, uint32_t TAC) {
-  // ie_last_visited_registered_TAI =
-  //    new _5GS_Tracking_Area_Identity(0x52, MNC_MCC1, MNC_MCC2, MNC_MCC3,
-  //    TAC);
-  // TODO:
+    const std::string& mcc, const std::string mnc, const uint32_t& tac) {
+  // TODO: ie_last_visited_registered_TAI =
+  //   new _5GSTrackingAreaIdentity(mcc, mnc, tac);
 }
 
 //------------------------------------------------------------------------------
@@ -929,7 +927,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
       case 0x52: {
         Logger::nas_mm().debug("Decoding IEI(0x52)");
-        ie_last_visited_registered_TAI = new _5GS_Tracking_Area_Identity();
+        ie_last_visited_registered_TAI = new _5GSTrackingAreaIdentity();
         decoded_size += ie_last_visited_registered_TAI->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
