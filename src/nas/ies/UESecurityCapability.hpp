@@ -19,17 +19,13 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _UESecurityCapability_H
-#define _UESecurityCapability_H
+#ifndef _UE_SECURITY_CAPABILITY_H
+#define _UE_SECURITY_CAPABILITY_H
 
 #include <stdint.h>
+
+constexpr uint8_t kUESecurityCapabilityMinimumLength = 2;
+constexpr uint8_t kUESecurityCapabilityMaximumLength = 4;
 
 namespace nas {
 
@@ -60,7 +56,7 @@ class UESecurityCapability {
 
  private:
   uint8_t _iei;
-  uint8_t length;
+  uint8_t length;  // Length of UE security capability contents
   uint8_t _5g_EASel;
   uint8_t _5g_IASel;
   uint8_t EEASel;

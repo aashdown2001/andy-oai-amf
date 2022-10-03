@@ -56,7 +56,7 @@ int _5GMMCapability::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding _5GMMCapability IEI (0x%x)", m_iei);
   if (len < length) {
     Logger::nas_mm().error("Len is less than %d", length);
-    return 0;
+    return KEncodeDecodeError;
   }
 
   int encoded_size = 0;
@@ -80,12 +80,10 @@ int _5GMMCapability::encode2Buffer(uint8_t* buf, int len) {
 
 //------------------------------------------------------------------------------
 int _5GMMCapability::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
-  if ((len < k5gmmCapabilityMinimumLength) or
-      (len > k5gmmCapabilityMaximumLength)) {
+  if (len < k5gmmCapabilityMinimumLength) {
     Logger::nas_mm().error(
-        "Buffer length is less than the minimum/or greater than the maximum "
-        "length of this IE (Min %d octet, Max %d octet)",
-        k5gmmCapabilityMinimumLength, k5gmmCapabilityMaximumLength);
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        k5gmmCapabilityMinimumLength);
     return KEncodeDecodeError;
   }
 

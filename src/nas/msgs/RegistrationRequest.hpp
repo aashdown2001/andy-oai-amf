@@ -51,7 +51,8 @@ class RegistrationRequest : public NasMmPlainHeader {
   void setngKSI(uint8_t tsc, uint8_t key_set_id);
   bool getngKSI(uint8_t& ng_ksi);
 
-  uint8_t getMobilityIdentityType();
+  uint8_t getMobileIdentityType();
+  // TODO: SetMobileIdentityType(uint8_t);
 
   void setSUCI_SUPI_format_IMSI(
       const string mcc, const string mnc, const string routingInd,
@@ -149,11 +150,11 @@ class RegistrationRequest : public NasMmPlainHeader {
   // NasMmPlainHeader* plain_header;
   _5GSRegistrationType ie_5gsregistrationtype;  // Mandatory
   NasKeySetIdentifier ie_ngKSI;                 // Mandatory
-  _5GSMobileIdentity ie_5gs_mobility_id;        // Mandatory
+  _5GSMobileIdentity ie_5gs_mobile_identity;    // Mandatory
 
   std::optional<NasKeySetIdentifier> ie_non_current_native_nas_ksi;  // Optional
   std::optional<_5GMMCapability> ie_5g_mm_capability;                // Optional
-  UESecurityCapability* ie_ue_security_capability;                   // Optional
+  std::optional<UESecurityCapability> ie_ue_security_capability;     // Optional
   NSSAI* ie_requested_NSSAI;                                         // Optional
   // TODO: Last visited registered TAI
   UENetworkCapability* ie_s1_ue_network_capability;             // Optional

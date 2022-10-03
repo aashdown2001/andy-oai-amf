@@ -32,7 +32,7 @@ RegistrationRequest::RegistrationRequest()
     : NasMmPlainHeader(EPD_5GS_MM_MSG, REGISTRATION_REQUEST) {
   ie_non_current_native_nas_ksi  = std::nullopt;
   ie_5g_mm_capability            = std::nullopt;
-  ie_ue_security_capability      = nullptr;
+  ie_ue_security_capability      = std::nullopt;
   ie_requested_NSSAI             = nullptr;
   ie_s1_ue_network_capability    = nullptr;
   ie_uplink_data_status          = nullptr;
@@ -100,26 +100,26 @@ void RegistrationRequest::setSUCI_SUPI_format_IMSI(
         "interface");
     return;
   } else {
-    ie_5gs_mobility_id.setSuciWithSupiImsi(
+    ie_5gs_mobile_identity.setSuciWithSupiImsi(
         mcc, mnc, routingInd, protection_sch_id, msin);
   }
 }
 
 //------------------------------------------------------------------------------
-uint8_t RegistrationRequest::getMobilityIdentityType() {
-  return ie_5gs_mobility_id.getTypeOfIdentity();
+uint8_t RegistrationRequest::getMobileIdentityType() {
+  return ie_5gs_mobile_identity.getTypeOfIdentity();
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi) {
-  ie_5gs_mobility_id.getSuciWithSupiImsi(imsi);
+  ie_5gs_mobile_identity.getSuciWithSupiImsi(imsi);
   return true;
 }
 
 //------------------------------------------------------------------------------
 std::string RegistrationRequest::get_5g_guti() {
   std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
-  ie_5gs_mobility_id.get5GGUTI(guti);
+  ie_5gs_mobile_identity.get5GGUTI(guti);
   if (!guti.has_value()) return {};
 
   std::string guti_str = guti.value().mcc + guti.value().mnc +
@@ -211,21 +211,23 @@ bool RegistrationRequest::get5GMMCapability(uint8_t& value) {
 //------------------------------------------------------------------------------
 void RegistrationRequest::setUE_Security_Capability(
     uint8_t g_EASel, uint8_t g_IASel) {
-  ie_ue_security_capability = new UESecurityCapability(0x2E, g_EASel, g_IASel);
+  ie_ue_security_capability =
+      std::make_optional<UESecurityCapability>(0x2E, g_EASel, g_IASel);
 }
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setUE_Security_Capability(
     uint8_t g_EASel, uint8_t g_IASel, uint8_t EEASel, uint8_t EIASel) {
-  ie_ue_security_capability =
-      new UESecurityCapability(0x2E, g_EASel, g_IASel, EEASel, EIASel);
+  ie_ue_security_capability = std::make_optional<UESecurityCapability>(
+      0x2E, g_EASel, g_IASel, EEASel, EIASel);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getUeSecurityCapability(uint8_t& ea, uint8_t& ia) {
-  if (ie_ue_security_capability) {
-    ea = ie_ue_security_capability->getEASel();
-    ia = ie_ue_security_capability->getIASel();
+  if (ie_ue_security_capability.has_value()) {
+    ea = ie_ue_security_capability.value().getEASel();
+    ia = ie_ue_security_capability.value().getIASel();
+    return true;
   } else {
     return false;
   }
@@ -235,13 +237,14 @@ bool RegistrationRequest::getUeSecurityCapability(uint8_t& ea, uint8_t& ia) {
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getUeSecurityCapability(
     uint8_t& ea, uint8_t& ia, uint8_t& eea, uint8_t& eia) {
-  if (ie_ue_security_capability) {
-    ea = ie_ue_security_capability->getEASel();
-    ia = ie_ue_security_capability->getIASel();
-    if (ie_ue_security_capability->getLength() >= 4) {
-      eea = ie_ue_security_capability->getEEASel();
-      eia = ie_ue_security_capability->getEIASel();
+  if (ie_ue_security_capability.has_value()) {
+    ea = ie_ue_security_capability.value().getEASel();
+    ia = ie_ue_security_capability.value().getIASel();
+    if (ie_ue_security_capability.value().getLength() >= 4) {
+      eea = ie_ue_security_capability.value().getEEASel();
+      eia = ie_ue_security_capability.value().getEIASel();
     }
+    return true;
   } else {
     return false;
   }
@@ -530,61 +533,81 @@ void RegistrationRequest::get5gsRegistrationType(bool& is_for, uint8_t& type) {
 //------------------------------------------------------------------------------
 int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding RegistrationRequest message");
-  int encoded_size = 0;
+  int encoded_size    = 0;
+  int encoded_ie_size = 0;
 
-  if (!(NasMmPlainHeader::encode2Buffer(buf, len))) return 0;
-  encoded_size += 3;
-  if (!(ie_5gsregistrationtype.encode2Buffer(
-          buf + encoded_size, len - encoded_size))) {
-    if (!(ie_ngKSI.encode2Buffer(buf + encoded_size, len - encoded_size))) {
-      encoded_size += 1;
-    } else {
-      Logger::nas_mm().error("Encoding IE ie_ngKSI error");
-      return 0;
-    }
-  } else {
-    Logger::nas_mm().error("Encoding IE 5gsregistrationtype error");
-    return 0;
+  // Header
+  if ((encoded_ie_size = NasMmPlainHeader::encode2Buffer(buf, len)) ==
+      KEncodeDecodeError) {
+    Logger::nas_mm().error("Encoding NAS Header error");
+    return KEncodeDecodeError;
   }
-  if (int size = ie_5gs_mobility_id.encode2Buffer(
-          buf + encoded_size, len - encoded_size)) {
-    encoded_size += size;
-  } else {
-    Logger::nas_mm().error("Encoding IE ie_5gs_mobility_id  error");
-    return 0;
+  encoded_size += encoded_ie_size;
+
+  // 5GS Registration Type
+  if ((encoded_ie_size = ie_5gsregistrationtype.encode2Buffer(
+           buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
+    Logger::nas_mm().error("Encoding IE 5GS Registration Type error");
+    return KEncodeDecodeError;
   }
+  //  ngKSI
+  if ((encoded_ie_size = ie_ngKSI.encode2Buffer(
+           buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
+    Logger::nas_mm().error("Encoding IE ie_ngKSI error");
+    return KEncodeDecodeError;
+  }
+  encoded_size += 1;  // 1/2 for 5GS registration type and 1/2 for ngKSI
+
+  // 5GS Mobile Identity
+  if ((encoded_ie_size = ie_5gs_mobile_identity.encode2Buffer(
+           buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
+    Logger::nas_mm().error("Encoding IE 5GS Mobile Identity error");
+    return KEncodeDecodeError;
+  } else {
+    encoded_size += encoded_ie_size;
+  }
+
+  // Non-current native NAS key set identifier
   if (!ie_non_current_native_nas_ksi.has_value()) {
-    Logger::nas_mm().warn("IE non_current_native_nas_ksi is not available");
+    Logger::nas_mm().warn(
+        "IE Non-current native NAS key set identifier is not available");
   } else {
-    if (ie_non_current_native_nas_ksi.value().encode2Buffer(
-            buf + encoded_size, len - encoded_size) == 1) {
-      encoded_size++;
+    if ((encoded_ie_size = ie_non_current_native_nas_ksi.value().encode2Buffer(
+             buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
+      Logger::nas_mm().error(
+          "Encoding IE Non-current native NAS key set identifier error");
+      return KEncodeDecodeError;
     } else {
-      Logger::nas_mm().error("Encoding IE_non_current_native_nas_ksi  error");
+      encoded_size += encoded_ie_size;
     }
   }
+
+  // 5GMM capability
   if (!ie_5g_mm_capability.has_value()) {
-    Logger::nas_mm().warn("IE ie_5g_mm_capability is not available");
+    Logger::nas_mm().warn("IE 5GMM capability is not available");
   } else {
-    if (int size = ie_5g_mm_capability.value().encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
-      encoded_size += size;
+    if ((encoded_ie_size = ie_5g_mm_capability.value().encode2Buffer(
+             buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
+      Logger::nas_mm().error("Encoding 5GMM capability error");
+      return KEncodeDecodeError;
     } else {
-      Logger::nas_mm().error("encoding ie_5g_mm_capability  error");
-      return 0;
+      encoded_size += encoded_ie_size;
     }
   }
-  if (!ie_ue_security_capability) {
-    Logger::nas_mm().warn("IE ie_ue_security_capability is not available");
+
+  // UE security capability
+  if (!ie_ue_security_capability.has_value()) {
+    Logger::nas_mm().warn("IE UE security capability is not available");
   } else {
-    if (int size = ie_ue_security_capability->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
-      encoded_size += size;
+    if ((encoded_ie_size = ie_ue_security_capability.value().encode2Buffer(
+             buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
+      Logger::nas_mm().error("encoding UE security capability error");
+      return KEncodeDecodeError;
     } else {
-      Logger::nas_mm().error("encoding ie_ue_security_capability  error");
-      return 0;
+      encoded_size += encoded_ie_size;
     }
   }
+
   if (!ie_requested_NSSAI) {
     Logger::nas_mm().warn("IE ie_requested_NSSAI is not available");
   } else {
@@ -814,7 +837,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
   decoded_size += ie_ngKSI.decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, true);
   decoded_size++;
-  decoded_size += ie_5gs_mobility_id.decodeFromBuffer(
+  decoded_size += ie_5gs_mobile_identity.decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI 0x%x", octet);
@@ -876,9 +899,15 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
       case 0x2E: {
         Logger::nas_mm().debug("Decoding IEI (0x2E)");
-        ie_ue_security_capability = new UESecurityCapability();
-        decoded_size += ie_ue_security_capability->decodeFromBuffer(
-            buf + decoded_size, len - decoded_size, true);
+        UESecurityCapability ie_ue_security_capability_tmp = {};
+        if ((decoded_size_ie = ie_ue_security_capability_tmp.decodeFromBuffer(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError) {
+          return KEncodeDecodeError;
+        }
+        decoded_size += decoded_size_ie;
+        ie_ue_security_capability =
+            std::optional<UESecurityCapability>(ie_ue_security_capability_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
