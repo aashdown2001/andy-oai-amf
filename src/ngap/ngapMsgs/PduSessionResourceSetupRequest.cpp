@@ -21,6 +21,7 @@
 
 #include "PduSessionResourceSetupRequest.hpp"
 
+#include "3gpp_23.003.h"
 #include "conversions.hpp"
 #include "logger.hpp"
 
@@ -221,7 +222,12 @@ void PduSessionResourceSetupRequestMsg::setPduSessionResourceSetupRequestList(
     }
     S_NSSAI s_NSSAI = {};
     s_NSSAI.setSst(list[i].s_nssai.sst);
-    if (list[i].s_nssai.sd.size()) s_NSSAI.setSd(list[i].s_nssai.sd);
+
+    uint32_t sd_int_value = 0;
+    if (conv::sd_string_to_int(list[i].s_nssai.sd, sd_int_value)) {
+      if (sd_int_value != SD_NO_VALUE) s_NSSAI.setSd(list[i].s_nssai.sd);
+    }
+
     itemSUReq.set(
         pDUSessionID, m_nAS_PDU, s_NSSAI,
         list[i].pduSessionResourceSetupRequestTransfer);
