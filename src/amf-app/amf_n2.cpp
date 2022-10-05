@@ -986,6 +986,7 @@ void amf_n2::handle_itti_message(
   Logger::amf_n2().debug("SUPI (%s)", supi.c_str());
 
   // Get SNSSAI info from PDU Session Context
+  item.s_nssai.sd                          = {};
   std::shared_ptr<pdu_session_context> psc = {};
   if (!amf_app_inst->find_pdu_session_context(
           supi, itti_msg.pdu_session_id, psc)) {
