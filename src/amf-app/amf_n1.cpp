@@ -1414,9 +1414,10 @@ void amf_n1::registration_request_handle(
 
     case MOBILITY_REGISTRATION_UPDATING: {
       Logger::amf_n1().debug("Handling Mobility Registration Update...");
+      uint16_t uplink_data_status = 0;
+      registration_request->getUplinkDataStatus(uplink_data_status);
       run_mobility_registration_update_procedure(
-          nc, registration_request->getUplinkDataStatus(),
-          registration_request->getPduSessionStatus());
+          nc, uplink_data_status, registration_request->getPduSessionStatus());
     } break;
 
     case PERIODIC_REGISTRATION_UPDATING: {

@@ -34,9 +34,9 @@ RegistrationRequest::RegistrationRequest()
   ie_5g_mm_capability            = std::nullopt;
   ie_ue_security_capability      = std::nullopt;
   ie_requested_NSSAI             = std::nullopt;
-  ie_s1_ue_network_capability    = nullptr;
-  ie_uplink_data_status          = nullptr;
-  ie_last_visited_registered_TAI = nullptr;
+  ie_s1_ue_network_capability    = std::nullopt;
+  ie_uplink_data_status          = std::nullopt;
+  ie_last_visited_registered_TAI = std::nullopt;
   ie_PDU_session_status          = nullptr;
   ie_MICO_indicationl            = nullptr;
   ie_ue_status                   = nullptr;
@@ -271,22 +271,22 @@ bool RegistrationRequest::getRequestedNssai(
 //------------------------------------------------------------------------------
 void RegistrationRequest::setLast_Visited_Registered_TAI(
     const std::string& mcc, const std::string mnc, const uint32_t& tac) {
-  // TODO: ie_last_visited_registered_TAI =
-  //   new _5GSTrackingAreaIdentity(mcc, mnc, tac);
+  ie_last_visited_registered_TAI =
+      std::make_optional<_5GSTrackingAreaIdentity>(0, mcc, mnc, tac);
 }
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setUENetworkCapability(
     uint8_t g_EEASel, uint8_t g_EIASel) {
   ie_s1_ue_network_capability =
-      new UENetworkCapability(0x17, g_EEASel, g_EIASel);
+      std::make_optional<UENetworkCapability>(0x17, g_EEASel, g_EIASel);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getS1UeNetworkCapability(uint8_t& eea, uint8_t& eia) {
-  if (ie_s1_ue_network_capability) {
-    eea = ie_s1_ue_network_capability->getEEASel();
-    eia = ie_s1_ue_network_capability->getEIASel();
+  if (ie_s1_ue_network_capability.has_value()) {
+    eea = ie_s1_ue_network_capability.value().getEEASel();
+    eia = ie_s1_ue_network_capability.value().getEIASel();
   } else {
     return false;
   }
@@ -294,16 +294,17 @@ bool RegistrationRequest::getS1UeNetworkCapability(uint8_t& eea, uint8_t& eia) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setUplink_data_status(uint16_t value) {
-  ie_uplink_data_status = new UplinkDataStatus(0x40, value);
+void RegistrationRequest::setUplink_data_status(const uint16_t& value) {
+  ie_uplink_data_status = std::make_optional<UplinkDataStatus>(0x40, value);
 }
 
 //------------------------------------------------------------------------------
-uint16_t RegistrationRequest::getUplinkDataStatus() {
-  if (ie_uplink_data_status) {
-    return ie_uplink_data_status->getValue();
+bool RegistrationRequest::getUplinkDataStatus(uint16_t& value) {
+  if (ie_uplink_data_status.has_value()) {
+    value = ie_uplink_data_status.value().getValue();
+    return true;
   } else {
-    return 0;
+    return false;
   }
 }
 
@@ -622,10 +623,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   }
 
   // Last visited registered TAI
-  if (!ie_last_visited_registered_TAI) {
+  if (!ie_last_visited_registered_TAI.has_value()) {
     Logger::nas_mm().warn("IE ie_Last_visited_registered_TAI is not available");
   } else {
-    if (int size = ie_last_visited_registered_TAI->encode2Buffer(
+    if (int size = ie_last_visited_registered_TAI.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -635,10 +636,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   }
 
   // S1 UE network capability
-  if (!ie_s1_ue_network_capability) {
+  if (!ie_s1_ue_network_capability.has_value()) {
     Logger::nas_mm().warn("IE ie_s1_ue_network_capability is not available");
   } else {
-    if (int size = ie_s1_ue_network_capability->encode2Buffer(
+    if (int size = ie_s1_ue_network_capability.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -646,10 +647,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_uplink_data_status) {
+  if (!ie_uplink_data_status.has_value()) {
     Logger::nas_mm().warn("IE ie_uplink_data_status is not available");
   } else {
-    if (int size = ie_uplink_data_status->encode2Buffer(
+    if (int size = ie_uplink_data_status.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -927,25 +928,32 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
       case 0x52: {
         Logger::nas_mm().debug("Decoding IEI(0x52)");
-        ie_last_visited_registered_TAI = new _5GSTrackingAreaIdentity();
-        decoded_size += ie_last_visited_registered_TAI->decodeFromBuffer(
+        _5GSTrackingAreaIdentity last_visited_registered_tai_tmp = {};
+        decoded_size += last_visited_registered_tai_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_last_visited_registered_TAI =
+            std::optional<_5GSTrackingAreaIdentity>(
+                last_visited_registered_tai_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
       case 0x17: {
         Logger::nas_mm().debug("Decoding IEI (0x17)");
-        ie_s1_ue_network_capability = new UENetworkCapability();
-        decoded_size += ie_s1_ue_network_capability->decodeFromBuffer(
+        UENetworkCapability ie_s1_ue_network_capability_tmp = {};
+        decoded_size += ie_s1_ue_network_capability_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_s1_ue_network_capability =
+            std::optional<UENetworkCapability>(ie_s1_ue_network_capability_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
       case 0x40: {
         Logger::nas_mm().debug("Decoding IEI(0x40)");
-        ie_uplink_data_status = new UplinkDataStatus();
-        decoded_size += ie_uplink_data_status->decodeFromBuffer(
+        UplinkDataStatus ie_uplink_data_status_tmp = {};
+        decoded_size += ie_uplink_data_status_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_uplink_data_status =
+            std::optional<UplinkDataStatus>(ie_uplink_data_status_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
 

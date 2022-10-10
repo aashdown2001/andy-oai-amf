@@ -91,8 +91,8 @@ class RegistrationRequest : public NasMmPlainHeader {
   void setUENetworkCapability(uint8_t g_EEASel, uint8_t g_EIASel);
   bool getS1UeNetworkCapability(uint8_t& eea, uint8_t& eia);
 
-  void setUplink_data_status(uint16_t value);
-  uint16_t getUplinkDataStatus();
+  void setUplink_data_status(const uint16_t& value);
+  bool getUplinkDataStatus(uint16_t& value);
 
   void setLast_Visited_Registered_TAI(
       const std::string& mcc, const std::string mnc, const uint32_t& tac);
@@ -156,10 +156,11 @@ class RegistrationRequest : public NasMmPlainHeader {
   std::optional<_5GMMCapability> ie_5g_mm_capability;                // Optional
   std::optional<UESecurityCapability> ie_ue_security_capability;     // Optional
   std::optional<NSSAI> ie_requested_NSSAI;                           // Optional
+  std::optional<_5GSTrackingAreaIdentity>
+      ie_last_visited_registered_TAI;                              // Optional
+  std::optional<UENetworkCapability> ie_s1_ue_network_capability;  // Optional
+  std::optional<UplinkDataStatus> ie_uplink_data_status;           // Optional
 
-  _5GSTrackingAreaIdentity* ie_last_visited_registered_TAI;   // Optional
-  UENetworkCapability* ie_s1_ue_network_capability;           // Optional
-  UplinkDataStatus* ie_uplink_data_status;                    // Optional
   PDU_Session_Status* ie_PDU_session_status;                  // Optional
   MICO_Indication* ie_MICO_indicationl;                       // Optional
   UE_Status* ie_ue_status;                                    // Optional

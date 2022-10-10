@@ -19,15 +19,10 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "UplinkDataStatus.hpp"
 
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
 using namespace nas;
 
@@ -39,10 +34,10 @@ UplinkDataStatus::UplinkDataStatus(uint8_t iei) {
 }
 
 //------------------------------------------------------------------------------
-UplinkDataStatus::UplinkDataStatus(const uint8_t iei, uint16_t value) {
+UplinkDataStatus::UplinkDataStatus(const uint8_t& iei, const uint16_t& value) {
   _iei   = iei;
   _value = value;
-  length = 4;
+  length = 2;
 }
 
 //------------------------------------------------------------------------------
@@ -68,43 +63,37 @@ uint16_t UplinkDataStatus::getValue() {
 
 //------------------------------------------------------------------------------
 int UplinkDataStatus::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("encoding UplinkDataStatus iei(0x%x)", _iei);
-  if (len < length) {
-    Logger::nas_mm().error("len is less than %d", length);
-    return 0;
+  Logger::nas_mm().debug("Encoding UplinkDataStatus IEI (0x%x)", _iei);
+  if (len < kUplinkDataStatusMinimumLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kUplinkDataStatusMinimumLength);
+    return KEncodeDecodeError;
   }
+
   int encoded_size = 0;
   if (_iei) {
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = length - 2;
-    encoded_size++;
-    *(buf + encoded_size) = (_value & 0xff00) >> 8;
-    encoded_size++;
-    *(buf + encoded_size) = _value & 0x00ff;
-    encoded_size++;
-  } else {
-    //		*(buf + encoded_size) = length - 1; encoded_size++;
-    //		*(buf + encoded_size) = _value; encoded_size++; encoded_size++;
+    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
   }
-  Logger::nas_mm().debug("encoded UplinkDataStatus len(%d)", encoded_size);
+
+  ENCODE_U8(buf + encoded_size, length, encoded_size);
+  ENCODE_U16(buf + encoded_size, _value, encoded_size);
+
+  Logger::nas_mm().debug("Encoded UplinkDataStatus, size (%d)", encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
 int UplinkDataStatus::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("decoding UplinkDataStatus iei(0x%x)", *buf);
+  Logger::nas_mm().debug("Decoding UplinkDataStatus");
   int decoded_size = 0;
   if (is_option) {
-    decoded_size++;
+    DECODE_U8(buf + decoded_size, _iei, decoded_size);
   }
-  length = *(buf + decoded_size);
-  decoded_size++;
-  _value = *(buf + decoded_size) << 8;
-  decoded_size++;
-  _value |= *(buf + decoded_size);
-  decoded_size++;
-  Logger::nas_mm().debug("decoded UplinkDataStatus value(0x%4x)", _value);
-  Logger::nas_mm().debug("decoded UplinkDataStatus len(%d)", decoded_size);
+  DECODE_U8(buf + decoded_size, length, decoded_size);
+  DECODE_U16(buf + decoded_size, _value, decoded_size);
+
+  Logger::nas_mm().debug(
+      "Decoded UplinkDataStatus value 0x%x, len %d", _value, decoded_size);
   return decoded_size;
 }

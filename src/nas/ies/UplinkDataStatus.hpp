@@ -19,17 +19,13 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef __UplinkDataStatus_H_
 #define __UplinkDataStatus_H_
 
 #include <stdint.h>
+
+constexpr uint8_t kUplinkDataStatusMinimumLength = 4;
+constexpr uint8_t kUplinkDataStatusMaximumLength = 34;
 
 namespace nas {
 
@@ -37,7 +33,7 @@ class UplinkDataStatus {
  public:
   UplinkDataStatus();
   UplinkDataStatus(uint8_t);
-  UplinkDataStatus(const uint8_t iei, uint16_t value);
+  UplinkDataStatus(const uint8_t& iei, const uint16_t& value);
   ~UplinkDataStatus();
   void setValue(uint8_t iei, uint16_t value);
   int encode2Buffer(uint8_t* buf, int len);
@@ -48,6 +44,7 @@ class UplinkDataStatus {
   uint8_t _iei;
   uint8_t length;
   uint16_t _value;
+  // TODO: spare
 };
 
 }  // namespace nas

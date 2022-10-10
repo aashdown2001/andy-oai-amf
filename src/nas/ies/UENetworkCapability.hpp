@@ -53,6 +53,7 @@ class UENetworkCapability {
   // TODO: uint8_t octet_7;
   // TODO: uint8_t octet_8;
   // TODO: uint8_t octet_9;
+  // TODO: spare octet 10-15
 };
 
 }  // namespace nas
