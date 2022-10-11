@@ -19,38 +19,36 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __UE_Status_H_
-#define __UE_Status_H_
+#ifndef _MICO_Indication_H
+#define _MICO_Indication_H
 
 #include <stdint.h>
 
+constexpr uint8_t kMICOIndicationIELength = 1;
+
 namespace nas {
 
-class UE_Status {
+class MICOIndication {
  public:
-  UE_Status();
-  UE_Status(uint8_t iei);
-  UE_Status(const uint8_t iei, bool n1, bool s1);
-  ~UE_Status();
+  MICOIndication();
+  MICOIndication(const uint8_t _iei, bool sprti, bool raai);
+  MICOIndication(bool sprti, bool raai);
+  ~MICOIndication();
+
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
-  void setN1(bool value);
-  void setS1(bool value);
-  bool getN1();
-  bool getS1();
+
+  void setSPRTI(bool value);
+  void setRAAI(bool value);
+  bool getRAAI();
+  bool getSPRTI();
 
  private:
-  uint8_t _iei;
-  bool N1;
-  bool S1;
+  uint8_t iei;
+  bool SPRTI;
+  bool RAAI;
 };
+
 }  // namespace nas
 
 #endif

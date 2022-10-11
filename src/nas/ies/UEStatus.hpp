@@ -19,34 +19,37 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _MICO_Indication_H
-#define _MICO_Indication_H
+#ifndef _UE_Status_H_
+#define _UE_Status_H_
 
 #include <stdint.h>
 
+constexpr uint8_t kUEStatusIELength = 3;
+
 namespace nas {
 
-class MICO_Indication {
+class UEStatus {
  public:
-  MICO_Indication();
-  MICO_Indication(const uint8_t _iei, bool sprti, bool raai);
-  MICO_Indication(bool sprti, bool raai);
-  ~MICO_Indication();
+  UEStatus();
+  UEStatus(uint8_t iei);
+  UEStatus(const uint8_t iei, bool n1, bool s1);
+  ~UEStatus();
 
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
 
-  void setSPRTI(bool value);
-  void setRAAI(bool value);
-  bool getRAAI();
-  bool getSPRTI();
+  void setN1(bool value);
+  bool getN1();
+
+  void setS1(bool value);
+  bool getS1();
 
  private:
-  uint8_t iei;
-  bool SPRTI;
-  bool RAAI;
+  uint8_t _iei;
+  uint8_t length;
+  bool N1;
+  bool S1;
 };
-
 }  // namespace nas
 
 #endif

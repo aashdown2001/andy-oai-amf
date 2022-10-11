@@ -97,7 +97,7 @@ class RegistrationAccept {
   PDU_Session_Reactivation_Result* ie_pdu_session_reactivation_result;
   PDU_Session_Reactivation_Result_Error_Cause*
       ie_pdu_session_reactivation_result_error_cause;
-  MICO_Indication* ie_MICO_indicationl;
+  MICOIndication* ie_MICO_indicationl;
   Network_Slicing_Indication* ie_network_slicing_indication;
   GPRS_Timer_3* ie_T3512_value;
   GPRS_Timer_2* ie_Non_3GPP_de_registration_timer_value;

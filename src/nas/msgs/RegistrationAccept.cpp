@@ -174,7 +174,7 @@ void RegistrationAccept::setPDU_session_reactivation_result_error_cause(
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setMICO_Indication(bool sprti, bool raai) {
-  ie_MICO_indicationl = new MICO_Indication(0x0B, sprti, raai);
+  ie_MICO_indicationl = new MICOIndication(0x0B, sprti, raai);
 }
 
 //------------------------------------------------------------------------------
@@ -628,7 +628,7 @@ int RegistrationAccept::decodeFromBuffer(
     switch ((octet & 0xf0) >> 4) {
       case 0xB: {
         Logger::nas_mm().debug("Decoding IEI (0xB)");
-        ie_MICO_indicationl = new MICO_Indication();
+        ie_MICO_indicationl = new MICOIndication();
         decoded_size += ie_MICO_indicationl->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

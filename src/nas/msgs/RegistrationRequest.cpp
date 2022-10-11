@@ -38,8 +38,8 @@ RegistrationRequest::RegistrationRequest()
   ie_uplink_data_status          = std::nullopt;
   ie_last_visited_registered_TAI = std::nullopt;
   ie_PDU_session_status          = std::nullopt;
-  ie_MICO_indicationl            = nullptr;
-  ie_ue_status                   = nullptr;
+  ie_MICO_indication             = std::nullopt;
+  ie_ue_status                   = std::nullopt;
   ie_additional_guti             = nullptr;
   ie_allowed_PDU_session_status  = nullptr;
   ie_ues_usage_setting           = nullptr;
@@ -195,7 +195,7 @@ bool RegistrationRequest::getNonCurrentNativeNasKSI(uint8_t& value) const {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::set5G_MM_capability(uint8_t value) {
+void RegistrationRequest::set5GMMCapability(uint8_t value) {
   ie_5g_mm_capability = std::make_optional<_5GMMCapability>(0x10, value);
 }
 
@@ -209,14 +209,14 @@ bool RegistrationRequest::get5GMMCapability(uint8_t& value) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setUE_Security_Capability(
+void RegistrationRequest::setUESecurityCapability(
     uint8_t g_EASel, uint8_t g_IASel) {
   ie_ue_security_capability =
       std::make_optional<UESecurityCapability>(0x2E, g_EASel, g_IASel);
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setUE_Security_Capability(
+void RegistrationRequest::setUESecurityCapability(
     uint8_t g_EASel, uint8_t g_IASel, uint8_t EEASel, uint8_t EIASel) {
   ie_ue_security_capability = std::make_optional<UESecurityCapability>(
       0x2E, g_EASel, g_IASel, EEASel, EIASel);
@@ -252,7 +252,7 @@ bool RegistrationRequest::getUeSecurityCapability(
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setRequested_NSSAI(
+void RegistrationRequest::setRequestedNSSAI(
     std::vector<struct SNSSAI_s> nssai) {
   ie_requested_NSSAI = std::make_optional<NSSAI>(0x2F, nssai);
 }
@@ -269,7 +269,7 @@ bool RegistrationRequest::getRequestedNssai(
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setLast_Visited_Registered_TAI(
+void RegistrationRequest::setLastVisitedRegisteredTAI(
     const std::string& mcc, const std::string mnc, const uint32_t& tac) {
   ie_last_visited_registered_TAI =
       std::make_optional<_5GSTrackingAreaIdentity>(0, mcc, mnc, tac);
@@ -294,7 +294,7 @@ bool RegistrationRequest::getS1UeNetworkCapability(uint8_t& eea, uint8_t& eia) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setUplink_data_status(const uint16_t& value) {
+void RegistrationRequest::setUplinkDataStatus(const uint16_t& value) {
   ie_uplink_data_status = std::make_optional<UplinkDataStatus>(0x40, value);
 }
 
@@ -309,7 +309,7 @@ bool RegistrationRequest::getUplinkDataStatus(uint16_t& value) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setPDU_session_status(uint16_t value) {
+void RegistrationRequest::setPDUSessionStatus(uint16_t value) {
   ie_PDU_session_status = std::make_optional<PDUSessionStatus>(0x50, value);
 }
 
@@ -323,15 +323,15 @@ uint16_t RegistrationRequest::getPduSessionStatus() {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setMICO_Indication(bool sprti, bool raai) {
-  ie_MICO_indicationl = new MICO_Indication(0x0B, sprti, raai);
+void RegistrationRequest::setMICOIndication(bool sprti, bool raai) {
+  ie_MICO_indication = std::make_optional<MICOIndication>(0x0B, sprti, raai);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getMicoIndication(uint8_t& sprti, uint8_t& raai) {
-  if (ie_PDU_session_status.has_value()) {
-    sprti = ie_MICO_indicationl->getSPRTI();
-    raai  = ie_MICO_indicationl->getRAAI();
+  if (ie_MICO_indication.has_value()) {
+    sprti = ie_MICO_indication.value().getSPRTI();
+    raai  = ie_MICO_indication.value().getRAAI();
     return true;
   } else {
     return false;
@@ -339,15 +339,15 @@ bool RegistrationRequest::getMicoIndication(uint8_t& sprti, uint8_t& raai) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setUE_Status(bool n1, bool s1) {
-  ie_ue_status = new UE_Status(0x2B, n1, s1);
+void RegistrationRequest::setUEStatus(bool n1, bool s1) {
+  ie_ue_status = std::make_optional<UEStatus>(0x2B, n1, s1);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getUeStatus(uint8_t& n1ModeReg, uint8_t& s1ModeReg) {
-  if (ie_ue_status) {
-    n1ModeReg = ie_ue_status->getN1();
-    s1ModeReg = ie_ue_status->getS1();
+  if (ie_ue_status.has_value()) {
+    n1ModeReg = ie_ue_status.value().getN1();
+    s1ModeReg = ie_ue_status.value().getS1();
     return true;
   } else {
     return false;
@@ -669,10 +669,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_MICO_indicationl) {
+  if (!ie_MICO_indication.has_value()) {
     Logger::nas_mm().warn("IE ie_MICO_indicationl is not available");
   } else {
-    if (int size = ie_MICO_indicationl->encode2Buffer(
+    if (int size = ie_MICO_indication.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -680,10 +680,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_ue_status) {
+  if (!ie_ue_status.has_value()) {
     Logger::nas_mm().warn("IE ie_ue_status is not available");
   } else {
-    if (int size = ie_ue_status->encode2Buffer(
+    if (int size = ie_ue_status.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -864,9 +864,11 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
       case 0xB: {
         Logger::nas_mm().debug("Decoding IEI (0xB)");
-        ie_MICO_indicationl = new MICO_Indication();
-        decoded_size += ie_MICO_indicationl->decodeFromBuffer(
+        MICOIndication ie_MICO_indication_tmp = {};
+        decoded_size += ie_MICO_indication_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_MICO_indication =
+            std::optional<MICOIndication>(ie_MICO_indication_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
@@ -970,10 +972,11 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
       case 0x2B: {
         Logger::nas_mm().debug("Decoding IEI (0x2B)");
-        ie_ue_status = new UE_Status();
-        decoded_size += ie_ue_status->decodeFromBuffer(
+        UEStatus ie_ue_status_tmp = {};
+        decoded_size += ie_ue_status_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
-        octet = *(buf + decoded_size);
+        ie_ue_status = std::optional<UEStatus>(ie_ue_status_tmp);
+        octet        = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
       case 0x77: {

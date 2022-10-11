@@ -20,7 +20,9 @@
  */
 
 #include "../ies/5GSMobileIdentity.hpp"
+#include "../ies/MICOIndication.hpp"
 #include "../ies/PDUSessionStatus.hpp"
+#include "../ies/UEStatus.hpp"
 #include "NasMmPlainHeader.hpp"
 #include "5GMMCapability.hpp"
 #include "5GSRegistrationType.hpp"
@@ -43,7 +45,6 @@
 #include "IMEISV_Request.hpp"
 #include "LADN_Indication.hpp"
 #include "MA_PDU_Session_Information.hpp"
-#include "MICO_Indication.hpp"
 #include "NAS_Message_Container.hpp"
 #include "NAS_Security_Algorithms.hpp"
 #include "NSSAI.hpp"
@@ -68,7 +69,6 @@
 #include "UES_Usage_Setting.hpp"
 #include "UESecurityCapability.hpp"
 #include "UE_Radio_Capability_ID.hpp"
-#include "UE_Status.hpp"
 #include "UplinkDataStatus.hpp"
 #include "_5GMM_Cause.hpp"
 #include "_5GSDeregistrationType.hpp"

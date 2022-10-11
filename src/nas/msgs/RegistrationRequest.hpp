@@ -75,35 +75,36 @@ class RegistrationRequest : public NasMmPlainHeader {
   void setNonCurrentNativeNasKSI(uint8_t tsc, uint8_t key_set_id);
   bool getNonCurrentNativeNasKSI(uint8_t& value) const;
 
-  void set5G_MM_capability(uint8_t value);
+  void set5GMMCapability(uint8_t value);
   bool get5GMMCapability(uint8_t& value);
 
-  void setUE_Security_Capability(uint8_t g_EASel, uint8_t g_IASel);
-  void setUE_Security_Capability(
+  void setUESecurityCapability(uint8_t g_EASel, uint8_t g_IASel);
+  void setUESecurityCapability(
       uint8_t g_EASel, uint8_t g_IASel, uint8_t EEASel, uint8_t EIASel);
   bool getUeSecurityCapability(uint8_t& ea, uint8_t& ia);
   bool getUeSecurityCapability(
       uint8_t& ea, uint8_t& ia, uint8_t& eea, uint8_t& eia);
 
-  void setRequested_NSSAI(std::vector<struct SNSSAI_s> nssai);
+  void setRequestedNSSAI(std::vector<struct SNSSAI_s> nssai);
   bool getRequestedNssai(std::vector<struct SNSSAI_s>& nssai);
 
   void setUENetworkCapability(uint8_t g_EEASel, uint8_t g_EIASel);
   bool getS1UeNetworkCapability(uint8_t& eea, uint8_t& eia);
 
-  void setUplink_data_status(const uint16_t& value);
+  void setUplinkDataStatus(const uint16_t& value);
   bool getUplinkDataStatus(uint16_t& value);
 
-  void setLast_Visited_Registered_TAI(
+  void setLastVisitedRegisteredTAI(
       const std::string& mcc, const std::string mnc, const uint32_t& tac);
+  // TODO: Getter
 
-  void setPDU_session_status(uint16_t value);
+  void setPDUSessionStatus(uint16_t value);
   uint16_t getPduSessionStatus();
 
-  void setMICO_Indication(bool sprti, bool raai);
+  void setMICOIndication(bool sprti, bool raai);
   bool getMicoIndication(uint8_t& sprti, uint8_t& raai);
 
-  void setUE_Status(bool n1, bool s1);
+  void setUEStatus(bool n1, bool s1);
   bool getUeStatus(uint8_t& n1ModeReg, uint8_t& s1ModeReg);
 
   void setAllowed_PDU_Session_Status(uint16_t value);
@@ -161,9 +162,9 @@ class RegistrationRequest : public NasMmPlainHeader {
   std::optional<UENetworkCapability> ie_s1_ue_network_capability;  // Optional
   std::optional<UplinkDataStatus> ie_uplink_data_status;           // Optional
   std::optional<PDUSessionStatus> ie_PDU_session_status;           // Optional
+  std::optional<MICOIndication> ie_MICO_indication;                // Optional
+  std::optional<UEStatus> ie_ue_status;                            // Optional
 
-  MICO_Indication* ie_MICO_indicationl;                       // Optional
-  UE_Status* ie_ue_status;                                    // Optional
   _5GSMobileIdentity* ie_additional_guti;                     // Optional
   Allowed_PDU_Session_Status* ie_allowed_PDU_session_status;  // Optional
   UES_Usage_Setting* ie_ues_usage_setting;                    // Optional

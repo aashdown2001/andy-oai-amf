@@ -19,100 +19,108 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#include "UE_Status.hpp"
-
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
+#include "UEStatus.hpp"
+
 using namespace nas;
 
 //------------------------------------------------------------------------------
-UE_Status::UE_Status(uint8_t iei) {
-  _iei = iei;
-  S1   = false;
-  N1   = false;
+UEStatus::UEStatus(uint8_t iei) {
+  _iei   = iei;
+  length = 1;
+  S1     = false;
+  N1     = false;
 }
 
 //------------------------------------------------------------------------------
-UE_Status::UE_Status(const uint8_t iei, bool n1, bool s1) {
-  _iei = iei;
-  S1   = s1;
-  N1   = n1;
+UEStatus::UEStatus(const uint8_t iei, bool n1, bool s1) {
+  _iei   = iei;
+  length = 1;
+  S1     = s1;
+  N1     = n1;
 }
 
 //------------------------------------------------------------------------------
-UE_Status::UE_Status() {
-  _iei = 0;
-  S1   = false;
-  N1   = false;
+UEStatus::UEStatus() {
+  _iei   = 0;
+  length = 1;
+  S1     = false;
+  N1     = false;
 }
 
 //------------------------------------------------------------------------------
-UE_Status::~UE_Status() {}
+UEStatus::~UEStatus() {}
 
 //------------------------------------------------------------------------------
-void UE_Status::setS1(bool value) {
+void UEStatus::setS1(bool value) {
   S1 = value;
 }
 
 //------------------------------------------------------------------------------
-void UE_Status::setN1(bool value) {
+void UEStatus::setN1(bool value) {
   N1 = value;
 }
 
 //------------------------------------------------------------------------------
-bool UE_Status::getS1() {
+bool UEStatus::getS1() {
   return S1;
 }
 
 //------------------------------------------------------------------------------
-bool UE_Status::getN1() {
+bool UEStatus::getN1() {
   return N1;
 }
 
 //------------------------------------------------------------------------------
-int UE_Status::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("encoding UE_Status iei(0x%x)", _iei);
-  if (len < 3) {
-    //	Logger::nas_mm().error("len is less than %d", length);
-    return 0;
+int UEStatus::encode2Buffer(uint8_t* buf, int len) {
+  Logger::nas_mm().debug("Encoding UE Status (IEI 0x%x)", _iei);
+
+  if ((len < kUEStatusIELength) or (len < length + 2)) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kUEStatusIELength);
+    return KEncodeDecodeError;
   }
+
   int encoded_size = 0;
   if (_iei) {
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = 3 - 2;
-    encoded_size++;
-    *(buf + encoded_size) = 0x00 | S1 | N1 << 1;
-    encoded_size++;
-  } else {
-    //	*(buf + encoded_size) = length - 1; encoded_size++;
-    //	*(buf + encoded_size) = _value; encoded_size++; encoded_size++;
+    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
   }
-  Logger::nas_mm().debug("encoded UE_Status len(%d)", encoded_size);
+
+  ENCODE_U8(buf + encoded_size, length, encoded_size);
+
+  uint8_t octet = 0x03 & (S1 | (N1 << 1));
+  ENCODE_U8(buf + encoded_size, octet, encoded_size);
+
+  Logger::nas_mm().debug("Encoded UE Status ( len %d)", encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int UE_Status::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("decoding UE_Status iei(0x%x)", *buf);
+int UEStatus::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
+  Logger::nas_mm().debug("Decoding UE Status");
+
+  if ((len < kUEStatusIELength) or (len < length + 2)) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kUEStatusIELength);
+    return KEncodeDecodeError;
+  }
+
   int decoded_size = 0;
   if (is_option) {
-    decoded_size++;
+    DECODE_U8(buf + decoded_size, _iei, decoded_size);
   }
-  S1 = 0;
-  N1 = 0;
-  // length = *(buf + decoded_size);
-  decoded_size++;
-  N1 = *(buf + decoded_size) & 0x02;
-  S1 = *(buf + decoded_size) & 0x01;
-  decoded_size++;
-  Logger::nas_mm().debug("decoded UE_Status N1(0x%x) S1(0x%x)", N1, S1);
-  Logger::nas_mm().debug("decoded UE_Status len(%d)", decoded_size);
+  DECODE_U8(buf + decoded_size, length, decoded_size);
+
+  uint8_t octet = 0;
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+
+  N1 = octet & 0x02;
+  S1 = octet & 0x01;
+  Logger::nas_mm().debug(
+      "Decoded UE Status, N1 0x%x, S1 0x%x, len %d", N1, S1, decoded_size);
   return decoded_size;
 }

@@ -95,7 +95,7 @@ int _5GS_DRX_arameters::decodeFromBuffer(
   decoded_size++;
   _value = *(buf + decoded_size) & 0x0f;
   decoded_size++;
-  Logger::nas_mm().debug("decoded _5GS_DRX_arameters DRX value(0x%x)", _value);
-  Logger::nas_mm().debug("decoded UE_Status len(%d)", decoded_size);
+  Logger::nas_mm().debug("decoded _5GS_DRX_Parameters DRX value(0x%x)", _value);
+  Logger::nas_mm().debug("decoded _5GS_DRX_Parameters len(%d)", decoded_size);
   return decoded_size;
 }

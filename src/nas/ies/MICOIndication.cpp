@@ -19,99 +19,104 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#include "MICO_Indication.hpp"
-
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
+#include "MICOIndication.hpp"
+
 using namespace nas;
 
 //------------------------------------------------------------------------------
-MICO_Indication::MICO_Indication(const uint8_t _iei, bool sprti, bool raai) {
+MICOIndication::MICOIndication(const uint8_t _iei, bool sprti, bool raai) {
   iei   = _iei;
   RAAI  = raai;
   SPRTI = sprti;
 }
 
 //------------------------------------------------------------------------------
-MICO_Indication::MICO_Indication(bool sprti, bool raai) {
+MICOIndication::MICOIndication(bool sprti, bool raai) {
   this->iei   = 0;
   this->RAAI  = raai;
   this->SPRTI = sprti;
 }
 
 //------------------------------------------------------------------------------
-MICO_Indication::MICO_Indication() {}
-
-//------------------------------------------------------------------------------
-MICO_Indication::~MICO_Indication(){};
-
-//------------------------------------------------------------------------------
-int MICO_Indication::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding MICO_Indication IE iei (0x%x)", iei);
-  if (len < 1) {
-    Logger::nas_mm().error("Len is less than one");
-    return -1;
-  } else {
-    uint8_t octet = 0;
-    if (!(iei & 0x0f)) {
-      // octet = (0x0f) & ((tsc << 3) | key_id);
-      //*buf = octet;
-      // Logger::nas_mm().debug("encoded NasKeySetIdentifier IE(len(1/2
-      // octet))"); return 0;
-    } else {
-      octet = (iei << 4) | (SPRTI << 1) | RAAI;
-      *buf  = octet;
-      Logger::nas_mm().debug("Encoded MICO_Indication IE (len: 1 octet)");
-      return 1;
-    }
-  }
-  return 1;
+MICOIndication::MICOIndication() {
+  iei   = 0;
+  RAAI  = false;
+  SPRTI = false;
 }
 
 //------------------------------------------------------------------------------
-int MICO_Indication::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("Decoding MICO_Indication IE");
-  if (len < 1) {
-    Logger::nas_mm().error("Len is less than one");
-    return 0;
-  } else {
-    uint8_t octet = (*buf);
-    if (is_option) {
-      iei = (octet & 0xf0) >> 4;
-    } else {
-      iei = 0;
-    }
-    SPRTI = octet & 0x02;
-    RAAI  = octet & 0x01;
-    Logger::nas_mm().debug(
-        "decoded MICO_Indication iei (0x%x) sprti (0x%x) raai (0x%x)", iei,
-        SPRTI, RAAI);
-    return 1;
+MICOIndication::~MICOIndication(){};
+
+//------------------------------------------------------------------------------
+int MICOIndication::encode2Buffer(uint8_t* buf, int len) {
+  Logger::nas_mm().debug("Encoding MICOIndication IE ( IEI 0x%x)", iei);
+
+  if (len < kMICOIndicationIELength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kMICOIndicationIELength);
+    return KEncodeDecodeError;
   }
+
+  uint8_t octet    = 0;
+  int encoded_size = 0;
+
+  octet = (iei << 4) | (SPRTI << 1) | RAAI;
+  ENCODE_U8(buf + encoded_size, octet, encoded_size);
+
+  Logger::nas_mm().debug(
+      "Encoded MICOIndication IE (len: %d octet)", encoded_size);
+
+  return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-void MICO_Indication::setSPRTI(bool value) {
+int MICOIndication::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
+  Logger::nas_mm().debug("Decoding MICOIndication IE");
+  if (len < kMICOIndicationIELength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kMICOIndicationIELength);
+    return KEncodeDecodeError;
+  }
+
+  uint8_t octet    = 0;
+  int decoded_size = 0;
+
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+  if (is_option) {
+    iei = (octet & 0xf0) >> 4;
+  } else {
+    iei = 0;
+  }
+
+  SPRTI = octet & 0x02;
+  RAAI  = octet & 0x01;
+  Logger::nas_mm().debug(
+      "Decoded MICOIndication IEI 0x%x, SPRTI 0x%x, RAAI 0x%x", iei, SPRTI,
+      RAAI);
+  return decoded_size;
+}
+
+//------------------------------------------------------------------------------
+void MICOIndication::setSPRTI(bool value) {
   SPRTI = value;
 }
 
 //------------------------------------------------------------------------------
-void MICO_Indication::setRAAI(bool value) {
+void MICOIndication::setRAAI(bool value) {
   RAAI = value;
 }
 
 //------------------------------------------------------------------------------
-bool MICO_Indication::getSPRTI() {
+bool MICOIndication::getSPRTI() {
   return SPRTI;
 }
 
 //------------------------------------------------------------------------------
-bool MICO_Indication::getRAAI() {
+bool MICOIndication::getRAAI() {
   return RAAI;
 }
