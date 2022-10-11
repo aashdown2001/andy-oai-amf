@@ -93,7 +93,7 @@ class RegistrationAccept {
   Rejected_NSSAI* ie_rejected_nssai;
   NSSAI* ie_configured_nssai;
   _5GS_Network_Feature_Support* ie_5gs_network_feature_support;
-  PDU_Session_Status* ie_PDU_session_status;
+  PDUSessionStatus* ie_PDU_session_status;
   PDU_Session_Reactivation_Result* ie_pdu_session_reactivation_result;
   PDU_Session_Reactivation_Result_Error_Cause*
       ie_pdu_session_reactivation_result_error_cause;

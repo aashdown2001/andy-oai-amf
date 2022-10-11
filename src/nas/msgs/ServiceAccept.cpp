@@ -52,7 +52,7 @@ void ServiceAccept::setHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void ServiceAccept::setPDU_session_status(uint16_t value) {
-  ie_PDU_session_status = new PDU_Session_Status(0x50, value);
+  ie_PDU_session_status = new PDUSessionStatus(0x50, value);
 }
 
 //------------------------------------------------------------------------------

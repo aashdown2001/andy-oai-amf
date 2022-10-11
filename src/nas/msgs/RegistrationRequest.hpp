@@ -160,8 +160,8 @@ class RegistrationRequest : public NasMmPlainHeader {
       ie_last_visited_registered_TAI;                              // Optional
   std::optional<UENetworkCapability> ie_s1_ue_network_capability;  // Optional
   std::optional<UplinkDataStatus> ie_uplink_data_status;           // Optional
+  std::optional<PDUSessionStatus> ie_PDU_session_status;           // Optional
 
-  PDU_Session_Status* ie_PDU_session_status;                  // Optional
   MICO_Indication* ie_MICO_indicationl;                       // Optional
   UE_Status* ie_ue_status;                                    // Optional
   _5GSMobileIdentity* ie_additional_guti;                     // Optional

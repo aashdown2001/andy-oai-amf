@@ -50,7 +50,7 @@ class ServiceAccept {
 
  private:
   NasMmPlainHeader* plain_header;
-  PDU_Session_Status* ie_PDU_session_status;
+  PDUSessionStatus* ie_PDU_session_status;
   PDU_Session_Reactivation_Result* ie_session_reactivation_result;
 };
 

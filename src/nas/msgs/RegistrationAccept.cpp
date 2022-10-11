@@ -156,7 +156,7 @@ void RegistrationAccept::set_5GS_Network_Feature_Support(
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setPDU_session_status(uint16_t value) {
-  ie_PDU_session_status = new PDU_Session_Status(0x50, value);
+  ie_PDU_session_status = new PDUSessionStatus(0x50, value);
 }
 
 //------------------------------------------------------------------------------
@@ -702,7 +702,7 @@ int RegistrationAccept::decodeFromBuffer(
       } break;
       case 0x50: {
         Logger::nas_mm().debug("Decoding IEI (0x50)");
-        ie_PDU_session_status = new PDU_Session_Status();
+        ie_PDU_session_status = new PDUSessionStatus();
         decoded_size += ie_PDU_session_status->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

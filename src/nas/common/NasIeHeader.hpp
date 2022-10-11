@@ -20,6 +20,7 @@
  */
 
 #include "../ies/5GSMobileIdentity.hpp"
+#include "../ies/PDUSessionStatus.hpp"
 #include "NasMmPlainHeader.hpp"
 #include "5GMMCapability.hpp"
 #include "5GSRegistrationType.hpp"
@@ -53,7 +54,6 @@
 #include "PDU_Session_Identity_2.hpp"
 #include "PDU_Session_Reactivation_Result.hpp"
 #include "PDU_Session_Reactivation_Result_Error_Cause.hpp"
-#include "PDU_Session_Status.hpp"
 #include "PLMN_List.hpp"
 #include "Payload_Container.hpp"
 #include "Payload_Container_Type.hpp"

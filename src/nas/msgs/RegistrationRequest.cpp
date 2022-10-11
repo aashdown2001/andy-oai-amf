@@ -37,7 +37,7 @@ RegistrationRequest::RegistrationRequest()
   ie_s1_ue_network_capability    = std::nullopt;
   ie_uplink_data_status          = std::nullopt;
   ie_last_visited_registered_TAI = std::nullopt;
-  ie_PDU_session_status          = nullptr;
+  ie_PDU_session_status          = std::nullopt;
   ie_MICO_indicationl            = nullptr;
   ie_ue_status                   = nullptr;
   ie_additional_guti             = nullptr;
@@ -310,13 +310,13 @@ bool RegistrationRequest::getUplinkDataStatus(uint16_t& value) {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setPDU_session_status(uint16_t value) {
-  ie_PDU_session_status = new PDU_Session_Status(0x50, value);
+  ie_PDU_session_status = std::make_optional<PDUSessionStatus>(0x50, value);
 }
 
 //------------------------------------------------------------------------------
 uint16_t RegistrationRequest::getPduSessionStatus() {
-  if (ie_PDU_session_status) {
-    return ie_PDU_session_status->getValue();
+  if (ie_PDU_session_status.has_value()) {
+    return ie_PDU_session_status.value().getValue();
   } else {
     return 0;
   }
@@ -329,7 +329,7 @@ void RegistrationRequest::setMICO_Indication(bool sprti, bool raai) {
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getMicoIndication(uint8_t& sprti, uint8_t& raai) {
-  if (ie_PDU_session_status) {
+  if (ie_PDU_session_status.has_value()) {
     sprti = ie_MICO_indicationl->getSPRTI();
     raai  = ie_MICO_indicationl->getRAAI();
     return true;
@@ -658,10 +658,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_PDU_session_status) {
+  if (!ie_PDU_session_status.has_value()) {
     Logger::nas_mm().warn("IE ie_PDU_session_status is not available");
   } else {
-    if (int size = ie_PDU_session_status->encode2Buffer(
+    if (int size = ie_PDU_session_status.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -960,9 +960,11 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
       case 0x50: {
         Logger::nas_mm().debug("Decoding IEI (0x50)");
-        ie_PDU_session_status = new PDU_Session_Status();
-        decoded_size += ie_PDU_session_status->decodeFromBuffer(
+        PDUSessionStatus ie_PDU_session_status_tmp;
+        decoded_size += ie_PDU_session_status_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_PDU_session_status =
+            std::optional<PDUSessionStatus>(ie_PDU_session_status_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
