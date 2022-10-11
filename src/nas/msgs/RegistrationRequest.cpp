@@ -40,8 +40,8 @@ RegistrationRequest::RegistrationRequest()
   ie_PDU_session_status          = std::nullopt;
   ie_MICO_indication             = std::nullopt;
   ie_ue_status                   = std::nullopt;
-  ie_additional_guti             = nullptr;
-  ie_allowed_PDU_session_status  = nullptr;
+  ie_additional_guti             = std::nullopt;
+  ie_allowed_PDU_session_status  = std::nullopt;
   ie_ues_usage_setting           = nullptr;
   ie_5gs_drx_parameters          = nullptr;
   ie_eps_nas_message_container   = nullptr;
@@ -136,24 +136,20 @@ std::string RegistrationRequest::get_5g_guti() {
 void RegistrationRequest::setAdditional_GUTI_SUCI_SUPI_format_IMSI(
     const string mcc, const string mnc, uint8_t amf_region_id,
     uint8_t amf_set_id, uint8_t amf_pointer, const string _5g_tmsi) {
-  /*if (amf_pointer&0x80) {
-   Logger::nas_mm().error("encoding suci and supi format for imsi error, please
-   choose right interface"); return;
-   }
-   else {*/
-  ie_additional_guti = new _5GSMobileIdentity();
-  ie_additional_guti->setIEI(0x77);
+  _5GSMobileIdentity ie_additional_guti_tmp = {};
+  ie_additional_guti_tmp.setIEI(0x77);
   uint32_t tmsi = fromString<uint32_t>(_5g_tmsi);
-  ie_additional_guti->set5GGUTI(
+  ie_additional_guti_tmp.set5GGUTI(
       mcc, mnc, amf_region_id, amf_set_id, amf_pointer, tmsi);
-  //}
+  ie_additional_guti =
+      std::optional<_5GSMobileIdentity>(ie_additional_guti_tmp);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getAdditionalGuti(nas::_5G_GUTI_t& guti) {
-  if (ie_additional_guti) {
+  if (ie_additional_guti.has_value()) {
     std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
-    ie_additional_guti->get5GGUTI(guti);
+    ie_additional_guti.value().get5GGUTI(guti);
     if (!guti.has_value()) return false;
     return true;
   } else {
@@ -355,14 +351,15 @@ bool RegistrationRequest::getUeStatus(uint8_t& n1ModeReg, uint8_t& s1ModeReg) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setAllowed_PDU_Session_Status(uint16_t value) {
-  ie_allowed_PDU_session_status = new Allowed_PDU_Session_Status(0x25, value);
+void RegistrationRequest::setAllowedPDUSessionStatus(uint16_t value) {
+  ie_allowed_PDU_session_status = std::make_optional<AllowedPDUSessionStatus>(
+      0x25, value);  // TODO: remove hardcoded value
 }
 
 //------------------------------------------------------------------------------
 uint16_t RegistrationRequest::getAllowedPduSessionStatus() {
-  if (ie_allowed_PDU_session_status) {
-    return ie_allowed_PDU_session_status->getValue();
+  if (ie_allowed_PDU_session_status.has_value()) {
+    return ie_allowed_PDU_session_status.value().getValue();
   } else {
     return 0;
   }
@@ -370,7 +367,7 @@ uint16_t RegistrationRequest::getAllowedPduSessionStatus() {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setUES_Usage_Setting(bool ues_usage_setting) {
-  ie_ues_usage_setting = new UES_Usage_Setting(0x18, ues_usage_setting);
+  ie_ues_usage_setting = new UEUsageSetting(0x18, ues_usage_setting);
 }
 
 //------------------------------------------------------------------------------
@@ -691,10 +688,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_additional_guti) {
+  if (!ie_additional_guti.has_value()) {
     Logger::nas_mm().warn("IE ie_additional_guti- is not available");
   } else {
-    if (int size = ie_additional_guti->encode2Buffer(
+    if (int size = ie_additional_guti.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -702,10 +699,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_allowed_PDU_session_status) {
+  if (!ie_allowed_PDU_session_status.has_value()) {
     Logger::nas_mm().warn("IE ie_allowed_PDU_session_status is not available");
   } else {
-    if (int size = ie_allowed_PDU_session_status->encode2Buffer(
+    if (int size = ie_allowed_PDU_session_status.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -981,25 +978,29 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
       case 0x77: {
         Logger::nas_mm().debug("Decoding IEI (0x77)");
-        ie_additional_guti = new _5GSMobileIdentity();
-        decoded_size += ie_additional_guti->decodeFromBuffer(
+        _5GSMobileIdentity ie_additional_guti_tmp = {};
+        decoded_size += ie_additional_guti_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_additional_guti =
+            std::optional<_5GSMobileIdentity>(ie_additional_guti_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
 
       } break;
       case 0x25: {
         Logger::nas_mm().debug("Decoding IEI(0x25)");
-        ie_allowed_PDU_session_status = new Allowed_PDU_Session_Status();
-        decoded_size += ie_allowed_PDU_session_status->decodeFromBuffer(
+        AllowedPDUSessionStatus ie_allowed_PDU_session_status_tmp = {};
+        decoded_size += ie_allowed_PDU_session_status_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_allowed_PDU_session_status = std::optional<AllowedPDUSessionStatus>(
+            ie_allowed_PDU_session_status_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
 
       } break;
       case 0x18: {
         Logger::nas_mm().debug("Decoding IEI(0x18)");
-        ie_ues_usage_setting = new UES_Usage_Setting();
+        ie_ues_usage_setting = new UEUsageSetting();
         decoded_size += ie_ues_usage_setting->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

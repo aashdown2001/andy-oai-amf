@@ -107,7 +107,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   void setUEStatus(bool n1, bool s1);
   bool getUeStatus(uint8_t& n1ModeReg, uint8_t& s1ModeReg);
 
-  void setAllowed_PDU_Session_Status(uint16_t value);
+  void setAllowedPDUSessionStatus(uint16_t value);
   uint16_t getAllowedPduSessionStatus();
 
   void setUES_Usage_Setting(bool ues_usage_setting);
@@ -164,10 +164,11 @@ class RegistrationRequest : public NasMmPlainHeader {
   std::optional<PDUSessionStatus> ie_PDU_session_status;           // Optional
   std::optional<MICOIndication> ie_MICO_indication;                // Optional
   std::optional<UEStatus> ie_ue_status;                            // Optional
+  std::optional<_5GSMobileIdentity> ie_additional_guti;            // Optional
+  std::optional<AllowedPDUSessionStatus>
+      ie_allowed_PDU_session_status;  // Optional
 
-  _5GSMobileIdentity* ie_additional_guti;                     // Optional
-  Allowed_PDU_Session_Status* ie_allowed_PDU_session_status;  // Optional
-  UES_Usage_Setting* ie_ues_usage_setting;                    // Optional
+  UEUsageSetting* ie_ues_usage_setting;                       // Optional
   _5GS_DRX_arameters* ie_5gs_drx_parameters;                  // Optional
   EPS_NAS_Message_Container* ie_eps_nas_message_container;    // Optional
   LADN_Indication* ie_ladn_indication;                        // Optional

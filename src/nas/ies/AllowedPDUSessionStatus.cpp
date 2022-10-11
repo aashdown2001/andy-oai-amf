@@ -19,27 +19,23 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#include "AllowedPDUSessionStatus.hpp"
 
-#include "Allowed_PDU_Session_Status.hpp"
-
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
+
 using namespace nas;
 
 //------------------------------------------------------------------------------
-Allowed_PDU_Session_Status::Allowed_PDU_Session_Status(uint8_t iei) {
+AllowedPDUSessionStatus::AllowedPDUSessionStatus(uint8_t iei) {
   _iei   = iei;
   length = 0;
   _value = 0;
 }
 
 //------------------------------------------------------------------------------
-Allowed_PDU_Session_Status::Allowed_PDU_Session_Status(
+AllowedPDUSessionStatus::AllowedPDUSessionStatus(
     const uint8_t iei, uint16_t value) {
   _iei   = iei;
   _value = value;
@@ -47,66 +43,59 @@ Allowed_PDU_Session_Status::Allowed_PDU_Session_Status(
 }
 
 //------------------------------------------------------------------------------
-Allowed_PDU_Session_Status::Allowed_PDU_Session_Status()
+AllowedPDUSessionStatus::AllowedPDUSessionStatus()
     : _iei(), length(), _value() {}
 
 //------------------------------------------------------------------------------
-Allowed_PDU_Session_Status::~Allowed_PDU_Session_Status() {}
+AllowedPDUSessionStatus::~AllowedPDUSessionStatus() {}
 
 //------------------------------------------------------------------------------
-void Allowed_PDU_Session_Status::setValue(uint8_t iei, uint16_t value) {
+void AllowedPDUSessionStatus::setValue(uint8_t iei, uint16_t value) {
   _iei   = iei;
   _value = value;
 }
-uint16_t Allowed_PDU_Session_Status::getValue() {
+uint16_t AllowedPDUSessionStatus::getValue() {
   return _value;
 }
 
 //------------------------------------------------------------------------------
-int Allowed_PDU_Session_Status::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("encoding Allowed_PDU_Session_Status iei(0x%x)", _iei);
-  if (len < length) {
-    Logger::nas_mm().error("len is less than %d", length);
-    return 0;
+int AllowedPDUSessionStatus::encode2Buffer(uint8_t* buf, int len) {
+  Logger::nas_mm().debug("Encoding AllowedPDUSessionStatus (IEI 0x%x)", _iei);
+
+  if ((len < kAllowedPDUSessionStatusMinimumLength) or (len < length + 2)) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kAllowedPDUSessionStatusMinimumLength);
+    return KEncodeDecodeError;
   }
+
   int encoded_size = 0;
   if (_iei) {
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = length - 2;
-    encoded_size++;
-    *(buf + encoded_size) = (_value & 0x00ff);
-    encoded_size++;
-    *(buf + encoded_size) = (_value & 0xff00) >> 8;
-    encoded_size++;
-
-  } else {
-    //		*(buf + encoded_size) = length - 1; encoded_size++;
-    //		*(buf + encoded_size) = _value; encoded_size++; encoded_size++;
+    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
   }
+
+  ENCODE_U8(buf + encoded_size, length, encoded_size);
+  ENCODE_U16(buf + encoded_size, _value, encoded_size);
+
   Logger::nas_mm().debug(
-      "encoded Allowed_PDU_Session_Status len(%d)", encoded_size);
+      "Encoded AllowedPDUSessionStatus (len %d)", encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int Allowed_PDU_Session_Status::decodeFromBuffer(
+int AllowedPDUSessionStatus::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("decoding Allowed_PDU_Session_Status iei(0x%x)", *buf);
+  Logger::nas_mm().debug("Decoding AllowedPDUSessionStatus");
   int decoded_size = 0;
   if (is_option) {
-    decoded_size++;
+    DECODE_U8(buf + decoded_size, _iei, decoded_size);
   }
-  _value = 0x0000;
-  length = *(buf + decoded_size);
-  decoded_size++;
-  _value |= *(buf + decoded_size);
-  decoded_size++;
-  _value |= (*(buf + decoded_size)) << 8;
-  decoded_size++;
+  DECODE_U8(buf + decoded_size, length, decoded_size);
+  DECODE_U16(buf + decoded_size, _value, decoded_size);
+
   Logger::nas_mm().debug(
-      "decoded Allowed_PDU_Session_Status value(0x%4x)", _value);
+      "Decoded AllowedPDUSessionStatus (value 0x%4x)", _value);
   Logger::nas_mm().debug(
-      "decoded Allowed_PDU_Session_Status len(%d)", decoded_size);
+      "Decoded AllowedPDUSessionStatus (len %d)", decoded_size);
   return decoded_size;
 }

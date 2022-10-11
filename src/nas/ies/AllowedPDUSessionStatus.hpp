@@ -19,26 +19,22 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __Allowed_PDU_Session_Status_H_
-#define __Allowed_PDU_Session_Status_H_
+#ifndef _ALLOWED_PDU_SESSION_STATUS_H_
+#define _ALLOWED_PDU_SESSION_STATUS_H_
 
 #include <stdint.h>
 
+constexpr uint8_t kAllowedPDUSessionStatusMinimumLength = 4;
+constexpr uint8_t kAllowedPDUSessionStatusMaximumLength = 34;
+
 namespace nas {
 
-class Allowed_PDU_Session_Status {
+class AllowedPDUSessionStatus {
  public:
-  Allowed_PDU_Session_Status();
-  Allowed_PDU_Session_Status(uint8_t iei);
-  Allowed_PDU_Session_Status(const uint8_t iei, uint16_t value);
-  ~Allowed_PDU_Session_Status();
+  AllowedPDUSessionStatus();
+  AllowedPDUSessionStatus(uint8_t iei);
+  AllowedPDUSessionStatus(const uint8_t iei, uint16_t value);
+  ~AllowedPDUSessionStatus();
   void setValue(uint8_t iei, uint16_t value);
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
@@ -48,6 +44,7 @@ class Allowed_PDU_Session_Status {
   uint8_t _iei;
   uint8_t length;
   uint16_t _value;
+  // TODO: spare
 };
 
 }  // namespace nas

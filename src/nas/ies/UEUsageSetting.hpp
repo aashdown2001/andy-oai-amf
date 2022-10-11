@@ -19,26 +19,21 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __UES_Usage_Setting_H_
-#define __UES_Usage_Setting_H_
+#ifndef _UES_USAGE_SETTING_H_
+#define _UES_USAGE_SETTING_H_
 
 #include <stdint.h>
 
+constexpr uint8_t kUEUsageSettingLength = 3;
+
 namespace nas {
 
-class UES_Usage_Setting {
+class UEUsageSetting {
  public:
-  UES_Usage_Setting();
-  UES_Usage_Setting(uint8_t iei);
-  UES_Usage_Setting(const uint8_t iei, bool ues_usage_setting);
-  ~UES_Usage_Setting();
+  UEUsageSetting();
+  UEUsageSetting(uint8_t iei);
+  UEUsageSetting(const uint8_t iei, bool ues_usage_setting);
+  ~UEUsageSetting();
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void setValue(bool value);
@@ -46,6 +41,7 @@ class UES_Usage_Setting {
 
  private:
   uint8_t _iei;
+  uint8_t length;
   bool _ues_usage_setting;
 };
 }  // namespace nas

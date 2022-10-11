@@ -84,7 +84,7 @@ void ServiceRequest::setPDU_session_status(uint16_t value) {
 
 //------------------------------------------------------------------------------
 void ServiceRequest::setAllowed_PDU_Session_Status(uint16_t value) {
-  ie_allowed_PDU_session_status = new Allowed_PDU_Session_Status(0x25, value);
+  ie_allowed_PDU_session_status = new AllowedPDUSessionStatus(0x25, value);
 }
 
 //------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ int ServiceRequest::decodeFromBuffer(
       case 0x25: {
         Logger::nas_mm().debug(
             "Decoding ie_allowed_PDU_session_status (IEI: 0x25)");
-        ie_allowed_PDU_session_status = new Allowed_PDU_Session_Status();
+        ie_allowed_PDU_session_status = new AllowedPDUSessionStatus();
         decoded_size += ie_allowed_PDU_session_status->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
