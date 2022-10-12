@@ -92,7 +92,7 @@ class _5GSMobilityIdentity {
   int encode2buffer(uint8_t* buf, int len);
   int suci_encode2buffer(uint8_t* buf, int len);
   int _5g_guti_encode2buffer(uint8_t* buf, int len);
-  int encodeMssMnc2buffer(string mcc, string mnc, uint8_t* buf);
+  int encodeMccMnc2buffer(string mcc, string mnc, uint8_t* buf);
   int encodeRoutid2buffer(string routid, uint8_t* buf);
   int encodeMSIN2buffer(string msinstr, uint8_t* buf);
   int _5g_s_tmsi_encode2buffer(uint8_t* buf, int len);
