@@ -347,7 +347,7 @@ int _5GSMobileIdentity::_5g_guti_encode2buffer(uint8_t* buf, int len) {
       _5g_guti.value().mcc, _5g_guti.value().mnc, buf + encoded_size);
   ENCODE_U8(buf + encoded_size, _5g_guti.value().amf_region_id, encoded_size);
   ENCODE_U8(
-      buf + encoded_size, ((_5g_guti.value().amf_set_id & 0x03fc) >> 2),
+      buf + encoded_size, ((_5g_guti.value().amf_set_id & 0x03ff) >> 2),
       encoded_size);
   ENCODE_U8(
       buf + encoded_size,
@@ -704,8 +704,13 @@ int _5GSMobileIdentity::_5g_guti_decodefrombuffer(uint8_t* buf, int len) {
   tmp.mnc = (const std::string)(mnc_str);
 
   DECODE_U8(buf + decoded_size, tmp.amf_region_id, decoded_size);
-  DECODE_U8(buf + decoded_size, tmp.amf_set_id, decoded_size);
-  DECODE_U8(buf + decoded_size, tmp.amf_pointer, decoded_size);
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+  tmp.amf_set_id = octet << 2;  // 8 most significant bits
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+  tmp.amf_set_id |=
+      ((octet & 0xc0) >> 6);  // 2 most significant bits of this octet
+                              // as 2 lest significant bits of AMF Set ID
+  tmp.amf_pointer = octet & 0x3f;  // 6 lest significant bits
 
   // TMSI, 4 octets
   DECODE_U32(buf + decoded_size, tmp._5g_tmsi, decoded_size);
