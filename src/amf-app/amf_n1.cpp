@@ -707,7 +707,7 @@ void amf_n1::identity_response_handle(
   }
   string supi = {};
   if (identity_response->ie_mobility_id) {
-    nas::SUCI_imsi_t imsi;
+    SUCI_imsi_t imsi = {};
     identity_response->ie_mobility_id->getSuciWithSupiImsi(imsi);
     supi = imsi.mcc + imsi.mnc + imsi.msin;
     Logger::amf_n1().debug("Identity Response: SUCI (%s)", supi.c_str());
@@ -1054,7 +1054,7 @@ void amf_n1::registration_request_handle(
   uint8_t mobility_id_type = registration_request->getMobilityIdentityType();
   switch (mobility_id_type) {
     case SUCI: {
-      nas::SUCI_imsi_t imsi = {};
+      SUCI_imsi_t imsi = {};
       if (!registration_request->getSuciSupiFormatImsi(imsi)) {
         Logger::amf_n1().warn("No SUCI and IMSI for SUPI Format");
       } else {
@@ -1127,7 +1127,9 @@ void amf_n1::registration_request_handle(
     } break;
 
     case _5G_GUTI: {
-      guti = registration_request->get_5g_guti();
+      guti                = registration_request->get_5g_guti();
+      _5G_GUTI_t _5g_guti = {};
+      // registration_request->get5GGuti(_5g_guti);
       Logger::amf_n1().debug(
           "Decoded GUTI from registration request message %s", guti.c_str());
       if (guti.empty()) {
@@ -1138,6 +1140,7 @@ void amf_n1::registration_request_handle(
         Logger::amf_n1().debug("Exiting nas_context");
         nc->is_5g_guti_present         = true;
         nc->to_be_register_by_new_suci = true;
+        // TODO: nc->tmsi
       } else if (is_guti_2_nas_context(guti)) {
         Logger::amf_n1().debug(
             "nas_context existed with GUTI %s", guti.c_str());
@@ -1319,7 +1322,7 @@ void amf_n1::registration_request_handle(
   }
 
   for (auto r : nc->requestedNssai) {
-    Logger::nas_mm().debug("Requested NSSAI: %s", r.ToString());
+    Logger::nas_mm().debug("Requested NSSAI: %s", r.ToString().c_str());
   }
 
   nc->ctx_avaliability_ind = true;
@@ -1347,7 +1350,8 @@ void amf_n1::registration_request_handle(
     } else {
       for (auto s : nc->requestedNssai) {
         Logger::amf_n1().debug(
-            "Requested NSSAI inside the NAS container: %s", s.ToString());
+            "Requested NSSAI inside the NAS container: %s",
+            s.ToString().c_str());
       }
     }
   } else {
@@ -2535,6 +2539,7 @@ void amf_n1::security_mode_complete_handle(
       (uint8_t*) bdata(nas_msg), blength(nas_msg));
 
   bstring nas_msg_container = nullptr;
+
   if (security_mode_complete->getNasMessageContainer(nas_msg_container)) {
     comUt::print_buffer(
         "amf_n1", "NAS Message Container", (uint8_t*) bdata(nas_msg_container),
@@ -2557,7 +2562,7 @@ void amf_n1::security_mode_complete_handle(
       // Get Requested NSSAI (Optional IE), if provided
       if (registration_request->getRequestedNssai(nc->requestedNssai)) {
         for (auto s : nc->requestedNssai) {
-          Logger::amf_n1().debug("Requested NSSAI: %s", s.ToString());
+          Logger::amf_n1().debug("Requested NSSAI: %s", s.ToString().c_str());
         }
       } else {
         Logger::amf_n1().debug("No Optional IE RequestedNssai available");
@@ -3217,7 +3222,8 @@ void amf_n1::ul_nas_transport_handle(
     if (nc->requestedNssai.size() > 0) snssai = nc->requestedNssai[0];
   }
 
-  Logger::amf_n1().debug("S_NSSAI for this PDU Session %s", snssai.ToString());
+  Logger::amf_n1().debug(
+      "S_NSSAI for this PDU Session %s", snssai.ToString().c_str());
 
   bstring dnn    = bfromcstr("default");
   bstring sm_msg = nullptr;
@@ -3944,7 +3950,7 @@ void amf_n1::get_pdu_session_to_be_activated(
 
 //------------------------------------------------------------------------------
 void amf_n1::initialize_registration_accept(
-    std::unique_ptr<nas::RegistrationAccept>& registration_accept) {
+    std::unique_ptr<RegistrationAccept>& registration_accept) {
   registration_accept->setHeader(PLAIN_5GS_MSG);
   registration_accept->set_5GS_Registration_Result(
       false, false, false,
@@ -3985,7 +3991,7 @@ void amf_n1::initialize_registration_accept(
 
 //------------------------------------------------------------------------------
 void amf_n1::initialize_registration_accept(
-    std::unique_ptr<nas::RegistrationAccept>& registration_accept,
+    std::unique_ptr<RegistrationAccept>& registration_accept,
     const std::shared_ptr<nas_context>& nc) {
   registration_accept->setHeader(PLAIN_5GS_MSG);
   registration_accept->set_5GS_Registration_Result(

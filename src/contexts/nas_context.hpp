@@ -26,6 +26,7 @@
 
 #include <string>
 
+#include "3gpp_ts24501.hpp"
 #include "authentication_algorithms_with_5gaka.hpp"
 #include "itti.hpp"
 #include "nas_security_context.hpp"
@@ -52,8 +53,8 @@ static const std::vector<std::string> _5gmm_state_e2str = {
 
 typedef enum { CM_IDLE = 0, CM_CONNECTED } cm_state_t;
 
-static const std::vector<std::string> cm_state_e2str = {"CM_IDLE",
-                                                        "CM_CONNECTED"};
+static const std::vector<std::string> cm_state_e2str = {
+    "CM_IDLE", "CM_CONNECTED"};
 
 typedef enum {
   DEREGISTERED = 0,
@@ -84,6 +85,7 @@ class nas_context {
   uint8_t ngKsi : 4;
   // mobility identity: imsi, supi, 5g-guti, etc
   std::string imsi;
+  // std::optional<_5G_GUTI_t> guti;
   uint8_t mmCapability;
   uint8_t ueSecurityCaplen;
   uint8_t ueSecurityCapEnc;

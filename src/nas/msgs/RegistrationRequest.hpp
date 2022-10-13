@@ -37,6 +37,7 @@
 #include <vector>
 
 #include "nas_ie_header.hpp"
+
 using namespace std;
 namespace nas {
 
@@ -96,7 +97,8 @@ class RegistrationRequest {
   bool getngKSI(uint8_t& ng_ksi);
   uint8_t getMobilityIdentityType();
   std::string get_5g_guti();
-  bool getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi);
+  bool get5GGuti(_5G_GUTI_t& guti);
+  bool getSuciSupiFormatImsi(SUCI_imsi_t& imsi);
   uint8_t getNonCurrentNativeNasKSI();
   uint8_t get5GMMCapability();
   bool getUeSecurityCapability(uint8_t& ea, uint8_t& ia);
@@ -108,7 +110,7 @@ class RegistrationRequest {
   uint16_t getPduSessionStatus();
   bool getMicoIndication(uint8_t& sprti, uint8_t& raai);
   bool getUeStatus(uint8_t& n1ModeReg, uint8_t& s1ModeReg);
-  bool getAdditionalGuti(nas::_5G_GUTI_t& guti);
+  bool getAdditionalGuti(_5G_GUTI_t& guti);
   uint16_t getAllowedPduSessionStatus();
   uint8_t getUEsUsageSetting();
   uint8_t get5GSDrxParameters();

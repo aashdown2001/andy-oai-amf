@@ -360,65 +360,6 @@ int _5GSMobilityIdentity::_5g_guti_encode2buffer(uint8_t* buf, int len) {
 
   Logger::nas_mm().debug("Encoded 5G-GUTI IE (len %d octets)", encoded_size);
   return encoded_size;
-
-  /*
-
-    Logger::nas_mm().debug("Encoding 5G-GUTI IEI 0x%x", iei);
-    if (len < length)
-      Logger::nas_mm().debug("Error: len is less than %d", length);
-    int encoded_size = 0;
-    if (iei) {
-      Logger::nas_mm().debug(
-          "Encoding 5GSMobilityIdentity type 0x%x", typeOfIdentity);
-      *(buf) = iei;
-      encoded_size++;
-      encoded_size += 2;
-      *(buf + encoded_size) = 0xf0 | _5G_GUTI;
-      encoded_size += 1;
-      encoded_size +=
-          encodeMccMnc2buffer(_5g_guti->mcc, _5g_guti->mnc, buf + encoded_size);
-      *(buf + encoded_size) = _5g_guti->amf_region_id;
-      encoded_size += 1;
-      *(buf + encoded_size) = ((_5g_guti->amf_set_id & 0x03fc) >> 2);
-      encoded_size += 1;
-      *(buf + encoded_size) =
-          ((_5g_guti->amf_pointer & 0x3f) |
-           ((_5g_guti->amf_set_id & 0x0003) << 6));
-      encoded_size += 1;
-      uint32_t tmsi         = _5g_guti->_5g_tmsi;
-      *(buf + encoded_size) = (tmsi & 0xff000000) >> 24;
-      encoded_size += 1;
-      *(buf + encoded_size) = (tmsi & 0x00ff0000) >> 16;
-      encoded_size += 1;
-      *(buf + encoded_size) = (tmsi & 0x0000ff00) >> 8;
-      encoded_size += 1;
-      *(buf + encoded_size) = tmsi & 0x000000ff;
-      encoded_size += 1;
-    } else {
-      encoded_size += 2;
-      *(buf + encoded_size) = 0x00 | (SUPI_FORMAT_IMSI << 4) | SUCI;
-      encoded_size += 1;
-      encoded_size += encodeMccMnc2buffer(
-          supi_format_imsi->mcc, supi_format_imsi->mnc, buf + encoded_size);
-      encoded_size += encodeRoutid2buffer(
-          supi_format_imsi->routingIndicator, buf + encoded_size);
-      *(buf + encoded_size) = 0x00 | supi_format_imsi->protectionSchemeId;
-      encoded_size += 1;
-      *(buf + encoded_size) = 0x00 | supi_format_imsi->homeNetworkPKI;
-      encoded_size += 1;
-      // encoded_size += encodeMSIN2buffer(supi_format_imsi->msin,
-      // buf+encoded_size);
-    }
-    if (!iei) {
-      *(uint16_t*) buf = encoded_size - 2;
-    } else {
-      //*(uint16_t *)(buf + 1) = encoded_size - 3;
-      buf[1] = ((encoded_size - 3) & 0xff00) >> 8;
-      buf[2] = (encoded_size - 3) & 0x00ff;
-    }
-    Logger::nas_mm().debug("Encoded 5G-GUTI IE (len %d octets)", encoded_size);
-    return encoded_size;
-    */
 }
 
 //------------------------------------------------------------------------------
