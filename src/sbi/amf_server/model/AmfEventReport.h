@@ -75,8 +75,8 @@ class AmfEventReport {
   /// <summary>
   ///
   /// </summary>
-  std::string getTimeStamp() const;
-  void setTimeStamp(std::string const& value);
+  uint64_t getTimeStamp() const;
+  void setTimeStamp(uint64_t const& value);
   /// <summary>
   ///
   /// </summary>
@@ -222,7 +222,7 @@ class AmfEventReport {
 
   AmfEventState m_State;
 
-  std::string m_TimeStamp;
+  uint64_t m_TimeStamp;
 
   std::string m_SubscriptionId;
   bool m_SubscriptionIdIsSet;
