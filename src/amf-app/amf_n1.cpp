@@ -165,7 +165,7 @@ amf_n1::amf_n1()
   // EventExposure: subscribe to UE Registration State change
   ee_ue_registration_state_connection =
       event_sub.subscribe_ue_registration_state(boost::bind(
-          &amf_n1::handle_ue_registration_state_change, this, _1, _2, _3));
+          &amf_n1::handle_ue_registration_state_change, this, _1, _2, _3, _4, _5));
 
   // EventExposure: subscribe to UE Connectivity State change
   ee_ue_connectivity_state_connection =
@@ -2632,22 +2632,12 @@ void amf_n1::security_mode_complete_handle(
     }
   }
 
-
-
-
-
-
-
-
-
-
-
   // Trigger UE Registration Status Notify
   string supi = "imsi-" + nc->imsi;
   Logger::amf_n1().debug(
       "Signal the UE Registration State Event notification for SUPI %s",
       supi.c_str());
-  event_sub.ue_registration_state(supi, _5GMM_REGISTERED, 1);
+  event_sub.ue_registration_state(supi, _5GMM_REGISTERED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
 
   // Trigger UE Connectivity Status Notify
   Logger::amf_n1().debug(
@@ -3119,7 +3109,7 @@ void amf_n1::ue_initiate_de_registration_handle(
   Logger::amf_n1().debug(
       "Signal the UE Registration State Event notification for SUPI %s",
       supi.c_str());
-  event_sub.ue_registration_state(supi, _5GMM_DEREGISTERED, 1);
+  event_sub.ue_registration_state(supi, _5GMM_DEREGISTERED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
 
   // Trigger UE Loss of Connectivity Status Notify
   Logger::amf_n1().debug(
@@ -3660,7 +3650,7 @@ void amf_n1::handle_ue_reachability_status_change(
 
 //------------------------------------------------------------------------------
 void amf_n1::handle_ue_registration_state_change(
-    std::string supi, uint8_t status, uint8_t http_version) {
+    std::string supi, uint8_t status, uint8_t http_version, uint32_t ran_ue_ngap_id, long amf_ue_ngap_id) {
   Logger::amf_n1().debug(
       "Send request to SBI to trigger UE Registration State Report (SUPI "
       "%s )",
@@ -3721,6 +3711,8 @@ void amf_n1::handle_ue_registration_state_change(
       event_report.setRmInfoList(rm_infos);
 
       event_report.setSupi(supi);
+      event_report.setRanUeNgapId(ran_ue_ngap_id);
+      event_report.setAmfUeNgapId(amf_ue_ngap_id);
       ev_notif.add_report(event_report);
 
       itti_msg->event_notifs.push_back(ev_notif);
