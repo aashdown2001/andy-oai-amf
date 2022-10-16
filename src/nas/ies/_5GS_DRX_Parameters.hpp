@@ -19,26 +19,21 @@
  *      contact@openairinterface.org
  */
 
-/*! \file ___5GS_DRX_arameters.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef ___5GS_DRX_arameters_H_
-#define ___5GS_DRX_arameters_H_
+#ifndef _5GS_DRX_Parameters_H_
+#define _5GS_DRX_Parameters_H_
 
 #include <stdint.h>
 
+constexpr uint8_t k5gsDrxParametersLength = 3;
+
 namespace nas {
 
-class _5GS_DRX_arameters {
+class _5GS_DRX_Parameters {
  public:
-  _5GS_DRX_arameters();
-  _5GS_DRX_arameters(uint8_t iei);
-  _5GS_DRX_arameters(const uint8_t iei, uint8_t value);
-  ~_5GS_DRX_arameters();
+  _5GS_DRX_Parameters();
+  _5GS_DRX_Parameters(uint8_t iei);
+  _5GS_DRX_Parameters(const uint8_t iei, uint8_t value);
+  ~_5GS_DRX_Parameters();
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void setValue(uint8_t value);
@@ -46,6 +41,7 @@ class _5GS_DRX_arameters {
 
  private:
   uint8_t _iei;
+  uint8_t length;
   uint8_t _value;
 };
 }  // namespace nas

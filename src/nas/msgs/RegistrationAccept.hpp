@@ -105,7 +105,7 @@ class RegistrationAccept {
   SOR_Transparent_Container* ie_sor_transparent_container;
   EAP_Message* ie_eap_message;
   NSSAI_Inclusion_Mode* ie_nssai_inclusion_mode;
-  _5GS_DRX_arameters* ie_negotiated_drx_parameters;
+  _5GS_DRX_Parameters* ie_negotiated_drx_parameters;
   Non_3GPP_NW_Provided_Policies* ie_non_3gpp_nw_policies;
   EPS_Bearer_Context_Status* ie_eps_bearer_context_status;
   Extended_DRX_Parameters* ie_extended_drx_parameters;

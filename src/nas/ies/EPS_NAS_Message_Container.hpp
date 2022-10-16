@@ -19,17 +19,12 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-#ifndef __EPS_NAS_Message_Container_H_
-#define __EPS_NAS_Message_Container_H_
-#include <stdint.h>
+#ifndef _EPS_NAS_Message_Container_H_
+#define _EPS_NAS_Message_Container_H_
 
+#include <stdint.h>
 #include <iostream>
+
 extern "C" {
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"
@@ -43,7 +38,7 @@ class EPS_NAS_Message_Container {
   EPS_NAS_Message_Container(uint8_t iei);
   EPS_NAS_Message_Container(const uint8_t iei, bstring value);
   ~EPS_NAS_Message_Container();
-  void setValue(uint8_t iei, uint8_t value);
+  void setValue(uint8_t iei);
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void getValue(bstring& value);

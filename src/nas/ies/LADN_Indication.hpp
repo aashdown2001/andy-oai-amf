@@ -19,25 +19,23 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _LADN_Indication_H_
+#define _LADN_Indication_H_
 
-#ifndef __LADN_Indication_H_
-#define __LADN_Indication_H_
 #include <stdint.h>
-
 #include <iostream>
 #include <vector>
+
 extern "C" {
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"
 #include "bstrlib.h"
 }
 using namespace std;
+
+constexpr uint8_t kLadnIndicationMinimumLength  = 3;
+constexpr uint16_t kLadnIndicationMaximumLength = 1715;
+
 namespace nas {
 
 class LADN_Indication {
@@ -46,10 +44,10 @@ class LADN_Indication {
   LADN_Indication(uint8_t iei);
   LADN_Indication(const uint8_t iei, std::vector<bstring> ladn);
   ~LADN_Indication();
-  void setValue(uint8_t iei, uint8_t value);
+  void setValue(uint8_t iei);
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
-  bool getValue(std::vector<bstring>& ladn);
+  void getValue(std::vector<bstring>& ladn);
 
  private:
   uint8_t _iei;

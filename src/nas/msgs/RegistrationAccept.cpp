@@ -218,7 +218,7 @@ void RegistrationAccept::setNSSAI_Inclusion_Mode(uint8_t value) {
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::set_5GS_DRX_arameters(uint8_t value) {
-  ie_negotiated_drx_parameters = new _5GS_DRX_arameters(0x51, value);
+  ie_negotiated_drx_parameters = new _5GS_DRX_Parameters(0x51, value);
 }
 
 //------------------------------------------------------------------------------
@@ -770,7 +770,7 @@ int RegistrationAccept::decodeFromBuffer(
       } break;
       case 0x51: {
         Logger::nas_mm().debug("Decoding IEI (0x51)");
-        ie_negotiated_drx_parameters = new _5GS_DRX_arameters();
+        ie_negotiated_drx_parameters = new _5GS_DRX_Parameters();
         decoded_size += ie_negotiated_drx_parameters->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

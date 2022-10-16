@@ -42,10 +42,10 @@ RegistrationRequest::RegistrationRequest()
   ie_ue_status                   = std::nullopt;
   ie_additional_guti             = std::nullopt;
   ie_allowed_PDU_session_status  = std::nullopt;
-  ie_ues_usage_setting           = nullptr;
-  ie_5gs_drx_parameters          = nullptr;
-  ie_eps_nas_message_container   = nullptr;
-  ie_ladn_indication             = nullptr;
+  ie_ues_usage_setting           = std::nullopt;
+  ie_5gs_drx_parameters          = std::nullopt;
+  ie_eps_nas_message_container   = std::nullopt;
+  ie_ladn_indication             = std::nullopt;
   ie_payload_container_type      = nullptr;
   ie_payload_container           = nullptr;
   ie_network_slicing_indication  = nullptr;
@@ -367,13 +367,14 @@ uint16_t RegistrationRequest::getAllowedPduSessionStatus() {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setUES_Usage_Setting(bool ues_usage_setting) {
-  ie_ues_usage_setting = new UEUsageSetting(0x18, ues_usage_setting);
+  ie_ues_usage_setting =
+      std::make_optional<UEUsageSetting>(0x18, ues_usage_setting);
 }
 
 //------------------------------------------------------------------------------
 uint8_t RegistrationRequest::getUEsUsageSetting() {
-  if (ie_ues_usage_setting) {
-    return ie_ues_usage_setting->getValue();
+  if (ie_ues_usage_setting.has_value()) {
+    return ie_ues_usage_setting.value().getValue();
   } else {
     return 0;
   }
@@ -381,13 +382,14 @@ uint8_t RegistrationRequest::getUEsUsageSetting() {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::set_5GS_DRX_arameters(uint8_t value) {
-  ie_5gs_drx_parameters = new _5GS_DRX_arameters(0x51, value);
+  ie_5gs_drx_parameters =
+      std::make_optional<_5GS_DRX_Parameters>(kIei5gsDrxParameters, value);
 }
 
 //------------------------------------------------------------------------------
 uint8_t RegistrationRequest::get5GSDrxParameters() {
-  if (ie_5gs_drx_parameters) {
-    return ie_5gs_drx_parameters->getValue();
+  if (ie_5gs_drx_parameters.has_value()) {
+    return ie_5gs_drx_parameters.value().getValue();
   } else {
     return 0;
   }
@@ -395,7 +397,8 @@ uint8_t RegistrationRequest::get5GSDrxParameters() {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setEPS_NAS_Message_Container(bstring value) {
-  ie_eps_nas_message_container = new EPS_NAS_Message_Container(0x70, value);
+  ie_eps_nas_message_container = std::make_optional<EPS_NAS_Message_Container>(
+      kIeiEpsNasMessageContainer, value);
 }
 
 //------------------------------------------------------------------------------
@@ -410,15 +413,16 @@ bool RegistrationRequest::getEpsNasMessageContainer(bstring& epsNas) {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setLADN_Indication(std::vector<bstring> ladnValue) {
-  ie_ladn_indication = new LADN_Indication(0x74, ladnValue);
+  ie_ladn_indication = std::make_optional<LADN_Indication>(0x74, ladnValue);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getLadnIndication(std::vector<bstring>& ladnValue) {
-  if (ie_ladn_indication) {
-    return ie_ladn_indication->getValue(ladnValue);
+  if (ie_ladn_indication.has_value()) {
+    ie_ladn_indication.value().getValue(ladnValue);
+    return true;
   } else {
-    return 0;
+    return false;
   }
 }
 
@@ -710,10 +714,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_ues_usage_setting) {
+  if (!ie_ues_usage_setting.has_value()) {
     Logger::nas_mm().warn("IE ie_ues_usage_setting is not available");
   } else {
-    if (int size = ie_ues_usage_setting->encode2Buffer(
+    if (int size = ie_ues_usage_setting.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -721,10 +725,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_5gs_drx_parameters) {
+  if (!ie_5gs_drx_parameters.has_value()) {
     Logger::nas_mm().warn("IE ie_5gs_drx_parameters is not available");
   } else {
-    if (int size = ie_5gs_drx_parameters->encode2Buffer(
+    if (int size = ie_5gs_drx_parameters.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -743,10 +747,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_ladn_indication) {
+  if (!ie_ladn_indication.has_value()) {
     Logger::nas_mm().warn("IE ie_ladn_indication is not available");
   } else {
-    if (int size = ie_ladn_indication->encode2Buffer(
+    if (int size = ie_ladn_indication.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -1000,33 +1004,41 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
       case 0x18: {
         Logger::nas_mm().debug("Decoding IEI(0x18)");
-        ie_ues_usage_setting = new UEUsageSetting();
-        decoded_size += ie_ues_usage_setting->decodeFromBuffer(
+        UEUsageSetting ie_ues_usage_setting_tmp = {};
+        decoded_size += ie_ues_usage_setting_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_ues_usage_setting =
+            std::optional<UEUsageSetting>(ie_ues_usage_setting_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
-      case 0x51: {
-        Logger::nas_mm().debug("Decoding IEI(0x51)");
-        ie_5gs_drx_parameters = new _5GS_DRX_arameters();
-        decoded_size += ie_5gs_drx_parameters->decodeFromBuffer(
+      case kIei5gsDrxParameters: {
+        Logger::nas_mm().debug("Decoding IEI 0x51: 5GS DRX Parameters");
+        _5GS_DRX_Parameters ie_5gs_drx_parameters_tmp = {};
+        decoded_size += ie_5gs_drx_parameters_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_5gs_drx_parameters =
+            std::optional<_5GS_DRX_Parameters>(ie_5gs_drx_parameters_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
-      case 0x70: {
-        Logger::nas_mm().debug("Decoding IEI(0x70)");
-        ie_eps_nas_message_container = new EPS_NAS_Message_Container();
-        decoded_size += ie_eps_nas_message_container->decodeFromBuffer(
+      case kIeiEpsNasMessageContainer: {
+        Logger::nas_mm().debug("Decoding IEI 0x70: EPS NAS Message Container ");
+        EPS_NAS_Message_Container ie_eps_nas_message_container_tmp = {};
+        decoded_size += ie_eps_nas_message_container_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_eps_nas_message_container = std::optional<EPS_NAS_Message_Container>(
+            ie_eps_nas_message_container_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
-      case 0x74: {
+      case 0x74: {  // TODO: verify IEI value (spec Ox79)
         Logger::nas_mm().debug("Decoding IEI(0x74)");
-        ie_ladn_indication = new LADN_Indication();
-        decoded_size += ie_ladn_indication->decodeFromBuffer(
+        LADN_Indication ie_ladn_indication_tmp = {};
+        decoded_size += ie_ladn_indication_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_ladn_indication =
+            std::optional<LADN_Indication>(ie_ladn_indication_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;

@@ -19,15 +19,10 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "LADN_Indication.hpp"
 
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
 using namespace nas;
 
@@ -44,7 +39,7 @@ LADN_Indication::LADN_Indication(const uint8_t iei, std::vector<bstring> ladn) {
   length = 3;
   LADN.assign(ladn.begin(), ladn.end());
   for (int i = 0; i < ladn.size(); i++) {
-    length = length + 1 + blength(ladn.at(i));
+    length = length + blength(ladn.at(i));
   }
 }
 
@@ -55,52 +50,51 @@ LADN_Indication::LADN_Indication() : _iei(), length(), LADN() {}
 LADN_Indication::~LADN_Indication() {}
 
 //------------------------------------------------------------------------------
-void LADN_Indication::setValue(uint8_t iei, uint8_t value) {
+void LADN_Indication::setValue(uint8_t iei) {
   _iei = iei;
 }
 
 //------------------------------------------------------------------------------
-bool LADN_Indication::getValue(std::vector<bstring>& ladn) {
+void LADN_Indication::getValue(std::vector<bstring>& ladn) {
   ladn.assign(LADN.begin(), LADN.end());
-  return 0;
 }
 
 //------------------------------------------------------------------------------
 int LADN_Indication::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding LADN_Indication IEI (0x%x)", _iei);
-  if (len < length) {
-    Logger::nas_mm().error("Len is less than %d", length);
-    return 0;
+  Logger::nas_mm().debug("Encoding LADN_Indication (IEI 0x%x)", _iei);
+
+  if ((len < length + 3) or (len < kLadnIndicationMinimumLength)) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE");
+    return KEncodeDecodeError;
   }
+
   int encoded_size = 0;
   if (_iei) {
     ENCODE_U8(buf + encoded_size, _iei, encoded_size);
-    ENCODE_U16(buf + encoded_size, length - 3, encoded_size);
-    for (int i = 0; i < LADN.size(); i++) {
-      *(buf + encoded_size) = blength(LADN.at(i));
-      encoded_size++;
-      encoded_size +=
-          encode_bstring(LADN.at(i), (buf + encoded_size), len - encoded_size);
-    }
-  } else {
-    // TODO:
-    //		*(buf + encoded_size) = length - 1; encoded_size++;
-    //		*(buf + encoded_size) = _value; encoded_size++; encoded_size++;
   }
-  Logger::nas_mm().debug("Encoded LADN_Indication len (%d)", encoded_size);
+
+  ENCODE_U16(buf + encoded_size, length, encoded_size);
+  for (int i = 0; i < LADN.size(); i++) {
+    ENCODE_U8(buf + encoded_size, blength(LADN.at(i)), encoded_size);
+    encoded_size +=
+        encode_bstring(LADN.at(i), (buf + encoded_size), len - encoded_size);
+  }
+
+  Logger::nas_mm().debug("Encoded LADN_Indication (len %d)", encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
 int LADN_Indication::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("Decoding LADN_Indication IEI (0x%x)", *buf);
+  Logger::nas_mm().debug("Decoding LADN_Indication");
   int decoded_size = 0;
   if (is_option) {
     decoded_size++;
   }
   length = 0;
   DECODE_U16(buf + decoded_size, length, decoded_size);
-  Logger::nas_mm().debug("Decoded LADN_Indication len (%d)", length);
+  Logger::nas_mm().debug("Decoded LADN_Indication (len %d)", length);
   int len_ie      = length;
   uint8_t len_dnn = 0;
   bstring dnn;
@@ -121,6 +115,6 @@ int LADN_Indication::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
     }
   }
 
-  Logger::nas_mm().debug("Decoded LADN_Indication len (%d)", decoded_size);
+  Logger::nas_mm().debug("Decoded LADN_Indication (len %d)", decoded_size);
   return decoded_size;
 }

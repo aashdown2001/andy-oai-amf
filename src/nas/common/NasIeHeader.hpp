@@ -73,7 +73,7 @@
 #include "_5GMM_Cause.hpp"
 #include "_5GSDeregistrationType.hpp"
 #include "_5GSTrackingAreaIdList.hpp"
-#include "_5GS_DRX_arameters.hpp"
+#include "_5GS_DRX_Parameters.hpp"
 #include "_5GS_Identity_Type.hpp"
 #include "_5GS_Network_Feature_Support.hpp"
 #include "_5GS_Registration_Result.hpp"

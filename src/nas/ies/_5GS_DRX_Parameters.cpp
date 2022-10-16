@@ -19,83 +19,83 @@
  *      contact@openairinterface.org
  */
 
-/*! \file ___5GS_DRX_arameters.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#include "_5GS_DRX_Parameters.hpp"
 
-#include "_5GS_DRX_arameters.hpp"
-
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
+
 using namespace nas;
 
 //------------------------------------------------------------------------------
-_5GS_DRX_arameters::_5GS_DRX_arameters(uint8_t iei) {
+_5GS_DRX_Parameters::_5GS_DRX_Parameters(uint8_t iei) {
   _iei   = iei;
+  length = 1;
   _value = 0;
 }
 
 //------------------------------------------------------------------------------
-_5GS_DRX_arameters::_5GS_DRX_arameters(const uint8_t iei, uint8_t value) {
+_5GS_DRX_Parameters::_5GS_DRX_Parameters(const uint8_t iei, uint8_t value) {
   _iei   = iei;
+  length = 1;
   _value = value & 0x0F;
 }
 
 //------------------------------------------------------------------------------
-_5GS_DRX_arameters::_5GS_DRX_arameters() {
+_5GS_DRX_Parameters::_5GS_DRX_Parameters() {
   _iei   = 0;
+  length = 1;
   _value = 0;
 }
-_5GS_DRX_arameters::~_5GS_DRX_arameters() {}
+_5GS_DRX_Parameters::~_5GS_DRX_Parameters() {}
 
 //------------------------------------------------------------------------------
-void _5GS_DRX_arameters::setValue(uint8_t value) {
+void _5GS_DRX_Parameters::setValue(uint8_t value) {
   _value = value & 0x0F;
 }
 
 //------------------------------------------------------------------------------
-uint8_t _5GS_DRX_arameters::getValue() {
+uint8_t _5GS_DRX_Parameters::getValue() {
   return _value;
 }
 
 //------------------------------------------------------------------------------
-int _5GS_DRX_arameters::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("encoding _5GS_DRX_arameters iei(0x%x)", _iei);
-  if (len < 3) {
-    return 0;
+int _5GS_DRX_Parameters::encode2Buffer(uint8_t* buf, int len) {
+  Logger::nas_mm().debug("encoding _5GS_DRX_Parameters iei(0x%x)", _iei);
+  if (len < k5gsDrxParametersLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        k5gsDrxParametersLength);
+    return KEncodeDecodeError;
   }
+
   int encoded_size = 0;
   if (_iei) {
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = 1;
-    encoded_size++;
-    *(buf + encoded_size) = 0x0F & _value;
-    encoded_size++;
-  } else {
-    //	*(buf + encoded_size) = length - 1; encoded_size++;
-    //	*(buf + encoded_size) = _value; encoded_size++; encoded_size++;
+    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
   }
-  Logger::nas_mm().debug("encoded _5GS_DRX_arameters len(%d)", encoded_size);
+  ENCODE_U8(buf + encoded_size, length, encoded_size);
+  ENCODE_U8(buf + encoded_size, _value, encoded_size);
+
+  Logger::nas_mm().debug("Encoded _5GS_DRX_Parameters (len %d)", encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int _5GS_DRX_arameters::decodeFromBuffer(
+int _5GS_DRX_Parameters::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("decoding _5GS_DRX_arameters iei(0x%x)", *buf);
+  Logger::nas_mm().debug("Decoding _5GS_DRX_Parameters");
+
   int decoded_size = 0;
   if (is_option) {
-    decoded_size++;
+    DECODE_U8(buf + decoded_size, _iei, decoded_size);
   }
-  _value = 0x00;
-  //	length = *(buf + decoded_size);
-  decoded_size++;
-  _value = *(buf + decoded_size) & 0x0f;
-  decoded_size++;
-  Logger::nas_mm().debug("decoded _5GS_DRX_Parameters DRX value(0x%x)", _value);
-  Logger::nas_mm().debug("decoded _5GS_DRX_Parameters len(%d)", decoded_size);
+  DECODE_U8(buf + decoded_size, length, decoded_size);
+  uint8_t octet = 0;
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+  _value = octet & 0x0f;
+
+  Logger::nas_mm().debug(
+      "Decoded _5GS_DRX_Parameters DRX (value 0x%x)", _value);
+  Logger::nas_mm().debug("Decoded _5GS_DRX_Parameters (len %d)", decoded_size);
   return decoded_size;
 }
