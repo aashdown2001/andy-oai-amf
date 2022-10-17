@@ -48,8 +48,8 @@ class Payload_Container {
   void setValue(uint8_t iei, uint8_t value);
   int encode2Buffer(uint8_t* buf, int len, uint8_t type);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option, uint8_t type);
-  void getValue(std::vector<PayloadContainerEntry>& content);
-  void getValue(bstring& cnt);
+  bool getValue(std::vector<PayloadContainerEntry>& content);
+  bool getValue(bstring& cnt);
 
  private:
   uint8_t _iei;

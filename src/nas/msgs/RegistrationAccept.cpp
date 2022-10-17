@@ -180,7 +180,7 @@ void RegistrationAccept::setMICO_Indication(bool sprti, bool raai) {
 //------------------------------------------------------------------------------
 void RegistrationAccept::setNetwork_Slicing_Indication(bool dcni, bool nssci) {
   ie_network_slicing_indication =
-      new Network_Slicing_Indication(0x09, dcni, nssci);
+      new NetworkSlicingIndication(0x09, dcni, nssci);
 }
 
 //------------------------------------------------------------------------------
@@ -636,7 +636,7 @@ int RegistrationAccept::decodeFromBuffer(
       } break;
       case 0x9: {
         Logger::nas_mm().debug("Decoding IEI (0x9)");
-        ie_network_slicing_indication = new Network_Slicing_Indication();
+        ie_network_slicing_indication = new NetworkSlicingIndication();
         decoded_size += ie_network_slicing_indication->decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

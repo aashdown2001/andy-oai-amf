@@ -19,18 +19,12 @@
  *      contact@openairinterface.org
  */
 
-/*! \file _5GS_Update_Type.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef ___5GS_Update_Type_H
-#define ___5GS_Update_Type_H
+#ifndef _5GS_Update_Type_H
+#define _5GS_Update_Type_H
 
 #include <stdint.h>
 
+constexpr uint8_t k5gsUpdateTypeLength = 3;
 namespace nas {
 
 class _5GS_Update_Type {
@@ -55,10 +49,10 @@ class _5GS_Update_Type {
  private:
   uint8_t _iei;
   uint8_t length;
-  uint8_t EPS_PNB_CIoT;
-  uint8_t _5GS_PNB_CIoT;
-  bool NG_RAN;
-  bool SMS;
+  uint8_t EPS_PNB_CIoT;   // bit 4,5
+  uint8_t _5GS_PNB_CIoT;  // bit 2,3
+  bool NG_RAN;            // bit 1
+  bool SMS;               // bit 0
 };
 
 }  // namespace nas

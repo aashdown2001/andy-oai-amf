@@ -34,7 +34,7 @@ constexpr uint8_t kIei5gsMobileIdentityNonImeiSvPei          = 0x78;
 constexpr uint8_t kIei5gsRegistrationResult                  = 0x44;
 constexpr uint8_t kIei5gsTrackingAreaIdentity                = 0x52;
 constexpr uint8_t kIei5gsTrackingAreaIdentityList            = 0x54;
-constexpr uint8_t kIei5gsUpdateType                          = 0x53;
+constexpr uint8_t kIei5gsUpdateType                          = 0x53;  // OK
 constexpr uint8_t kIeiAdditionalInformation                  = 0x24;
 constexpr uint8_t kIeiAllowedSscMode                         = 0x0f;
 constexpr uint8_t kIeiAlwaysOnPduSessionIndication           = 0x08;
@@ -84,4 +84,9 @@ constexpr uint8_t kIeiSuggestedInterfaceIdentifier           = 0x29;
 constexpr uint8_t kIeiUeDsTtResidenceTime                    = 0x6f;
 
 constexpr uint8_t kIeiEpsNasMessageContainer = 0x70;  // OK
+constexpr uint8_t kIeiNasMessageContainer    = 0x71;  // OK
 constexpr uint8_t kIeiPayloadContainerType   = 0x08;  // Should be verified
+constexpr uint8_t kIeiPayloadContainer =
+    0x7b;  // Should be verified (kIeiExtendedProtocolConfigurationOptions)
+constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
+constexpr uint8_t kIeiEpsBearerContextStatus = 0x60;

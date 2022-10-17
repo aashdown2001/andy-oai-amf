@@ -77,14 +77,21 @@ void Payload_Container::setValue(uint8_t iei, uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-void Payload_Container::getValue(std::vector<PayloadContainerEntry>& content) {
-  if (CONTENT.has_value())
+bool Payload_Container::getValue(std::vector<PayloadContainerEntry>& content) {
+  if (CONTENT.has_value()) {
     content.assign(CONTENT.value().begin(), CONTENT.value().end());
+    return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
-void Payload_Container::getValue(bstring& cnt) {
-  if (content.has_value()) cnt = content.value();
+bool Payload_Container::getValue(bstring& cnt) {
+  if (content.has_value()) {
+    cnt = content.value();
+    return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------

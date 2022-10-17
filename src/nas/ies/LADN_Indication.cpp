@@ -90,7 +90,7 @@ int LADN_Indication::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding LADN_Indication");
   int decoded_size = 0;
   if (is_option) {
-    decoded_size++;
+    DECODE_U8(buf + decoded_size, _iei, decoded_size);
   }
   length = 0;
   DECODE_U16(buf + decoded_size, length, decoded_size);

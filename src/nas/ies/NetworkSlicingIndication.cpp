@@ -19,27 +19,23 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#include "NetworkSlicingIndication.hpp"
 
-#include "Network_Slicing_Indication.hpp"
-
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
+
 using namespace nas;
 
 //------------------------------------------------------------------------------
-Network_Slicing_Indication::Network_Slicing_Indication(uint8_t iei) {
+NetworkSlicingIndication::NetworkSlicingIndication(uint8_t iei) {
   _iei  = iei;
   DCNI  = false;
   NSSCI = false;
 }
 
 //------------------------------------------------------------------------------
-Network_Slicing_Indication::Network_Slicing_Indication(
+NetworkSlicingIndication::NetworkSlicingIndication(
     const uint8_t iei, bool dcni, bool nssci) {
   _iei  = iei;
   DCNI  = dcni;
@@ -47,79 +43,84 @@ Network_Slicing_Indication::Network_Slicing_Indication(
 }
 
 //------------------------------------------------------------------------------
-Network_Slicing_Indication::Network_Slicing_Indication()
+NetworkSlicingIndication::NetworkSlicingIndication()
     : _iei(), DCNI(), NSSCI() {}
 
 //------------------------------------------------------------------------------
-Network_Slicing_Indication::~Network_Slicing_Indication() {}
+NetworkSlicingIndication::~NetworkSlicingIndication() {}
 
 //------------------------------------------------------------------------------
-void Network_Slicing_Indication::setDCNI(bool value) {
+void NetworkSlicingIndication::setDCNI(bool value) {
   DCNI = value;
 }
 
 //------------------------------------------------------------------------------
-void Network_Slicing_Indication::setNSSCI(bool value) {
+void NetworkSlicingIndication::setNSSCI(bool value) {
   NSSCI = value;
 }
 
 //------------------------------------------------------------------------------
-bool Network_Slicing_Indication::getDCNI() {
+bool NetworkSlicingIndication::getDCNI() {
   return DCNI;
 }
 
 //------------------------------------------------------------------------------
-bool Network_Slicing_Indication::getNSSCI() {
+bool NetworkSlicingIndication::getNSSCI() {
   return NSSCI;
 }
 
 //------------------------------------------------------------------------------
-int Network_Slicing_Indication::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug(
-      "Encoding Network_Slicing_Indication iei (0x%x)", _iei);
-  if (len < 1) {
-    //	Logger::nas_mm().error("len is less than %d", length);
-    return 0;
+int NetworkSlicingIndication::encode2Buffer(uint8_t* buf, int len) {
+  Logger::nas_mm().debug("Encoding Network Slicing Indication");
+
+  if (len < kNetworkSlicingIndicationLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kNetworkSlicingIndicationLength);
+    return KEncodeDecodeError;
   }
-  uint8_t octet = 0;
-  if (!(_iei & 0x0f)) {
-    // octet = (0x0f) & ((tsc << 3) | key_id);
-    //*buf = octet;
-    // Logger::nas_mm().debug("encoded Payload_Container_Type IE(len(1/2
-    // octet))"); return 0;
-  } else {
+
+  int encoded_size = 0;
+  uint8_t octet    = 0;
+  if (_iei) {
     octet = (_iei << 4) | (DCNI << 1) | NSSCI;
-    Logger::nas_mm().debug(
-        "Decoded Network_Slicing_Indication DCNI (0x%x) NSSCI (0x%x)", octet,
-        NSSCI);
-    *buf = octet;
-    Logger::nas_mm().debug(
-        "Encoded Network_Slicing_Indication IE (len, 1 octet)");
-    return 1;
+  } else {
+    octet = 0x0f & ((DCNI << 1) | NSSCI);
   }
-  return 1;
+
+  ENCODE_U8(buf + encoded_size, octet, encoded_size);
+
+  Logger::nas_mm().debug(
+      "Encoded NetworkSlicingIndication DCNI (0x%x) NSSCI (0x%x)", DCNI, NSSCI);
+
+  Logger::nas_mm().debug(
+      "Encoded NetworkSlicingIndication IE (len, %d octet)", encoded_size);
+  return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int Network_Slicing_Indication::decodeFromBuffer(
+int NetworkSlicingIndication::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
-  if (len < 1) {
-    Logger::nas_mm().error("Len is less than one");
-    return 0;
-  } else {
-    uint8_t octet = (*buf);
-    if (is_option) {
-      _iei = (octet & 0xf0) >> 4;
-    } else {
-      _iei = 0;
-    }
-    DCNI  = 0;
-    NSSCI = 0;
-    DCNI  = octet & 0x02;
-    NSSCI = octet & 0x01;
-    Logger::nas_mm().debug(
-        "Decoded Network_Slicing_Indication DCNI (0x%x) NSSCI (0x%x)", DCNI,
-        NSSCI);
-    return 1;
+  Logger::nas_mm().debug("Decoding Network Slicing Indication");
+
+  if (len < kNetworkSlicingIndicationLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kNetworkSlicingIndicationLength);
+    return KEncodeDecodeError;
   }
+
+  int decoded_size = 0;
+  uint8_t octet    = 0;
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+
+  if (is_option) {
+    _iei = (octet & 0xf0) >> 4;
+  }
+  DCNI  = octet & 0x02;
+  NSSCI = octet & 0x01;
+
+  Logger::nas_mm().debug(
+      "Decoded NetworkSlicingIndication DCNI (0x%x) NSSCI (0x%x)", DCNI, NSSCI);
+  return decoded_size;
 }

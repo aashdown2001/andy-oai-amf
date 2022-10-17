@@ -19,23 +19,18 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __NAS_Message_Container_H_
-#define __NAS_Message_Container_H_
+#ifndef _NAS_Message_Container_H_
+#define _NAS_Message_Container_H_
 #include <stdint.h>
 
-#include <iostream>
 extern "C" {
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"
 #include "bstrlib.h"
 }
+
+constexpr uint8_t kNasMessageContainerMinimumLength  = 3;
+constexpr uint32_t kNasMessageContainerMaximumLength = 65535;
 
 namespace nas {
 

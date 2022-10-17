@@ -145,7 +145,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   // bool getEpsNasMessageContainer(bstring& epsNas);
 
   void setEPS_Bearer_Context_Status(uint16_t value);
-  uint16_t getEpsBearerContextStatus();
+  bool getEpsBearerContextStatus(uint16_t& value);
 
  public:
   // NasMmPlainHeader* plain_header;
@@ -173,14 +173,15 @@ class RegistrationRequest : public NasMmPlainHeader {
       ie_eps_nas_message_container;                                 // Optional
   std::optional<LADN_Indication> ie_ladn_indication;                // Optional
   std::optional<Payload_Container_Type> ie_payload_container_type;  // Optional
-
-  Payload_Container* ie_payload_container;                    // Optional
-  Network_Slicing_Indication* ie_network_slicing_indication;  // Optional
-  _5GS_Update_Type* ie_5gs_update_type;                       // Optional
+  std::optional<Payload_Container> ie_payload_container;            // Optional
+  std::optional<NetworkSlicingIndication>
+      ie_network_slicing_indication;                   // Optional
+  std::optional<_5GS_Update_Type> ie_5gs_update_type;  // Optional
   // TODO: Mobile station classmark 2
   // TODO: Supported codecs
-  NAS_Message_Container* ie_nas_message_container;          // Optional
-  EPS_Bearer_Context_Status* ie_eps_bearer_context_status;  // Optional
+  std::optional<NAS_Message_Container> ie_nas_message_container;  // Optional
+  std::optional<EPS_Bearer_Context_Status>
+      ie_eps_bearer_context_status;  // Optional
   // TODO: Requested extended DRX parameters
   // TODO: T3324 value
 };

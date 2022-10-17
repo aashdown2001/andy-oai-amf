@@ -19,17 +19,12 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __EPS_Bearer_Context_Status_H_
-#define __EPS_Bearer_Context_Status_H_
+#ifndef _EPS_Bearer_Context_Status_H_
+#define _EPS_Bearer_Context_Status_H_
 
 #include <stdint.h>
+
+constexpr uint8_t kEpsBearerContextStatusLength = 4;
 
 namespace nas {
 

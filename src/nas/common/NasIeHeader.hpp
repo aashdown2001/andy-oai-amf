@@ -21,6 +21,7 @@
 
 #include "../ies/5GSMobileIdentity.hpp"
 #include "../ies/MICOIndication.hpp"
+#include "../ies/NetworkSlicingIndication.hpp"
 #include "../ies/PDUSessionStatus.hpp"
 #include "../ies/UEStatus.hpp"
 #include "NasMmPlainHeader.hpp"
@@ -50,7 +51,6 @@
 #include "NSSAI.hpp"
 #include "NSSAI_Inclusion_Mode.hpp"
 #include "NasKeySetIdentifier.hpp"
-#include "Network_Slicing_Indication.hpp"
 #include "Non_3GPP_NW_Provided_Policies.hpp"
 #include "PDU_Session_Identity_2.hpp"
 #include "PDU_Session_Reactivation_Result.hpp"

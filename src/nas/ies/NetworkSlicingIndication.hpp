@@ -19,37 +19,35 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __Network_Slicing_Indication_H_
-#define __Network_Slicing_Indication_H_
+#ifndef _Network_Slicing_Indication_H_
+#define _Network_Slicing_Indication_H_
 
 #include <stdint.h>
 
+constexpr uint8_t kNetworkSlicingIndicationLength = 1;
+
 namespace nas {
 
-class Network_Slicing_Indication {
+class NetworkSlicingIndication {
  public:
-  Network_Slicing_Indication();
-  Network_Slicing_Indication(uint8_t iei);
-  Network_Slicing_Indication(const uint8_t iei, bool dcni, bool nssci);
-  ~Network_Slicing_Indication();
+  NetworkSlicingIndication();
+  NetworkSlicingIndication(uint8_t iei);
+  NetworkSlicingIndication(const uint8_t iei, bool dcni, bool nssci);
+  ~NetworkSlicingIndication();
+
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+
   void setDCNI(bool value);
-  void setNSSCI(bool value);
   bool getDCNI();
+
+  void setNSSCI(bool value);
   bool getNSSCI();
 
  private:
   uint8_t _iei;
-  bool NSSCI;
   bool DCNI;
+  bool NSSCI;
 };
 }  // namespace nas
 

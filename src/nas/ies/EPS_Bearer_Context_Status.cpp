@@ -19,15 +19,10 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "EPS_Bearer_Context_Status.hpp"
 
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
 using namespace nas;
 
@@ -43,7 +38,7 @@ EPS_Bearer_Context_Status::EPS_Bearer_Context_Status(
     const uint8_t iei, uint16_t value) {
   _iei   = iei;
   _value = value;
-  length = 4;
+  length = kEpsBearerContextStatusLength;
 }
 
 //------------------------------------------------------------------------------
@@ -66,48 +61,44 @@ uint16_t EPS_Bearer_Context_Status::getValue() {
 
 //------------------------------------------------------------------------------
 int EPS_Bearer_Context_Status::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("encoding EPS_Bearer_Context_Status iei(0x%x)", _iei);
-  if (len < length) {
-    Logger::nas_mm().error("len is less than %d", length);
-    return 0;
+  Logger::nas_mm().debug("Encoding EPS_Bearer_Context_Status");
+  if (len < kEpsBearerContextStatusLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kEpsBearerContextStatusLength);
+    return KEncodeDecodeError;
   }
+
   int encoded_size = 0;
   if (_iei) {
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = length - 2;
-    encoded_size++;
-    *(buf + encoded_size) = (_value & 0x00ff);
-    encoded_size++;
-    *(buf + encoded_size) = (_value & 0xff00) >> 8;
-    encoded_size++;
-  } else {
-    //*(buf + encoded_size) = length - 1; encoded_size++;
-    //*(buf + encoded_size) = _value; encoded_size++; encoded_size++;
+    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
   }
+  // Length
+  ENCODE_U8(buf + encoded_size, length, encoded_size);
+  // Value
+  ENCODE_U16(buf + encoded_size, _value, encoded_size);
+
   Logger::nas_mm().debug(
-      "encoded EPS_Bearer_Context_Status len(%d)", encoded_size);
+      "encoded EPS_Bearer_Context_Status (len %d)", encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
 int EPS_Bearer_Context_Status::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("decoding EPS_Bearer_Context_Status iei(0x%x)", *buf);
+  Logger::nas_mm().debug("Decoding EPS_Bearer_Context_Status");
   int decoded_size = 0;
   if (is_option) {
-    decoded_size++;
+    DECODE_U8(buf + decoded_size, _iei, decoded_size);  // for IE
   }
-  _value = 0x0000;
-  length = *(buf + decoded_size);
-  decoded_size++;
-  _value |= *(buf + decoded_size);
-  decoded_size++;
-  _value |= (*(buf + decoded_size)) << 8;
-  decoded_size++;
+  // Length
+  DECODE_U8(buf + decoded_size, length, decoded_size);  // for IE
+  // Value
+  DECODE_U16(buf + decoded_size, _value, decoded_size);  // for IE
+
   Logger::nas_mm().debug(
-      "decoded EPS_Bearer_Context_Status value(0x%4x)", _value);
+      "decoded EPS_Bearer_Context_Status, value 0x%4x", _value);
   Logger::nas_mm().debug(
-      "decoded EPS_Bearer_Context_Status len(%d)", decoded_size);
+      "decoded EPS_Bearer_Context_Status (len %d)", decoded_size);
   return decoded_size;
 }
