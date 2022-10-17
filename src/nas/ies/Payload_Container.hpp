@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef __Payload_Container_H_
 #define __Payload_Container_H_
 #include <stdint.h>
@@ -39,6 +32,10 @@ extern "C" {
 #include "TLVEncoder.h"
 #include "bstrlib.h"
 }
+
+constexpr uint8_t kPayloadContainerMinimumLength  = 4;
+constexpr uint32_t kPayloadContainerMaximumLength = 65538;
+
 namespace nas {
 class Payload_Container {
  public:
@@ -49,17 +46,16 @@ class Payload_Container {
       const uint8_t iei, std::vector<PayloadContainerEntry> content);
   ~Payload_Container();
   void setValue(uint8_t iei, uint8_t value);
-  int encode2Buffer(uint8_t* buf, int len);
+  int encode2Buffer(uint8_t* buf, int len, uint8_t type);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option, uint8_t type);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void getValue(std::vector<PayloadContainerEntry>& content);
   void getValue(bstring& cnt);
 
  private:
   uint8_t _iei;
   uint16_t length;
-  bstring content;
-  std::vector<PayloadContainerEntry> CONTENT;
+  std::optional<bstring> content;
+  std::optional<std::vector<PayloadContainerEntry>> CONTENT;
 };
 
 }  // namespace nas

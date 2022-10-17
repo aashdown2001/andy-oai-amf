@@ -195,11 +195,12 @@ int ULNASTransport::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_payload_container) {
+  if (!ie_payload_container or !ie_payload_container_type) {
     Logger::nas_mm().warn("IE ie_payload_container is not available");
   } else {
     if (int size = ie_payload_container->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
+            buf + encoded_size, len - encoded_size,
+            ie_payload_container_type->getValue())) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("encoding ie_payload_container  error");

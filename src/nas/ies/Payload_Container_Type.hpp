@@ -24,6 +24,8 @@
 
 #include <stdint.h>
 
+constexpr uint8_t kPayloadContainerTypeLength = 1;
+
 namespace nas {
 
 class Payload_Container_Type {

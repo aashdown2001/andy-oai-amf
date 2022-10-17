@@ -83,4 +83,5 @@ constexpr uint8_t kIeiSscMode                                = 0x0a;
 constexpr uint8_t kIeiSuggestedInterfaceIdentifier           = 0x29;
 constexpr uint8_t kIeiUeDsTtResidenceTime                    = 0x6f;
 
-constexpr uint8_t kIeiEpsNasMessageContainer = 0x70;
+constexpr uint8_t kIeiEpsNasMessageContainer = 0x70;  // OK
+constexpr uint8_t kIeiPayloadContainerType   = 0x08;  // Should be verified

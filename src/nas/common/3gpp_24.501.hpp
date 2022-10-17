@@ -164,6 +164,7 @@ static const std::vector<std::string> nas_ciphering_algorithm_list_e2str = {
 
 /********************* UL NAS TRANSPORT payload container type
  * **************************/
+// TODO: define enum class
 #define N1_SM_INFORMATION 0x01
 #define SMS_CONTAINER 0x02
 #define LTE_POSITIONING_PROTOCOL 0x03

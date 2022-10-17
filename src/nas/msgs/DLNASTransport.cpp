@@ -113,11 +113,12 @@ int DLNASTransport::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_payload_container) {
+  if (!ie_payload_container or !ie_payload_container_type) {
     Logger::nas_mm().warn("IE ie_payload_container is not available");
   } else {
     if (int size = ie_payload_container->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
+            buf + encoded_size, len - encoded_size,
+            ie_payload_container_type->getValue())) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_payload_container error");
@@ -183,7 +184,8 @@ int DLNASTransport::decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   ie_payload_container = new Payload_Container();
   decoded_size += ie_payload_container->decodeFromBuffer(
-      buf + decoded_size, len - decoded_size, false);
+      buf + decoded_size, len - decoded_size, false,
+      N1_SM_INFORMATION);  // TODO: verified Typeb of Payload Container
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);

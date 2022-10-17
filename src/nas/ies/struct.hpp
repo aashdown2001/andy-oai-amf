@@ -94,6 +94,7 @@ typedef struct {
 } IE_t_E;
 
 typedef struct {
+  uint8_t length;
   uint8_t payloadContainerType : 4;
   std::vector<IE_t> optionalIE;
 } PayloadContainerEntry;

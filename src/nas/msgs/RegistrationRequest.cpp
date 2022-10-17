@@ -46,7 +46,7 @@ RegistrationRequest::RegistrationRequest()
   ie_5gs_drx_parameters          = std::nullopt;
   ie_eps_nas_message_container   = std::nullopt;
   ie_ladn_indication             = std::nullopt;
-  ie_payload_container_type      = nullptr;
+  ie_payload_container_type      = std::nullopt;
   ie_payload_container           = nullptr;
   ie_network_slicing_indication  = nullptr;
   ie_5gs_update_type             = nullptr;
@@ -428,13 +428,14 @@ bool RegistrationRequest::getLadnIndication(std::vector<bstring>& ladnValue) {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setPayload_Container_Type(uint8_t value) {
-  ie_payload_container_type = new Payload_Container_Type(0x08, value);
+  ie_payload_container_type = std::make_optional<Payload_Container_Type>(
+      kIeiPayloadContainerType, value);
 }
 
 //------------------------------------------------------------------------------
 uint8_t RegistrationRequest::getPayloadContainerType() {
-  if (ie_payload_container_type) {
-    return ie_payload_container_type->getValue();
+  if (ie_payload_container_type.has_value()) {
+    return ie_payload_container_type.value().getValue();
   } else {
     return 0;
   }
@@ -758,10 +759,10 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_payload_container_type) {
+  if (!ie_payload_container_type.has_value()) {
     Logger::nas_mm().warn("IE ie_payload_container_type is not available");
   } else {
-    if (int size = ie_payload_container_type->encode2Buffer(
+    if (int size = ie_payload_container_type.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -769,11 +770,12 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_payload_container) {
+  if (!ie_payload_container or !ie_payload_container_type) {
     Logger::nas_mm().warn("IE ie_payload_container is not available");
   } else {
     if (int size = ie_payload_container->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
+            buf + encoded_size, len - encoded_size,
+            ie_payload_container_type.value().getValue())) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("encoding ie_payload_container  error");
@@ -873,11 +875,13 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
-      case 0x08: {
-        Logger::nas_mm().debug("Decoding IEI (0x8)");
-        ie_payload_container_type = new Payload_Container_Type();
-        decoded_size += ie_payload_container_type->decodeFromBuffer(
+      case kIeiPayloadContainerType: {
+        Logger::nas_mm().debug("Decoding IEI 0x8: Payload Container Type");
+        Payload_Container_Type ie_payload_container_type_tmp = {};
+        decoded_size += ie_payload_container_type_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_payload_container_type = std::optional<Payload_Container_Type>(
+            ie_payload_container_type_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
@@ -1046,7 +1050,8 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
         Logger::nas_mm().debug("Decoding IEI(0x7B)");
         ie_payload_container = new Payload_Container();
         decoded_size += ie_payload_container->decodeFromBuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, true,
+            N1_SM_INFORMATION);  // TODO: verified type of Payload container
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;

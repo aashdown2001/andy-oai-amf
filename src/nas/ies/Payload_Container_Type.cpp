@@ -19,15 +19,10 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "Payload_Container_Type.hpp"
 
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
 using namespace nas;
 
@@ -35,7 +30,7 @@ using namespace nas;
 Payload_Container_Type::Payload_Container_Type(
     const uint8_t iei, uint8_t value) {
   _iei   = iei;
-  _value = value;
+  _value = value & 0x0f;
 }
 
 //------------------------------------------------------------------------------
@@ -46,7 +41,7 @@ Payload_Container_Type::~Payload_Container_Type(){};
 
 //------------------------------------------------------------------------------
 void Payload_Container_Type::setValue(const uint8_t value) {
-  _value = value;
+  _value = value & 0x0f;
 }
 
 //------------------------------------------------------------------------------
@@ -56,44 +51,50 @@ uint8_t Payload_Container_Type::getValue() {
 
 //------------------------------------------------------------------------------
 int Payload_Container_Type::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("encoding Payload_Container_Type IE iei(0x%x)", _iei);
-  if (len < 1) {
-    Logger::nas_mm().error("len is less than one");
-    return -1;
-  } else {
-    uint8_t octet = 0;
-    if (!(_iei & 0x0f)) {
-      octet = (_value & 0x0f);
-      *buf  = octet;
-      Logger::nas_mm().debug(
-          "encoded Payload_Container_Type IE(len(1/2 octet))");
-      return 1;
-    } else {
-      octet = (_iei << 4) | (_value & 0x0f);
-      *buf  = octet;
-      Logger::nas_mm().debug("encoded Payload_Container_Type IE(len(1 octet))");
-      return 1;
-    }
+  Logger::nas_mm().debug("Encoding Payload_Container_Type IE");
+
+  if (len < kPayloadContainerTypeLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kPayloadContainerTypeLength);
+    return KEncodeDecodeError;
   }
+
+  int encoded_size = 0;
+  uint8_t octet    = 0;
+  if (_iei) {
+    octet = (_iei << 4) | (_value & 0x0f);
+  } else {
+    octet = (_value & 0x0f);
+  }
+  ENCODE_U8(buf + encoded_size, octet, encoded_size);
+
+  Logger::nas_mm().debug("Encoded Payload_Container_Type IE");
+  return encoded_size;
 }
 
 //------------------------------------------------------------------------------
 int Payload_Container_Type::decodeFromBuffer(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding Payload_Container_Type IE");
-  if (len < 1) {
-    Logger::nas_mm().error("len is less than one");
-    return 0;
-  } else {
-    uint8_t octet = (*buf);
-    if (is_option) {
-      _iei = (octet & 0xf0) >> 4;
-    } else {
-      _iei = 0;
-    }
-    _value = octet & 0x0f;
-    Logger::nas_mm().debug(
-        "decoded Payload_Container_Type iei(0x%x) value(0x%x)", _iei, _value);
-    return 1;
+
+  if (len < kPayloadContainerTypeLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kPayloadContainerTypeLength);
+    return KEncodeDecodeError;
   }
+
+  int decoded_size = 0;
+  uint8_t octet    = 0;
+
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+  if (is_option) {
+    _iei = (octet & 0xf0) >> 4;
+  }
+  _value = octet & 0x0f;
+
+  Logger::nas_mm().debug(
+      "Decoded Payload_Container_Type (IEI 0x%x, value 0x%x)", _iei, _value);
+  return decoded_size;
 }
