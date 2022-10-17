@@ -805,7 +805,8 @@ class amf_n1 {
    * @return void
    */
   void handle_ue_registration_state_change(
-      std::string supi, uint8_t status, uint8_t http_version,uint32_t ran_ue_ngap_id, long amf_ue_ngap_id);
+      std::string supi, uint8_t status, uint8_t http_version,
+      uint32_t ran_ue_ngap_id, long amf_ue_ngap_id);
 
   /*
    * Handle the UE Connectivity State Change event to trigger the notification
