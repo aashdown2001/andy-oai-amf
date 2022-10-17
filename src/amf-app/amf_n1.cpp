@@ -165,7 +165,8 @@ amf_n1::amf_n1()
   // EventExposure: subscribe to UE Registration State change
   ee_ue_registration_state_connection =
       event_sub.subscribe_ue_registration_state(boost::bind(
-          &amf_n1::handle_ue_registration_state_change, this, _1, _2, _3));
+          &amf_n1::handle_ue_registration_state_change, this, _1, _2, _3, _4,
+          _5));
 
   // EventExposure: subscribe to UE Connectivity State change
   ee_ue_connectivity_state_connection =
@@ -786,7 +787,8 @@ void amf_n1::identity_response_handle(
     Logger::amf_n1().debug(
         "Signal the UE Registration State Event notification for SUPI %s",
         supi.c_str());
-    event_sub.ue_registration_state(supi, _5GMM_COMMON_PROCEDURE_INITIATED, 1);
+    // event_sub.ue_registration_state(supi, _5GMM_COMMON_PROCEDURE_INITIATED,
+    // 1);
     // TODO: Trigger UE Location Report
 
     run_registration_procedure(nc);
@@ -1353,57 +1355,6 @@ void amf_n1::registration_request_handle(
   } else {
     Logger::amf_n1().debug(
         "No Optional NAS Container inside Registration Request message");
-  }
-
-  // Trigger UE Location Report
-  std::shared_ptr<ue_ngap_context> unc = {};
-  if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
-    Logger::amf_n1().warn(
-        "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
-        ran_ue_ngap_id);
-  } else {
-    std::shared_ptr<gnb_context> gc = {};
-    if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
-      Logger::amf_n1().error(
-          "No existed gNB context with assoc_id (%d)", unc->gnb_assoc_id);
-    } else {
-      oai::amf::model::UserLocation user_location = {};
-      oai::amf::model::NrLocation nr_location     = {};
-
-      oai::amf::model::Tai tai  = {};
-      nlohmann::json tai_json   = {};
-      tai_json["plmnId"]["mcc"] = uc->cgi.mcc;
-      tai_json["plmnId"]["mnc"] = uc->cgi.mnc;
-      tai_json["tac"]           = std::to_string(uc->tai.tac);
-
-      nlohmann::json global_ran_node_id_json        = {};
-      global_ran_node_id_json["plmnId"]["mcc"]      = uc->cgi.mcc;
-      global_ran_node_id_json["plmnId"]["mnc"]      = uc->cgi.mnc;
-      global_ran_node_id_json["gNbId"]["bitLength"] = 32;
-      global_ran_node_id_json["gNbId"]["gNBValue"] =
-          std::to_string(gc->globalRanNodeId);
-      oai::amf::model::GlobalRanNodeId global_ran_node_id = {};
-
-      try {
-        from_json(tai_json, tai);
-        from_json(global_ran_node_id_json, global_ran_node_id);
-      } catch (std::exception& e) {
-        Logger::amf_n1().error("Exception with Json: %s", e.what());
-        return;
-      }
-
-      // uc->cgi.nrCellID;
-      nr_location.setTai(tai);
-      nr_location.setGlobalGnbId(global_ran_node_id);
-      user_location.setNrLocation(nr_location);
-
-      // Trigger UE Location Report
-      string supi = uc->supi;
-      Logger::amf_n1().debug(
-          "Signal the UE Location Report Event notification for SUPI %s",
-          supi.c_str());
-      event_sub.ue_location_report(supi, user_location, 1);
-    }
   }
 
   // Store NAS information into nas_context
@@ -2627,12 +2578,66 @@ void amf_n1::security_mode_complete_handle(
   set_5gmm_state(nc, _5GMM_REGISTERED);
   stacs.display();
 
+  // Trigger UE location Status Notify
+  // Find UE context
+
+  std::shared_ptr<ue_ngap_context> unc = {};
+  if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
+    Logger::amf_n1().warn(
+        "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
+        ran_ue_ngap_id);
+  } else {
+    std::shared_ptr<gnb_context> gc = {};
+    if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
+      Logger::amf_n1().error(
+          "No existed gNB context with assoc_id (%d)", unc->gnb_assoc_id);
+    } else {
+      oai::amf::model::UserLocation user_location = {};
+      oai::amf::model::NrLocation nr_location     = {};
+
+      oai::amf::model::Tai tai  = {};
+      nlohmann::json tai_json   = {};
+      tai_json["plmnId"]["mcc"] = uc->cgi.mcc;
+      tai_json["plmnId"]["mnc"] = uc->cgi.mnc;
+      tai_json["tac"]           = std::to_string(uc->tai.tac);
+
+      nlohmann::json global_ran_node_id_json        = {};
+      global_ran_node_id_json["plmnId"]["mcc"]      = uc->cgi.mcc;
+      global_ran_node_id_json["plmnId"]["mnc"]      = uc->cgi.mnc;
+      global_ran_node_id_json["gNbId"]["bitLength"] = 32;
+      global_ran_node_id_json["gNbId"]["gNBValue"] =
+          std::to_string(gc->globalRanNodeId);
+      oai::amf::model::GlobalRanNodeId global_ran_node_id = {};
+
+      try {
+        from_json(tai_json, tai);
+        from_json(global_ran_node_id_json, global_ran_node_id);
+      } catch (std::exception& e) {
+        Logger::amf_n1().error("Exception with Json: %s", e.what());
+        return;
+      }
+
+      // uc->cgi.nrCellID;
+      nr_location.setTai(tai);
+      nr_location.setGlobalGnbId(global_ran_node_id);
+      user_location.setNrLocation(nr_location);
+
+      // Trigger UE Location Report
+      string supi = uc->supi;
+      Logger::amf_n1().debug(
+          "Signal the UE Location Report Event notification for SUPI %s",
+          supi.c_str());
+      event_sub.ue_location_report(supi, user_location, 1);
+    }
+  }
+
   // Trigger UE Registration Status Notify
   string supi = "imsi-" + nc->imsi;
   Logger::amf_n1().debug(
       "Signal the UE Registration State Event notification for SUPI %s",
       supi.c_str());
-  event_sub.ue_registration_state(supi, _5GMM_REGISTERED, 1);
+  event_sub.ue_registration_state(
+      supi, _5GMM_REGISTERED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
 
   // Trigger UE Connectivity Status Notify
   Logger::amf_n1().debug(
@@ -3104,7 +3109,8 @@ void amf_n1::ue_initiate_de_registration_handle(
   Logger::amf_n1().debug(
       "Signal the UE Registration State Event notification for SUPI %s",
       supi.c_str());
-  event_sub.ue_registration_state(supi, _5GMM_DEREGISTERED, 1);
+  event_sub.ue_registration_state(
+      supi, _5GMM_DEREGISTERED, 1, ran_ue_ngap_id, amf_ue_ngap_id);
 
   // Trigger UE Loss of Connectivity Status Notify
   Logger::amf_n1().debug(
@@ -3646,7 +3652,8 @@ void amf_n1::handle_ue_reachability_status_change(
 
 //------------------------------------------------------------------------------
 void amf_n1::handle_ue_registration_state_change(
-    std::string supi, uint8_t status, uint8_t http_version) {
+    std::string supi, uint8_t status, uint8_t http_version,
+    uint32_t ran_ue_ngap_id, long amf_ue_ngap_id) {
   Logger::amf_n1().debug(
       "Send request to SBI to trigger UE Registration State Report (SUPI "
       "%s )",
@@ -3707,6 +3714,8 @@ void amf_n1::handle_ue_registration_state_change(
       event_report.setRmInfoList(rm_infos);
 
       event_report.setSupi(supi);
+      event_report.setRanUeNgapId(ran_ue_ngap_id);
+      event_report.setAmfUeNgapId(amf_ue_ngap_id);
       ev_notif.add_report(event_report);
 
       itti_msg->event_notifs.push_back(ev_notif);
