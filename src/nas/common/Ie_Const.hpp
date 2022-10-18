@@ -24,29 +24,28 @@
 constexpr uint8_t kIeIsOptional    = true;
 constexpr uint8_t kIeIsNotOptional = false;
 
-constexpr uint8_t kIei5gmmCause                              = 0x58;
-constexpr uint8_t kIei5gsmCapability                         = 0x28;
-constexpr uint8_t kIei5gsDrxParameters                       = 0x51;  // OK
-constexpr uint8_t kIei5gsmCongestionReAttemptIndicator       = 0x61;
-constexpr uint8_t kIei5gsmNetworkFeatureSupport              = 0x17;
-constexpr uint8_t kIei5gsMobileIdentityImeiSv                = 0x77;
-constexpr uint8_t kIei5gsMobileIdentityNonImeiSvPei          = 0x78;
-constexpr uint8_t kIei5gsRegistrationResult                  = 0x44;
-constexpr uint8_t kIei5gsTrackingAreaIdentity                = 0x52;
-constexpr uint8_t kIei5gsTrackingAreaIdentityList            = 0x54;
-constexpr uint8_t kIei5gsUpdateType                          = 0x53;  // OK
-constexpr uint8_t kIeiAdditionalInformation                  = 0x24;
-constexpr uint8_t kIeiAllowedSscMode                         = 0x0f;
-constexpr uint8_t kIeiAlwaysOnPduSessionIndication           = 0x08;
-constexpr uint8_t kIeiAlwaysOnPduSessionRequested            = 0x0b;
-constexpr uint8_t kIeiAtsssContainer                         = 0x77;
-constexpr uint8_t kIeiAuthorizedQosFlowDescriptions          = 0x79;
-constexpr uint8_t kIeiAuthorizedQosRules                     = 0x7a;
-constexpr uint8_t kIeiBackOffTimerValue                      = 0x37;
-constexpr uint8_t kIeiControlPlaneOnlyIndication             = 0x0c;
-constexpr uint8_t kIeiDnn                                    = 0x25;
-constexpr uint8_t kIeiDsTtEthernetPortMacAddress             = 0x6e;
-constexpr uint8_t kIeiEapMessage                             = 0x78;
+constexpr uint8_t kIei5gmmCause                        = 0x58;
+constexpr uint8_t kIei5gsmCapability                   = 0x28;
+constexpr uint8_t kIei5gsDrxParameters                 = 0x51;  // OK
+constexpr uint8_t kIei5gsmCongestionReAttemptIndicator = 0x61;
+constexpr uint8_t kIei5gsmNetworkFeatureSupport        = 0x17;
+constexpr uint8_t kIei5gsMobileIdentityImeiSv          = 0x77;
+constexpr uint8_t kIei5gsMobileIdentityNonImeiSvPei    = 0x78;
+constexpr uint8_t kIei5gsRegistrationResult            = 0x44;
+constexpr uint8_t kIei5gsTrackingAreaIdentity          = 0x52;
+constexpr uint8_t kIei5gsTrackingAreaIdentityList      = 0x54;
+constexpr uint8_t kIeiAdditionalInformation            = 0x24;
+constexpr uint8_t kIeiAllowedSscMode                   = 0x0f;
+constexpr uint8_t kIeiAlwaysOnPduSessionIndication     = 0x08;
+constexpr uint8_t kIeiAlwaysOnPduSessionRequested      = 0x0b;
+constexpr uint8_t kIeiAtsssContainer                   = 0x77;
+constexpr uint8_t kIeiAuthorizedQosFlowDescriptions    = 0x79;
+constexpr uint8_t kIeiAuthorizedQosRules               = 0x7a;
+constexpr uint8_t kIeiBackOffTimerValue                = 0x37;
+constexpr uint8_t kIeiControlPlaneOnlyIndication       = 0x0c;
+constexpr uint8_t kIeiDnn                              = 0x25;
+constexpr uint8_t kIeiDsTtEthernetPortMacAddress       = 0x6e;
+
 constexpr uint8_t kIeiEthernetHeaderCompressionConfiguration = 0x1f;
 constexpr uint8_t kIeiExtendedDrxParameters                  = 0x6e;
 constexpr uint8_t kIeiExtendedProtocolConfigurationOptions   = 0x7b;
@@ -83,10 +82,19 @@ constexpr uint8_t kIeiSscMode                                = 0x0a;
 constexpr uint8_t kIeiSuggestedInterfaceIdentifier           = 0x29;
 constexpr uint8_t kIeiUeDsTtResidenceTime                    = 0x6f;
 
-constexpr uint8_t kIeiEpsNasMessageContainer = 0x70;  // OK
-constexpr uint8_t kIeiNasMessageContainer    = 0x71;  // OK
-constexpr uint8_t kIeiPayloadContainerType   = 0x08;  // Should be verified
+// OK
+constexpr uint8_t kIeiPayloadContainerType     = 0x08;  // Should be verified
+constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
+
+constexpr uint8_t kT3502Value = 0x16;
+
+constexpr uint8_t kIei5gsUpdateType = 0x53;
+constexpr uint8_t kT3346Value       = 0x5f;
+
+constexpr uint8_t kIeiEpsBearerContextStatus = 0x60;
+
+constexpr uint8_t kIeiEpsNasMessageContainer = 0x70;
+constexpr uint8_t kIeiNasMessageContainer    = 0x71;
+constexpr uint8_t kIeiEapMessage             = 0x78;
 constexpr uint8_t kIeiPayloadContainer =
     0x7b;  // Should be verified (kIeiExtendedProtocolConfigurationOptions)
-constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
-constexpr uint8_t kIeiEpsBearerContextStatus = 0x60;

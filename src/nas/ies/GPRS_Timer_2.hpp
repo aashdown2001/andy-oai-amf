@@ -19,18 +19,12 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef __GPRS_Timer_2_H_
 #define __GPRS_Timer_2_H_
 
 #include <stdint.h>
 
+constexpr uint8_t kGprsTimer2Length = 3;
 namespace nas {
 
 class GPRS_Timer_2 {
@@ -47,6 +41,7 @@ class GPRS_Timer_2 {
 
  private:
   uint8_t _iei;
+  uint8_t length;
   uint8_t _value;
 };
 }  // namespace nas

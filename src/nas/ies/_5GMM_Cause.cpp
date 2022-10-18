@@ -18,16 +18,10 @@
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
-
-/*! \file _5GMM_Cause.cpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "_5GMM_Cause.hpp"
 
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
 using namespace nas;
 
@@ -48,34 +42,38 @@ uint8_t _5GMM_Cause::getValue() {
 }
 
 //------------------------------------------------------------------------------
-_5GMM_Cause::_5GMM_Cause() {}
+_5GMM_Cause::_5GMM_Cause() {
+  _iei   = 0;
+  _value = 0;
+}
 
 //------------------------------------------------------------------------------
 _5GMM_Cause::~_5GMM_Cause(){};
 
 //------------------------------------------------------------------------------
+void _5GMM_Cause::set(uint8_t iei, uint8_t value) {
+  _iei   = iei;
+  _value = value;
+}
+//------------------------------------------------------------------------------
 int _5GMM_Cause::encode2Buffer(uint8_t* buf, int len) {
+  Logger::nas_mm().debug("Encoding _5GMM_Cause IE ");
+
   int encoded_size = 0;
-  Logger::nas_mm().debug("encoding _5GMM_Cause IE ");
+
   if (_iei) {
-    if (len < 2) {
-      Logger::nas_mm().error("len is less than 2");
-      return -1;
+    if (len < k5gmmCauseMaximumLength) {
+      Logger::nas_mm().error(
+          "Buffer length is less than the length of this IE (%d octet)",
+          k5gmmCauseMaximumLength);
+      return KEncodeDecodeError;
     }
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = _value;
-    encoded_size++;
-    return 2;
-  } else {
-    if (len < 1) {
-      Logger::nas_mm().error("len is less than one");
-      return -1;
-    }
-    *buf = _value;
-    Logger::nas_mm().debug("encoded _5GMM_Cause IE 0x%x", *buf);
-    return 1;
+    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
   }
+  ENCODE_U8(buf + encoded_size, _value, encoded_size);
+
+  Logger::nas_mm().debug("Encoded _5GMM_Cause IE (len %d)", encoded_size);
+  return encoded_size;
 }
 
 //------------------------------------------------------------------------------
@@ -83,19 +81,26 @@ int _5GMM_Cause::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding _5GMM_Cause IE");
   int decoded_size = 0;
   if (is_option) {
-    decoded_size++;
-    if (len < 2) {
-      Logger::nas_mm().error("len is less than one");
-      return 0;
+    DECODE_U8(buf + decoded_size, _iei, decoded_size);  // for IE
+    if (len < k5gmmCauseMaximumLength) {
+      Logger::nas_mm().error(
+          "Buffer length is less than the length of this IE (%d octet)",
+          k5gmmCauseMaximumLength);
+      return KEncodeDecodeError;
+    }
+  } else {
+    if (len < k5gmmCauseMinimumLength) {
+      Logger::nas_mm().error(
+          "Buffer length is less than the length of this IE (%d octet)",
+          k5gmmCauseMinimumLength);
+      return KEncodeDecodeError;
     }
   }
-  if (len < 1) {
-    Logger::nas_mm().error("len is less than one");
-    return 0;
-  }
-  _value = *(buf + decoded_size);
-  decoded_size++;
+
+  DECODE_U8(buf + decoded_size, _value, decoded_size);
+
   Logger::nas_mm().debug(
-      "decoded _5GMM_Cause len 1 octet,5G_Couse=0x%x", _value);
+      "Decoded _5GMM_Cause (len %d octet), 5G Cause 0x%x", decoded_size,
+      _value);
   return decoded_size;
 }

@@ -19,19 +19,14 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __EAP_Message_H_
-#define __EAP_Message_H_
+#ifndef _EAP_Message_H_
+#define _EAP_Message_H_
 
 #include <stdint.h>
 
-#include <iostream>
+constexpr uint8_t kEapMessageMinimumLength  = 7;
+constexpr uint16_t kEapMessageMaximumLength = 1503;
+
 extern "C" {
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"

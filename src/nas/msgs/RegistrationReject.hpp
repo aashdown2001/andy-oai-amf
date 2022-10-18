@@ -19,40 +19,46 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _RegistrationReject_H_
-#define _RegistrationReject_H_
+#ifndef _REGISTRATION_REJECT_H_
+#define _REGISTRATION_REJECT_H_
 
 #include "NasIeHeader.hpp"
 
 namespace nas {
 
-class RegistrationReject {
+class RegistrationReject : public NasMmPlainHeader {
  public:
   RegistrationReject();
   ~RegistrationReject();
+
+  void setHeader(uint8_t security_header_type);
+  void getSecurityHeaderType(uint8_t security_header_type);
+  bool verifyHeader();
+
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
-  void setHeader(uint8_t security_header_type);
+
   void set_5GMM_Cause(uint8_t value);
+  // TODO: Get
+
   void setGPRS_Timer_2_3346(uint8_t value);
+  // TODO: Get
+
   void setGPRS_Timer_2_3502(uint8_t value);
+  // TOGO: Get
+
   void setEAP_Message(bstring eap);
+  // TODO: Get
+
   void setRejected_NSSAI(uint8_t cause, uint8_t value);
+  // TODO: Get
 
  public:
-  NasMmPlainHeader* plain_header;
-  _5GMM_Cause* ie_5gmm_cause;
-  GPRS_Timer_2* ie_T3346_value;
-  GPRS_Timer_2* ie_T3502_value;
-  EAP_Message* ie_eap_message;
-  Rejected_NSSAI* ie_rejected_nssai;
+  _5GMM_Cause ie_5gmm_cause;                   // Mandatory
+  std::optional<GPRS_Timer_2> ie_T3346_value;  // Optional
+  std::optional<GPRS_Timer_2> ie_T3502_value;  // Optional
+  std::optional<EAP_Message> ie_eap_message;   // Optional
+  Rejected_NSSAI* ie_rejected_nssai;           // which Release 16.x?
 };
 
 }  // namespace nas

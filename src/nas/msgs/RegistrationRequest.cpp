@@ -59,7 +59,6 @@ RegistrationRequest::~RegistrationRequest() {}
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setHeader(uint8_t security_header_type) {
-  // plain_header = new NasMmPlainHeader();
   NasMmPlainHeader::SetSecurityHeaderType(security_header_type);
 }
 
