@@ -29,11 +29,11 @@ using namespace nas;
 //------------------------------------------------------------------------------
 RegistrationReject::RegistrationReject()
     : NasMmPlainHeader(EPD_5GS_MM_MSG, REGISTRATION_REJECT) {
-  Logger::nas_mm().debug("initiating class RegistrationReject");
+  Logger::nas_mm().debug("Initiating RegistrationReject");
   ie_T3346_value    = std::nullopt;
   ie_T3502_value    = std::nullopt;
   ie_eap_message    = std::nullopt;
-  ie_rejected_nssai = NULL;
+  ie_rejected_nssai = std::nullopt;
 }
 
 //------------------------------------------------------------------------------
@@ -66,7 +66,8 @@ void RegistrationReject::setEAP_Message(bstring eap) {
 
 //------------------------------------------------------------------------------
 void RegistrationReject::setRejected_NSSAI(uint8_t cause, uint8_t value) {
-  ie_rejected_nssai = new Rejected_NSSAI(0x69, cause, value);
+  ie_rejected_nssai =
+      std::make_optional<Rejected_NSSAI>(kIeiRejectedNssaiRr, cause, value);
 }
 
 //------------------------------------------------------------------------------
@@ -122,10 +123,10 @@ int RegistrationReject::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_rejected_nssai) {
+  if (!ie_rejected_nssai.has_value()) {
     Logger::nas_mm().warn("IE ie_rejected_nssai is not available");
   } else {
-    if (int size = ie_rejected_nssai->encode2Buffer(
+    if (int size = ie_rejected_nssai.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -150,8 +151,8 @@ int RegistrationReject::decodeFromBuffer(
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
   while ((octet != 0x0)) {
     switch (octet) {
-      case 0x5F: {
-        Logger::nas_mm().debug("Decoding IEI (0x5F)");
+      case kT3346Value: {
+        Logger::nas_mm().debug("Decoding IEI 0x5F: T3346 Value");
         GPRS_Timer_2 ie_T3346_value_tmp = {};
         decoded_size += ie_T3346_value_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
@@ -159,8 +160,8 @@ int RegistrationReject::decodeFromBuffer(
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x16: {
-        Logger::nas_mm().debug("Decoding iei(0x16)");
+      case kT3502Value: {
+        Logger::nas_mm().debug("Decoding IEI 0x16: T3502 Value");
         GPRS_Timer_2 ie_T3502_value_tmp = {};
         decoded_size += ie_T3502_value_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
@@ -168,8 +169,8 @@ int RegistrationReject::decodeFromBuffer(
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x78: {
-        Logger::nas_mm().debug("Decoding iei(0x78)");
+      case kIeiEapMessage: {
+        Logger::nas_mm().debug("Decoding IEI 0x78: EAP Message");
         EAP_Message ie_eap_message_tmp = {};
         decoded_size += ie_eap_message_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
@@ -177,17 +178,19 @@ int RegistrationReject::decodeFromBuffer(
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x69: {
-        Logger::nas_mm().debug("Decoding IEI (0x69)");
-        ie_rejected_nssai = new Rejected_NSSAI();
-        decoded_size += ie_rejected_nssai->decodeFromBuffer(
+      case kIeiRejectedNssaiRr: {
+        Logger::nas_mm().debug("Decoding IEI 0x69: Rejected NSSAI");
+        Rejected_NSSAI ie_rejected_nssai_tmp = {};
+        decoded_size += ie_rejected_nssai_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
+        ie_rejected_nssai =
+            std::optional<Rejected_NSSAI>(ie_rejected_nssai_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
     }
   }
   Logger::nas_mm().debug(
-      "decoded RegistrationReject message len(%d)", decoded_size);
-  return 1;
+      "Decoded RegistrationReject message len(%d)", decoded_size);
+  return decoded_size;
 }

@@ -65,7 +65,6 @@ constexpr uint8_t kIeiPduSessionType                         = 0x09;
 constexpr uint8_t kIeiPortManagementInformationContainer     = 0x74;
 constexpr uint8_t kIeiReAttemptIndicator                     = 0x1d;
 constexpr uint8_t kIeiRejectedNssaiRa                        = 0x11;
-constexpr uint8_t kIeiRejectedNssaiRr                        = 0x69;
 constexpr uint8_t kIeiRejectedNssaiDr                        = 0x6D;
 constexpr uint8_t kIeiRejectedNssaiCuc                       = 0x11;
 constexpr uint8_t kIeiReleaseAssistanceIndication            = 0xf0;
@@ -92,6 +91,7 @@ constexpr uint8_t kIei5gsUpdateType = 0x53;
 constexpr uint8_t kT3346Value       = 0x5f;
 
 constexpr uint8_t kIeiEpsBearerContextStatus = 0x60;
+constexpr uint8_t kIeiRejectedNssaiRr        = 0x69;
 
 constexpr uint8_t kIeiEpsNasMessageContainer = 0x70;
 constexpr uint8_t kIeiNasMessageContainer    = 0x71;
