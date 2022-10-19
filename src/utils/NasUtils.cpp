@@ -62,10 +62,11 @@ int NasUtils::encodeMccMnc2Buffer(
 //------------------------------------------------------------------------------
 int NasUtils::decodeMccMncFromBuffer(
     std::string& mcc_str, std::string& mnc_str, uint8_t* buf, int len) {
-  if (len < 3) {
+  if (len < kMccMncLength) {
     Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (3 octet)");
-    return -1;
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kMccMncLength);
+    return KEncodeDecodeError;
   }
   int decoded_size = 0;
   uint8_t octet    = 0;

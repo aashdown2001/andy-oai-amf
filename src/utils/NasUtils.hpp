@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <string>
+constexpr uint8_t kMccMncLength = 3;
 
 class NasUtils {
  public:

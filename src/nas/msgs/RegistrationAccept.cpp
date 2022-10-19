@@ -37,8 +37,8 @@ using namespace nas;
 //------------------------------------------------------------------------------
 RegistrationAccept::RegistrationAccept()
     : NasMmPlainHeader(EPD_5GS_MM_MSG, REGISTRATION_ACCEPT) {
-  ie_5g_guti                                     = nullptr;
-  ie_equivalent_plmns                            = nullptr;
+  ie_5g_guti                                     = std::nullopt;
+  ie_equivalent_plmns                            = std::nullopt;
   ie_allowed_nssai                               = nullptr;
   ie_rejected_nssai                              = nullptr;
   ie_configured_nssai                            = nullptr;
@@ -75,44 +75,51 @@ void RegistrationAccept::setHeader(uint8_t security_header_type) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationAccept::set_5GS_Registration_Result(
-    bool emergency, bool nssaa, bool sms, uint8_t value) {
-  ie_5gs_registration_result.set(0x00, emergency, nssaa, sms, value);
+void RegistrationAccept::set5GSRegistrationResult(
+    bool emergency, bool nssaa, bool sms, const uint8_t& value) {
+  ie_5gs_registration_result.set(emergency, nssaa, sms, value);
 }
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setSUCI_SUPI_format_IMSI(
-    const string mcc, const string mnc, const string routingInd,
-    uint8_t protection_sch_id, const string msin) {
+    const std::string& mcc, const std::string& mnc,
+    const std::string& routingInd, const uint8_t& protection_sch_id,
+    const std::string& msin) {
   if (protection_sch_id != NULL_SCHEME) {
     Logger::nas_mm().error(
         "Encoding SUCI and SUPI format for IMSI error, please choose right "
-        "interface");
+        "scheme");
     return;
   } else {
-    ie_5g_guti = new _5GSMobileIdentity();
-    ie_5g_guti->setSuciWithSupiImsi(
+    _5GSMobileIdentity ie_5g_guti_tmp = {};
+    ie_5g_guti_tmp.setIEI(kIei5gGuti);
+    ie_5g_guti_tmp.setSuciWithSupiImsi(
         mcc, mnc, routingInd, protection_sch_id, msin);
-    ie_5g_guti->setIEI(0x77);
+    ie_5g_guti = std::optional<_5GSMobileIdentity>(ie_5g_guti_tmp);
   }
 }
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setSUCI_SUPI_format_IMSI(
-    const string mcc, const string mnc, const string routingInd,
-    uint8_t protection_sch_id, uint8_t hnpki, const string msin) {}
+    const std::string& mcc, const std::string& mnc,
+    const std::string& routingInd, const uint8_t& protection_sch_id,
+    const uint8_t& hnpki, const std::string& msin) {
+  // TODO:
+}
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::set5G_GUTI(
-    const string mcc, const string mnc, const string amfRegionId,
-    const string amfSetId, const string amfPointer, const uint32_t tmsi) {
-  ie_5g_guti   = new _5GSMobileIdentity();
-  int regionId = fromString<int>(amfRegionId);
-  int setId    = fromString<int>(amfSetId);
-  int pointer  = fromString<int>(amfPointer);
-  ie_5g_guti->set5GGUTI(
+    const std::string& mcc, const std::string& mnc,
+    const std::string& amfRegionId, const std::string& amfSetId,
+    const std::string& amfPointer, const uint32_t& tmsi) {
+  _5GSMobileIdentity ie_5g_guti_tmp = {};
+  int regionId                      = fromString<int>(amfRegionId);
+  int setId                         = fromString<int>(amfSetId);
+  int pointer                       = fromString<int>(amfPointer);
+  ie_5g_guti_tmp.setIEI(kIei5gGuti);
+  ie_5g_guti_tmp.set5GGUTI(
       mcc, mnc, (uint8_t) regionId, (uint16_t) setId, (uint8_t) pointer, tmsi);
-  ie_5g_guti->setIEI(0x77);
+  ie_5g_guti = std::optional<_5GSMobileIdentity>(ie_5g_guti_tmp);
 }
 
 //------------------------------------------------------------------------------
@@ -123,8 +130,10 @@ void RegistrationAccept::set5G_S_TMSI() {}
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setEquivalent_PLMNs(
-    uint8_t MNC_MCC1, uint8_t MNC_MCC2, uint8_t MNC_MCC3) {
-  ie_equivalent_plmns = new PLMN_List(0x4A, MNC_MCC1, MNC_MCC2, MNC_MCC3);
+    const std::vector<nas_plmn_t>& list) {
+  PLMN_List ie_equivalent_plmns_tmp = {};
+  ie_equivalent_plmns_tmp.set(kEquivalentPlmns, list);
+  ie_equivalent_plmns = std::optional<PLMN_List>(ie_equivalent_plmns_tmp);
 }
 
 //------------------------------------------------------------------------------
@@ -285,11 +294,11 @@ int RegistrationAccept::encode2Buffer(uint8_t* buf, int len) {
     return 0;
   }
 
-  if (!ie_5g_guti) {
+  if (!ie_5g_guti.has_value()) {
     Logger::nas_mm().warn("IE ie_5g_guti is not available");
   } else {
-    int size =
-        ie_5g_guti->encode2Buffer(buf + encoded_size, len - encoded_size);
+    int size = ie_5g_guti.value().encode2Buffer(
+        buf + encoded_size, len - encoded_size);
     if (size) {
       encoded_size += size;
     } else {
@@ -309,10 +318,10 @@ int RegistrationAccept::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_equivalent_plmns) {
+  if (!ie_equivalent_plmns.has_value()) {
     Logger::nas_mm().warn("IE ie_equivalent_plmns is not available");
   } else {
-    if (int size = ie_equivalent_plmns->encode2Buffer(
+    if (int size = ie_equivalent_plmns.value().encode2Buffer(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -609,8 +618,7 @@ int RegistrationAccept::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int RegistrationAccept::decodeFromBuffer(
-    NasMmPlainHeader* header, uint8_t* buf, int len) {
+int RegistrationAccept::decodeFromBuffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding RegistrationAccept message");
   int decoded_size = 3;
 
@@ -657,10 +665,11 @@ int RegistrationAccept::decodeFromBuffer(
     switch (octet) {
       case 0x77: {
         Logger::nas_mm().debug("Decoding IEI (0x77)");
-        ie_5g_guti = new _5GSMobileIdentity();
-        decoded_size += ie_5g_guti->decodeFromBuffer(
+        _5GSMobileIdentity ie_5g_guti_tmp = {};
+        decoded_size += ie_5g_guti_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
-        octet = *(buf + decoded_size);
+        ie_5g_guti = std::optional<_5GSMobileIdentity>(ie_5g_guti_tmp);
+        octet      = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
       case 0x15: {
@@ -829,10 +838,11 @@ int RegistrationAccept::decodeFromBuffer(
       } break;
       case 0x4A: {
         Logger::nas_mm().debug("Decoding IEI (0x4A)");
-        ie_equivalent_plmns = new PLMN_List();
-        decoded_size += ie_equivalent_plmns->decodeFromBuffer(
+        PLMN_List ie_equivalent_plmns_tmp = {};
+        decoded_size += ie_equivalent_plmns_tmp.decodeFromBuffer(
             buf + decoded_size, len - decoded_size, true);
-        octet = *(buf + decoded_size);
+        ie_equivalent_plmns = std::optional<PLMN_List>(ie_equivalent_plmns_tmp);
+        octet               = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
     }

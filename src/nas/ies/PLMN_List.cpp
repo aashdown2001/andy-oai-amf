@@ -19,128 +19,93 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "PLMN_List.hpp"
 
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
+#include "NasUtils.hpp"
+
 using namespace nas;
 
 //------------------------------------------------------------------------------
 PLMN_List::PLMN_List(uint8_t iei) {
-  _iei      = iei;
-  _MNC_MCC1 = 0;
-  _MNC_MCC2 = 0;
-  _MNC_MCC3 = 0;
-}
-
-//------------------------------------------------------------------------------
-PLMN_List::PLMN_List(
-    const uint8_t iei, uint8_t MNC_MCC1, uint8_t MNC_MCC2, uint8_t MNC_MCC3) {
-  _iei      = iei;
-  _MNC_MCC1 = MNC_MCC1;
-  _MNC_MCC2 = MNC_MCC2;
-  _MNC_MCC3 = MNC_MCC3;
+  _iei   = iei;
+  length = 2;
 }
 
 //------------------------------------------------------------------------------
 PLMN_List::PLMN_List() {
-  _iei      = 0;
-  _MNC_MCC1 = 0;
-  _MNC_MCC2 = 0;
-  _MNC_MCC3 = 0;
+  _iei   = 0;
+  length = 2;
 }
 
 //------------------------------------------------------------------------------
 PLMN_List::~PLMN_List() {}
 
 //------------------------------------------------------------------------------
-void PLMN_List::setMNC_MCC1(uint8_t iei, uint8_t value) {
+void PLMN_List::set(uint8_t iei, const std::vector<nas_plmn_t>& list) {
   _iei      = iei;
-  _MNC_MCC1 = value;
+  plmn_list = list;
+  if (list.size() > 0)
+    length =
+        kPlmnListMinimumLength +
+        (list.size() - 1) *
+            3;  // 3 - size of each PLMN
+                // size of the first PLMN is included in kPlmnListMinimumLength
 }
 
 //------------------------------------------------------------------------------
-void PLMN_List::setMNC_MCC2(uint8_t iei, uint8_t value) {
-  _iei      = iei;
-  _MNC_MCC2 = value;
-}
-
-//------------------------------------------------------------------------------
-void PLMN_List::setMNC_MCC3(uint8_t iei, uint8_t value) {
-  _iei      = iei;
-  _MNC_MCC3 = value;
-}
-
-//------------------------------------------------------------------------------
-uint8_t PLMN_List::getMNC_MCC1() {
-  return _MNC_MCC1;
-}
-
-//------------------------------------------------------------------------------
-uint8_t PLMN_List::getMNC_MCC2() {
-  return _MNC_MCC2;
-}
-
-//------------------------------------------------------------------------------
-uint8_t PLMN_List::getMNC_MCC3() {
-  return _MNC_MCC3;
+void PLMN_List::getPLMNList(std::vector<nas_plmn_t>& list) {
+  list = plmn_list;
 }
 
 //------------------------------------------------------------------------------
 int PLMN_List::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("encoding PLMN_List iei(0x%x)", _iei);
-  if (len < 5) {
-    Logger::nas_mm().error("len is less than 5");
-    return 0;
+  Logger::nas_mm().debug("Encoding PLMN_List");
+
+  if (len < length) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the length of this IE (%d octet)", length);
+    return KEncodeDecodeError;
   }
+
   int encoded_size = 0;
   if (_iei) {
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = 3;
-    encoded_size++;
-    *(buf + encoded_size) = (_MNC_MCC1 & 0x0F) | ((_MNC_MCC2 & 0x0F) << 4);
-    encoded_size++;
-    *(buf + encoded_size) = _MNC_MCC3;
-    encoded_size++;
-    *(buf + encoded_size) = ((_MNC_MCC1 & 0xF0) >> 4) | (_MNC_MCC2 & 0xF0);
-    encoded_size++;
-  } else {
-    //	*(buf + encoded_size) = length - 1; encoded_size++;
-    //	*(buf + encoded_size) = _value; encoded_size++; encoded_size++;
+    ENCODE_U8(buf + encoded_size, _iei, encoded_size);  // IEI
   }
-  Logger::nas_mm().debug("encoded PLMN_List len(%d)", encoded_size);
+  // Length
+  ENCODE_U8(buf + encoded_size, length, encoded_size);
+
+  for (auto it : plmn_list)
+    encoded_size += NasUtils::encodeMccMnc2Buffer(
+        it.mcc, it.mnc, buf + encoded_size, len - encoded_size);
+
+  Logger::nas_mm().debug("Encoded PLMN_List (len %d)", encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
 int PLMN_List::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("decoding PLMN_List iei(0x%x)", *buf);
+  Logger::nas_mm().debug("Decoding PLMN_List");
   int decoded_size = 0;
   if (is_option) {
-    decoded_size++;
+    DECODE_U8(buf + decoded_size, _iei, decoded_size);  // IEI
   }
-  decoded_size++;
-  _MNC_MCC1 = 0x00;
-  _MNC_MCC2 = 0x00;
-  _MNC_MCC3 = 0x00;
-  _MNC_MCC1 |= *(buf + decoded_size) & 0x0F;
-  _MNC_MCC2 |= (*(buf + decoded_size) & 0xF0) >> 4;
-  decoded_size++;
-  _MNC_MCC3 = *(buf + decoded_size);
-  decoded_size++;
-  _MNC_MCC1 |= (*(buf + decoded_size) & 0x0F) << 4;
-  _MNC_MCC2 |= *(buf + decoded_size) & 0xF0;
-  decoded_size++;
-  Logger::nas_mm().debug(
-      "decoded PLMN_List MNC_MCC1(0x%x),MNC_MCC2(0x%x),MNC_MCC3(0x%x)",
-      _MNC_MCC1, _MNC_MCC2, _MNC_MCC3);
-  Logger::nas_mm().debug("decoded PLMN_List len(%d)", decoded_size);
+  // Length
+  DECODE_U8(buf + decoded_size, length, decoded_size);
+  uint8_t len_ie = length;
+  while (len_ie > 0) {
+    nas_plmn_t nas_plmn = {};
+    uint8_t size        = NasUtils::decodeMccMncFromBuffer(
+        nas_plmn.mcc, nas_plmn.mnc, buf + decoded_size, len - decoded_size);
+    if (size > 0) {
+      len_ie -= size;
+      plmn_list.push_back(nas_plmn);
+    } else {
+      break;
+    }
+  }
+  Logger::nas_mm().debug("Decoded PLMN_List (len %d)", decoded_size);
   return decoded_size;
 }

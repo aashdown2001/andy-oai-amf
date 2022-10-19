@@ -41,6 +41,7 @@ class _5GS_Registration_Result {
   uint8_t getValue();
   void set(
       const uint8_t iei, bool emergency, bool nssaa, bool sms, uint8_t value);
+  void set(bool emergency, bool nssaa, bool sms, uint8_t value);
 
  private:
   uint8_t _iei;

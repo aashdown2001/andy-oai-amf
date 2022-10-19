@@ -50,7 +50,7 @@ _5GS_Registration_Result::_5GS_Registration_Result(
 //------------------------------------------------------------------------------
 _5GS_Registration_Result::_5GS_Registration_Result() {
   _iei                 = 0;
-  length               = k5gsRegistrationResultLength;
+  length               = 0;
   emergency_registered = false;
   NSSAA_performed      = false;
   SMS_allowed          = false;
@@ -80,12 +80,29 @@ void _5GS_Registration_Result::set(
 }
 
 //------------------------------------------------------------------------------
+void _5GS_Registration_Result::set(
+    bool emergency, bool nssaa, bool sms, uint8_t value) {
+  _iei                 = 0;
+  length               = k5gsRegistrationResultLength - 1;  // without IEI
+  emergency_registered = emergency;
+  NSSAA_performed      = nssaa;
+  SMS_allowed          = sms;
+  _value               = value;
+}
+
+//------------------------------------------------------------------------------
 int _5GS_Registration_Result::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding _5GS_Registration_Result");
-  if (len < k5gsRegistrationResultLength) {
+  uint8_t ie_len = 0;
+  if (_iei) {
+    ie_len = k5gsRegistrationResultLength;
+  } else {
+    ie_len = k5gsRegistrationResultLength - 1;
+  }
+
+  if (len < ie_len) {
     Logger::nas_mm().error(
-        "Buffer length is less than the length of this IE (%d octet)",
-        k5gsRegistrationResultLength);
+        "Buffer length is less than the length of this IE (%d octet)", ie_len);
     return KEncodeDecodeError;
   }
 

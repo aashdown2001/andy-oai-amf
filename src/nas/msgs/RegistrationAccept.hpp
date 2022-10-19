@@ -36,29 +36,31 @@ class RegistrationAccept : public NasMmPlainHeader {
   bool verifyHeader();                                       // TODO
 
   int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int decodeFromBuffer(uint8_t* buf, int len);
 
-  void set_5GS_Registration_Result(
-      bool emergency, bool nssaa, bool sms, uint8_t value);
+  void set5GSRegistrationResult(
+      bool emergency, bool nssaa, bool sms, const uint8_t& value);
   // TODO: Get
 
   // 5GSMobileIdentity
   void setSUCI_SUPI_format_IMSI(
-      const string mcc, const string mnc, const string routingInd,
-      uint8_t protection_sch_id, const string msin);
+      const std::string& mcc, const std::string& mnc,
+      const std::string& routingInd, const uint8_t& protection_sch_id,
+      const std::string& msin);
   void setSUCI_SUPI_format_IMSI(
-      const string mcc, const string mnc, const string routingInd,
-      uint8_t protection_sch_id, uint8_t hnpki, const string msin);
+      const std::string& mcc, const std::string& mnc,
+      const std::string& routingInd, const uint8_t& protection_sch_id,
+      const uint8_t& hnpki, const std::string& msin);
   void set5G_GUTI(
-      const string mcc, const string mnc, const string amfRegionId,
-      const string amfSetId, const string amfPointer, const uint32_t tmsi);
-  void setIMEI_IMEISV();
-  void set5G_S_TMSI();
+      const std::string& mcc, const std::string& mnc,
+      const std::string& amfRegionId, const std::string& amfSetId,
+      const std::string& amfPointer, const uint32_t& tmsi);
+  void setIMEI_IMEISV();  // TODO:
+  void set5G_S_TMSI();    // TODO:
   // TODO: Get
 
   // Equivalent PLMNs
-  void setEquivalent_PLMNs(
-      uint8_t MNC_MCC1, uint8_t MNC_MCC2, uint8_t MNC_MCC3);
+  void setEquivalent_PLMNs(const std::vector<nas_plmn_t>& list);
   // TODO: Get
 
   void setTaiList(std::vector<p_tai_t> tai_list);
@@ -149,8 +151,8 @@ class RegistrationAccept : public NasMmPlainHeader {
  public:
   _5GS_Registration_Result ie_5gs_registration_result;  // Mandatory
 
-  _5GSMobileIdentity* ie_5g_guti;                                // Optional
-  PLMN_List* ie_equivalent_plmns;                                // Optional
+  std::optional<_5GSMobileIdentity> ie_5g_guti;                  // Optional
+  std::optional<PLMN_List> ie_equivalent_plmns;                  // Optional
   _5GSTrackingAreaIdList* ie_tai_list;                           // Optional
   NSSAI* ie_allowed_nssai;                                       // Optional
   Rejected_NSSAI* ie_rejected_nssai;                             // Optional

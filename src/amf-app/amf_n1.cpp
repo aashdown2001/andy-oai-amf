@@ -3945,7 +3945,7 @@ void amf_n1::get_pdu_session_to_be_activated(
 void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept) {
   registration_accept->setHeader(PLAIN_5GS_MSG);
-  registration_accept->set_5GS_Registration_Result(
+  registration_accept->set5GSRegistrationResult(
       false, false, false,
       0x01);  // 3GPP Access
   registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
@@ -3987,7 +3987,7 @@ void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept,
     const std::shared_ptr<nas_context>& nc) {
   registration_accept->setHeader(PLAIN_5GS_MSG);
-  registration_accept->set_5GS_Registration_Result(
+  registration_accept->set5GSRegistrationResult(
       false, false, false,
       0x01);  // 3GPP Access
   registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);

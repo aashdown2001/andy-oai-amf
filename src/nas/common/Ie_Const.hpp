@@ -87,6 +87,8 @@ constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
 
 constexpr uint8_t kT3502Value = 0x16;
 
+constexpr uint8_t kEquivalentPlmns = 0x4A;
+
 constexpr uint8_t kIei5gsUpdateType = 0x53;
 constexpr uint8_t kT3346Value       = 0x5f;
 
@@ -95,6 +97,7 @@ constexpr uint8_t kIeiRejectedNssaiRr        = 0x69;
 
 constexpr uint8_t kIeiEpsNasMessageContainer = 0x70;
 constexpr uint8_t kIeiNasMessageContainer    = 0x71;
+constexpr uint8_t kIei5gGuti                 = 0x77;
 constexpr uint8_t kIeiEapMessage             = 0x78;
 constexpr uint8_t kIeiPayloadContainer =
     0x7b;  // Should be verified (kIeiExtendedProtocolConfigurationOptions)
