@@ -35,9 +35,8 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-RegistrationAccept::RegistrationAccept() {
-  plain_header                                   = nullptr;
-  ie_5gs_registration_result                     = nullptr;
+RegistrationAccept::RegistrationAccept()
+    : NasMmPlainHeader(EPD_5GS_MM_MSG, REGISTRATION_ACCEPT) {
   ie_5g_guti                                     = nullptr;
   ie_equivalent_plmns                            = nullptr;
   ie_allowed_nssai                               = nullptr;
@@ -72,16 +71,13 @@ RegistrationAccept::~RegistrationAccept() {}
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setHeader(uint8_t security_header_type) {
-  plain_header = new NasMmPlainHeader();
-  plain_header->setHeader(
-      EPD_5GS_MM_MSG, security_header_type, REGISTRATION_ACCEPT);
+  NasMmPlainHeader::SetSecurityHeaderType(security_header_type);
 }
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::set_5GS_Registration_Result(
     bool emergency, bool nssaa, bool sms, uint8_t value) {
-  ie_5gs_registration_result =
-      new _5GS_Registration_Result(0x00, emergency, nssaa, sms, value);
+  ie_5gs_registration_result.set(0x00, emergency, nssaa, sms, value);
 }
 
 //------------------------------------------------------------------------------
@@ -271,24 +267,24 @@ void RegistrationAccept::setTaiList(std::vector<p_tai_t> tai_list) {
 //------------------------------------------------------------------------------
 int RegistrationAccept::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding RegistrationAccept message");
-  int encoded_size = 0;
-  if (!plain_header) {
-    Logger::nas_mm().error("Mandatory IE missing Header");
+  int encoded_size    = 0;
+  int encoded_ie_size = 0;
+  // Header
+  if ((encoded_ie_size = NasMmPlainHeader::encode2Buffer(buf, len)) ==
+      KEncodeDecodeError) {
+    Logger::nas_mm().error("Encoding NAS Header error");
+    return KEncodeDecodeError;
+  }
+  encoded_size += encoded_ie_size;
+
+  if (int size = ie_5gs_registration_result.encode2Buffer(
+          buf + encoded_size, len - encoded_size)) {
+    encoded_size += size;
+  } else {
+    Logger::nas_mm().error("Encoding ie_5gs_registration_result error");
     return 0;
   }
-  if (!(plain_header->encode2Buffer(buf, len))) return 0;
-  encoded_size += 3;
-  if (!ie_5gs_registration_result) {
-    Logger::nas_mm().warn("IE ie_5gs_registration_result is not available");
-  } else {
-    if (int size = ie_5gs_registration_result->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
-      encoded_size += size;
-    } else {
-      Logger::nas_mm().error("Encoding ie_5gs_registration_result error");
-      return 0;
-    }
-  }
+
   if (!ie_5g_guti) {
     Logger::nas_mm().warn("IE ie_5g_guti is not available");
   } else {
@@ -616,10 +612,9 @@ int RegistrationAccept::encode2Buffer(uint8_t* buf, int len) {
 int RegistrationAccept::decodeFromBuffer(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding RegistrationAccept message");
-  int decoded_size           = 3;
-  plain_header               = header;
-  ie_5gs_registration_result = new _5GS_Registration_Result();
-  decoded_size += ie_5gs_registration_result->decodeFromBuffer(
+  int decoded_size = 3;
+
+  decoded_size += ie_5gs_registration_result.decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("Decoded_size(%d)", decoded_size);
   uint8_t octet = *(buf + decoded_size);

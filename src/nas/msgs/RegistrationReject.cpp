@@ -82,6 +82,7 @@ int RegistrationReject::encode2Buffer(uint8_t* buf, int len) {
     return KEncodeDecodeError;
   }
   encoded_size += encoded_ie_size;
+
   // 5GMM Cause
   if (int size =
           ie_5gmm_cause.encode2Buffer(buf + encoded_size, len - encoded_size)) {

@@ -19,17 +19,12 @@
  *      contact@openairinterface.org
  */
 
-/*! \file _5GS_Registration_Result.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef ___5GS_Registration_Result_H_
-#define ___5GS_Registration_Result_H_
+#ifndef _5GS_REGISTRATION_RESULT_H_
+#define _5GS_REGISTRATION_RESULT_H_
 
 #include <stdint.h>
+
+constexpr uint8_t k5gsRegistrationResultLength = 3;
 
 namespace nas {
 
@@ -44,12 +39,15 @@ class _5GS_Registration_Result {
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
   void setValue(uint8_t value);
   uint8_t getValue();
+  void set(
+      const uint8_t iei, bool emergency, bool nssaa, bool sms, uint8_t value);
 
  private:
   uint8_t _iei;
-  bool Emergency;
-  bool NSSAA;
-  bool SMS;
+  uint8_t length;
+  bool emergency_registered;
+  bool NSSAA_performed;
+  bool SMS_allowed;
   uint8_t _value;
 };
 }  // namespace nas
