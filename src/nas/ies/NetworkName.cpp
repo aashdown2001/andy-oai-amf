@@ -77,7 +77,10 @@ void NetworkName::setNumberOfSpareBits(const uint8_t& value) {
 
 //------------------------------------------------------------------------------
 void NetworkName::setTextString(const std::string& str) {
-  conv::string_2_bstring(str, text_string);
+  // conv::string_2_bstring(str, text_string);
+  text_string->slen = str.length();
+  text_string       = bfromcstralloc(str.length() + 1, "\0");
+  memcpy((void*) text_string->data, (void*) str.c_str(), str.length());
   length = 1 + blength(text_string);
 }
 
