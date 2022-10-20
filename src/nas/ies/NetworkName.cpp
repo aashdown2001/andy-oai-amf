@@ -24,6 +24,7 @@
 #include "common_defs.h"
 #include "conversions.hpp"
 #include "logger.hpp"
+#include "string.hpp"
 
 extern "C" {
 #include "TLVDecoder.h"
@@ -78,9 +79,14 @@ void NetworkName::setNumberOfSpareBits(const uint8_t& value) {
 //------------------------------------------------------------------------------
 void NetworkName::setTextString(const std::string& str) {
   // conv::string_2_bstring(str, text_string);
-  text_string->slen = str.length();
-  text_string       = bfromcstralloc(str.length() + 1, "\0");
-  memcpy((void*) text_string->data, (void*) str.c_str(), str.length());
+  std::string dotted_str;
+  util::string_to_dotted(str, dotted_str);
+
+  text_string->slen = dotted_str.length();
+  text_string       = bfromcstralloc(dotted_str.length() + 1, "\0");
+  memcpy(
+      (void*) text_string->data, (void*) dotted_str.c_str(),
+      dotted_str.length());
   length = 1 + blength(text_string);
 }
 
