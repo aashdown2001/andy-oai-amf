@@ -78,11 +78,13 @@ void NetworkName::setNumberOfSpareBits(const uint8_t& value) {
 //------------------------------------------------------------------------------
 void NetworkName::setTextString(const std::string& str) {
   conv::string_2_bstring(str, text_string);
+  length = 1 + blength(text_string);
 }
 
 //------------------------------------------------------------------------------
 void NetworkName::setTextString(const bstring& str) {
   text_string = bstrcpy(str);
+  length      = 1 + blength(text_string);
 }
 
 //------------------------------------------------------------------------------
