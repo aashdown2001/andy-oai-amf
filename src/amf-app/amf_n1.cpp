@@ -3245,7 +3245,8 @@ void amf_n1::ul_nas_transport_handle(
     if (nc->requestedNssai.size() > 0) snssai = nc->requestedNssai[0];
   }
 
-  Logger::amf_n1().debug("S_NSSAI for this PDU Session %s", snssai.ToString());
+  Logger::amf_n1().debug(
+      "S_NSSAI for this PDU Session %s", snssai.ToString().c_str());
 
   bstring dnn    = bfromcstr("default");
   bstring sm_msg = nullptr;
