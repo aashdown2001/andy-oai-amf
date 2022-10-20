@@ -100,7 +100,7 @@ int NetworkName::encode2buffer(uint8_t* buf, int len) {
   if (iei_) {
     ENCODE_U8(buf + encoded_size, iei_, encoded_size);  // IEI
   }
-  ENCODE_U16(buf + encoded_size, length, encoded_size);  // length
+  ENCODE_U8(buf + encoded_size, length, encoded_size);  // length
 
   // Octet 3
   uint8_t octet = 0;
