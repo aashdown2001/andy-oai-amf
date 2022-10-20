@@ -1321,7 +1321,7 @@ void amf_n1::registration_request_handle(
   }
 
   for (auto r : nc->requestedNssai) {
-    Logger::nas_mm().debug("Requested NSSAI: %s", r.ToString());
+    Logger::nas_mm().debug("Requested NSSAI: %s", r.ToString().c_str());
   }
 
   nc->ctx_avaliability_ind = true;
@@ -1349,7 +1349,8 @@ void amf_n1::registration_request_handle(
     } else {
       for (auto s : nc->requestedNssai) {
         Logger::amf_n1().debug(
-            "Requested NSSAI inside the NAS container: %s", s.ToString());
+            "Requested NSSAI inside the NAS container: %s",
+            s.ToString().c_str());
       }
     }
   } else {
@@ -2508,7 +2509,7 @@ void amf_n1::security_mode_complete_handle(
       // Get Requested NSSAI (Optional IE), if provided
       if (registration_request->getRequestedNssai(nc->requestedNssai)) {
         for (auto s : nc->requestedNssai) {
-          Logger::amf_n1().debug("Requested NSSAI: %s", s.ToString());
+          Logger::amf_n1().debug("Requested NSSAI: %s", s.ToString().c_str());
         }
       } else {
         Logger::amf_n1().debug("No Optional IE RequestedNssai available");
@@ -3224,7 +3225,8 @@ void amf_n1::ul_nas_transport_handle(
     if (nc->requestedNssai.size() > 0) snssai = nc->requestedNssai[0];
   }
 
-  Logger::amf_n1().debug("S_NSSAI for this PDU Session %s", snssai.ToString());
+  Logger::amf_n1().debug(
+      "S_NSSAI for this PDU Session %s", snssai.ToString().c_str());
 
   bstring dnn    = bfromcstr("default");
   bstring sm_msg = nullptr;
