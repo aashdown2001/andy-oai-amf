@@ -107,7 +107,8 @@ int NetworkName::encode2buffer(uint8_t* buf, int len) {
 
   // Octet 3
   uint8_t octet = 0;
-  octet = 0x80 | (coding_scheme << 4) | (add_CI << 3) | number_of_spare_bits;
+  // TODO: Extension (0x00 for now)
+  octet = 0x00 | (coding_scheme << 4) | (add_CI << 3) | number_of_spare_bits;
   ENCODE_U8(buf + encoded_size, octet, encoded_size);
   // Text String
   int size =
