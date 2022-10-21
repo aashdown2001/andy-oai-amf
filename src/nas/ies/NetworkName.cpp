@@ -78,9 +78,8 @@ void NetworkName::setNumberOfSpareBits(const uint8_t& value) {
 
 //------------------------------------------------------------------------------
 void NetworkName::setTextString(const std::string& str) {
-  // TODO:
-  // Temporary for now
-  // seven characters in seven octets (3GPP TS 23.038 )
+  // TODO: Temporary for now
+  // SMS Packing using "Seven characters in seven octets" (3GPP TS 23.038 )
   // str = "Testing";
   // std::string packed_str;
   // util::sms_packing(str, packed_str);
@@ -91,6 +90,7 @@ void NetworkName::setTextString(const std::string& str) {
     free_wrapper((void**) &packed_str);
     return;
   }
+  // Text string = "Testing"
   packed_str[0] = 0xd4;
   packed_str[1] = 0xf2;
   packed_str[2] = 0x9c;

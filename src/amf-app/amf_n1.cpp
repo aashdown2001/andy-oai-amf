@@ -2749,11 +2749,9 @@ void amf_n1::registration_complete_handle(
     return;
   }
 
-  // TODO: Decode Registration Complete
+  // Decode Registration Complete message
   auto registration_complete = std::make_unique<RegistrationComplete>();
-
-  // Decode Registration Request message
-  int decoded_size = registration_complete->decodefrombuffer(
+  int decoded_size           = registration_complete->decodefrombuffer(
       nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
   if (decoded_size <= 0) {
     Logger::amf_n1().warn("Error when decoding Registration Complete");
@@ -2780,7 +2778,7 @@ void amf_n1::registration_complete_handle(
     return;
   }
 
-  // protect nas message
+  // Protect NAS message
   bstring protected_nas = nullptr;
   encode_nas_message_protected(
       secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
