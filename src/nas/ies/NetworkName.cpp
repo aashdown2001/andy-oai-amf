@@ -78,16 +78,29 @@ void NetworkName::setNumberOfSpareBits(const uint8_t& value) {
 
 //------------------------------------------------------------------------------
 void NetworkName::setTextString(const std::string& str) {
-  std::string dotted_str;
-  util::string_to_dotted(str, dotted_str);
-  /*
-    text_string->slen = dotted_str.length();
-    text_string       = bfromcstralloc(dotted_str.length() + 1, "\0");
-    memcpy(
-        (void*) text_string->data, (void*) dotted_str.c_str(),
-        dotted_str.length());
-    */
-  conv::string_2_bstring(dotted_str, text_string);
+  // TODO:
+  // Temporary for now
+  // seven characters in seven octets (3GPP TS 23.038 )
+  // str = "Testing";
+  // std::string packed_str;
+  // util::sms_packing(str, packed_str);
+  // conv::string_2_bstring(packed_str, text_string);
+
+  uint8_t* packed_str = (uint8_t*) calloc(7, sizeof(uint8_t));
+  if (!packed_str) {
+    free_wrapper((void**) &packed_str);
+    return;
+  }
+  packed_str[0] = 0xd4;
+  packed_str[1] = 0xf2;
+  packed_str[2] = 0x9c;
+  packed_str[3] = 0x9e;
+  packed_str[4] = 0x76;
+  packed_str[5] = 0x9f;
+  packed_str[6] = 0x01;
+
+  text_string = blk2bstr(packed_str, 7);
+  free_wrapper((void**) &packed_str);
   length = 1 + blength(text_string);
 }
 
