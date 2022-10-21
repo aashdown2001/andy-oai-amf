@@ -82,3 +82,5 @@ constexpr uint8_t kIeiSNssai                                 = 0x22;
 constexpr uint8_t kIeiSscMode                                = 0x0a;
 constexpr uint8_t kIeiSuggestedInterfaceIdentifier           = 0x29;
 constexpr uint8_t kIeiUeDsTtResidenceTime                    = 0x6f;
+constexpr uint8_t kIeiFullNameForNetwork                     = 0x43;
+constexpr uint8_t kIeiShortNameForNetwork                    = 0x45;
