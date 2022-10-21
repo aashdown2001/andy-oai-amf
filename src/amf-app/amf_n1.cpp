@@ -34,6 +34,7 @@
 #include "AuthenticationResponse.hpp"
 #include "ConfirmationData.h"
 #include "ConfirmationDataResponse.h"
+#include "ConfigurationUpdateCommand.hpp"
 #include "DeregistrationAccept.hpp"
 #include "DeregistrationRequest.hpp"
 #include "IdentityRequest.hpp"
@@ -41,6 +42,7 @@
 #include "RegistrationAccept.hpp"
 #include "RegistrationReject.hpp"
 #include "RegistrationRequest.hpp"
+#include "RegistrationComplete.hpp"
 #include "SecurityModeCommand.hpp"
 #include "SecurityModeComplete.hpp"
 #include "ServiceAccept.hpp"
@@ -2726,58 +2728,75 @@ void amf_n1::security_mode_reject_handle(
 //------------------------------------------------------------------------------
 void amf_n1::registration_complete_handle(
     const uint32_t ran_ue_ngap_id, const long amf_ue_ngap_id, bstring nas_msg) {
-  Logger::amf_n1().debug(
-      "Receiving Registration Complete, encoding Configuration Update Command");
-  // TODO:
-  /*
-    time_t tt;
-    time(&tt);
-    tt    = tt + 8 * 3600;  // transform the time zone
-    tm* t = gmtime(&tt);
+  Logger::amf_n1().debug("Received Registration Complete message, processing");
 
-    uint8_t conf[45]       = {0};
-    uint8_t header[3]      = {0x7e, 0x00, 0x54};
-    uint8_t full_name[18]  = {0x43, 0x10, 0x81, 0xc1, 0x76, 0x58,
-                             0x9e, 0x9e, 0xbf, 0xcd, 0x74, 0x90,
-                             0xb3, 0x4c, 0xbf, 0xbf, 0xe5, 0x6b};
-    uint8_t short_name[11] = {0x45, 0x09, 0x81, 0xc1, 0x76, 0x58,
-                              0x9e, 0x9e, 0xbf, 0xcd, 0x74};
-    uint8_t time_zone[2]   = {0x46, 0x23};
-    uint8_t time[8]        = {0};
-    time[0]                = 0x47;
-    time[1]                = 0x12;
-    time[2] = ((t->tm_mon + 1) & 0x0f) << 4 | ((t->tm_mon + 1) & 0xf0) >> 4;
-    time[3] = ((t->tm_mday + 1) & 0x0f) << 4 | ((t->tm_mday + 1) & 0xf0) >> 4;
-    time[4] = ((t->tm_hour + 1) & 0x0f) << 4 | ((t->tm_hour + 1) & 0xf0) >> 4;
-    time[5] = ((t->tm_min + 1) & 0x0f) << 4 | ((t->tm_min + 1) & 0xf0) >> 4;
-    time[6] = ((t->tm_sec + 1) & 0x0f) << 4 | ((t->tm_sec + 1) & 0xf0) >> 4;
-    time[7] = 0x23;
-    uint8_t daylight[3] = {0x49, 0x01, 0x00};
-    memcpy(conf, header, 3);
-    memcpy(conf + 3, full_name, 18);
-    memcpy(conf + 21, short_name, 11);
-    memcpy(conf + 32, time_zone, 2);
-    memcpy(conf + 34, time, 8);
-    memcpy(conf + 42, daylight, 3);
+  std::shared_ptr<ue_context> uc = {};
+  if (!find_ue_context(ran_ue_ngap_id, amf_ue_ngap_id, uc)) {
+    Logger::amf_n1().warn("Cannot find the UE context");
+    return;
+  }
 
-    std::shared_ptr<nas_context> nc;
-    if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id))
-      nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
-    else {
-      Logger::amf_n1().warn(
-          "No existed nas_context with amf_ue_ngap_id(" AMF_UE_NGAP_ID_FMT ")",
-    amf_ue_ngap_id); return;
-    }
-    nas_secu_ctx* secu = nc->security_ctx;
-    // protect nas message
-    bstring protected_nas;
-    encode_nas_message_protected(
-        secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-    conf, 45, protected_nas);
+  std::shared_ptr<nas_context> nc = {};
+  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+    Logger::amf_n1().warn(
+        "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
+        amf_ue_ngap_id);
+    return;
+  }
 
-    itti_send_dl_nas_buffer_to_task_n2(
-        protected_nas, ran_ue_ngap_id, amf_ue_ngap_id);
-        */
+  nas_secu_ctx* secu = nc->security_ctx;
+  if (!secu) {
+    Logger::amf_n1().error("No Security Context found");
+    return;
+  }
+
+  // Decode Registration Complete message
+  auto registration_complete = std::make_unique<RegistrationComplete>();
+  int decoded_size           = registration_complete->decodefrombuffer(
+      nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
+  if (decoded_size <= 0) {
+    Logger::amf_n1().warn("Error when decoding Registration Complete");
+    return;
+  }
+
+  Logger::amf_n1().debug("Preparing Configuration Update Command message");
+  // Encode Configuration Update Command
+  auto configuration_update_command =
+      std::make_unique<ConfigurationUpdateCommand>();
+
+  configuration_update_command->setHeader(CONFIGURATION_UPDATE_COMMAND);
+  configuration_update_command->setFullNameForNetwork("Testing");   // TODO:
+  configuration_update_command->setShortNameForNetwork("Testing");  // TODO:
+
+  uint8_t buffer[BUFFER_SIZE_1024] = {0};
+  int encoded_size =
+      configuration_update_command->encode2Buffer(buffer, BUFFER_SIZE_1024);
+  comUt::print_buffer(
+      "amf_n1", "Configuration Update Command message Buffer", buffer,
+      encoded_size);
+  if (!encoded_size) {
+    Logger::nas_mm().error("Encode Configuration Update Command message error");
+    return;
+  }
+
+  // Protect NAS message
+  bstring protected_nas = nullptr;
+  encode_nas_message_protected(
+      secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
+      buffer, encoded_size, protected_nas);
+
+  std::shared_ptr<itti_dl_nas_transport> dnt =
+      std::make_shared<itti_dl_nas_transport>(TASK_AMF_N1, TASK_AMF_N2);
+  dnt->nas            = protected_nas;
+  dnt->amf_ue_ngap_id = amf_ue_ngap_id;
+  dnt->ran_ue_ngap_id = ran_ue_ngap_id;
+
+  int ret = itti_inst->send_msg(dnt);
+  if (0 != ret) {
+    Logger::amf_n1().error(
+        "Could not send ITTI message %s to task TASK_AMF_N2",
+        dnt->get_msg_name());
+  }
 }
 
 //------------------------------------------------------------------------------

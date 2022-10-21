@@ -19,27 +19,45 @@
  *      contact@openairinterface.org
  */
 
-/*! \file string.hpp
- \brief
- \author  Lionel GAUTHIER
- \date 2018
- \email: lionel.gauthier@eurecom.fr
- */
-#ifndef FILE_STRING_HPP_FILE_SEEN
-#define FILE_STRING_HPP_FILE_SEEN
+#ifndef _NETWORK_NAME_H_
+#define _NETWORK_NAME_H_
 
+#include "bstrlib.h"
+#include <stdint.h>
 #include <string>
 
-namespace util {
+constexpr uint8_t kNetworkNameMinimumLength = 3;
 
-std::string string_format(const char* format, ...);
+namespace nas {
 
-std::string& ltrim(std::string& s);
-// trim from end
-std::string& rtrim(std::string& s);
-// trim from both ends
-std::string& trim(std::string& s);
-bool string_to_dotted(const std::string& str, std::string& dotted);
-bool dotted_to_string(const std::string& dot, std::string& no_dot);
-}  // namespace util
+class NetworkName {
+ public:
+  NetworkName();
+  NetworkName(const uint8_t& iei);
+  ~NetworkName();
+
+  void setIEI(const uint8_t& iei);
+  void setCodingScheme(const uint8_t& value);
+  // TODO: getCodingScheme
+  void setAddCI(const uint8_t& value);
+  // TODO: getAddCI
+  void setNumberOfSpareBits(const uint8_t& value);
+  // TODO: getNumberOfSpareBits
+
+  void setTextString(const std::string& str);
+  void setTextString(const bstring& str);
+
+  int encode2buffer(uint8_t* buf, int len);
+  int decodefrombuffer(uint8_t* buf, int len, bool is_option = true);
+
+ private:
+  uint8_t iei_;
+  uint16_t length;
+  uint8_t coding_scheme;         // octet 3
+  uint8_t add_CI;                // octet 3
+  uint8_t number_of_spare_bits;  // octet 3
+  bstring text_string;
+};
+}  // namespace nas
+
 #endif
