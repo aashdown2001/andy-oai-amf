@@ -52,7 +52,7 @@ typedef bs2::signal_type<
 // Signal for UE Registration State Report
 // SUPI, registration state, HTTP version
 typedef bs2::signal_type<
-    void(std::string, uint8_t, uint8_t),
+    void(std::string, uint8_t, uint8_t, uint32_t, long),
     bs2::keywords::mutex_type<bs2::dummy_mutex>>::type
     ue_registration_state_sig_t;
 
