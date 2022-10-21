@@ -2764,7 +2764,7 @@ void amf_n1::registration_complete_handle(
   auto configuration_update_command =
       std::make_unique<ConfigurationUpdateCommand>();
 
-  configuration_update_command->setHeader(CONFIGURATION_UPDATE_COMMAND);
+  configuration_update_command->setHeader(PLAIN_5GS_MSG);
   configuration_update_command->setFullNameForNetwork("Testing");   // TODO:
   configuration_update_command->setShortNameForNetwork("Testing");  // TODO:
 
