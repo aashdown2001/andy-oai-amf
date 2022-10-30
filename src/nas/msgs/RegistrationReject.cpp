@@ -75,8 +75,10 @@ void RegistrationReject::setEAP_Message(bstring eap) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationReject::setRejected_NSSAI(uint8_t cause, uint8_t value) {
-  ie_rejected_nssai = new Rejected_NSSAI(0x69, cause, value);
+void RegistrationReject::setRejected_NSSAI(
+    std::vector<Rejected_SNSSAI>& nssai) {
+  ie_rejected_nssai = new Rejected_NSSAI(0x69);
+  ie_rejected_nssai->setRejectedSNSSAIs(nssai);
 }
 
 //------------------------------------------------------------------------------

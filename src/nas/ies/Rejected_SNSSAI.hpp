@@ -19,30 +19,42 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _REJECTED_NSSAI_H_
-#define _REJECTED_NSSAI_H_
-
-#include <Rejected_SNSSAI.hpp>
+#ifndef _REJECTED_SNSSAI_H_
+#define _REJECTED_SNSSAI_H_
 
 #include <stdint.h>
-#include <vector>
+#include <optional>
 
 namespace nas {
 
-class Rejected_NSSAI {
+class Rejected_SNSSAI {
  public:
-  Rejected_NSSAI();
-  Rejected_NSSAI(uint8_t iei);
-  ~Rejected_NSSAI();
-  void setRejectedSNSSAIs(const std::vector<Rejected_SNSSAI>& nssais);
-  void getRejectedSNSSAIs(std::vector<Rejected_SNSSAI>& nssais);
+  Rejected_SNSSAI();
+  Rejected_SNSSAI(const uint8_t& cause, const uint8_t& sst, const uint32_t& sd);
+  ~Rejected_SNSSAI();
+
+  uint8_t getLength();
+
+  void setSST(const uint8_t& sst);
+  uint8_t getSST();
+  void getSST(uint8_t& sst);
+
+  void setSd(const uint32_t& sd);
+  bool getSd(uint32_t& sd);
+  void getSd(std::optional<uint32_t>& sd);
+
+  void setCause(const uint8_t& cause);
+  uint8_t getCause();
+  void getCause(uint8_t& cause);
+
   int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, bool is_option);
+  int decodefrombuffer(uint8_t* buf, int len);
 
  private:
-  uint8_t _iei;
-  uint8_t length;
-  std::vector<Rejected_SNSSAI> rejected_nssais;
+  uint8_t length_;
+  uint8_t cause_;
+  uint8_t sst_;
+  std::optional<uint32_t> sd_;
 };
 
 }  // namespace nas

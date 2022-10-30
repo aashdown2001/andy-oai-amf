@@ -43,6 +43,7 @@
 #include "RegistrationReject.hpp"
 #include "RegistrationRequest.hpp"
 #include "RegistrationComplete.hpp"
+#include "Rejected_SNSSAI.hpp"
 #include "SecurityModeCommand.hpp"
 #include "SecurityModeComplete.hpp"
 #include "ServiceAccept.hpp"
@@ -4045,27 +4046,49 @@ void amf_n1::initialize_registration_accept(
   registration_accept->setTaiList(tai_list);
 
   // TODO: get the list of common SST, SD between UE and AMF
-  std::vector<struct SNSSAI_s> nssai;
-  for (auto p : amf_cfg.plmn_list) {
-    if ((p.mcc.compare(uc->tai.mcc) == 0) and
-        (p.mnc.compare(uc->tai.mnc) == 0) and (p.tac == uc->tai.tac)) {
-      for (auto s : p.slice_list) {
-        SNSSAI_t snssai = {};
-        snssai.sst      = s.sst;
-        snssai.sd       = s.sd;
-        nssai.push_back(snssai);
-        // TODO: Check with the requested NSSAI from UE
-        /*  for (auto rn : nc->requestedNssai) {
-             if ((rn.sst == snssai.sst) and (rn.sd == snssai.sd)) {
-               nssai.push_back(snssai);
-               break;
-             }
-           }
-          */
+  std::vector<struct SNSSAI_s> allowed_nssais;
+  std::vector<Rejected_SNSSAI> rejected_nssais;
+
+  for (auto rn : nc->requestedNssai) {
+    bool found = false;
+    for (auto p : amf_cfg.plmn_list) {
+      if ((p.mcc.compare(uc->tai.mcc) == 0) and
+          (p.mnc.compare(uc->tai.mnc) == 0) and (p.tac == uc->tai.tac)) {
+        for (auto s : p.slice_list) {
+          SNSSAI_t snssai = {};
+          snssai.sst      = s.sst;
+          snssai.sd       = s.sd;
+
+          if ((rn.sst == s.sst) and (rn.sd == s.sd)) {
+            if (s.sd == SD_NO_VALUE) {
+              snssai.length = SST_LENGTH;
+            } else {
+              snssai.length = SST_LENGTH + SD_LENGTH;
+            }
+            allowed_nssais.push_back(snssai);
+            found = true;
+            break;
+          }
+        }
       }
     }
+
+    if (!found) {
+      // Add to list of Rejected NSSAIs
+      Rejected_SNSSAI rejected_snssai = {};
+      rejected_snssai.setSST(rn.sst);
+      if (rn.sd != SD_NO_VALUE) {
+        rejected_snssai.setSST(rn.sd);
+      }
+      rejected_snssai.setCause(1);  // TODO: Hardcoded, S-NSSAI not available in
+                                    // the current registration area
+      rejected_nssais.push_back(rejected_snssai);
+    }
   }
-  registration_accept->setALLOWED_NSSAI(nssai);
+
+  registration_accept->setALLOWED_NSSAI(allowed_nssais);
+  registration_accept->setRejected_NSSAI(rejected_nssais);
+  registration_accept->setCONFIGURED_NSSAI(allowed_nssais);  // TODO
   return;
 }
 
@@ -4372,8 +4395,9 @@ bool amf_n1::check_requested_nssai(const std::shared_ptr<nas_context>& nc) {
     // Check PLMN/TAC
     if ((uc.get()->tai.mcc.compare(p.mcc) != 0) or
         (uc.get()->tai.mnc.compare(p.mnc) != 0)
-		// or (uc.get()->tai.tac != p.tac)  //TTN:disable this check for CU/DU testing
-		) {
+        // or (uc.get()->tai.tac != p.tac)  //TTN:disable this check for CU/DU
+        // testing
+    ) {
       continue;
     }
 
@@ -4419,8 +4443,9 @@ bool amf_n1::check_subscribed_nssai(
     // Check PLMN/TAC
     if ((uc.get()->tai.mcc.compare(p.mcc) != 0) or
         (uc.get()->tai.mnc.compare(p.mnc) != 0)
-		//or(uc.get()->tai.tac != p.tac) //TTN:disable this check for CU/DU testing
-		) {
+        // or(uc.get()->tai.tac != p.tac) //TTN:disable this check for CU/DU
+        // testing
+    ) {
       continue;
     }
 

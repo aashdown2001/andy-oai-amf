@@ -136,8 +136,10 @@ void RegistrationAccept::setALLOWED_NSSAI(std::vector<struct SNSSAI_s> nssai) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationAccept::setRejected_NSSAI(uint8_t cause, uint8_t value) {
-  ie_rejected_nssai = new Rejected_NSSAI(0x11, cause, value);
+void RegistrationAccept::setRejected_NSSAI(
+    std::vector<Rejected_SNSSAI>& nssai) {
+  ie_rejected_nssai = new Rejected_NSSAI(0x11);
+  ie_rejected_nssai->setRejectedSNSSAIs(nssai);
 }
 
 //------------------------------------------------------------------------------

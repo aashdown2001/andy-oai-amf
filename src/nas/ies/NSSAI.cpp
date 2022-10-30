@@ -95,20 +95,23 @@ int NSSAI::encode2buffer(uint8_t* buf, int len) {
       Logger::nas_mm().debug(
           "Encoded NSSAI SD third octet (%x)", *(buf + encoded_size - 1));
     }
-    if (S_NSSAIs.at(i).mHplmnSst != -1) {
-      len_s_nssai += SST_LENGTH;
-      *(buf + encoded_size) = S_NSSAIs.at(i).mHplmnSst;
-      encoded_size++;
+    if (S_NSSAIs.at(i).length > (SST_LENGTH + SD_LENGTH)) {
+      if (S_NSSAIs.at(i).mHplmnSst != -1) {
+        len_s_nssai += SST_LENGTH;
+        *(buf + encoded_size) = S_NSSAIs.at(i).mHplmnSst;
+        encoded_size++;
+      }
+      if (S_NSSAIs.at(i).mHplmnSd != SD_NO_VALUE) {
+        len_s_nssai += SD_LENGTH;
+        *(buf + encoded_size) = (S_NSSAIs.at(i).mHplmnSd & 0x00ff0000) >> 16;
+        encoded_size++;
+        *(buf + encoded_size) = (S_NSSAIs.at(i).mHplmnSd & 0x0000ff00) >> 8;
+        encoded_size++;
+        *(buf + encoded_size) = S_NSSAIs.at(i).mHplmnSd & 0x000000ff;
+        encoded_size++;
+      }
     }
-    if (S_NSSAIs.at(i).mHplmnSd != SD_NO_VALUE) {
-      len_s_nssai += SD_LENGTH;
-      *(buf + encoded_size) = (S_NSSAIs.at(i).mHplmnSd & 0x00ff0000) >> 16;
-      encoded_size++;
-      *(buf + encoded_size) = (S_NSSAIs.at(i).mHplmnSd & 0x0000ff00) >> 8;
-      encoded_size++;
-      *(buf + encoded_size) = S_NSSAIs.at(i).mHplmnSd & 0x000000ff;
-      encoded_size++;
-    }
+
     *(buf + encoded_size - len_s_nssai - 1) = len_s_nssai;
   }
 
@@ -215,8 +218,8 @@ int NSSAI::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
         length_tmp--;
       } break;
     }
-    //TTN for CU-DU testing
-    if (a.sd == 0) a.sd        = SD_NO_VALUE;
+    // TTN for CU-DU testing
+    if (a.sd == 0) a.sd = SD_NO_VALUE;
 
     S_NSSAIs.insert(S_NSSAIs.end(), a);
     a = {0, 0, 0, 0};
