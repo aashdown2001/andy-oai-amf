@@ -4070,14 +4070,14 @@ void amf_n1::initialize_registration_accept(
             allowed_nssais.push_back(snssai);
             found = true;
             break;
+          } else {
+            Logger::amf_n1().debug(
+                "Requested S-NSSAI (SST 0x%x, SD 0x%x), Configured S-NSSAI "
+                "(SST "
+                "0x%x, SD 0x%x)",
+                rn.sst, rn.sd, s.sst, s.sd);
           }
         }
-
-      } else {
-        Logger::amf_n1().debug(
-            "Requested S-NSSAI (SST 0x%x, SD 0x%x), Configured S-NSSAI (SST "
-            "0x%x, SD 0x%x)",
-            rn.sst, rn.sd, s.sst, s.sd);
       }
     }
 
