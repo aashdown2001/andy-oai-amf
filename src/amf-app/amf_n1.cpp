@@ -4065,6 +4065,8 @@ void amf_n1::initialize_registration_accept(
             } else {
               snssai.length = SST_LENGTH + SD_LENGTH;
             }
+            Logger::amf_n1().debug(
+                "Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
             allowed_nssais.push_back(snssai);
             found = true;
             break;

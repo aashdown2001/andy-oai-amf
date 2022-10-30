@@ -40,10 +40,10 @@ NSSAI::NSSAI(const uint8_t iei, std::vector<struct SNSSAI_s> nssai) {
   length = 0;
   S_NSSAIs.assign(nssai.begin(), nssai.end());
   for (int i = 0; i < nssai.size(); i++) {
-    length += 2;  // 1 for IEI and 1 for sst
-    if (nssai[i].sd != SD_NO_VALUE) length += SD_LENGTH;
-    if (nssai[i].mHplmnSst != -1) length += SST_LENGTH;
-    if (nssai[i].mHplmnSd != SD_NO_VALUE) length += SD_LENGTH;
+    length += (1 + nssai[i].length);  // 1 for IEI
+    // if (nssai[i].sd != SD_NO_VALUE) length += SD_LENGTH;
+    // if (nssai[i].mHplmnSst != -1) length += SST_LENGTH;
+    // if (nssai[i].mHplmnSd != SD_NO_VALUE) length += SD_LENGTH;
   }
 }
 
