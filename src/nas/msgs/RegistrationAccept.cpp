@@ -132,20 +132,26 @@ void RegistrationAccept::setEquivalent_PLMNs(
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setALLOWED_NSSAI(std::vector<struct SNSSAI_s> nssai) {
-  ie_allowed_nssai = new NSSAI(0x15, nssai);
+  if (nssai.size() > 0) {
+    ie_allowed_nssai = new NSSAI(0x15, nssai);
+  }
 }
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setRejected_NSSAI(
     std::vector<Rejected_SNSSAI>& nssai) {
-  ie_rejected_nssai = new Rejected_NSSAI(0x11);
-  ie_rejected_nssai->setRejectedSNSSAIs(nssai);
+  if (nssai.size() > 0) {
+    ie_rejected_nssai = new Rejected_NSSAI(0x11);
+    ie_rejected_nssai->setRejectedSNSSAIs(nssai);
+  }
 }
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setCONFIGURED_NSSAI(
     std::vector<struct SNSSAI_s> nssai) {
-  ie_configured_nssai = new NSSAI(0x31, nssai);
+  if (nssai.size() > 0) {
+    ie_configured_nssai = new NSSAI(0x31, nssai);
+  }
 }
 
 //------------------------------------------------------------------------------

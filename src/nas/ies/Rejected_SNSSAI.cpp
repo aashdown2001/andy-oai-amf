@@ -49,7 +49,7 @@ Rejected_SNSSAI::~Rejected_SNSSAI() {
 
 //------------------------------------------------------------------------------
 uint8_t Rejected_SNSSAI::getLength() {
-  return length_;
+  return (length_ + 1);  // 1 for length + cause
 }
 
 //------------------------------------------------------------------------------
