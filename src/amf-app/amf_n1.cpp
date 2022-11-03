@@ -2760,6 +2760,14 @@ void amf_n1::registration_complete_handle(
     return;
   }
 
+  // TODO: Configuration Update Command message causes issue for UERANSIM
+  // (it does not accept the first PDU Session Establishment Accept, then it
+  // will send a second PDU Session Establishment Request and accept the second
+  // PDU Session Establishment Accept) Therefore, we disable this temporarily to
+  // make it work with UERANSIM
+  Logger::amf_n1().debug(
+      "Do not sending Configuration Update Command in this version!");
+  /*
   Logger::amf_n1().debug("Preparing Configuration Update Command message");
   // Encode Configuration Update Command
   auto configuration_update_command =
@@ -2798,6 +2806,7 @@ void amf_n1::registration_complete_handle(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         dnt->get_msg_name());
   }
+  */
 }
 
 //------------------------------------------------------------------------------
