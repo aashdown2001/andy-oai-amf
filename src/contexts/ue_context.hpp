@@ -52,6 +52,8 @@ class ue_context {
   bool get_pdu_sessions_context(
       std::vector<std::shared_ptr<pdu_session_context>>& sessions_ctx);
 
+  bool remove_pdu_sessions_context(const uint8_t& pdu_session_id);
+
  public:
   uint32_t ran_ue_ngap_id;   // 32bits
   long amf_ue_ngap_id : 40;  // 40bits

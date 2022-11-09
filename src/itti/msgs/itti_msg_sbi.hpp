@@ -551,12 +551,16 @@ class itti_sbi_pdu_session_release_notif : public itti_sbi_msg {
       : itti_sbi_msg(SBI_PDU_SESSION_RELEASE_NOTIF, orig, dest),
         http_version(1),
         promise_id(pid),
+        ue_id(),
+        pdu_session_id(),
         smContextStatusNotification() {}
   itti_sbi_pdu_session_release_notif(
       const itti_sbi_pdu_session_release_notif& i)
       : itti_sbi_msg(i),
         http_version(1),
         promise_id(),
+        ue_id(),
+        pdu_session_id(),
         smContextStatusNotification(i.smContextStatusNotification) {}
   itti_sbi_pdu_session_release_notif(
       const itti_sbi_pdu_session_release_notif& i, const task_id_t orig,
@@ -564,6 +568,8 @@ class itti_sbi_pdu_session_release_notif : public itti_sbi_msg {
       : itti_sbi_msg(i, orig, dest),
         http_version(i.http_version),
         promise_id(i.promise_id),
+        ue_id(i.ue_id),
+        pdu_session_id(i.pdu_session_id),
         smContextStatusNotification(i.smContextStatusNotification) {}
 
   virtual ~itti_sbi_pdu_session_release_notif(){};
@@ -571,6 +577,8 @@ class itti_sbi_pdu_session_release_notif : public itti_sbi_msg {
 
   uint8_t http_version;
   uint32_t promise_id;
+  std::string ue_id;
+  uint8_t pdu_session_id;
   oai::amf::model::SmContextStatusNotification smContextStatusNotification;
 };
 

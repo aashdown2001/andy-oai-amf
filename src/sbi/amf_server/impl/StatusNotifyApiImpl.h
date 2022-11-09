@@ -12,7 +12,7 @@
  */
 
 /*
- * NFStatusNotifyApiImpl.h
+ * StatusNotifyApiImpl.h
  *
  *
  */
@@ -38,18 +38,17 @@
  *      contact@openairinterface.org
  */
 
-#ifndef NF_STATUS_NOTIFY_API_IMPL_H_
-#define NF_STATUS_NOTIFY_API_IMPL_H_
+#ifndef STATUS_NOTIFY_API_IMPL_H_
+#define STATUS_NOTIFY_API_IMPL_H_
 
 #include <pistache/endpoint.h>
 #include <pistache/http.h>
 #include <pistache/router.h>
 #include <memory>
 
-#include <NFStatusNotifyApi.h>
-
 #include <pistache/optional.h>
 
+#include "StatusNotifyApi.h"
 #include "ProblemDetails.h"
 #include "amf_app.hpp"
 
@@ -59,12 +58,12 @@ namespace api {
 
 using namespace oai::amf::model;
 
-class NFStatusNotifyApiImpl : public oai::amf::api::NFStatusNotifyApi {
+class StatusNotifyApiImpl : public oai::amf::api::StatusNotifyApi {
  public:
-  NFStatusNotifyApiImpl(
+  StatusNotifyApiImpl(
       std::shared_ptr<Pistache::Rest::Router>,
-      amf_application::amf_app* amf_app_inst, std::string address);
-  ~NFStatusNotifyApiImpl() {}
+      amf_application::amf_app* amf_app_inst);
+  ~StatusNotifyApiImpl() {}
 
   void receive_pdu_session_status_notification(
       const std::string& ueContextId, const std::string& pduSessionId,
@@ -73,7 +72,7 @@ class NFStatusNotifyApiImpl : public oai::amf::api::NFStatusNotifyApi {
 
  private:
   amf_application::amf_app* m_amf_app;
-  std::string m_address;
+  // std::string m_address;
 };
 
 }  // namespace api

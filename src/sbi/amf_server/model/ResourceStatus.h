@@ -34,6 +34,9 @@ class ResourceStatus {
   virtual ~ResourceStatus();
 
   void validate();
+  std::string getValue() const;
+  void getValue(std::string& value) const;
+  void setValue(const std::string& v);
 
   /////////////////////////////////////////////
   /// ResourceStatus members
@@ -42,6 +45,7 @@ class ResourceStatus {
   friend void from_json(const nlohmann::json& j, ResourceStatus& o);
 
  protected:
+  std::string status;
 };
 
 }  // namespace model

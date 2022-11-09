@@ -32,13 +32,12 @@
  *      contact@openairinterface.org
  */
 
-#include "NFStatusNotifyApiImpl.h"
-
 #include "3gpp_29.500.h"
 #include "logger.hpp"
 #include "itti_msg_sbi.hpp"
+#include "StatusNotifyApiImpl.h"
 
-itti_mw* itti_inst = nullptr;
+extern itti_mw* itti_inst;
 
 namespace oai {
 namespace amf {
@@ -46,18 +45,19 @@ namespace api {
 
 using namespace oai::amf::model;
 
-NFStatusNotifyApiImpl::NFStatusNotifyApiImpl(
+StatusNotifyApiImpl::StatusNotifyApiImpl(
     std::shared_ptr<Pistache::Rest::Router> rtr,
-    amf_application::amf_app* amf_app_inst, std::string address)
-    : NFStatusNotifyApi(rtr), m_amf_app(amf_app_inst), m_address(address) {}
+    amf_application::amf_app* amf_app_inst)
+    : StatusNotifyApi(rtr), m_amf_app(amf_app_inst) {}
 
-void NFStatusNotifyApiImpl::receive_pdu_session_status_notification(
+void StatusNotifyApiImpl::receive_pdu_session_status_notification(
     const std::string& ueContextId, const std::string& pduSessionId,
     const SmContextStatusNotification& statusNotification,
     Pistache::Http::ResponseWriter& response) {
   Logger::amf_server().debug(
       "Receive PDU Session Release notification, handling...");
 
+  uint8_t pdu_session_id = 0;
   // Generate a promise and associate this promise to the ITTI message
   uint32_t promise_id = m_amf_app->generate_promise_id();
   Logger::amf_n1().debug("Promise ID generated %d", promise_id);
@@ -74,6 +74,8 @@ void NFStatusNotifyApiImpl::receive_pdu_session_status_notification(
 
   itti_msg->http_version                = 1;
   itti_msg->promise_id                  = promise_id;
+  itti_msg->ue_id                       = ueContextId;
+  itti_msg->pdu_session_id              = pdu_session_id;
   itti_msg->smContextStatusNotification = statusNotification;
 
   int ret = itti_inst->send_msg(itti_msg);

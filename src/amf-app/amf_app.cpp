@@ -148,6 +148,13 @@ void amf_app_task(void*) {
         amf_app_inst->handle_itti_message(ref(*m));
       } break;
 
+      case SBI_PDU_SESSION_RELEASE_NOTIF: {
+        Logger::amf_app().debug("Received SBI_PDU_SESSION_RELEASE_NOTIF");
+        itti_sbi_pdu_session_release_notif* m =
+            dynamic_cast<itti_sbi_pdu_session_release_notif*>(msg);
+        amf_app_inst->handle_itti_message(ref(*m));
+      } break;
+
       case SBI_AMF_CONFIGURATION: {
         Logger::amf_app().debug("Received SBI_AMF_CONFIGURATION");
         itti_sbi_amf_configuration* m =
@@ -291,6 +298,24 @@ bool amf_app::get_pdu_sessions_context(
   uc                             = supi_2_ue_context(supi);
   if (!uc->get_pdu_sessions_context(sessions_ctx)) return false;
   return true;
+}
+
+//------------------------------------------------------------------------------
+bool amf_app::update_pdu_sessions_context(
+    const string& ue_id, const uint8_t& pdu_session_id,
+    const oai::amf::model::SmContextStatusNotification& statusNotification) {
+  if (!is_supi_2_ue_context(ue_id)) return false;
+  std::shared_ptr<ue_context> uc = {};
+  uc                             = supi_2_ue_context(ue_id);
+  // TODO: process SmContextStatusNotification
+  oai::amf::model::StatusInfo statusInfo = statusNotification.getStatusInfo();
+  oai::amf::model::ResourceStatus resourceStatus =
+      statusInfo.getResourceStatus();
+  std::string pdu_session_status = resourceStatus.getValue();
+  if (boost::iequals(pdu_session_status, "released")) {
+    if (uc->remove_pdu_sessions_context(pdu_session_id)) return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -691,6 +716,36 @@ void amf_app::handle_itti_message(itti_sbi_n1n2_message_unsubscribe& itti_msg) {
   nlohmann::json response_data = {};
   if (remove_n1n2_message_subscription(
           itti_msg.ue_cxt_id, itti_msg.subscription_id)) {
+    response_data["httpResponseCode"] = static_cast<uint32_t>(
+        http_response_codes_e::HTTP_RESPONSE_CODE_204_NO_CONTENT);
+  } else {
+    response_data["httpResponseCode"] = static_cast<uint32_t>(
+        http_response_codes_e::HTTP_RESPONSE_CODE_BAD_REQUEST);
+    oai::amf::model::ProblemDetails problem_details = {};
+    // TODO set problem_details
+    to_json(response_data["ProblemDetails"], problem_details);
+  }
+
+  // Notify to the result
+  if (itti_msg.promise_id > 0) {
+    trigger_process_response(itti_msg.promise_id, response_data);
+    return;
+  }
+}
+
+//------------------------------------------------------------------------------
+void amf_app::handle_itti_message(
+    itti_sbi_pdu_session_release_notif& itti_msg) {
+  Logger::amf_app().info(
+      "Handle an PDU Session Release notification from SMF (HTTP version "
+      "%d)",
+      itti_msg.http_version);
+
+  // Process the request and trigger the response from AMF API Server
+  nlohmann::json response_data = {};
+  if (update_pdu_sessions_context(
+          itti_msg.ue_id, itti_msg.pdu_session_id,
+          itti_msg.smContextStatusNotification)) {
     response_data["httpResponseCode"] = static_cast<uint32_t>(
         http_response_codes_e::HTTP_RESPONSE_CODE_204_NO_CONTENT);
   } else {

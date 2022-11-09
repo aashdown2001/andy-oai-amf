@@ -19,7 +19,8 @@
  *      contact@openairinterface.org
  */
 
-#include "NFStatusNotifyApi.h"
+#include "StatusNotifyApi.h"
+
 #include "Helpers.h"
 #include "amf_config.hpp"
 #include "SmContextStatusNotification.h"
@@ -33,31 +34,29 @@ namespace api {
 using namespace oai::amf::helpers;
 using namespace oai::amf::model;
 
-NFStatusNotifyApi::NFStatusNotifyApi(
-    std::shared_ptr<Pistache::Rest::Router> rtr) {
+StatusNotifyApi::StatusNotifyApi(std::shared_ptr<Pistache::Rest::Router> rtr) {
   router = rtr;
 }
 
-void NFStatusNotifyApi::init() {
+void StatusNotifyApi::init() {
   setupRoutes();
 }
 
-void NFStatusNotifyApi::setupRoutes() {
+void StatusNotifyApi::setupRoutes() {
   using namespace Pistache::Rest;
 
   Routes::Post(
       *router,
       base + amf_cfg.sbi_api_version +
           "/pdu-session-release/callback/:ueContextId/:pduSessionId",
-      Routes::bind(
-          &NFStatusNotifyApi::notify_pdu_session_status_handler, this));
+      Routes::bind(&StatusNotifyApi::notify_pdu_session_status_handler, this));
 
   // Default handler, called when a route is not found
   router->addCustomHandler(
-      Routes::bind(&NFStatusNotifyApi::notify_nf_status_default_handler, this));
+      Routes::bind(&StatusNotifyApi::notify_status_default_handler, this));
 }
 
-void NFStatusNotifyApi::notify_pdu_session_status_handler(
+void StatusNotifyApi::notify_pdu_session_status_handler(
     const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
   // Get SUPI
@@ -85,7 +84,7 @@ void NFStatusNotifyApi::notify_pdu_session_status_handler(
   }
 }
 
-void NFStatusNotifyApi::notify_nf_status_default_handler(
+void StatusNotifyApi::notify_status_default_handler(
     const Pistache::Rest::Request&, Pistache::Http::ResponseWriter response) {
   response.send(
       Pistache::Http::Code::Not_Found, "The requested method does not exist");

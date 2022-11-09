@@ -20,13 +20,13 @@
  */
 
 /*
- * NFStatusNotifyApi.h
+ * StatusNotifyApi.h
  *
  *
  */
 
-#ifndef NFStatusNotifyApi_H_
-#define NFStatusNotifyApi_H_
+#ifndef StatusNotifyApi_H_
+#define StatusNotifyApi_H_
 
 #include <pistache/http.h>
 #include <pistache/router.h>
@@ -39,10 +39,10 @@ namespace oai::amf::api {
 
 using namespace oai::amf::model;
 
-class NFStatusNotifyApi {
+class StatusNotifyApi {
  public:
-  NFStatusNotifyApi(std::shared_ptr<Pistache::Rest::Router>);
-  virtual ~NFStatusNotifyApi() {}
+  StatusNotifyApi(std::shared_ptr<Pistache::Rest::Router>);
+  virtual ~StatusNotifyApi() {}
   void init();
 
   const std::string base = "/namf-status-notify/";
@@ -53,7 +53,7 @@ class NFStatusNotifyApi {
   void notify_pdu_session_status_handler(
       const Pistache::Rest::Request& request,
       Pistache::Http::ResponseWriter response);
-  void notify_nf_status_default_handler(
+  void notify_status_default_handler(
       const Pistache::Rest::Request& request,
       Pistache::Http::ResponseWriter response);
 
@@ -74,4 +74,4 @@ class NFStatusNotifyApi {
 
 }  // namespace oai::amf::api
 
-#endif /* NFStatusNotifyApi_H_ */
+#endif /* StatusNotifyApi_H_ */
