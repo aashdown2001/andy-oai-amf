@@ -30,7 +30,7 @@
 #include "amf_profile.hpp"
 #include "bstrlib.h"
 #include "itti_msg.hpp"
-//#include "pistache/http.h"
+#include <SmContextStatusNotification.h>
 
 extern "C" {
 #include "dynamic_memory_check.h"
@@ -541,6 +541,37 @@ class itti_sbi_update_amf_configuration : public itti_sbi_msg {
   uint8_t http_version;
   uint32_t promise_id;
   nlohmann::json configuration;
+};
+
+//-----------------------------------------------------------------------------
+class itti_sbi_pdu_session_release_notif : public itti_sbi_msg {
+ public:
+  itti_sbi_pdu_session_release_notif(
+      const task_id_t orig, const task_id_t dest, uint32_t pid)
+      : itti_sbi_msg(SBI_PDU_SESSION_RELEASE_NOTIF, orig, dest),
+        http_version(1),
+        promise_id(pid),
+        smContextStatusNotification() {}
+  itti_sbi_pdu_session_release_notif(
+      const itti_sbi_pdu_session_release_notif& i)
+      : itti_sbi_msg(i),
+        http_version(1),
+        promise_id(),
+        smContextStatusNotification(i.smContextStatusNotification) {}
+  itti_sbi_pdu_session_release_notif(
+      const itti_sbi_pdu_session_release_notif& i, const task_id_t orig,
+      const task_id_t dest)
+      : itti_sbi_msg(i, orig, dest),
+        http_version(i.http_version),
+        promise_id(i.promise_id),
+        smContextStatusNotification(i.smContextStatusNotification) {}
+
+  virtual ~itti_sbi_pdu_session_release_notif(){};
+  const char* get_msg_name() { return "SBI_PDU_SESSION_RELEASE_NOTIF"; };
+
+  uint8_t http_version;
+  uint32_t promise_id;
+  oai::amf::model::SmContextStatusNotification smContextStatusNotification;
 };
 
 #endif /* ITTI_MSG_SBI_HPP_INCLUDED_ */
