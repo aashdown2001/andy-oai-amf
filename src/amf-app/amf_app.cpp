@@ -746,14 +746,16 @@ void amf_app::handle_itti_message(
   if (update_pdu_sessions_context(
           itti_msg.ue_id, itti_msg.pdu_session_id,
           itti_msg.smContextStatusNotification)) {
+    Logger::amf_app().debug("Update PDU Session Release successfully");
+
     response_data["httpResponseCode"] = static_cast<uint32_t>(
         http_response_codes_e::HTTP_RESPONSE_CODE_204_NO_CONTENT);
+
   } else {
     response_data["httpResponseCode"] = static_cast<uint32_t>(
-        http_response_codes_e::HTTP_RESPONSE_CODE_BAD_REQUEST);
-    oai::amf::model::ProblemDetails problem_details = {};
-    // TODO set problem_details
-    to_json(response_data["ProblemDetails"], problem_details);
+        http_response_codes_e::HTTP_RESPONSE_CODE_204_NO_CONTENT);
+    // TODO check if we set problem_details
+    Logger::amf_app().debug("Update PDU Session Release failed");
   }
 
   // Notify to the result

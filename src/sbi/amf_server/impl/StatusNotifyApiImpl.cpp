@@ -36,6 +36,7 @@
 #include "logger.hpp"
 #include "itti_msg_sbi.hpp"
 #include "StatusNotifyApiImpl.h"
+#include "conversions.hpp"
 
 extern itti_mw* itti_inst;
 
@@ -58,6 +59,12 @@ void StatusNotifyApiImpl::receive_pdu_session_status_notification(
       "Receive PDU Session Release notification, handling...");
 
   uint8_t pdu_session_id = 0;
+  if (conv::string_to_int8(pduSessionId, pdu_session_id)) {
+    // TODO:
+    Logger::amf_server().debug("Invalid PDU Session ID value");
+    response.send(Pistache::Http::Code::No_Content);
+  }
+
   // Generate a promise and associate this promise to the ITTI message
   uint32_t promise_id = m_amf_app->generate_promise_id();
   Logger::amf_n1().debug("Promise ID generated %d", promise_id);
@@ -97,33 +104,7 @@ void StatusNotifyApiImpl::receive_pdu_session_status_notification(
     nlohmann::json result = f.get();
     Logger::amf_server().debug("Got result for promise ID %d", promise_id);
 
-    // process data
-    uint32_t http_response_code = 0;
-    nlohmann::json json_data    = {};
-
-    if (result.find("httpResponseCode") != result.end()) {
-      http_response_code = result["httpResponseCode"].get<int>();
-    }
-
-    if (static_cast<http_response_codes_e>(http_response_code) ==
-        http_response_codes_e::HTTP_RESPONSE_CODE_200_OK) {
-      if (result.find("content") != result.end()) {
-        json_data = result["content"];
-      }
-      response.headers().add<Pistache::Http::Header::ContentType>(
-          Pistache::Http::Mime::MediaType("application/json"));
-      response.send(Pistache::Http::Code::Ok, json_data.dump().c_str());
-    } else {
-      // Problem details
-      if (result.find("ProblemDetails") != result.end()) {
-        json_data = result["ProblemDetails"];
-      }
-
-      response.headers().add<Pistache::Http::Header::ContentType>(
-          Pistache::Http::Mime::MediaType("application/problem+json"));
-      response.send(
-          Pistache::Http::Code(http_response_code), json_data.dump().c_str());
-    }
+    response.send(Pistache::Http::Code::No_Content);
   }
 }
 
