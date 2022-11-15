@@ -43,6 +43,7 @@
 #include "RegistrationReject.hpp"
 #include "RegistrationRequest.hpp"
 #include "RegistrationComplete.hpp"
+#include "Rejected_SNSSAI.hpp"
 #include "SecurityModeCommand.hpp"
 #include "SecurityModeComplete.hpp"
 #include "ServiceAccept.hpp"
@@ -2759,12 +2760,20 @@ void amf_n1::registration_complete_handle(
     return;
   }
 
+  // TODO: Configuration Update Command message causes issue for UERANSIM
+  // (it does not accept the first PDU Session Establishment Accept, then it
+  // will send a second PDU Session Establishment Request and accept the second
+  // PDU Session Establishment Accept) Therefore, we disable this temporarily to
+  // make it work with UERANSIM
+  Logger::amf_n1().debug(
+      "Do not sending Configuration Update Command in this version!");
+  /*
   Logger::amf_n1().debug("Preparing Configuration Update Command message");
   // Encode Configuration Update Command
   auto configuration_update_command =
       std::make_unique<ConfigurationUpdateCommand>();
 
-  configuration_update_command->setHeader(CONFIGURATION_UPDATE_COMMAND);
+  configuration_update_command->setHeader(PLAIN_5GS_MSG);
   configuration_update_command->setFullNameForNetwork("Testing");   // TODO:
   configuration_update_command->setShortNameForNetwork("Testing");  // TODO:
 
@@ -2797,6 +2806,7 @@ void amf_n1::registration_complete_handle(
         "Could not send ITTI message %s to task TASK_AMF_N2",
         dnt->get_msg_name());
   }
+  */
 }
 
 //------------------------------------------------------------------------------
@@ -4045,27 +4055,57 @@ void amf_n1::initialize_registration_accept(
   registration_accept->setTaiList(tai_list);
 
   // TODO: get the list of common SST, SD between UE and AMF
-  std::vector<struct SNSSAI_s> nssai;
-  for (auto p : amf_cfg.plmn_list) {
-    if ((p.mcc.compare(uc->tai.mcc) == 0) and
-        (p.mnc.compare(uc->tai.mnc) == 0) and (p.tac == uc->tai.tac)) {
-      for (auto s : p.slice_list) {
-        SNSSAI_t snssai = {};
-        snssai.sst      = s.sst;
-        snssai.sd       = s.sd;
-        nssai.push_back(snssai);
-        // TODO: Check with the requested NSSAI from UE
-        /*  for (auto rn : nc->requestedNssai) {
-             if ((rn.sst == snssai.sst) and (rn.sd == snssai.sd)) {
-               nssai.push_back(snssai);
-               break;
-             }
-           }
-          */
+  std::vector<struct SNSSAI_s> allowed_nssais;
+  std::vector<Rejected_SNSSAI> rejected_nssais;
+
+  for (auto rn : nc->requestedNssai) {
+    bool found = false;
+    for (auto p : amf_cfg.plmn_list) {
+      if ((p.mcc.compare(uc->tai.mcc) == 0) and
+          (p.mnc.compare(uc->tai.mnc) == 0) and (p.tac == uc->tai.tac)) {
+        for (auto s : p.slice_list) {
+          SNSSAI_t snssai = {};
+          snssai.sst      = s.sst;
+          snssai.sd       = s.sd;
+
+          if ((rn.sst == s.sst) and (rn.sd == s.sd)) {
+            if (s.sd == SD_NO_VALUE) {
+              snssai.length = SST_LENGTH;
+            } else {
+              snssai.length = SST_LENGTH + SD_LENGTH;
+            }
+            Logger::amf_n1().debug(
+                "Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
+            allowed_nssais.push_back(snssai);
+            found = true;
+            break;
+          } else {
+            Logger::amf_n1().debug(
+                "Requested S-NSSAI (SST 0x%x, SD 0x%x), Configured S-NSSAI "
+                "(SST "
+                "0x%x, SD 0x%x)",
+                rn.sst, rn.sd, s.sst, s.sd);
+          }
+        }
       }
     }
+
+    if (!found) {
+      // Add to list of Rejected NSSAIs
+      Rejected_SNSSAI rejected_snssai = {};
+      rejected_snssai.setSST(rn.sst);
+      if (rn.sd != SD_NO_VALUE) {
+        rejected_snssai.setSST(rn.sd);
+      }
+      rejected_snssai.setCause(1);  // TODO: Hardcoded, S-NSSAI not available in
+                                    // the current registration area
+      rejected_nssais.push_back(rejected_snssai);
+    }
   }
-  registration_accept->setALLOWED_NSSAI(nssai);
+
+  registration_accept->setALLOWED_NSSAI(allowed_nssais);
+  registration_accept->setRejected_NSSAI(rejected_nssais);
+  registration_accept->setCONFIGURED_NSSAI(allowed_nssais);  // TODO
   return;
 }
 

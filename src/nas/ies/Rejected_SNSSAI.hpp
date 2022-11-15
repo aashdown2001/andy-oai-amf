@@ -19,45 +19,42 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __S_NSSAI_H_
-#define __S_NSSAI_H_
+#ifndef _REJECTED_SNSSAI_H_
+#define _REJECTED_SNSSAI_H_
 
 #include <stdint.h>
-
-#include "nas_ie_header.hpp"
 #include <optional>
 
 namespace nas {
 
-class S_NSSAI {
+class Rejected_SNSSAI {
  public:
-  S_NSSAI();
-  S_NSSAI(std::optional<uint8_t> iei, SNSSAI_s snssai);
-  ~S_NSSAI();
+  Rejected_SNSSAI();
+  Rejected_SNSSAI(const uint8_t& cause, const uint8_t& sst, const uint32_t& sd);
+  ~Rejected_SNSSAI();
+
+  uint8_t getLength();
+
+  void setSST(const uint8_t& sst);
+  uint8_t getSST();
+  void getSST(uint8_t& sst);
+
+  void setSd(const uint32_t& sd);
+  bool getSd(uint32_t& sd);
+  void getSd(std::optional<uint32_t>& sd);
+
+  void setCause(const uint8_t& cause);
+  uint8_t getCause();
+  void getCause(uint8_t& cause);
+
   int encode2buffer(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len, const bool is_option = true);
-  void getValue(SNSSAI_t& snssai);
-  void SetSNSSAI(
-      std::optional<int8_t> iei, uint8_t sst, std::optional<int32_t> sd,
-      std::optional<int8_t> mapped_hplmn_sst,
-      std::optional<int32_t> mapped_hplmn_sd);
-  uint8_t GetLength();
-  std::string ToString();
+  int decodefrombuffer(uint8_t* buf, int len);
 
  private:
-  std::optional<int8_t> iei_;
-  uint8_t length;
+  uint8_t length_;
+  uint8_t cause_;
   uint8_t sst_;
-  std::optional<int32_t> sd_;
-  std::optional<int8_t> mapped_hplmn_sst_;
-  std::optional<int32_t> mapped_hplmn_sd_;
+  std::optional<uint32_t> sd_;
 };
 
 }  // namespace nas

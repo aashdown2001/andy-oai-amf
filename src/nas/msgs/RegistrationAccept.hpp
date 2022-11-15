@@ -58,9 +58,9 @@ class RegistrationAccept {
   /*** belongs to _5GSMobilityIdentity**/
   void setEquivalent_PLMNs(
       uint8_t MNC_MCC1, uint8_t MNC_MCC2, uint8_t MNC_MCC3);
-  void setALLOWED_NSSAI(std::vector<struct SNSSAI_s> nssai);
-  void setRejected_NSSAI(uint8_t cause, uint8_t value);
-  void setCONFIGURED_NSSAI(std::vector<struct SNSSAI_s> nssai);
+  void setALLOWED_NSSAI(const std::vector<struct SNSSAI_s>& nssai);
+  void setRejected_NSSAI(const std::vector<Rejected_SNSSAI>& nssai);
+  void setCONFIGURED_NSSAI(const std::vector<struct SNSSAI_s>& nssai);
   void set_5GS_Network_Feature_Support(uint8_t value, uint8_t value2);
   void setPDU_session_status(uint16_t value);
   void setPDU_session_reactivation_result(uint16_t value);
