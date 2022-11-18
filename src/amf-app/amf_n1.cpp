@@ -4074,8 +4074,17 @@ void amf_n1::initialize_registration_accept(
 
   std::vector<struct SNSSAI_s> allowed_nssais;
   std::vector<Rejected_SNSSAI> rejected_nssais;
+  std::vector<struct SNSSAI_s> requested_nssai;
 
-  for (auto rn : nc->requestedNssai) {
+  // If no requested NSSAI available, use subscribed NSSAI instead
+  if (nc->requestedNssai.size() > 0) {
+    requested_nssai = nc->requestedNssai;
+  } else {
+    for (const auto& ss : nc->subscribed_snssai)
+      requested_nssai.push_back(ss.second);
+  }
+
+  for (auto rn : requested_nssai) {
     bool found = false;
 
     for (auto s : common_nssais) {
