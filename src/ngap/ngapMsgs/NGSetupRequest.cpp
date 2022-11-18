@@ -106,7 +106,7 @@ void NGSetupRequestMsg::setRanNodeName(const std::string& value) {
 
 //------------------------------------------------------------------------------
 void NGSetupRequestMsg::setSupportedTAList(
-    const std::vector<struct SupportedItem_s> list) {
+    const std::vector<struct SupportedTaItem_s> list) {
   if (list.size() == 0) {
     Logger::ngap().warn("List of Supported Items is empty");
     return;
@@ -319,7 +319,7 @@ bool NGSetupRequestMsg::getRanNodeName(std::string& name) {
 
 //------------------------------------------------------------------------------
 bool NGSetupRequestMsg::getSupportedTAList(
-    std::vector<struct SupportedItem_s>& list) {
+    std::vector<struct SupportedTaItem_s>& list) {
   std::vector<SupportedTaItem> supportedTaItems;
   supportedTAList.getSupportedTaItems(supportedTaItems);
 
@@ -328,8 +328,8 @@ bool NGSetupRequestMsg::getSupportedTAList(
     TAC tac = {};
     it->getTac(tac);
 
-    SupportedItem_t supporteditem_data = {};
-    supporteditem_data.tac             = tac.get();
+    SupportedTaItem_t supporteditem_data = {};
+    supporteditem_data.tac               = tac.get();
 
     std::vector<BroadcastPLMNItem> broadcastPLMNItems;
     it->getBroadcastPlmnList(broadcastPLMNItems);

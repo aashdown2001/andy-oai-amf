@@ -370,7 +370,7 @@ void amf_n2::handle_itti_message(
   Logger::amf_n2().debug("IE DefaultPagingDRX: %d", defPagingDrx);
 
   // Get supported TA List
-  vector<SupportedItem_t> s_ta_list;
+  vector<SupportedTaItem_t> s_ta_list;
   if (!itti_msg->ngSetupReq->getSupportedTAList(s_ta_list)) {
     Logger::amf_n2().error("Missing Mandatory IE Supported TA List");
     return;
@@ -2319,10 +2319,10 @@ void amf_n2::remove_ue_context_with_amf_ue_ngap_id(
 
 //------------------------------------------------------------------------------
 bool amf_n2::get_common_plmn(
-    const std::vector<SupportedItem_t>& list,
-    std::vector<SupportedItem_t>& result) {
-  std::vector<SupportedItem_t> plmn_list = {};
-  bool found_common_plmn                 = false;
+    const std::vector<SupportedTaItem_t>& list,
+    std::vector<SupportedTaItem_t>& result) {
+  std::vector<SupportedTaItem_t> plmn_list = {};
+  bool found_common_plmn                   = false;
   for (int i = 0; i < amf_cfg.plmn_list.size(); i++) {
     for (int j = 0; j < list.size(); j++) {
       Logger::amf_n2().debug(
@@ -2338,7 +2338,7 @@ bool amf_n2::get_common_plmn(
               "Common PLMN MCC %s, MNC %s", amf_cfg.plmn_list[i].mcc.c_str(),
               amf_cfg.plmn_list[i].mnc.c_str());
           // Get the common S-NSSAI
-          SupportedItem_t item                       = {};
+          SupportedTaItem_t item                     = {};
           PlmnSliceSupport_t plmn_slice_support_item = {};
           item.tac                                   = list[j].tac;
           plmn_slice_support_item.mcc = list[j].b_plmn_list[k].mcc;
@@ -2373,4 +2373,58 @@ bool amf_n2::get_common_plmn(
     }
   }
   return found_common_plmn;
+}
+
+//------------------------------------------------------------------------------
+bool amf_n2::get_common_NSSAI(
+    const uint32_t& ran_ue_ngap_id, std::vector<nas::SNSSAI_t>& common_nssai) {
+  Logger::amf_n2().debug("Getting common S-NSSAIs between gNB and AMF");
+  bool found = false;
+  // Get UE NGAP Context
+  std::shared_ptr<ue_ngap_context> unc = {};
+
+  if (!is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
+    Logger::amf_n2().error(
+        "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
+        ran_ue_ngap_id);
+    return false;
+  }
+
+  if (!unc) return false;
+
+  // Get gNB Context
+  std::shared_ptr<gnb_context> gc = {};
+  if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
+    Logger::amf_n1().error(
+        "No existed gNB context with assoc_id (%d)", unc->gnb_assoc_id);
+    return false;
+  }
+
+  for (const auto& ta : gc->s_ta_list) {
+    for (const auto& plmn : ta.b_plmn_list) {
+      for (const auto& slice : plmn.slice_list) {
+        nas::SNSSAI_t snssai = {};
+        uint32_t sd          = SD_NO_VALUE;
+        try {
+          snssai.sst = std::stoi(slice.sst);
+          conv::sd_string_to_int(slice.sd, sd);
+        } catch (const std::exception& err) {
+          Logger::amf_app().error("Invalid SST/SD");
+          break;
+        }
+        snssai.sd = sd;
+        common_nssai.push_back(snssai);
+        found = true;
+      }
+    }
+  }
+  Logger::amf_n2().debug("Getting common S-NSSAIs between gNB and AMF");
+
+  for (auto s : common_nssai) {
+    Logger::amf_n2().debug(
+        "Common S-NSSAI (SST %s, SD %s)", std::to_string(s.sst).c_str(),
+        std::to_string(s.sd).c_str());
+  }
+
+  return found;
 }

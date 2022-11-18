@@ -3240,7 +3240,7 @@ void amf_n1::ul_nas_transport_handle(
                                      // one in Registration Request
     Logger::amf_n1().debug(
         "No Requested NSSAI available in ULNASTransport, use NSSAI from "
-        "Requested NSSAI!");
+        "Requested/Configured NSSAI!");
 
     std::shared_ptr<nas_context> nc = {};
     if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
@@ -3251,7 +3251,20 @@ void amf_n1::ul_nas_transport_handle(
 
     // TODO: Only use the first one for now if there's multiple requested NSSAI
     // since we don't know which slice associated with this PDU session
-    if (nc->requestedNssai.size() > 0) snssai = nc->requestedNssai[0];
+    if (nc->requestedNssai.size() > 0) {
+      snssai = nc->requestedNssai[0];
+      Logger::amf_n1().debug(
+          "Use first Requested S-NSSAI %s", snssai.ToString().c_str());
+    } else {
+      // Otherwise, use configured slice if available
+      for (const auto& sn : nc->subscribed_snssai) {
+        if (sn.first) {
+          snssai = sn.second;
+          Logger::amf_n1().debug(
+              "Use Default Configured S-NSSAI %s", snssai.ToString().c_str());
+        }
+      }
+    }
   }
 
   Logger::amf_n1().debug(
@@ -3986,6 +3999,7 @@ void amf_n1::get_pdu_session_to_be_activated(
 //------------------------------------------------------------------------------
 void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept) {
+  // TODO: to be updated with the function below
   registration_accept->setHeader(PLAIN_5GS_MSG);
   registration_accept->set_5GS_Registration_Result(
       false, false, false,
@@ -4054,39 +4068,38 @@ void amf_n1::initialize_registration_accept(
   }
   registration_accept->setTaiList(tai_list);
 
-  // TODO: get the list of common SST, SD between UE and AMF
+  // Get the list of common SST, SD between UE and AMF
+  std::vector<struct SNSSAI_s> common_nssais;
+  amf_n2_inst->get_common_NSSAI(nc->ran_ue_ngap_id, common_nssais);
+
   std::vector<struct SNSSAI_s> allowed_nssais;
   std::vector<Rejected_SNSSAI> rejected_nssais;
 
   for (auto rn : nc->requestedNssai) {
     bool found = false;
-    for (auto p : amf_cfg.plmn_list) {
-      if ((p.mcc.compare(uc->tai.mcc) == 0) and
-          (p.mnc.compare(uc->tai.mnc) == 0) and (p.tac == uc->tai.tac)) {
-        for (auto s : p.slice_list) {
-          SNSSAI_t snssai = {};
-          snssai.sst      = s.sst;
-          snssai.sd       = s.sd;
 
-          if ((rn.sst == s.sst) and (rn.sd == s.sd)) {
-            if (s.sd == SD_NO_VALUE) {
-              snssai.length = SST_LENGTH;
-            } else {
-              snssai.length = SST_LENGTH + SD_LENGTH;
-            }
-            Logger::amf_n1().debug(
-                "Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
-            allowed_nssais.push_back(snssai);
-            found = true;
-            break;
-          } else {
-            Logger::amf_n1().debug(
-                "Requested S-NSSAI (SST 0x%x, SD 0x%x), Configured S-NSSAI "
-                "(SST "
-                "0x%x, SD 0x%x)",
-                rn.sst, rn.sd, s.sst, s.sd);
-          }
+    for (auto s : common_nssais) {
+      SNSSAI_t snssai = {};
+      snssai.sst      = s.sst;
+      snssai.sd       = s.sd;
+
+      if ((rn.sst == s.sst) and (rn.sd == s.sd)) {
+        if (s.sd == SD_NO_VALUE) {
+          snssai.length = SST_LENGTH;
+        } else {
+          snssai.length = SST_LENGTH + SD_LENGTH;
         }
+        Logger::amf_n1().debug(
+            "Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
+        allowed_nssais.push_back(snssai);
+        found = true;
+        break;
+      } else {
+        Logger::amf_n1().debug(
+            "Requested S-NSSAI (SST 0x%x, SD 0x%x), Configured S-NSSAI "
+            "(SST "
+            "0x%x, SD 0x%x)",
+            rn.sst, rn.sd, s.sst, s.sd);
       }
     }
 
@@ -4100,6 +4113,8 @@ void amf_n1::initialize_registration_accept(
       rejected_snssai.setCause(1);  // TODO: Hardcoded, S-NSSAI not available in
                                     // the current registration area
       rejected_nssais.push_back(rejected_snssai);
+      Logger::amf_n1().debug(
+          "Rejected S-NSSAI (SST 0x%x, SD 0x%x)", rn.sst, rn.sd);
     }
   }
 
@@ -4653,6 +4668,7 @@ bool amf_n1::get_slice_selection_subscription_data_from_conf_file(
 
   // Find the common NSSAIs between Requested NSSAIs and Subscribed NSSAIs
   std::vector<oai::amf::model::Snssai> common_snssais;
+  bool default_subscribed_snssai = true;
 
   for (auto ta : gc->s_ta_list) {
     for (auto p : ta.b_plmn_list) {
@@ -4670,6 +4686,23 @@ bool amf_n1::get_slice_selection_subscription_data_from_conf_file(
         Logger::amf_n1().debug(
             "Added S-NSSAI (SST %d, SD %s)", sst, s.sd.c_str());
         common_snssais.push_back(nssai);
+        // Store this info in UE NAS Context
+        nas::SNSSAI_t subscribed_snssai = {};
+        subscribed_snssai.sst           = sst;
+        uint32_t subscribed_snssai_sd   = SD_NO_VALUE;
+        conv::sd_string_to_int(s.sd, subscribed_snssai_sd);
+        subscribed_snssai.sd = subscribed_snssai_sd;
+        std::pair<bool, nas::SNSSAI_t> tmp;
+        tmp.second = subscribed_snssai;
+        if (default_subscribed_snssai) {
+          tmp.first                 = true;
+          default_subscribed_snssai = false;
+        } else {
+          tmp.first = false;
+          // auto tmp = std::make_pair<bool,nas::SNSSAI_t
+          // >(true,subscribed_snssai);
+        }
+        nc->subscribed_snssai.push_back(tmp);
       }
     }
   }
