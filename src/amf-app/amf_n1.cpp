@@ -4633,6 +4633,27 @@ bool amf_n1::get_slice_selection_subscription_data(
         } catch (std::exception& e) {
           return false;
         }
+
+        // Store this info in UE NAS Context
+        std::vector<oai::amf::model::Snssai> default_snssais =
+            nssai.getDefaultSingleNssais();
+        bool default_subscribed_snssai = true;
+        for (const auto& ds : default_snssais) {
+          nas::SNSSAI_t subscribed_snssai = {};
+          subscribed_snssai.sst           = ds.getSst();
+          uint32_t subscribed_snssai_sd   = SD_NO_VALUE;
+          conv::sd_string_to_int(ds.getSd(), subscribed_snssai_sd);
+          subscribed_snssai.sd = subscribed_snssai_sd;
+          std::pair<bool, nas::SNSSAI_t> tmp;
+          tmp.second = subscribed_snssai;
+          if (default_subscribed_snssai) {
+            tmp.first                 = true;
+            default_subscribed_snssai = false;
+          } else {
+            tmp.first = false;
+          }
+          nc->subscribed_snssai.push_back(tmp);
+        }
         return true;
       } else {
         return false;
@@ -4708,8 +4729,6 @@ bool amf_n1::get_slice_selection_subscription_data_from_conf_file(
           default_subscribed_snssai = false;
         } else {
           tmp.first = false;
-          // auto tmp = std::make_pair<bool,nas::SNSSAI_t
-          // >(true,subscribed_snssai);
         }
         nc->subscribed_snssai.push_back(tmp);
       }
