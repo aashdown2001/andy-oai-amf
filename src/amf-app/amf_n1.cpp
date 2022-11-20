@@ -3256,12 +3256,13 @@ void amf_n1::ul_nas_transport_handle(
       Logger::amf_n1().debug(
           "Use first Requested S-NSSAI %s", snssai.ToString().c_str());
     } else {
-      // Otherwise, use configured slice if available
+      // Otherwise, use first default subscribed S-NSSAI if available
       for (const auto& sn : nc->subscribed_snssai) {
         if (sn.first) {
           snssai = sn.second;
           Logger::amf_n1().debug(
               "Use Default Configured S-NSSAI %s", snssai.ToString().c_str());
+          break;
         }
       }
     }
@@ -4076,7 +4077,7 @@ void amf_n1::initialize_registration_accept(
   std::vector<Rejected_SNSSAI> rejected_nssais;
   std::vector<struct SNSSAI_s> requested_nssai;
 
-  // If no requested NSSAI available, use subscribed NSSAI instead
+  // If no requested NSSAI available, use subscribed S-NSSAIs instead
   if (nc->requestedNssai.size() > 0) {
     requested_nssai = nc->requestedNssai;
   } else {
@@ -4637,7 +4638,7 @@ bool amf_n1::get_slice_selection_subscription_data(
         // Store this info in UE NAS Context
         std::vector<oai::amf::model::Snssai> default_snssais =
             nssai.getDefaultSingleNssais();
-        bool default_subscribed_snssai = true;
+        // bool default_subscribed_snssai = true;
         for (const auto& ds : default_snssais) {
           nas::SNSSAI_t subscribed_snssai = {};
           subscribed_snssai.sst           = ds.getSst();
@@ -4646,12 +4647,15 @@ bool amf_n1::get_slice_selection_subscription_data(
           subscribed_snssai.sd = subscribed_snssai_sd;
           std::pair<bool, nas::SNSSAI_t> tmp;
           tmp.second = subscribed_snssai;
+          tmp.first  = true;
+          /*
           if (default_subscribed_snssai) {
             tmp.first                 = true;
             default_subscribed_snssai = false;
           } else {
             tmp.first = false;
           }
+          */
           nc->subscribed_snssai.push_back(tmp);
         }
         return true;
@@ -4698,7 +4702,7 @@ bool amf_n1::get_slice_selection_subscription_data_from_conf_file(
 
   // Find the common NSSAIs between Requested NSSAIs and Subscribed NSSAIs
   std::vector<oai::amf::model::Snssai> common_snssais;
-  bool default_subscribed_snssai = true;
+  // bool default_subscribed_snssai = true;
 
   for (auto ta : gc->s_ta_list) {
     for (auto p : ta.b_plmn_list) {
@@ -4724,12 +4728,15 @@ bool amf_n1::get_slice_selection_subscription_data_from_conf_file(
         subscribed_snssai.sd = subscribed_snssai_sd;
         std::pair<bool, nas::SNSSAI_t> tmp;
         tmp.second = subscribed_snssai;
+        tmp.first  = true;
+        /*
         if (default_subscribed_snssai) {
           tmp.first                 = true;
           default_subscribed_snssai = false;
         } else {
           tmp.first = false;
         }
+        */
         nc->subscribed_snssai.push_back(tmp);
       }
     }
