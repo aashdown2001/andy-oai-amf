@@ -594,7 +594,9 @@ void amf_n1::nas_signalling_establishment_request_handle(
       }
       if (!nc->security_ctx) {
         Logger::amf_n1().error("No Security Context found");
-        service_request_reject(ran_ue_ngap_id, amf_ue_ngap_id);
+        // service_request_reject(ran_ue_ngap_id, amf_ue_ngap_id);
+        service_request_accept(
+            nc, ran_ue_ngap_id, amf_ue_ngap_id);  // Hardcoded for now
         return;
       }
       if (nc && nc->security_ctx) nc->security_ctx->ul_count.seq_num = ulCount;
@@ -643,6 +645,51 @@ void amf_n1::service_request_reject(
   return;
 }
 
+//------------------------------------------------------------------------------
+void amf_n1::service_request_accept(
+    std::shared_ptr<nas_context>& nc, uint32_t ran_ue_ngap_id,
+    long amf_ue_ngap_id) {
+  string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
+                          ":amfid_" + to_string(amf_ue_ngap_id);
+  std::shared_ptr<ue_context> uc;
+  uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
+
+  Logger::amf_n1().info("No security context, send Service Accept to UE");
+  // service accept
+  uint8_t nas[4];
+  nas[0] = INTEGRITY_PROTECTED_AND_CIPHERED;
+  nas[1] = PLAIN_5GS_MSG;
+  nas[2] = SERVICE_ACCEPT;
+
+  // send using InitialContextSetupRequest
+  nas_secu_ctx* secu = nc->security_ctx;
+  uint8_t* kamf      = nc->kamf[secu->vector_pointer];
+  uint8_t kgnb[32];
+  uint32_t ulcount = secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
+  Authentication_5gaka::derive_kgnb(0, 0x01, kamf, kgnb);
+  comUt::print_buffer("amf_n1", "kamf", kamf, 32);
+
+  std::shared_ptr<itti_initial_context_setup_request> csr =
+      std::make_shared<itti_initial_context_setup_request>(
+          TASK_AMF_N1, TASK_AMF_N2);
+  csr->ran_ue_ngap_id = ran_ue_ngap_id;
+  csr->amf_ue_ngap_id = amf_ue_ngap_id;
+  csr->kgnb           = blk2bstr(kgnb, 32);
+  csr->nas            = blk2bstr(nas, 4);
+  ;
+  // csr->pdu_session_id = itti_msg.pdu_session_id;
+  // csr->is_pdu_exist   = true;
+  // csr->n2sm           = bstrcpy(itti_msg.n2sm);
+  csr->is_sr = true;  // TODO: for Service Request procedure
+
+  int ret = itti_inst->send_msg(csr);
+  if (0 != ret) {
+    Logger::amf_n1().error(
+        "Could not send ITTI message %s to task TASK_AMF_N2",
+        csr->get_msg_name());
+  }
+  return;
+}
 //------------------------------------------------------------------------------
 void amf_n1::uplink_nas_msg_handle(
     const uint32_t ran_ue_ngap_id, const long amf_ue_ngap_id, bstring plain_msg,

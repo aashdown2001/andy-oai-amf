@@ -937,6 +937,10 @@ class amf_n1 {
 
   void service_request_reject(uint32_t ran_ue_ngap_id, long amf_ue_ngap_id);
 
+  void service_request_accept(
+      std::shared_ptr<nas_context>& nc, uint32_t ran_ue_ngap_id,
+      long amf_ue_ngap_id);
+
   /*
    * Handle Identity Response message
    * @param [const uint32_t] ran_ue_ngap_id: RAN UE NGAP ID
