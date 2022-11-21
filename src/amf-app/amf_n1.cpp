@@ -4468,6 +4468,8 @@ bool amf_n1::check_requested_nssai(const std::shared_ptr<nas_context>& nc) {
 //------------------------------------------------------------------------------
 bool amf_n1::check_subscribed_nssai(
     const std::shared_ptr<nas_context>& nc, oai::amf::model::Nssai& nssai) {
+  Logger::amf_n1().debug(
+      "Verifying whether this AMF can handle Requested/Subscribed S-NSSAIs");
   // Check if the AMF can serve all the requested/subscribed S-NSSAIs
 
   std::shared_ptr<ue_context> uc = {};
@@ -4479,6 +4481,10 @@ bool amf_n1::check_subscribed_nssai(
   bool result = false;
 
   for (auto p : amf_cfg.plmn_list) {
+    Logger::amf_n1().debug(
+        "PLMN info: %s",
+        p.to_json().dump().c_str());  // TODO: use to_string instead
+
     // Check PLMN/TAC
     if ((uc->tai.mcc.compare(p.mcc) != 0) or
         (uc->tai.mnc.compare(p.mnc) != 0) or (uc->tai.tac != p.tac)) {
