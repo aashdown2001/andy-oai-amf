@@ -401,7 +401,7 @@ void amf_n1::nas_signalling_establishment_request_handle(
     uint32_t ran_ue_ngap_id, long amf_ue_ngap_id, bstring plain_msg,
     std::string snn, uint8_t ulCount) {
   // Create NAS Context, or Update if existed
-  if ((nc.get() == nullptr) && (type == PlainNasMsg)) {
+  if (!nc.get()) {
     Logger::amf_n1().debug(
         "No existing nas_context with amf_ue_ngap_id 0x%x --> Create a new one",
         amf_ue_ngap_id);
@@ -420,9 +420,8 @@ void amf_n1::nas_signalling_establishment_request_handle(
     nc.get()->serving_network = snn;
     // stacs.UE_connected += 1;
   } else {
-    // Logger::amf_n1().debug("existing nas_context with amf_ue_ngap_id(0x%x)
-    // --> Update",amf_ue_ngap_id); nc =
-    // amf_ue_id_2_nas_context(amf_ue_ngap_id);
+    Logger::amf_n1().debug("Existing nas_context with amf_ue_ngap_id (0x%x)", amf_ue_ngap_id);
+
   }
 
   uint8_t* buf         = (uint8_t*) bdata(plain_msg);
@@ -438,11 +437,33 @@ void amf_n1::nas_signalling_establishment_request_handle(
     } break;
 
     case SERVICE_REQUEST: {
-      Logger::amf_n1().debug("Received service request message, handling...");
+      /*Logger::amf_n1().debug("Received service request message, handling...");
       nc.get()->security_ctx->ul_count.seq_num = ulCount;
       service_request_handle(
           true, nc, ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
+    } break;*/
+      uint8_t return_reject = 0;
+      Logger::amf_n1().debug("Received service request message, handling...");
+      if (!nc.get()) {
+        Logger::amf_n1().error("No NAS Context found");
+        return;
+      }
+      if (!nc.get()->security_ctx) {
+        Logger::amf_n1().error("No Security Context found");
+        return_reject = 1;
+        //return;
+      }
+      if (return_reject){ 
+        service_request_reject(ran_ue_ngap_id, amf_ue_ngap_id);
+        return;
+      }
+      
+      if (nc.get() && nc.get()->security_ctx)
+        nc.get()->security_ctx->ul_count.seq_num = ulCount;
+      service_request_handle(
+          true, nc, ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
     } break;
+
 
     case UE_INIT_DEREGISTER: {
       Logger::amf_n1().debug(
@@ -647,6 +668,46 @@ void amf_n1::identity_response_handle(
     run_registration_procedure(nc);
   }
 }
+
+//------------------------------------------------------------------------------
+
+
+void amf_n1::service_request_reject(
+     uint32_t ran_ue_ngap_id,
+    long amf_ue_ngap_id) {
+  string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
+                          ":amfid_" + to_string(amf_ue_ngap_id);
+  std::shared_ptr<ue_context> uc;
+  uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
+
+  
+    Logger::amf_n1().info(
+        "No security context, send Service Reject to UE");
+    // service reject
+    uint8_t nas[4];
+    nas[0] = EPD_5GS_MM_MSG;
+    nas[1] = PLAIN_5GS_MSG;
+    nas[2] = SERVICE_REJECT;
+    nas[3] = _5GMM_CAUSE_UE_IDENTITY_CANNOT_BE_DERIVED;
+    itti_dl_nas_transport* dnt =
+        new itti_dl_nas_transport(TASK_AMF_N1, TASK_AMF_N2);
+    dnt->nas            = blk2bstr(nas, 4);
+    dnt->amf_ue_ngap_id = amf_ue_ngap_id;
+    dnt->ran_ue_ngap_id = ran_ue_ngap_id;
+    std::shared_ptr<itti_dl_nas_transport> i =
+        std::shared_ptr<itti_dl_nas_transport>(dnt);
+    int ret = itti_inst->send_msg(i);
+    if (0 != ret) {
+      Logger::amf_n1().error(
+          "Could not send ITTI message %s to task TASK_AMF_N2",
+          i->get_msg_name());
+    }
+    return;
+  
+
+}
+
+
 
 //------------------------------------------------------------------------------
 void amf_n1::service_request_handle(
@@ -2049,7 +2110,7 @@ bool amf_n1::start_security_mode_control_procedure(
 //------------------------------------------------------------------------------
 int amf_n1::security_select_algorithms(
     uint8_t nea, uint8_t nia, uint8_t& amf_nea, uint8_t& amf_nia) {
-  for (int i = 1; i < 8; i++) {
+  for (int i = 0; i < 8; i++) {
     if (nea & (0x80 >> amf_cfg.nas_cfg.prefered_ciphering_algorithm[i])) {
       amf_nea = amf_cfg.nas_cfg.prefered_ciphering_algorithm[i];
       printf("amf_nea: 0x%x\n", amf_nea);

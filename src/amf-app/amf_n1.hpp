@@ -183,6 +183,9 @@ class amf_n1 {
   void service_request_handle(
       bool isNasSig, std::shared_ptr<nas_context> nc, uint32_t ran_ue_ngap_id,
       long amf_ue_ngap_id, bstring nas);
+  void service_request_reject(
+     uint32_t ran_ue_ngap_id,
+    long amf_ue_ngap_id);
   void identity_response_handle(
       uint32_t ran_ue_ngap_id, long amf_ue_ngap_id, bstring plain_msg);
 
