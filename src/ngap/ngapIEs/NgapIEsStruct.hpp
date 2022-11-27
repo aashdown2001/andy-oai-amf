@@ -73,10 +73,10 @@ typedef struct PlmnSliceSupport_s {
   std::vector<S_Nssai> slice_list;
 } PlmnSliceSupport_t;
 
-typedef struct SupportedItem_s {
+typedef struct SupportedTaItem_s {
   uint32_t tac;
   std::vector<PlmnSliceSupport_t> b_plmn_list;
-} SupportedItem_t;
+} SupportedTaItem_t;
 
 typedef struct GuamiItem_s {
   std::string mcc;

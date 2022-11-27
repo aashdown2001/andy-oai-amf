@@ -52,7 +52,7 @@ class gnb_context {
   std::string gnb_name;
   long globalRanNodeId;
   e_Ngap_PagingDRX default_paging_drx;  // v32, v64, v128, v256
-  std::vector<SupportedItem_t> s_ta_list;
+  std::vector<SupportedTaItem_t> s_ta_list;
   bstring ue_radio_cap_ind;
 
   sctp_assoc_id_t sctp_assoc_id;
