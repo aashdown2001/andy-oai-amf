@@ -54,7 +54,8 @@ uint8_t Rejected_SNSSAI::getLength() {
 
 //------------------------------------------------------------------------------
 void Rejected_SNSSAI::setSST(const uint8_t& sst) {
-  sst_ = sst;
+  sst_    = sst;
+  length_ = 1;
 }
 
 //------------------------------------------------------------------------------
@@ -69,8 +70,8 @@ uint8_t Rejected_SNSSAI::getSST() {
 
 //------------------------------------------------------------------------------
 void Rejected_SNSSAI::setSd(const uint32_t& sd) {
-  sd_     = std::optional<uint32_t>(sd);
-  length_ = 4;
+  sd_ = std::optional<uint32_t>(sd);
+  length_ += 3;
 }
 
 //------------------------------------------------------------------------------
