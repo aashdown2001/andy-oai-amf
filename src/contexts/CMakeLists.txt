@@ -22,6 +22,7 @@
 include_directories(${SRC_TOP_DIR}/../build/ext/spdlog/include)
 include_directories(${SRC_TOP_DIR}/itti)
 include_directories(${SRC_TOP_DIR}/itti/msgs)
+include_directories(${SRC_TOP_DIR}/../component/oai-common)
 include_directories(${SRC_TOP_DIR}/common)
 include_directories(${SRC_TOP_DIR}/common/unicode)
 include_directories(${SRC_TOP_DIR}/contexts)
@@ -41,4 +42,3 @@ add_library (CONTEXTS STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/pdu_session_context.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/ue_context.cpp
 )
-

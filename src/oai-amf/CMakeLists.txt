@@ -315,6 +315,7 @@ include_directories(${SRC_TOP_DIR}/../build/ext/spdlog/include)
 include_directories(${SRC_TOP_DIR}/amf-app)
 include_directories(${SRC_TOP_DIR}/itti)
 include_directories(${SRC_TOP_DIR}/itti/msgs)
+include_directories(${SRC_TOP_DIR}/../component/oai-common)
 include_directories(${SRC_TOP_DIR}/common)
 include_directories(${SRC_TOP_DIR}/common/unicode)
 include_directories(${SRC_TOP_DIR}/utils)
@@ -337,7 +338,7 @@ include_directories(${SRC_TOP_DIR}/secu_algorithms/5gaka)
 include_directories(${SRC_TOP_DIR}/secu_algorithms/nas_enc_int)
 
 add_executable(amf
-	${SRC_TOP_DIR}/oai-amf/main.cpp 
+  ${SRC_TOP_DIR}/oai-amf/main.cpp
   ${SRC_TOP_DIR}/oai-amf/options.cpp
   ${SRC_TOP_DIR}/itti/itti.cpp
   ${SRC_TOP_DIR}/itti/itti_msg.cpp
@@ -348,7 +349,7 @@ IF(STATIC_LINKING)
     SET_TARGET_PROPERTIES(amf PROPERTIES LINK_SEARCH_END_STATIC 1)
     # asan do not support static linking
     SET(ASAN)
-ENDIF(STATIC_LINKING)   
+ENDIF(STATIC_LINKING)
 
-target_link_libraries(amf ${ASAN}  
+target_link_libraries(amf ${ASAN}
       -Wl,--start-group 3GPP_COMMON_TYPES AMF CONTEXTS AMF_SCTP AMF_SECU_5GAKA AMF_SECU_NAS AMF_UTILS AMF_SBI_SERVER config++ sctp -Wl,--end-group pthread ${NETTLE_LIBRARIES} ${MySQL_LIBRARY} ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} nghttp2_asio boost_system boost_thread boost_chrono ssl crypt gmp pistache curl)

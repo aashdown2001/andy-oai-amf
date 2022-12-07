@@ -20,6 +20,7 @@
 ################################################################################
 
 include_directories(${SRC_TOP_DIR}/../build/ext/spdlog/include)
+include_directories(${SRC_TOP_DIR}/../component/oai-common)
 include_directories(${SRC_TOP_DIR}/common)
 include_directories(${SRC_TOP_DIR}/common/unicode)
 include_directories(${SRC_TOP_DIR}/nas/ies)
@@ -35,4 +36,3 @@ add_library (AMF_SECU_NAS STATIC
   rijndael.c
   snow3g.c
  )
-

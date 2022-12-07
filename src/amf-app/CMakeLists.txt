@@ -23,6 +23,7 @@ include_directories(${SRC_TOP_DIR}/../build/ext/spdlog/include)
 include_directories(${SRC_TOP_DIR}/amf-app)
 include_directories(${SRC_TOP_DIR}/itti)
 include_directories(${SRC_TOP_DIR}/itti/msgs)
+include_directories(${SRC_TOP_DIR}/../component/oai-common)
 include_directories(${SRC_TOP_DIR}/common)
 include_directories(${SRC_TOP_DIR}/common/unicode)
 include_directories(${SRC_TOP_DIR}/contexts)
@@ -67,10 +68,9 @@ file(GLOB AMF_src_files
   ${SRC_TOP_DIR}/ngap/libngap/*.c
   ${SRC_TOP_DIR}/ngap/ngap_app/*.cpp
   ${SRC_TOP_DIR}/ngap/ngapMsgs/*.cpp
-  ${SRC_TOP_DIR}/ngap/ngapIEs/*.cpp   
+  ${SRC_TOP_DIR}/ngap/ngapIEs/*.cpp
 )
- 
+
 add_library (AMF STATIC
 ${AMF_src_files}
 )
-

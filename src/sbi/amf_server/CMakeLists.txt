@@ -25,6 +25,7 @@ include_directories(${SRC_TOP_DIR}/../build/ext/spdlog/include)
 include_directories(${SRC_TOP_DIR}/amf-app)
 include_directories(${SRC_TOP_DIR}/itti)
 include_directories(${SRC_TOP_DIR}/itti/msgs)
+include_directories(${SRC_TOP_DIR}/../component/oai-common)
 include_directories(${SRC_TOP_DIR}/common)
 include_directories(${SRC_TOP_DIR}/common/unicode)
 include_directories(${SRC_TOP_DIR}/contexts)
@@ -47,8 +48,6 @@ file(GLOB AMF_API_SERVER_src_files
     ${AMF_API_SERVER_DIR}/api/*.cpp
     ${AMF_API_SERVER_DIR}/impl/*.cpp
 )
- 
+
 add_library(AMF_SBI_SERVER STATIC
            ${AMF_API_SERVER_src_files})
-                      
-

@@ -20,6 +20,7 @@
 ################################################################################
 
 include_directories(${SRC_TOP_DIR}/../build/ext/spdlog/include)
+include_directories(${SRC_TOP_DIR}/../component/oai-common)
 include_directories(${SRC_TOP_DIR}/common)
 include_directories(${SRC_TOP_DIR}/common/unicode)
 include_directories(${SRC_TOP_DIR}/nas/common)
@@ -41,4 +42,3 @@ add_library (AMF_UTILS STATIC
  ${CMAKE_CURRENT_SOURCE_DIR}/fqdn.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/3gpp_conversions.cpp
  )
-

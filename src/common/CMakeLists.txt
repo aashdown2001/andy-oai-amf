@@ -19,6 +19,7 @@
 #      contact@openairinterface.org
 ################################################################################
 
+include_directories(${SRC_TOP_DIR}/../component/oai-common)
 include_directories(${SRC_TOP_DIR}/common)
 include_directories(${SRC_TOP_DIR}/utils/)
 include_directories(${SRC_TOP_DIR}/utils/bstr)
