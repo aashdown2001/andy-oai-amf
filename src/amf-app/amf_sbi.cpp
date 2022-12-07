@@ -241,8 +241,16 @@ void amf_sbi::handle_itti_message(
 
   Logger::amf_sbi().debug("SMF URI: %s", remote_uri.c_str());
 
+  std::string n1sm_msg                      = {};
   std::string n2sm_msg                      = {};
   nlohmann::json pdu_session_update_request = {};
+
+  if (itti_msg.is_n1sm_set) {
+    pdu_session_update_request["n1SmMsg"]["contentId"] = "n1SmMsg";
+    octet_stream_2_hex_stream(
+        (uint8_t*) bdata(itti_msg.n1sm), blength(itti_msg.n1sm), n1sm_msg);
+  }
+
   if (itti_msg.is_n2sm_set) {
     pdu_session_update_request["n2SmInfoType"] = itti_msg.n2sm_info_type;
     pdu_session_update_request["n2SmInfo"]["contentId"] = "n2msg";
@@ -270,7 +278,7 @@ void amf_sbi::handle_itti_message(
   if (amf_cfg.support_features.use_http2) http_version = 2;
 
   curl_http_client(
-      remote_uri, json_part, "", n2sm_msg, supi, itti_msg.pdu_session_id,
+      remote_uri, json_part, n1sm_msg, n2sm_msg, supi, itti_msg.pdu_session_id,
       http_version, itti_msg.promise_id);
 }
 
