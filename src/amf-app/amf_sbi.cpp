@@ -408,6 +408,7 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
       // TODO:
     } break;
     default: {
+      // TODO: should be removed
       // send Nsmf_PDUSession_UpdateSM_Context to SMF e.g., for PDU Session
       // release request
       send_pdu_session_update_sm_context_request(supi, psc, smf.sm_msg, dnn);
