@@ -4118,7 +4118,7 @@ void amf_n1::initialize_registration_accept(
       Rejected_SNSSAI rejected_snssai = {};
       rejected_snssai.setSST(rn.sst);
       if (rn.sd != SD_NO_VALUE) {
-        rejected_snssai.setSST(rn.sd);
+        rejected_snssai.setSd(rn.sd);
       }
       rejected_snssai.setCause(1);  // TODO: Hardcoded, S-NSSAI not available in
                                     // the current registration area
