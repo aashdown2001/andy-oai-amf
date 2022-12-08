@@ -71,14 +71,25 @@ int Rejected_NSSAI::encode2buffer(uint8_t* buf, int len) {
   if (_iei) {
     ENCODE_U8(buf + encoded_size, _iei, encoded_size);
   }
+
+  // Skip Length for now
+  uint8_t len_pos = encoded_size;
+  encoded_size++;
+  uint8_t payload_len = 0;
+
   for (auto n : rejected_nssais) {
     int size = n.encode2buffer(buf + encoded_size, len - encoded_size);
     if (size > -1) {
       encoded_size += size;
+      payload_len += size;
     } else {
       return -1;
     }
   }
+
+  // Length
+  uint8_t encoded_size_length = 0;
+  ENCODE_U8(buf + len_pos, payload_len, encoded_size_length);
 
   Logger::nas_mm().debug("Encoded Rejected_NSSAI (len %d)", encoded_size);
   return encoded_size;
