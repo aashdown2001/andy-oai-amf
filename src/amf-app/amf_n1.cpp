@@ -4435,8 +4435,9 @@ bool amf_n1::check_requested_nssai(const std::shared_ptr<nas_context>& nc) {
   bool result = false;
   for (auto p : amf_cfg.plmn_list) {
     // Check PLMN/TAC
-    if ((uc->tai.mcc.compare(p.mcc) != 0) or
-        (uc->tai.mnc.compare(p.mnc) != 0) or (uc->tai.tac != p.tac)) {
+    if ((uc->tai.mcc.compare(p.mcc) != 0) or (uc->tai.mnc.compare(p.mnc) != 0)
+        // or (uc->tai.tac != p.tac) //TTN: disable check for CU/DU
+    ) {
       continue;
     }
 
@@ -4486,8 +4487,9 @@ bool amf_n1::check_subscribed_nssai(
         p.to_json().dump().c_str());  // TODO: use to_string instead
 
     // Check PLMN/TAC
-    if ((uc->tai.mcc.compare(p.mcc) != 0) or
-        (uc->tai.mnc.compare(p.mnc) != 0) or (uc->tai.tac != p.tac)) {
+    if ((uc->tai.mcc.compare(p.mcc) != 0) or (uc->tai.mnc.compare(p.mnc) != 0)
+        // or (uc->tai.tac != p.tac) //TTN: disable check for CU/DU
+    ) {
       continue;
     }
 

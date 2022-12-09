@@ -219,6 +219,9 @@ int NSSAI::decodefrombuffer(uint8_t* buf, int len, bool is_option) {
       } break;
     }
 
+    // TTN for CU-DU testing
+    if (a.sd == 0) a.sd = SD_NO_VALUE;
+
     S_NSSAIs.insert(S_NSSAIs.end(), a);
     a = {0, 0, 0, 0};
   }
