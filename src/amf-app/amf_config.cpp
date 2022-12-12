@@ -96,7 +96,7 @@ amf_config::~amf_config() {}
 //------------------------------------------------------------------------------
 int amf_config::load(const std::string& config_file) {
   Logger::amf_app().debug(
-      "\nLoad AMF system configuration file(%s)", config_file.c_str());
+      "\nLoad AMF system configuration file (%s)", config_file.c_str());
   Config cfg;
   unsigned char buf_in6_addr[sizeof(struct in6_addr)];
 
@@ -413,203 +413,286 @@ int amf_config::load(const std::string& config_file) {
       }
     }
 
-    // NRF
-    const Setting& nrf_cfg       = new_if_cfg[AMF_CONFIG_STRING_NRF];
-    struct in_addr nrf_ipv4_addr = {};
-    unsigned int nrf_port        = 0;
-    std::string nrf_api_version  = {};
-    string address               = {};
+    /*
+        // SMF
+          const Setting& smf_cfg       = new_if_cfg[AMF_CONFIG_STRING_SMF];
+          struct in_addr smf_ipv4_addr = {};
+          smf_ipv4_addr.s_addr = INADDR_ANY;
+          unsigned int smf_port        = 80;
+          std::string smf_api_version  = DEFAULT_SBI_API_VERSION;
+          string address               = {};
 
-    if (!support_features.use_fqdn_dns) {
-      // Store FQDN
-      nrf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nrf_addr.fqdn);
+          if (!support_features.use_fqdn_dns) {
+            // Store FQDN
+            smf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, smf_addr.fqdn);
 
-      nrf_cfg.lookupValue(AMF_CONFIG_STRING_NRF_IPV4_ADDRESS, address);
-      IPV4_STR_ADDR_TO_INADDR(
-          util::trim(address).c_str(), nrf_ipv4_addr,
-          "BAD IPv4 ADDRESS FORMAT FOR NRF !");
-      nrf_addr.ipv4_addr = nrf_ipv4_addr;
-      if (!(nrf_cfg.lookupValue(AMF_CONFIG_STRING_NRF_PORT, nrf_port))) {
-        Logger::amf_app().error(AMF_CONFIG_STRING_NRF_PORT "failed");
-        throw(AMF_CONFIG_STRING_NRF_PORT "failed");
-      }
-      nrf_addr.port = nrf_port;
-      if (!(nrf_cfg.lookupValue(
-              AMF_CONFIG_STRING_API_VERSION, nrf_api_version))) {
-        Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
-        throw(AMF_CONFIG_STRING_API_VERSION "failed");
-      }
-      nrf_addr.api_version = nrf_api_version;
-    } else {
-      nrf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nrf_addr.fqdn);
-      uint8_t addr_type = {};
-      fqdn::resolve(nrf_addr.fqdn, address, nrf_port, addr_type);
-      if (addr_type != 0) {  // IPv6: TODO
-        throw("DO NOT SUPPORT IPV6 ADDR FOR NRF!");
-      } else {  // IPv4
-        IPV4_STR_ADDR_TO_INADDR(
-            util::trim(address).c_str(), nrf_ipv4_addr,
-            "BAD IPv4 ADDRESS FORMAT FOR NRF !");
-        nrf_addr.ipv4_addr = nrf_ipv4_addr;
-        // nrf_addr.port        = nrf_port;
+            smf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
+            IPV4_STR_ADDR_TO_INADDR(
+                util::trim(address).c_str(), smf_ipv4_addr,
+                "BAD IPv4 ADDRESS FORMAT FOR SMF !");
+            smf_addr.ipv4_addr = smf_ipv4_addr;
+            if (!(smf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, smf_port))) {
+              Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+              //throw(AMF_CONFIG_STRING_PORT "failed");
+              smf_port = 80;//default value
+            }
+            smf_addr.port = smf_port;
+            if (!(smf_cfg.lookupValue(
+                    AMF_CONFIG_STRING_API_VERSION, smf_api_version))) {
+              Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
+              smf_api_version = DEFAULT_SBI_API_VERSION;
+              //throw(AMF_CONFIG_STRING_API_VERSION "failed");
+            }
+            smf_addr.api_version = smf_api_version;
+          } else {
+            smf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, smf_addr.fqdn);
+            uint8_t addr_type = {};
+            fqdn::resolve(smf_addr.fqdn, address, smf_port, addr_type);
+            if (addr_type != 0) {  // IPv6: TODO
+              //throw("DO NOT SUPPORT IPV6 ADDR FOR SMF!");
+              Logger::amf_app().error("DO NOT SUPPORT IPV6 ADDR FOR SMF!");
+            } else {  // IPv4
+              IPV4_STR_ADDR_TO_INADDR(
+                  util::trim(address).c_str(), smf_ipv4_addr,
+                  "BAD IPv4 ADDRESS FORMAT FOR NRF !");
+             smf_addr.ipv4_addr = smf_ipv4_addr;
+              // smf_addr.port        = smf_port;
 
-        // We hardcode nrf port from config for the moment
-        if (!(nrf_cfg.lookupValue(AMF_CONFIG_STRING_NRF_PORT, nrf_port))) {
-          Logger::amf_app().error(AMF_CONFIG_STRING_NRF_PORT "failed");
-          throw(AMF_CONFIG_STRING_NRF_PORT "failed");
-        }
-        nrf_addr.port = nrf_port;
-        //
-        nrf_addr.api_version =
-            DEFAULT_SBI_API_VERSION;  // TODO: get API version
-      }
-    }
+              // We hardcode smf port from config for the moment
+              if (!(smf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, smf_port))) {
+                Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+                //throw(AMF_CONFIG_STRING_PORT "failed");
+              }
+              smf_addr.port = smf_port;
+              //
+              smf_addr.api_version =
+                  DEFAULT_SBI_API_VERSION;  // TODO: get API version
+            }
+          }
 
-    // AUSF
-    if (support_features.enable_external_ausf) {
-      const Setting& ausf_cfg       = new_if_cfg[AMF_CONFIG_STRING_AUSF];
-      struct in_addr ausf_ipv4_addr = {};
-      unsigned int ausf_port        = {};
-      std::string ausf_api_version  = {};
+        // NRF
+        const Setting& nrf_cfg       = new_if_cfg[AMF_CONFIG_STRING_NRF];
+        struct in_addr nrf_ipv4_addr = {};
+        unsigned int nrf_port        = 0;
+        std::string nrf_api_version  = {};
+        //string address               = {};
 
-      if (!support_features.use_fqdn_dns) {
-        // Store FQDN
-        ausf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, ausf_addr.fqdn);
+        if (!support_features.use_fqdn_dns) {
+          // Store FQDN
+          nrf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nrf_addr.fqdn);
 
-        ausf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
-        IPV4_STR_ADDR_TO_INADDR(
-            util::trim(address).c_str(), ausf_ipv4_addr,
-            "BAD IPv4 ADDRESS FORMAT FOR AUSF !");
-        ausf_addr.ipv4_addr = ausf_ipv4_addr;
-        if (!(ausf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, ausf_port))) {
-          Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
-          throw(AMF_CONFIG_STRING_PORT "failed");
-        }
-        ausf_addr.port = ausf_port;
-
-        if (!(ausf_cfg.lookupValue(
-                AMF_CONFIG_STRING_API_VERSION, ausf_api_version))) {
-          Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
-          throw(AMF_CONFIG_STRING_API_VERSION "failed");
-        }
-        ausf_addr.api_version = ausf_api_version;
-      } else {
-        ausf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, ausf_addr.fqdn);
-        uint8_t addr_type = {};
-        fqdn::resolve(ausf_addr.fqdn, address, ausf_port, addr_type);
-        if (addr_type != 0) {  // IPv6: TODO
-          throw("DO NOT SUPPORT IPV6 ADDR FOR AUSF!");
-        } else {  // IPv4
+          nrf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
           IPV4_STR_ADDR_TO_INADDR(
-              util::trim(address).c_str(), ausf_ipv4_addr,
-              "BAD IPv4 ADDRESS FORMAT FOR AUSF !");
-          ausf_addr.ipv4_addr = ausf_ipv4_addr;
-          // We hardcode nrf port from config for the moment
-          if (!(ausf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, ausf_port))) {
+              util::trim(address).c_str(), nrf_ipv4_addr,
+              "BAD IPv4 ADDRESS FORMAT FOR NRF !");
+          nrf_addr.ipv4_addr = nrf_ipv4_addr;
+          if (!(nrf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nrf_port))) {
             Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
             throw(AMF_CONFIG_STRING_PORT "failed");
           }
-          ausf_addr.port = ausf_port;
-          ausf_addr.api_version =
-              DEFAULT_SBI_API_VERSION;  // TODO: get API version
-        }
-      }
-    }
+          nrf_addr.port = nrf_port;
+          if (!(nrf_cfg.lookupValue(
+                  AMF_CONFIG_STRING_API_VERSION, nrf_api_version))) {
+            Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
+            throw(AMF_CONFIG_STRING_API_VERSION "failed");
+          }
+          nrf_addr.api_version = nrf_api_version;
+        } else {
+          nrf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nrf_addr.fqdn);
+          uint8_t addr_type = {};
+          fqdn::resolve(nrf_addr.fqdn, address, nrf_port, addr_type);
+          if (addr_type != 0) {  // IPv6: TODO
+            throw("DO NOT SUPPORT IPV6 ADDR FOR NRF!");
+          } else {  // IPv4
+            IPV4_STR_ADDR_TO_INADDR(
+                util::trim(address).c_str(), nrf_ipv4_addr,
+                "BAD IPv4 ADDRESS FORMAT FOR NRF !");
+            nrf_addr.ipv4_addr = nrf_ipv4_addr;
+            // nrf_addr.port        = nrf_port;
 
-    // UDM
-    if (support_features.enable_external_udm) {
-      const Setting& udm_cfg       = new_if_cfg[AMF_CONFIG_STRING_UDM];
-      struct in_addr udm_ipv4_addr = {};
-      unsigned int udm_port        = {};
-      std::string udm_api_version  = {};
-
-      if (!support_features.use_fqdn_dns) {
-        // Store FQDN
-        udm_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, udm_addr.fqdn);
-
-        udm_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
-        IPV4_STR_ADDR_TO_INADDR(
-            util::trim(address).c_str(), udm_ipv4_addr,
-            "BAD IPv4 ADDRESS FORMAT FOR UDM !");
-        udm_addr.ipv4_addr = udm_ipv4_addr;
-        if (!(udm_cfg.lookupValue(AMF_CONFIG_STRING_PORT, udm_port))) {
-          Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
-          throw(AMF_CONFIG_STRING_PORT "failed");
+            // We hardcode nrf port from config for the moment
+            if (!(nrf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nrf_port))) {
+              Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+              throw(AMF_CONFIG_STRING_PORT "failed");
+            }
+            nrf_addr.port = nrf_port;
+            //
+            nrf_addr.api_version =
+                DEFAULT_SBI_API_VERSION;  // TODO: get API version
+          }
         }
-        udm_addr.port = udm_port;
 
-        if (!(udm_cfg.lookupValue(
-                AMF_CONFIG_STRING_API_VERSION, udm_api_version))) {
-          Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
-          throw(AMF_CONFIG_STRING_API_VERSION "failed");
-        }
-        udm_addr.api_version = udm_api_version;
-      } else {
-        udm_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, udm_addr.fqdn);
-        uint8_t addr_type = {};
-        fqdn::resolve(udm_addr.fqdn, address, udm_port, addr_type);
-        if (addr_type != 0) {  // IPv6: TODO
-          throw("DO NOT SUPPORT IPV6 ADDR FOR UDM!");
-        } else {  // IPv4
-          IPV4_STR_ADDR_TO_INADDR(
-              util::trim(address).c_str(), udm_ipv4_addr,
-              "BAD IPv4 ADDRESS FORMAT FOR UDM !");
-          udm_addr.ipv4_addr = udm_ipv4_addr;
-          udm_addr.port      = udm_port;
-          udm_addr.api_version =
-              DEFAULT_SBI_API_VERSION;  // TODO: get API version
-        }
-      }
-    }
+        string address               = {};
+        // AUSF
+        if (support_features.enable_external_ausf) {
+          const Setting& ausf_cfg       = new_if_cfg[AMF_CONFIG_STRING_AUSF];
+          struct in_addr ausf_ipv4_addr = {};
+          unsigned int ausf_port        = {};
+          std::string ausf_api_version  = {};
 
-    // NSSF
-    if (support_features.enable_external_nssf) {
-      const Setting& nssf_cfg       = new_if_cfg[AMF_CONFIG_STRING_NSSF];
-      struct in_addr nssf_ipv4_addr = {};
-      unsigned int nssf_port        = {};
-      std::string nssf_api_version  = {};
+          if (!support_features.use_fqdn_dns) {
+            // Store FQDN
+            ausf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, ausf_addr.fqdn);
 
-      if (!support_features.use_fqdn_dns) {
-        // Store FQDN
-        nssf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nssf_addr.fqdn);
-        nssf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
-        IPV4_STR_ADDR_TO_INADDR(
-            util::trim(address).c_str(), nssf_ipv4_addr,
-            "BAD IPv4 ADDRESS FORMAT FOR NSSF !");
-        nssf_addr.ipv4_addr = nssf_ipv4_addr;
-        if (!(nssf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nssf_port))) {
-          Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
-          throw(AMF_CONFIG_STRING_PORT "failed");
-        }
-        nssf_addr.port = nssf_port;
+            ausf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
+            IPV4_STR_ADDR_TO_INADDR(
+                util::trim(address).c_str(), ausf_ipv4_addr,
+                "BAD IPv4 ADDRESS FORMAT FOR AUSF !");
+            ausf_addr.ipv4_addr = ausf_ipv4_addr;
+            if (!(ausf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, ausf_port))) {
+              Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+              throw(AMF_CONFIG_STRING_PORT "failed");
+            }
+            ausf_addr.port = ausf_port;
 
-        if (!(nssf_cfg.lookupValue(
-                AMF_CONFIG_STRING_API_VERSION, nssf_api_version))) {
-          Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
-          throw(AMF_CONFIG_STRING_API_VERSION "failed");
+            if (!(ausf_cfg.lookupValue(
+                    AMF_CONFIG_STRING_API_VERSION, ausf_api_version))) {
+              Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
+              throw(AMF_CONFIG_STRING_API_VERSION "failed");
+            }
+            ausf_addr.api_version = ausf_api_version;
+          } else {
+            ausf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, ausf_addr.fqdn);
+            uint8_t addr_type = {};
+            fqdn::resolve(ausf_addr.fqdn, address, ausf_port, addr_type);
+            if (addr_type != 0) {  // IPv6: TODO
+              throw("DO NOT SUPPORT IPV6 ADDR FOR AUSF!");
+            } else {  // IPv4
+              IPV4_STR_ADDR_TO_INADDR(
+                  util::trim(address).c_str(), ausf_ipv4_addr,
+                  "BAD IPv4 ADDRESS FORMAT FOR AUSF !");
+              ausf_addr.ipv4_addr = ausf_ipv4_addr;
+              // We hardcode nrf port from config for the moment
+              if (!(ausf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, ausf_port))) {
+                Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+                throw(AMF_CONFIG_STRING_PORT "failed");
+              }
+              ausf_addr.port = ausf_port;
+              ausf_addr.api_version =
+                  DEFAULT_SBI_API_VERSION;  // TODO: get API version
+            }
+          }
         }
-        nssf_addr.api_version = nssf_api_version;
-      } else {
-        nssf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nssf_addr.fqdn);
-        uint8_t addr_type = {};
-        fqdn::resolve(nssf_addr.fqdn, address, nssf_port, addr_type);
-        if (addr_type != 0) {  // IPv6: TODO
-          throw("DO NOT SUPPORT IPV6 ADDR FOR NSSF!");
-        } else {  // IPv4
-          IPV4_STR_ADDR_TO_INADDR(
-              util::trim(address).c_str(), nssf_ipv4_addr,
-              "BAD IPv4 ADDRESS FORMAT FOR NSSF !");
-          nssf_addr.ipv4_addr = nssf_ipv4_addr;
-          nssf_addr.port      = nssf_port;
-          nssf_addr.api_version =
-              DEFAULT_SBI_API_VERSION;  // TODO: get API version
+
+        // UDM
+        if (support_features.enable_external_udm) {
+          const Setting& udm_cfg       = new_if_cfg[AMF_CONFIG_STRING_UDM];
+          struct in_addr udm_ipv4_addr = {};
+          unsigned int udm_port        = {};
+          std::string udm_api_version  = {};
+
+          if (!support_features.use_fqdn_dns) {
+            // Store FQDN
+            udm_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, udm_addr.fqdn);
+
+            udm_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
+            IPV4_STR_ADDR_TO_INADDR(
+                util::trim(address).c_str(), udm_ipv4_addr,
+                "BAD IPv4 ADDRESS FORMAT FOR UDM !");
+            udm_addr.ipv4_addr = udm_ipv4_addr;
+            if (!(udm_cfg.lookupValue(AMF_CONFIG_STRING_PORT, udm_port))) {
+              Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+              throw(AMF_CONFIG_STRING_PORT "failed");
+            }
+            udm_addr.port = udm_port;
+
+            if (!(udm_cfg.lookupValue(
+                    AMF_CONFIG_STRING_API_VERSION, udm_api_version))) {
+              Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
+              throw(AMF_CONFIG_STRING_API_VERSION "failed");
+            }
+            udm_addr.api_version = udm_api_version;
+          } else {
+            udm_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, udm_addr.fqdn);
+            uint8_t addr_type = {};
+            fqdn::resolve(udm_addr.fqdn, address, udm_port, addr_type);
+            if (addr_type != 0) {  // IPv6: TODO
+              throw("DO NOT SUPPORT IPV6 ADDR FOR UDM!");
+            } else {  // IPv4
+              IPV4_STR_ADDR_TO_INADDR(
+                  util::trim(address).c_str(), udm_ipv4_addr,
+                  "BAD IPv4 ADDRESS FORMAT FOR UDM !");
+              udm_addr.ipv4_addr = udm_ipv4_addr;
+              udm_addr.port      = udm_port;
+              udm_addr.api_version =
+                  DEFAULT_SBI_API_VERSION;  // TODO: get API version
+            }
+          }
         }
-      }
-    }
+
+        // NSSF
+        if (support_features.enable_external_nssf) {
+          const Setting& nssf_cfg       = new_if_cfg[AMF_CONFIG_STRING_NSSF];
+          struct in_addr nssf_ipv4_addr = {};
+          unsigned int nssf_port        = {};
+          std::string nssf_api_version  = {};
+
+          if (!support_features.use_fqdn_dns) {
+            // Store FQDN
+            nssf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nssf_addr.fqdn);
+            nssf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
+            IPV4_STR_ADDR_TO_INADDR(
+                util::trim(address).c_str(), nssf_ipv4_addr,
+                "BAD IPv4 ADDRESS FORMAT FOR NSSF !");
+            nssf_addr.ipv4_addr = nssf_ipv4_addr;
+            if (!(nssf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nssf_port))) {
+              Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+              throw(AMF_CONFIG_STRING_PORT "failed");
+            }
+            nssf_addr.port = nssf_port;
+
+            if (!(nssf_cfg.lookupValue(
+                    AMF_CONFIG_STRING_API_VERSION, nssf_api_version))) {
+              Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
+              throw(AMF_CONFIG_STRING_API_VERSION "failed");
+            }
+            nssf_addr.api_version = nssf_api_version;
+          } else {
+            nssf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nssf_addr.fqdn);
+            uint8_t addr_type = {};
+            fqdn::resolve(nssf_addr.fqdn, address, nssf_port, addr_type);
+            if (addr_type != 0) {  // IPv6: TODO
+              throw("DO NOT SUPPORT IPV6 ADDR FOR NSSF!");
+            } else {  // IPv4
+              IPV4_STR_ADDR_TO_INADDR(
+                  util::trim(address).c_str(), nssf_ipv4_addr,
+                  "BAD IPv4 ADDRESS FORMAT FOR NSSF !");
+              nssf_addr.ipv4_addr = nssf_ipv4_addr;
+              nssf_addr.port      = nssf_port;
+              nssf_addr.api_version =
+                  DEFAULT_SBI_API_VERSION;  // TODO: get API version
+            }
+          }
+        }
+        */
   } catch (const SettingNotFoundException& nfex) {
     Logger::amf_app().error(
         "%s : %s, using defaults", nfex.what(), nfex.getPath());
     return RETURNerror;
+  }
+
+  // Get SMF info
+  const Setting& smf_cfg = amf_cfg[AMF_CONFIG_STRING_SMF];
+  get_nf_info(smf_cfg, smf_addr);
+  // Get NRF info
+  const Setting& nrf_cfg = amf_cfg[AMF_CONFIG_STRING_NRF];
+  get_nf_info(nrf_cfg, nrf_addr);
+
+  // AUSF
+  if (support_features.enable_external_ausf) {
+    const Setting& ausf_cfg = amf_cfg[AMF_CONFIG_STRING_AUSF];
+    get_nf_info(ausf_cfg, ausf_addr);
+  }
+  // UDM
+  if (support_features.enable_external_udm) {
+    const Setting& udm_cfg = amf_cfg[AMF_CONFIG_STRING_UDM];
+    get_nf_info(udm_cfg, udm_addr);
+  }
+
+  // NSSF
+  if (support_features.enable_external_nssf) {
+    const Setting& nssf_cfg = amf_cfg[AMF_CONFIG_STRING_NSSF];
+    get_nf_info(nssf_cfg, nssf_addr);
   }
 
   // Emergency support
@@ -680,6 +763,63 @@ int amf_config::load(const std::string& config_file) {
   }
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void amf_config::get_nf_info(const Setting& nf_cfg, nf_addr_t& nf_addr) {
+  struct in_addr nf_ipv4_addr = {};
+  nf_ipv4_addr.s_addr         = INADDR_ANY;
+  unsigned int nf_port        = DEFAULT_HTTP1_PORT;
+  std::string nf_api_version  = DEFAULT_SBI_API_VERSION;
+  string address              = {};
+
+  if (!support_features.use_fqdn_dns) {
+    // Store FQDN
+    nf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nf_addr.fqdn);
+
+    nf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
+    IPV4_STR_ADDR_TO_INADDR(
+        util::trim(address).c_str(), nf_ipv4_addr,
+        "BAD IPv4 ADDRESS FORMAT FOR NF !");
+    Logger::amf_app().error("IP ADDR %s!", address.c_str());
+
+    nf_addr.ipv4_addr = nf_ipv4_addr;
+    if (!(nf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nf_port))) {
+      Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+      // throw(AMF_CONFIG_STRING_PORT "failed");
+      nf_port = DEFAULT_HTTP1_PORT;
+    }
+    nf_addr.port = nf_port;
+    if (!(nf_cfg.lookupValue(AMF_CONFIG_STRING_API_VERSION, nf_api_version))) {
+      Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
+      nf_api_version = DEFAULT_SBI_API_VERSION;
+      // throw(AMF_CONFIG_STRING_API_VERSION "failed");
+    }
+
+    nf_addr.api_version = nf_api_version;
+  } else {
+    nf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nf_addr.fqdn);
+    uint8_t addr_type = {};
+    fqdn::resolve(nf_addr.fqdn, address, nf_port, addr_type);
+    if (addr_type != 0) {  // IPv6: TODO
+      // throw("DO NOT SUPPORT IPV6 ADDR FOR NF!");
+      Logger::amf_app().error("DO NOT SUPPORT IPV6 ADDR FOR NF!");
+    } else {  // IPv4
+      IPV4_STR_ADDR_TO_INADDR(
+          util::trim(address).c_str(), nf_ipv4_addr,
+          "BAD IPv4 ADDRESS FORMAT FOR NF !");
+      nf_addr.ipv4_addr = nf_ipv4_addr;
+      // nf_addr.port        = nf_port;
+
+      // We hardcode NF port from config for the moment
+      if (!(nf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nf_port))) {
+        Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+        // throw(AMF_CONFIG_STRING_PORT "failed");
+      }
+      nf_addr.port        = nf_port;
+      nf_addr.api_version = DEFAULT_SBI_API_VERSION;  // TODO: get API version
+    }
+  }
 }
 
 //------------------------------------------------------------------------------

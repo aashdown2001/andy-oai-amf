@@ -424,7 +424,7 @@ void conv::string_2_octet_string(
   // memcpy(o_str.buf, str.c_str(), str.size());
   std::copy(str.begin(), str.end(), o_str.buf);
   o_str.buf[str.length()] = '\0';
-  o_str.size              = str.length() + 1;
+  o_str.size              = str.length();
 }
 
 //------------------------------------------------------------------------------

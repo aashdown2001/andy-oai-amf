@@ -52,6 +52,7 @@
 #define AMF_CONFIG_STRING_PORT "PORT"
 #define AMF_CONFIG_STRING_PPID "PPID"
 #define AMF_CONFIG_STRING_SBI_HTTP2_PORT "HTTP2_PORT"
+#define AMF_CONFIG_STRING_API_VERSION "API_VERSION"
 
 #define AMF_CONFIG_STRING_INTERFACE_SBI "SBI"
 #define AMF_CONFIG_STRING_SMF_INSTANCES_POOL "SMF_INSTANCES_POOL"
@@ -60,11 +61,8 @@
 #define AMF_CONFIG_STRING_SMF_INSTANCE_VERSION "VERSION"
 #define AMF_CONFIG_STRING_SMF_INSTANCE_SELECTED "SELECTED"
 
+#define AMF_CONFIG_STRING_SMF "SMF"
 #define AMF_CONFIG_STRING_NRF "NRF"
-#define AMF_CONFIG_STRING_NRF_IPV4_ADDRESS "IPV4_ADDRESS"
-#define AMF_CONFIG_STRING_NRF_PORT "PORT"
-#define AMF_CONFIG_STRING_API_VERSION "API_VERSION"
-
 #define AMF_CONFIG_STRING_AUSF "AUSF"
 #define AMF_CONFIG_STRING_UDM "UDM"
 #define AMF_CONFIG_STRING_NSSF "NSSF"
@@ -406,6 +404,8 @@ class amf_config {
    */
   int load_interface(const Setting& if_cfg, interface_cfg_t& cfg);
 
+  void get_nf_info(const Setting& nf_cfg, nf_addr_t& nf_addr);
+
   bool resolve_fqdn(const std::string& fqdn, struct in_addr& ipv4_addr);
 
   /*
@@ -555,6 +555,7 @@ class amf_config {
 
   } support_features;
 
+  nf_addr_t smf_addr;
   nf_addr_t nrf_addr;
   nf_addr_t ausf_addr;
   nf_addr_t udm_addr;
