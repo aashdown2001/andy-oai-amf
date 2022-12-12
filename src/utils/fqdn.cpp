@@ -37,7 +37,7 @@ bool fqdn::resolve(
   while (tries < MAX_NB_RESOLVE_TRIES) {
     try {
       boost::asio::io_context io_context = {};
-      Logger::amf_app().debug("Resolving DNS Try #%u", tries);
+      Logger::amf_app().debug("Resolving DNS Try #%u", tries + 1);
 
       boost::asio::ip::tcp::resolver resolver{io_context};
       boost::asio::ip::tcp::resolver::results_type endpoints =

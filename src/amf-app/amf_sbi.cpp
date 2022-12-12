@@ -758,41 +758,38 @@ void amf_sbi::handle_itti_message(itti_sbi_nf_instance_discovery& itti_msg) {
 bool amf_sbi::smf_selection_from_configuration(
     std::string& smf_addr, std::string& smf_port,
     std::string& smf_api_version) {
-  for (int i = 0; i < amf_cfg.smf_pool.size(); i++) {
-    if (amf_cfg.smf_pool[i].selected) {
-      if (!amf_cfg.support_features.use_fqdn_dns) {
-        if (!amf_cfg.support_features.use_http2) {
-          smf_addr = amf_cfg.smf_pool[i].ipv4;
-          smf_port = amf_cfg.smf_pool[i].port;
-        } else {
-          smf_addr = amf_cfg.smf_pool[i].ipv4;
-          smf_port = std::to_string(amf_cfg.smf_pool[i].http2_port);
-        }
-
-        smf_api_version = amf_cfg.smf_pool[i].version;
-        return true;
-      } else {
-        // resolve IP addr from a FQDN/DNS name
-        uint8_t addr_type          = 0;
-        uint32_t smf_port_resolved = 0;
-        fqdn::resolve(
-            amf_cfg.smf_pool[i].fqdn, amf_cfg.smf_pool[i].ipv4,
-            smf_port_resolved, addr_type);
-        // TODO for HTTP2
-        if (amf_cfg.support_features.use_http2) smf_port_resolved = 8080;
-        if (addr_type != 0) {  // IPv6: TODO
-          Logger::amf_sbi().warn("Do not support IPv6 Addr for SMF");
-          return false;
-        } else {  // IPv4
-          smf_addr        = amf_cfg.smf_pool[i].ipv4;
-          smf_port        = std::to_string(smf_port_resolved);
-          smf_api_version = "v1";  // TODO: get API version
-          return true;
-        }
-      }
+  if (!amf_cfg.support_features.use_fqdn_dns) {
+    smf_addr = std::string(inet_ntoa(*((struct in_addr*) &amf_cfg.smf_addr)));
+    if (!amf_cfg.support_features.use_http2) {
+      smf_port = std::to_string(amf_cfg.smf_addr.http2_port);
+    } else {
+      smf_port = std::to_string(amf_cfg.smf_addr.port);
+    }
+    smf_api_version = amf_cfg.smf_addr.api_version;
+    return true;
+  } else {
+    // resolve IP addr from a FQDN/DNS name
+    uint8_t addr_type          = 0;
+    std::string addr           = {};
+    uint32_t smf_port_resolved = 0;
+    if (!fqdn::resolve(
+            amf_cfg.smf_addr.fqdn, addr, smf_port_resolved, addr_type)) {
+      return false;
+    }
+    // TODO for HTTP2
+    if (amf_cfg.support_features.use_http2)
+      smf_port_resolved = DEFAULT_HTTP2_PORT;
+    if (addr_type != 0) {  // IPv6: TODO
+      Logger::amf_sbi().warn("Do not support IPv6 Addr for SMF");
+      return false;
+    } else {  // IPv4
+      smf_addr        = addr;
+      smf_port        = std::to_string(smf_port_resolved);
+      smf_api_version = DEFAULT_SBI_API_VERSION;  // TODO: get API version
       return true;
     }
   }
+
   return false;
 }
 

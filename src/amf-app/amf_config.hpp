@@ -360,6 +360,7 @@ typedef struct {
 typedef struct nf_addr_s {
   struct in_addr ipv4_addr;
   unsigned int port;
+  unsigned int http2_port;
   std::string api_version;
   std::string fqdn;
 
@@ -367,6 +368,7 @@ typedef struct nf_addr_s {
     nlohmann::json json_data = {};
     json_data["ipv4_addr"]   = inet_ntoa(this->ipv4_addr);
     json_data["port"]        = this->port;
+    json_data["http2_port"]  = this->http2_port;
     json_data["api_version"] = this->api_version;
     json_data["fqdn"]        = this->fqdn;
     return json_data;
@@ -378,6 +380,7 @@ typedef struct nf_addr_s {
         util::trim(ipv4_addr_str).c_str(), this->ipv4_addr,
         "BAD IPv4 ADDRESS FORMAT FOR INTERFACE !");
     this->port        = json_data["port"].get<int>();
+    this->http2_port  = json_data["http2_port"].get<int>();
     this->api_version = json_data["api_version"].get<std::string>();
     this->fqdn        = json_data["fqdn"].get<std::string>();
   }
@@ -511,7 +514,6 @@ class amf_config {
   std::string is_emergency_support;
   auth_conf_t auth_para;
   nas_conf_t nas_cfg;
-  std::vector<smf_inst_t> smf_pool;
 
   struct {
     bool enable_nf_registration;
