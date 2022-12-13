@@ -82,7 +82,7 @@ class amf_n2 : public ngap::ngap_app {
   void handle_itti_message(itti_initial_ue_message& init_ue_msg);
 
   /*
-   * Handle ITTI message (ULNASTransport)
+   * Handle ITTI message (UplinkNASTransport)
    * @param [itti_ul_nas_transport&]: ITTI message
    * @return void
    */

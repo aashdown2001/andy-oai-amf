@@ -432,7 +432,6 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
     itti_msg->n2sm           = blk2bstr(
         list[0].pduSessionResourceSetupResponseTransfer.buf,
         list[0].pduSessionResourceSetupResponseTransfer.size);
-    ;
     itti_msg->is_n2sm_set    = true;
     itti_msg->n2sm_info_type = "PDU_RES_SETUP_RSP";
     itti_msg->amf_ue_ngap_id =

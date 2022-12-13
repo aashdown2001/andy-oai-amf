@@ -700,7 +700,7 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
 
 //------------------------------------------------------------------------------
 void amf_n2::handle_itti_message(itti_ul_nas_transport& ul_nas_transport) {
-  Logger::amf_n2().debug("Handle UL NAS Transport...");
+  Logger::amf_n2().debug("Handle Uplink NAS Transport...");
 
   unsigned long amf_ue_ngap_id    = ul_nas_transport.ulNas->getAmfUeNgapId();
   uint32_t ran_ue_ngap_id         = ul_nas_transport.ulNas->getRanUeNgapId();

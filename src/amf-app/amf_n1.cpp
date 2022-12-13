@@ -523,7 +523,7 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
         type, nc, nas_data_ind.ran_ue_ngap_id, nas_data_ind.amf_ue_ngap_id,
         decoded_plain_msg, snn, ulCount);
   } else {
-    Logger::amf_n1().debug("Received uplink NAS message...");
+    Logger::amf_n1().debug("Received Uplink NAS message...");
     uplink_nas_msg_handle(
         nas_data_ind.ran_ue_ngap_id, nas_data_ind.amf_ue_ngap_id,
         decoded_plain_msg, plmn);
@@ -3234,80 +3234,123 @@ void amf_n1::ul_nas_transport_handle(
   uint8_t pdu_session_id = ul_nas->getPduSessionId();
   uint8_t request_type   = ul_nas->getRequestType();
 
-  // SNSSAI
-  SNSSAI_t snssai = {};
-  if (!ul_nas->getSnssai(snssai)) {  // If no SNSSAI in this message, use the
-                                     // one in Registration Request
-    Logger::amf_n1().debug(
-        "No Requested NSSAI available in ULNASTransport, use NSSAI from "
-        "Requested/Configured NSSAI!");
-
-    std::shared_ptr<nas_context> nc = {};
-    if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
-      Logger::amf_n1().warn(
-          "No existed nas_context with amf_ue_ngap_id(0x%x)", amf_ue_ngap_id);
-      return;
-    }
-
-    // TODO: Only use the first one for now if there's multiple requested NSSAI
-    // since we don't know which slice associated with this PDU session
-    if (nc->requestedNssai.size() > 0) {
-      snssai = nc->requestedNssai[0];
-      Logger::amf_n1().debug(
-          "Use first Requested S-NSSAI %s", snssai.ToString().c_str());
-    } else {
-      // Otherwise, use first default subscribed S-NSSAI if available
-      for (const auto& sn : nc->subscribed_snssai) {
-        if (sn.first) {
-          snssai = sn.second;
-          Logger::amf_n1().debug(
-              "Use Default Configured S-NSSAI %s", snssai.ToString().c_str());
-          break;
-        }
-      }
-    }
-  }
-
-  Logger::amf_n1().debug(
-      "S_NSSAI for this PDU Session %s", snssai.ToString().c_str());
-
-  bstring dnn    = bfromcstr("default");
   bstring sm_msg = nullptr;
-  if (ul_nas->getDnn(dnn)) {
-  } else {
-    dnn = bfromcstr("default");
-  }
-  comUt::print_buffer(
-      "amf_n1", "Decoded DNN Bit String", (uint8_t*) bdata(dnn), blength(dnn));
-  switch (payload_type) {
-    case N1_SM_INFORMATION: {
-      if (!ul_nas->getPayloadContainer(sm_msg)) {
-        Logger::amf_n1().error("Cannot decode Payload Container");
+
+  if (((request_type & 0x07) == PDU_SESSION_INITIAL_REQUEST) or
+      ((request_type & 0x07) == EXISTING_PDU_SESSION)) {
+    // SNSSAI
+    SNSSAI_t snssai = {};
+    if (!ul_nas->getSnssai(snssai)) {  // If no SNSSAI in this message, use the
+                                       // one in Registration Request
+      Logger::amf_n1().debug(
+          "No Requested NSSAI available in ULNASTransport, use NSSAI from "
+          "Requested/Configured NSSAI!");
+
+      std::shared_ptr<nas_context> nc = {};
+      if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+        Logger::amf_n1().warn(
+            "No existed nas_context with amf_ue_ngap_id(0x%x)", amf_ue_ngap_id);
         return;
       }
 
-      std::shared_ptr<itti_nsmf_pdusession_create_sm_context> itti_msg =
-          std::make_shared<itti_nsmf_pdusession_create_sm_context>(
-              TASK_AMF_N1, TASK_AMF_SBI);
-      itti_msg->ran_ue_ngap_id = ran_ue_ngap_id;
-      itti_msg->amf_ue_ngap_id = amf_ue_ngap_id;
-      itti_msg->req_type       = request_type;
-      itti_msg->pdu_sess_id    = pdu_session_id;
-      itti_msg->dnn            = bstrcpy(dnn);
-      itti_msg->sm_msg         = bstrcpy(sm_msg);
-      itti_msg->snssai.sST     = snssai.sst;
-      itti_msg->snssai.sD      = std::to_string(snssai.sd);
-      itti_msg->plmn.mnc       = plmn.mnc;
-      itti_msg->plmn.mcc       = plmn.mcc;
-
-      int ret = itti_inst->send_msg(itti_msg);
-      if (0 != ret) {
-        Logger::amf_n1().error(
-            "Could not send ITTI message %s to task TASK_AMF_SBI",
-            itti_msg->get_msg_name());
+      // TODO: Only use the first one for now if there's multiple requested
+      // NSSAI since we don't know which slice associated with this PDU session
+      if (nc->requestedNssai.size() > 0) {
+        snssai = nc->requestedNssai[0];
+        Logger::amf_n1().debug(
+            "Use first Requested S-NSSAI %s", snssai.ToString().c_str());
+      } else {
+        // Otherwise, use first default subscribed S-NSSAI if available
+        for (const auto& sn : nc->subscribed_snssai) {
+          if (sn.first) {
+            snssai = sn.second;
+            Logger::amf_n1().debug(
+                "Use Default Configured S-NSSAI %s", snssai.ToString().c_str());
+            break;
+          }
+        }
       }
+    }
 
-    } break;
+    Logger::amf_n1().debug(
+        "S_NSSAI for this PDU Session %s", snssai.ToString().c_str());
+
+    bstring dnn = bfromcstr("default");
+
+    if (!ul_nas->getDnn(dnn)) {
+      Logger::amf_n1().debug(
+          "No DNN available in ULNASTransport, use default DNN!");
+      // TODO: use default DNN for the corresponding NSSAI
+    }
+
+    comUt::print_buffer(
+        "amf_n1", "Decoded DNN Bit String", (uint8_t*) bdata(dnn),
+        blength(dnn));
+
+    switch (payload_type) {
+      case N1_SM_INFORMATION: {
+        if (!ul_nas->getPayloadContainer(sm_msg)) {
+          Logger::amf_n1().error("Cannot decode Payload Container");
+          return;
+        }
+
+        std::shared_ptr<itti_nsmf_pdusession_create_sm_context> itti_msg =
+            std::make_shared<itti_nsmf_pdusession_create_sm_context>(
+                TASK_AMF_N1, TASK_AMF_SBI);
+        itti_msg->ran_ue_ngap_id = ran_ue_ngap_id;
+        itti_msg->amf_ue_ngap_id = amf_ue_ngap_id;
+        itti_msg->req_type       = request_type;
+        itti_msg->pdu_sess_id    = pdu_session_id;
+        itti_msg->dnn            = bstrcpy(dnn);
+        itti_msg->sm_msg         = bstrcpy(sm_msg);
+        itti_msg->snssai.sST     = snssai.sst;
+        itti_msg->snssai.sD      = std::to_string(snssai.sd);
+        itti_msg->plmn.mnc       = plmn.mnc;
+        itti_msg->plmn.mcc       = plmn.mcc;
+
+        int ret = itti_inst->send_msg(itti_msg);
+        if (0 != ret) {
+          Logger::amf_n1().error(
+              "Could not send ITTI message %s to task TASK_AMF_SBI",
+              itti_msg->get_msg_name());
+        }
+
+      } break;
+      default: {
+        Logger::amf_n1().debug("Transport message un supported");
+      }
+    }
+
+  } else {
+    switch (payload_type) {
+      case N1_SM_INFORMATION: {
+        if (!ul_nas->getPayloadContainer(sm_msg)) {
+          Logger::amf_n1().error("Cannot decode Payload Container");
+          return;
+        }
+
+        std::shared_ptr<itti_nsmf_pdusession_update_sm_context> itti_msg =
+            std::make_shared<itti_nsmf_pdusession_update_sm_context>(
+                TASK_AMF_N1, TASK_AMF_SBI);
+
+        itti_msg->ran_ue_ngap_id = ran_ue_ngap_id;
+        itti_msg->amf_ue_ngap_id = amf_ue_ngap_id;
+        itti_msg->pdu_session_id = pdu_session_id;
+        itti_msg->n1sm           = bstrcpy(sm_msg);
+        itti_msg->is_n1sm_set    = true;
+
+        int ret = itti_inst->send_msg(itti_msg);
+        if (0 != ret) {
+          Logger::amf_n1().error(
+              "Could not send ITTI message %s to task TASK_AMF_SBI",
+              itti_msg->get_msg_name());
+        }
+
+      } break;
+      default: {
+        Logger::amf_n1().debug("Transport message is not supported");
+      }
+    }
   }
 }
 

@@ -70,7 +70,7 @@ uint8_t Rejected_SNSSAI::getSST() {
 
 //------------------------------------------------------------------------------
 void Rejected_SNSSAI::setSd(const uint32_t& sd) {
-  sd_ = std::optional<uint32_t>(sd);
+  sd_.emplace(sd);
   length_ += 3;
 }
 
@@ -123,8 +123,10 @@ int Rejected_SNSSAI::encode2buffer(uint8_t* buf, int len) {
   octet = (length_ << 4) | (0x0f & cause_);
   ENCODE_U8(buf + encoded_size, octet, encoded_size);
   ENCODE_U8(buf + encoded_size, sst_, encoded_size);
+  Logger::nas_mm().debug("SST %d", sst_);
   if (sd_.has_value()) {
     ENCODE_U24(buf + encoded_size, sd_.value(), encoded_size);
+    Logger::nas_mm().debug("SD 0x%x", sd_.value());
   }
   Logger::nas_mm().debug("Encoded Rejected_SNSSAI (len %d)", encoded_size);
   return encoded_size;

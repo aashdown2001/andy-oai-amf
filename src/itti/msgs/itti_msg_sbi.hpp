@@ -124,6 +124,8 @@ class itti_nsmf_pdusession_update_sm_context : public itti_msg_n11 {
       : itti_msg_n11(NSMF_PDU_SESSION_UPDATE_SM_CTX, origin, destination) {
     supi           = {};
     pdu_session_id = 0;
+    n1sm           = nullptr;
+    is_n1sm_set    = false;
     n2sm           = nullptr;
     is_n2sm_set    = false;
     n2sm_info_type = {};
@@ -138,6 +140,8 @@ class itti_nsmf_pdusession_update_sm_context : public itti_msg_n11 {
       : itti_msg_n11(i) {
     supi           = i.supi;
     pdu_session_id = i.pdu_session_id;
+    n1sm           = i.n1sm;
+    is_n1sm_set    = i.is_n1sm_set;
     n2sm           = i.n2sm;
     is_n2sm_set    = i.is_n2sm_set;
     n2sm_info_type = i.n2sm_info_type;
@@ -150,6 +154,8 @@ class itti_nsmf_pdusession_update_sm_context : public itti_msg_n11 {
  public:
   std::string supi;
   uint8_t pdu_session_id;
+  bstring n1sm;
+  bool is_n1sm_set;
   bstring n2sm;
   bool is_n2sm_set;
   std::string n2sm_info_type;
