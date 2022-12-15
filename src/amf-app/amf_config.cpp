@@ -55,41 +55,42 @@ namespace config {
 amf_config::amf_config() {
   smf_addr.ipv4_addr.s_addr = INADDR_ANY;
   smf_addr.port             = DEFAULT_HTTP1_PORT;
-  smf_addr.http2_port       = DEFAULT_HTTP2_PORT;
-  smf_addr.api_version      = DEFAULT_SBI_API_VERSION;
+  // smf_addr.http2_port       = DEFAULT_HTTP2_PORT;
+  smf_addr.api_version = DEFAULT_SBI_API_VERSION;
 
-  nrf_addr.ipv4_addr.s_addr               = INADDR_ANY;
-  nrf_addr.port                           = DEFAULT_HTTP1_PORT;
-  nrf_addr.http2_port                     = DEFAULT_HTTP2_PORT;
-  nrf_addr.api_version                    = DEFAULT_SBI_API_VERSION;
-  ausf_addr.ipv4_addr.s_addr              = INADDR_ANY;
-  ausf_addr.port                          = DEFAULT_HTTP1_PORT;
-  ausf_addr.http2_port                    = DEFAULT_HTTP2_PORT;
-  ausf_addr.api_version                   = DEFAULT_SBI_API_VERSION;
-  udm_addr.ipv4_addr.s_addr               = INADDR_ANY;
-  udm_addr.port                           = DEFAULT_HTTP1_PORT;
-  udm_addr.http2_port                     = DEFAULT_HTTP2_PORT;
-  udm_addr.api_version                    = DEFAULT_SBI_API_VERSION;
-  nssf_addr.ipv4_addr.s_addr              = INADDR_ANY;
-  nssf_addr.port                          = DEFAULT_HTTP1_PORT;
-  nssf_addr.http2_port                    = DEFAULT_HTTP2_PORT;
-  nssf_addr.api_version                   = DEFAULT_SBI_API_VERSION;
-  instance                                = 0;
-  n2                                      = {};
-  sbi                                     = {};
-  sbi_api_version                         = DEFAULT_SBI_API_VERSION;
-  sbi_http2_port                          = DEFAULT_HTTP2_PORT;
-  statistics_interval                     = 0;
-  guami                                   = {};
-  guami_list                              = {};
-  relative_amf_capacity                   = 0;
-  plmn_list                               = {};
-  auth_para                               = {};
-  nas_cfg                                 = {};
+  nrf_addr.ipv4_addr.s_addr             = INADDR_ANY;
+  nrf_addr.port                         = DEFAULT_HTTP1_PORT;
+  nrf_addr.http2_port                   = DEFAULT_HTTP2_PORT;
+  nrf_addr.api_version                  = DEFAULT_SBI_API_VERSION;
+  ausf_addr.ipv4_addr.s_addr            = INADDR_ANY;
+  ausf_addr.port                        = DEFAULT_HTTP1_PORT;
+  ausf_addr.http2_port                  = DEFAULT_HTTP2_PORT;
+  ausf_addr.api_version                 = DEFAULT_SBI_API_VERSION;
+  udm_addr.ipv4_addr.s_addr             = INADDR_ANY;
+  udm_addr.port                         = DEFAULT_HTTP1_PORT;
+  udm_addr.http2_port                   = DEFAULT_HTTP2_PORT;
+  udm_addr.api_version                  = DEFAULT_SBI_API_VERSION;
+  nssf_addr.ipv4_addr.s_addr            = INADDR_ANY;
+  nssf_addr.port                        = DEFAULT_HTTP1_PORT;
+  nssf_addr.http2_port                  = DEFAULT_HTTP2_PORT;
+  nssf_addr.api_version                 = DEFAULT_SBI_API_VERSION;
+  instance                              = 0;
+  n2                                    = {};
+  sbi                                   = {};
+  sbi_api_version                       = DEFAULT_SBI_API_VERSION;
+  sbi_http2_port                        = DEFAULT_HTTP2_PORT;
+  statistics_interval                   = 0;
+  guami                                 = {};
+  guami_list                            = {};
+  relative_amf_capacity                 = 0;
+  plmn_list                             = {};
+  auth_para                             = {};
+  nas_cfg                               = {};
+  support_features.enable_smf_selection = false;
+
   support_features.enable_nf_registration = false;
   support_features.enable_nrf_selection   = false;
   support_features.enable_external_nrf    = false;
-  support_features.enable_smf_selection   = false;
   support_features.enable_external_ausf   = false;
   support_features.enable_external_udm    = false;
   support_features.enable_external_nssf   = false;
@@ -349,18 +350,18 @@ int amf_config::load(const std::string& config_file) {
     const Setting& sbi_cfg = new_if_cfg[AMF_CONFIG_STRING_INTERFACE_SBI];
     load_interface(sbi_cfg, sbi);
 
-    // SBI API VERSION
-    if (!(sbi_cfg.lookupValue(
-            AMF_CONFIG_STRING_API_VERSION, sbi_api_version))) {
-      Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
-      throw(AMF_CONFIG_STRING_API_VERSION "failed");
-    }
-
     // HTTP2 port
     if (!(sbi_cfg.lookupValue(
             AMF_CONFIG_STRING_SBI_HTTP2_PORT, sbi_http2_port))) {
       Logger::amf_app().error(AMF_CONFIG_STRING_SBI_HTTP2_PORT "failed");
       throw(AMF_CONFIG_STRING_SBI_HTTP2_PORT "failed");
+    }
+
+    // SBI API VERSION
+    if (!(sbi_cfg.lookupValue(
+            AMF_CONFIG_STRING_API_VERSION, sbi_api_version))) {
+      Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
+      throw(AMF_CONFIG_STRING_API_VERSION "failed");
     }
 
   } catch (const SettingNotFoundException& nfex) {
@@ -474,62 +475,68 @@ void amf_config::get_nf_info(const Setting& nf_cfg, nf_addr_t& nf_addr) {
   struct in_addr nf_ipv4_addr = {};
   nf_ipv4_addr.s_addr         = INADDR_ANY;
   unsigned int nf_port        = DEFAULT_HTTP1_PORT;
-  unsigned int nf_http2_port  = DEFAULT_HTTP2_PORT;
-  std::string nf_api_version  = DEFAULT_SBI_API_VERSION;
-  string address              = {};
+  // unsigned int nf_http2_port  = DEFAULT_HTTP2_PORT;
+  std::string nf_api_version = DEFAULT_SBI_API_VERSION;
+  string address             = {};
+  std::string uri            = {};
+  if_cfg.lookupValue(AMF_CONFIG_STRING_NF_URI, uri);
 
-  if (!support_features.use_fqdn_dns) {
-    // Store FQDN
-    nf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nf_addr.fqdn);
-
-    nf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
-    IPV4_STR_ADDR_TO_INADDR(
-        util::trim(address).c_str(), nf_ipv4_addr,
-        "BAD IPv4 ADDRESS FORMAT FOR NF !");
-    nf_addr.ipv4_addr = nf_ipv4_addr;
-    if (!(nf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nf_port))) {
-      Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
-      // throw(AMF_CONFIG_STRING_PORT "failed");
-      nf_port = DEFAULT_HTTP1_PORT;
-    }
-    nf_addr.port = nf_port;
-    if (!(nf_cfg.lookupValue(
-            AMF_CONFIG_STRING_SBI_HTTP2_PORT, nf_http2_port))) {
-      Logger::amf_app().error(AMF_CONFIG_STRING_SBI_HTTP2_PORT "failed");
-      // throw(AMF_CONFIG_STRING_SBI_HTTP2_PORT "failed");
-      nf_http2_port = DEFAULT_HTTP2_PORT;
-    }
-    nf_addr.http2_port = nf_http2_port;
-    if (!(nf_cfg.lookupValue(AMF_CONFIG_STRING_API_VERSION, nf_api_version))) {
-      Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
-      nf_api_version = DEFAULT_SBI_API_VERSION;
-      // throw(AMF_CONFIG_STRING_API_VERSION "failed");
-    }
-
-    nf_addr.api_version = nf_api_version;
-  } else {
-    nf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nf_addr.fqdn);
-    uint8_t addr_type = {};
-    fqdn::resolve(nf_addr.fqdn, address, nf_port, addr_type);
-    if (addr_type != 0) {  // IPv6: TODO
-      // throw("DO NOT SUPPORT IPV6 ADDR FOR NF!");
-      Logger::amf_app().error("DO NOT SUPPORT IPV6 ADDR FOR NF!");
-    } else {  // IPv4
-      IPV4_STR_ADDR_TO_INADDR(
-          util::trim(address).c_str(), nf_ipv4_addr,
-          "BAD IPv4 ADDRESS FORMAT FOR NF !");
-      nf_addr.ipv4_addr = nf_ipv4_addr;
-      // nf_addr.port        = nf_port;
-
-      // We hardcode NF port from config for the moment
-      if (!(nf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nf_port))) {
-        Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
-        // throw(AMF_CONFIG_STRING_PORT "failed");
-      }
-      nf_addr.port        = nf_port;
-      nf_addr.api_version = DEFAULT_SBI_API_VERSION;  // TODO: get API version
-    }
+  std::vector<std::string> words = {};
+  boost::split(words, uri, boost::is_any_of(":"), boost::token_compress_on);
+  if (words.size() != 2) {
+    Logger::smf_app().error(
+        "Bad value " AMF_CONFIG_STRING_NF_URI " = %s in config file",
+        address.c_str());
+    return;
   }
+
+  // First suppose that URI contains IP Addr
+  unsigned char buf_in_addr[sizeof(struct in6_addr)];  // you never know...
+  if (inet_pton(AF_INET, util::trim(words.at(0)).c_str(), buf_in_addr) == 1) {
+    memcpy(&nf_addr, buf_in_addr, sizeof(struct in_addr));
+  } else {
+    // May contain FQDN, do resolution:
+    nf_addr.fqdn                 = util::trim(words.at(0));
+    std::string resolved_address = {};
+    FqdnAddressType addr_type    = FqdnAddressType::kIPv4;
+    if (fqdn::resolve(nf_addr.fqdn, resolved_address, nf_port, addr_type)) {
+      if (inet_pton(
+              AF_INET, util::trim(resolved_address).c_str(), buf_in_addr) ==
+          1) {
+        memcpy(&nf_addr, buf_in_addr, sizeof(struct in_addr));
+      }
+    } else {
+      // Clear FQDN
+      nf_addr.fqdn = {};
+    }
+    Logger::smf_app().error(
+        "In conversion: Bad value " AMF_CONFIG_STRING_NF_URI
+        " = %s in config file",
+        util::trim(words.at(0)).c_str());
+    return;
+  }
+
+  if (!conv::string_to_int(util::trim(words.at(1)), nf_port, 10)) {
+    nf_port = DEFAULT_HTTP1_PORT;
+  }
+  nf_addr.port = nf_port;
+
+  /*
+      if (!(nf_cfg.lookupValue(
+              AMF_CONFIG_STRING_SBI_HTTP2_PORT, nf_http2_port))) {
+        Logger::amf_app().error(AMF_CONFIG_STRING_SBI_HTTP2_PORT "failed");
+        // throw(AMF_CONFIG_STRING_SBI_HTTP2_PORT "failed");
+        nf_http2_port = DEFAULT_HTTP2_PORT;
+      }
+      nf_addr.http2_port = nf_http2_port;
+    */
+  if (!(nf_cfg.lookupValue(AMF_CONFIG_STRING_API_VERSION, nf_api_version))) {
+    Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
+    nf_api_version = DEFAULT_SBI_API_VERSION;
+    // throw(AMF_CONFIG_STRING_API_VERSION "failed");
+  }
+
+  nf_addr.api_version = nf_api_version;
 }
 
 //------------------------------------------------------------------------------
@@ -707,40 +714,11 @@ int amf_config::load_interface(
   if_cfg.lookupValue(AMF_CONFIG_STRING_INTERFACE_NAME, cfg.if_name);
   util::trim(cfg.if_name);
   if (not boost::iequals(cfg.if_name, "none")) {
-    std::string address = {};
-    if_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
-    util::trim(address);
-    if (boost::iequals(address, "read")) {
-      if (get_inet_addr_infos_from_iface(
-              cfg.if_name, cfg.addr4, cfg.network4, cfg.mtu)) {
-        Logger::amf_app().error(
-            "Could not read %s network interface configuration", cfg.if_name);
-        return RETURNerror;
-      }
-    } else {
-      std::vector<std::string> words;
-      boost::split(
-          words, address, boost::is_any_of("/"), boost::token_compress_on);
-      if (words.size() != 2) {
-        Logger::amf_app().error(
-            "Bad value " AMF_CONFIG_STRING_IPV4_ADDRESS " = %s in config file",
-            address.c_str());
-        return RETURNerror;
-      }
-      unsigned char buf_in_addr[sizeof(struct in6_addr)];  // you never know...
-      if (inet_pton(AF_INET, util::trim(words.at(0)).c_str(), buf_in_addr) ==
-          1) {
-        memcpy(&cfg.addr4, buf_in_addr, sizeof(struct in_addr));
-      } else {
-        Logger::amf_app().error(
-            "In conversion: Bad value " AMF_CONFIG_STRING_IPV4_ADDRESS
-            " = %s in config file",
-            util::trim(words.at(0)).c_str());
-        return RETURNerror;
-      }
-      cfg.network4.s_addr = htons(
-          ntohs(cfg.addr4.s_addr) &
-          0xFFFFFFFF << (32 - std::stoi(util::trim(words.at(1)))));
+    if (get_inet_addr_infos_from_iface(
+            cfg.if_name, cfg.addr4, cfg.network4, cfg.mtu)) {
+      Logger::amf_app().error(
+          "Could not read %s network interface configuration", cfg.if_name);
+      return RETURNerror;
     }
     if_cfg.lookupValue(AMF_CONFIG_STRING_PORT, cfg.port);
   }

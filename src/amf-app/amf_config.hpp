@@ -41,18 +41,34 @@
 #include "thread_sched.hpp"
 
 #define AMF_CONFIG_STRING_AMF_CONFIG "AMF"
-#define AMF_CONFIG_STRING_PID_DIRECTORY "PID_DIRECTORY"
 #define AMF_CONFIG_STRING_INSTANCE_ID "INSTANCE_ID"
+#define AMF_CONFIG_STRING_PID_DIRECTORY "PID_DIRECTORY"
+#define AMF_CONFIG_STRING_AMF_NAME "AMF_NAME"
+#define AMF_CONFIG_STRING_RELATIVE_AMF_CAPACITY "RELATIVE_CAPACITY"
 #define AMF_CONFIG_STRING_STATISTICS_TIMER_INTERVAL "STATISTICS_TIMER_INTERVAL"
+
+#define AMF_CONFIG_STRING_GUAMI "GUAMI"
+#define AMF_CONFIG_STRING_SERVED_GUAMI_LIST "SERVED_GUAMI_LIST"
+#define AMF_CONFIG_STRING_TAC "TAC"
+#define AMF_CONFIG_STRING_MCC "MCC"
+#define AMF_CONFIG_STRING_MNC "MNC"
+#define AMF_CONFIG_STRING_RegionID "RegionID"
+#define AMF_CONFIG_STRING_AMFSetID "AMFSetID"
+#define AMF_CONFIG_STRING_AMFPointer "AMFPointer"
+#define AMF_CONFIG_STRING_PLMN_SUPPORT_LIST "PLMN_SUPPORT_LIST"
+#define AMF_CONFIG_STRING_SLICE_SUPPORT_LIST "SLICE_SUPPORT_LIST"
+#define AMF_CONFIG_STRING_SST "SST"
+#define AMF_CONFIG_STRING_SD "SD"
+
 #define AMF_CONFIG_STRING_INTERFACES "INTERFACES"
 #define AMF_CONFIG_STRING_INTERFACE_NGAP_AMF "NGAP_AMF"
-
 #define AMF_CONFIG_STRING_INTERFACE_NAME "INTERFACE_NAME"
-#define AMF_CONFIG_STRING_IPV4_ADDRESS "IPV4_ADDRESS"
 #define AMF_CONFIG_STRING_PORT "PORT"
 #define AMF_CONFIG_STRING_PPID "PPID"
 #define AMF_CONFIG_STRING_SBI_HTTP2_PORT "HTTP2_PORT"
 #define AMF_CONFIG_STRING_API_VERSION "API_VERSION"
+
+#define AMF_CONFIG_STRING_IPV4_ADDRESS "IPV4_ADDRESS"
 
 #define AMF_CONFIG_STRING_INTERFACE_SBI "SBI"
 #define AMF_CONFIG_STRING_SMF_INSTANCES_POOL "SMF_INSTANCES_POOL"
@@ -66,26 +82,13 @@
 #define AMF_CONFIG_STRING_AUSF "AUSF"
 #define AMF_CONFIG_STRING_UDM "UDM"
 #define AMF_CONFIG_STRING_NSSF "NSSF"
+#define AMF_CONFIG_STRING_NF_URI "URI"
 
 #define AMF_CONFIG_STRING_SCHED_PARAMS "SCHED_PARAMS"
 #define AMF_CONFIG_STRING_THREAD_RD_CPU_ID "CPU_ID"
 #define AMF_CONFIG_STRING_THREAD_RD_SCHED_POLICY "SCHED_POLICY"
 #define AMF_CONFIG_STRING_THREAD_RD_SCHED_PRIORITY "SCHED_PRIORITY"
 
-#define AMF_CONFIG_STRING_AMF_NAME "AMF_NAME"
-#define AMF_CONFIG_STRING_GUAMI "GUAMI"
-#define AMF_CONFIG_STRING_SERVED_GUAMI_LIST "SERVED_GUAMI_LIST"
-#define AMF_CONFIG_STRING_TAC "TAC"
-#define AMF_CONFIG_STRING_MCC "MCC"
-#define AMF_CONFIG_STRING_MNC "MNC"
-#define AMF_CONFIG_STRING_RegionID "RegionID"
-#define AMF_CONFIG_STRING_AMFSetID "AMFSetID"
-#define AMF_CONFIG_STRING_AMFPointer "AMFPointer"
-#define AMF_CONFIG_STRING_RELATIVE_AMF_CAPACITY "RELATIVE_CAPACITY"
-#define AMF_CONFIG_STRING_PLMN_SUPPORT_LIST "PLMN_SUPPORT_LIST"
-#define AMF_CONFIG_STRING_SLICE_SUPPORT_LIST "SLICE_SUPPORT_LIST"
-#define AMF_CONFIG_STRING_SST "SST"
-#define AMF_CONFIG_STRING_SD "SD"
 #define AMF_CONFIG_STRING_CORE_CONFIGURATION "CORE_CONFIGURATION"
 #define AMF_CONFIG_STRING_EMERGENCY_SUPPORT "EMERGENCY_SUPPORT"
 #define AMF_CONFIG_STRING_AUTHENTICATION "AUTHENTICATION"
@@ -199,193 +202,6 @@ typedef struct itti_cfg_s {
   util::thread_sched_params pgw_app_sched_params;
   util::thread_sched_params async_cmd_sched_params;
 } itti_cfg_t;
-
-typedef struct guami_s {
-  std::string mcc;
-  std::string mnc;
-  std::string regionID;
-  std::string AmfSetID;
-  std::string AmfPointer;
-
-  nlohmann::json to_json() const {
-    nlohmann::json json_data = {};
-    json_data["mcc"]         = this->mcc;
-    json_data["mnc"]         = this->mnc;
-    json_data["regionID"]    = this->regionID;
-    json_data["AmfSetID"]    = this->AmfSetID;
-    json_data["AmfPointer"]  = this->AmfPointer;
-    return json_data;
-  }
-
-  void from_json(nlohmann::json& json_data) {
-    this->mcc        = json_data["mcc"].get<std::string>();
-    this->mnc        = json_data["mnc"].get<std::string>();
-    this->regionID   = json_data["regionID"].get<std::string>();
-    this->AmfSetID   = json_data["AmfSetID"].get<std::string>();
-    this->AmfPointer = json_data["AmfPointer"].get<std::string>();
-  }
-} guami_t;
-
-typedef struct slice_s {
-  uint8_t sst;
-  uint32_t sd;
-  bool operator==(const struct slice_s& s) const {
-    if ((s.sst == this->sst) && (s.sd == this->sd)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  bool operator>(const struct slice_s& s) const {
-    if (this->sst > s.sst) return true;
-    if (this->sst == s.sst) {
-      if (this->sd > s.sd) return true;
-      if (this->sd <= s.sd) return false;
-    }
-  }
-  nlohmann::json to_json() const {
-    nlohmann::json json_data = {};
-    json_data["sst"]         = this->sst;
-    if (this->sd != SD_NO_VALUE) json_data["sd"] = this->sd;
-    return json_data;
-  }
-
-  void from_json(nlohmann::json& json_data) {
-    this->sst = json_data["sst"].get<int>();
-    if (json_data.find("sd") != json_data.end()) {
-      this->sd = json_data["sd"].get<int>();
-    }
-  }
-} slice_t;
-
-typedef struct plmn_support_item_s {
-  std::string mcc;
-  std::string mnc;
-  uint32_t tac;
-  std::vector<slice_t> slice_list;
-
-  nlohmann::json to_json() const {
-    nlohmann::json json_data = {};
-    json_data["mcc"]         = this->mcc;
-    json_data["mnc"]         = this->mnc;
-    json_data["tac"]         = this->tac;
-    json_data["slice_list"]  = nlohmann::json::array();
-    for (auto s : slice_list) {
-      json_data["slice_list"].push_back(s.to_json());
-    }
-    return json_data;
-  }
-
-  void from_json(nlohmann::json& json_data) {
-    this->mcc = json_data["mcc"].get<std::string>();
-    this->mnc = json_data["mnc"].get<std::string>();
-    this->tac = json_data["tac"].get<int>();
-
-    for (auto s : json_data["slice_list"]) {
-      slice_t sl = {};
-      sl.from_json(s);
-      slice_list.push_back(sl);
-    }
-  }
-
-} plmn_item_t;
-
-typedef struct {
-  uint8_t prefered_integrity_algorithm[8];
-  uint8_t prefered_ciphering_algorithm[8];
-
-  nlohmann::json to_json() const {
-    nlohmann::json json_data                  = {};
-    json_data["prefered_integrity_algorithm"] = nlohmann::json::array();
-    json_data["prefered_ciphering_algorithm"] = nlohmann::json::array();
-    for (auto s : this->prefered_integrity_algorithm) {
-      json_data["prefered_integrity_algorithm"].push_back(s);
-    }
-    for (auto s : this->prefered_ciphering_algorithm) {
-      json_data["prefered_ciphering_algorithm"].push_back(s);
-    }
-    return json_data;
-  }
-  /*
-    void from_json(nlohmann::json& json_data) {
-      uint8_t i = 0;
-      for (auto s : json_data["prefered_integrity_algorithm"]) {
-        uint8_t integ_alg               = s.get<int>();
-        prefered_integrity_algorithm[i] = integ_alg;
-        ++i;
-      }
-      i = 0;
-      for (auto s : json_data["prefered_ciphering_algorithm"]) {
-        uint8_t cipher_alg              = s.get<int>();
-        prefered_ciphering_algorithm[i] = cipher_alg;
-        ++i;
-      }
-    }*/
-} nas_conf_t;
-
-typedef struct {
-  int id;
-  std::string ipv4;
-  std::string port;
-  uint32_t http2_port;
-  std::string version;
-  bool selected;
-  std::string fqdn;
-
-  nlohmann::json to_json() const {
-    nlohmann::json json_data = {};
-    json_data["id"]          = this->id;
-    json_data["ipv4"]        = this->ipv4;
-    json_data["port"]        = this->port;
-    json_data["http2_port"]  = this->http2_port;
-    json_data["version"]     = this->version;
-    json_data["selected"]    = this->selected;
-    json_data["fqdn"]        = this->fqdn;
-    return json_data;
-  }
-
-  void from_json(nlohmann::json& json_data) {
-    this->id   = json_data["id"].get<int>();
-    this->ipv4 = json_data["ipv4"].get<std::string>();
-    this->port = json_data["port"]
-                     .get<std::string>();  // TODO: use int instead of string
-    this->http2_port = json_data["http2_port"].get<int>();
-    this->version    = json_data["version"].get<std::string>();
-    this->selected   = json_data["selected"].get<bool>();
-    this->fqdn       = json_data["fqdn"].get<std::string>();
-  }
-
-} smf_inst_t;
-
-typedef struct nf_addr_s {
-  struct in_addr ipv4_addr;
-  unsigned int port;
-  unsigned int http2_port;
-  std::string api_version;
-  std::string fqdn;
-
-  nlohmann::json to_json() const {
-    nlohmann::json json_data = {};
-    json_data["ipv4_addr"]   = inet_ntoa(this->ipv4_addr);
-    json_data["port"]        = this->port;
-    json_data["http2_port"]  = this->http2_port;
-    json_data["api_version"] = this->api_version;
-    json_data["fqdn"]        = this->fqdn;
-    return json_data;
-  }
-
-  void from_json(nlohmann::json& json_data) {
-    std::string ipv4_addr_str = json_data["ipv4_addr"].get<std::string>();
-    IPV4_STR_ADDR_TO_INADDR(
-        util::trim(ipv4_addr_str).c_str(), this->ipv4_addr,
-        "BAD IPv4 ADDRESS FORMAT FOR INTERFACE !");
-    this->port        = json_data["port"].get<int>();
-    this->http2_port  = json_data["http2_port"].get<int>();
-    this->api_version = json_data["api_version"].get<std::string>();
-    this->fqdn        = json_data["fqdn"].get<std::string>();
-  }
-
-} nf_addr_t;
 
 class amf_config {
  public:

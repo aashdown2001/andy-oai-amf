@@ -27,7 +27,15 @@
  */
 #ifndef FILE_FQDN_HPP_SEEN
 #define FILE_FQDN_HPP_SEEN
+
+#include "amf.hpp"
 #include <string>
+
+enum class FqdnAddressType {
+  kIPv4 = 0,
+  kIPv6 = 1,
+};
+
 class fqdn {
  public:
   /*
@@ -39,7 +47,9 @@ class fqdn {
    */
   static bool resolve(
       const std::string& host_name, std::string& address, uint32_t& port,
-      uint8_t& addr_type, const std::string& protocol = "http");
+      FqdnAddressType& addr_type, const std::string& protocol = "http");
+
+  static bool resolve(nf_addr_t& nf_addr);
 };
 
 #endif /* FILE_FQDN_HPP_SEEN */
