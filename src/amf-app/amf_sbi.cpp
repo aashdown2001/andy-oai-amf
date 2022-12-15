@@ -1620,8 +1620,9 @@ bool amf_sbi::get_nrf_uri(
       return false;
     }
 
-  } else {  // Get NRF info from NSSF
-            // TODO: check if external NSSF feature is supported
+  } else if (amf_cfg.support_features.enable_nssf) {
+    // Get NRF info from NSSF
+
     Logger::amf_sbi().debug(
         "Send NS Selection to NSSF to discover the appropriate NRF");
 
@@ -1697,5 +1698,6 @@ bool amf_sbi::get_nrf_uri(
 
     return result;
   }
-  return true;
+
+  return false;
 }

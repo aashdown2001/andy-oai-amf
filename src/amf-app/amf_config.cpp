@@ -803,7 +803,7 @@ void amf_config::display() {
 
   Logger::config().info("- Supported Features:");
   Logger::config().info(
-      "    Enable NRF ..........: %s",
+      "    Enable NRF ............: %s",
       support_features.enable_nrf ? "Yes" : "No");
   Logger::config().info(
       "    NRF Selection .........: %s",
