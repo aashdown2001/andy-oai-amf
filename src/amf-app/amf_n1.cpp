@@ -4818,7 +4818,7 @@ bool amf_n1::get_network_slice_selection(
     return false;
   }
 
-  if (amf_cfg.support_features.enable_external_nssf) {
+  if (amf_cfg.support_features.enable_nssf) {
     // Get Authorized Network Slice Info from an  external NSSF
     std::shared_ptr<itti_sbi_network_slice_selection_information> itti_msg =
         std::make_shared<itti_sbi_network_slice_selection_information>(

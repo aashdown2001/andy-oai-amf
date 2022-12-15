@@ -78,12 +78,12 @@ amf_config::amf_config() {
   auth_para                             = {};
   nas_cfg                               = {};
   smf_pool                              = {};
-  support_features.enable_nrf_selection = false;
   support_features.enable_nrf           = false;
+  support_features.enable_nrf_selection = false;
   support_features.enable_smf_selection = false;
   support_features.enable_external_ausf = false;
   support_features.enable_external_udm  = false;
-  support_features.enable_external_nssf = false;
+  support_features.enable_nssf          = false;
   support_features.use_fqdn_dns         = false;
   support_features.use_http2            = false;
   // TODO:
@@ -284,16 +284,12 @@ int amf_config::load(const std::string& config_file) {
     }
 
     support_features_cfg.lookupValue(
-        AMF_CONFIG_STRING_SUPPORT_FEATURES_EXTERNAL_NSSF, opt);
+        AMF_CONFIG_STRING_SUPPORT_FEATURES_ENABLE_NSSF, opt);
     if (boost::iequals(opt, "yes")) {
-      support_features.enable_external_nssf = true;
+      support_features.enable_nssf = true;
     } else {
-      support_features.enable_external_nssf = false;
+      support_features.enable_nssf = false;
     }
-
-    // TODO: should be removed
-    support_features.enable_external_nssf =
-        support_features.enable_nrf_selection;
 
     support_features_cfg.lookupValue(
         AMF_CONFIG_STRING_SUPPORT_FEATURES_USE_FQDN_DNS, opt);
@@ -553,7 +549,7 @@ int amf_config::load(const std::string& config_file) {
     }
 
     // NSSF
-    if (support_features.enable_external_nssf) {
+    if (support_features.enable_nssf) {
       const Setting& nssf_cfg       = new_if_cfg[AMF_CONFIG_STRING_NSSF];
       struct in_addr nssf_ipv4_addr = {};
       unsigned int nssf_port        = {};
@@ -764,7 +760,7 @@ void amf_config::display() {
         "    API version ...........: %s", nrf_addr.api_version.c_str());
   }
 
-  if (support_features.enable_external_nssf) {
+  if (support_features.enable_nssf) {
     Logger::config().info("- NSSF:");
     Logger::config().info(
         "    IP Addr ...............: %s", inet_ntoa(nssf_addr.ipv4_addr));
@@ -823,7 +819,7 @@ void amf_config::display() {
       support_features.enable_external_udm ? "Yes" : "No");
   Logger::config().info(
       "    External NSSF .........: %s",
-      support_features.enable_external_nssf ? "Yes" : "No");
+      support_features.enable_nssf ? "Yes" : "No");
   Logger::config().info(
       "    Use FQDN ..............: %s",
       support_features.use_fqdn_dns ? "Yes" : "No");
@@ -1028,7 +1024,7 @@ void amf_config::to_json(nlohmann::json& json_data) const {
     json_data["nrf"] = nrf_addr.to_json();
   }
 
-  if (support_features.enable_external_nssf) {
+  if (support_features.enable_nssf) {
     json_data["nssf"] = nssf_addr.to_json();
   }
 
@@ -1119,7 +1115,7 @@ bool amf_config::from_json(nlohmann::json& json_data) {
       }
     }
 
-    if (support_features.enable_external_nssf) {
+    if (support_features.enable_nssf) {
       if (json_data.find("nssf") != json_data.end()) {
         nssf_addr.from_json(json_data["nssf"]);
         // if use FQDN -> update IP addr accordingly
