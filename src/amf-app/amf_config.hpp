@@ -103,7 +103,7 @@
   "ORDERED_SUPPORTED_CIPHERING_ALGORITHM_LIST"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES "SUPPORT_FEATURES"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_NRF_SELECTION "NRF_SELECTION"
-#define AMF_CONFIG_STRING_SUPPORT_FEATURES_ENABLE_NRF "ENABLE_NRF"
+#define AMF_CONFIG_STRING_SUPPORT_FEATURES_ENABLE_STATIC_NRF "ENABLE_STATIC_NRF"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_SMF_SELECTION "SMF_SELECTION"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_EXTERNAL_AUSF "EXTERNAL_AUSF"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_EXTERNAL_UDM "EXTERNAL_UDM"
@@ -513,7 +513,7 @@ class amf_config {
   std::vector<smf_inst_t> smf_pool;
 
   struct {
-    bool enable_nrf;
+    bool enable_static_nrf;
     bool enable_nrf_selection;
     bool enable_smf_selection;
     bool enable_external_ausf;
@@ -524,7 +524,7 @@ class amf_config {
     nlohmann::json to_json() const {
       nlohmann::json json_data          = {};
       json_data["enable_nrf_selection"] = this->enable_nrf_selection;
-      json_data["enable_nrf"]           = this->enable_nrf;
+      json_data["enable_static_nrf"]    = this->enable_static_nrf;
       json_data["enable_smf_selection"] = this->enable_smf_selection;
       json_data["enable_external_ausf"] = this->enable_external_ausf;
       json_data["enable_external_udm"]  = this->enable_external_udm;
@@ -535,7 +535,7 @@ class amf_config {
     }
 
     void from_json(nlohmann::json& json_data) {
-      this->enable_nrf = json_data["enable_nrf"].get<bool>();
+      this->enable_static_nrf = json_data["enable_static_nrf"].get<bool>();
       this->enable_nrf_selection =
           json_data["enable_nrf_selection"].get<bool>();
       this->enable_smf_selection =

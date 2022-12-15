@@ -78,7 +78,7 @@ amf_config::amf_config() {
   auth_para                             = {};
   nas_cfg                               = {};
   smf_pool                              = {};
-  support_features.enable_nrf           = false;
+  support_features.enable_static_nrf    = false;
   support_features.enable_nrf_selection = false;
   support_features.enable_smf_selection = false;
   support_features.enable_external_ausf = false;
@@ -252,11 +252,11 @@ int amf_config::load(const std::string& config_file) {
     }
 
     support_features_cfg.lookupValue(
-        AMF_CONFIG_STRING_SUPPORT_FEATURES_ENABLE_NRF, opt);
+        AMF_CONFIG_STRING_SUPPORT_FEATURES_ENABLE_STATIC_NRF, opt);
     if (boost::iequals(opt, "yes")) {
-      support_features.enable_nrf = true;
+      support_features.enable_static_nrf = true;
     } else {
-      support_features.enable_nrf = false;
+      support_features.enable_static_nrf = false;
     }
 
     support_features_cfg.lookupValue(
@@ -751,7 +751,7 @@ void amf_config::display() {
   Logger::config().info(
       "    API version............: %s", sbi_api_version.c_str());
 
-  if (support_features.enable_nrf) {
+  if (support_features.enable_static_nrf) {
     Logger::config().info("- NRF:");
     Logger::config().info(
         "    IP Addr ...............: %s", inet_ntoa(nrf_addr.ipv4_addr));
@@ -804,7 +804,7 @@ void amf_config::display() {
   Logger::config().info("- Supported Features:");
   Logger::config().info(
       "    Enable NRF ............: %s",
-      support_features.enable_nrf ? "Yes" : "No");
+      support_features.enable_static_nrf ? "Yes" : "No");
   Logger::config().info(
       "    NRF Selection .........: %s",
       support_features.enable_nrf_selection ? "Yes" : "No");
@@ -1020,7 +1020,7 @@ void amf_config::to_json(nlohmann::json& json_data) const {
 
   json_data["support_features"] = support_features.to_json();
 
-  if (support_features.enable_nrf) {
+  if (support_features.enable_static_nrf) {
     json_data["nrf"] = nrf_addr.to_json();
   }
 
@@ -1105,7 +1105,7 @@ bool amf_config::from_json(nlohmann::json& json_data) {
       support_features.from_json(json_data["support_features"]);
     }
 
-    if (support_features.enable_nrf) {
+    if (support_features.enable_static_nrf) {
       if (json_data.find("nrf") != json_data.end()) {
         nrf_addr.from_json(json_data["nrf"]);
         // if use FQDN -> update IP addr accordingly

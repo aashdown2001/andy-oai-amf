@@ -1610,19 +1610,17 @@ void amf_sbi::curl_http_client(
 bool amf_sbi::get_nrf_uri(
     const snssai_t& snssai, const plmn_t& plmn, const std::string& dnn,
     std::string& nrf_uri) {
-  if (!amf_cfg.support_features.enable_nrf_selection) {
-    // Get NRF info from configuration file if available
-    if (amf_cfg.support_features.enable_nrf) {
-      nrf_uri = amf_cfg.get_nrf_nf_discovery_service_uri();
-      return true;
-    } else {
-      Logger::amf_sbi().debug("No NRF information from the configuration file");
-      return false;
-    }
+  // Get NRF info from configuration file if available
+  if (amf_cfg.support_features.enable_static_nrf) {
+    nrf_uri = amf_cfg.get_nrf_nf_discovery_service_uri();
+    return true;
+  } else {
+    Logger::amf_sbi().debug("No NRF information from the configuration file");
+    return false;
+  }
 
-  } else if (amf_cfg.support_features.enable_nssf) {
-    // Get NRF info from NSSF
-
+  // Else discovering NRF from NSSF (if enabled)
+  if (amf_cfg.support_features.enable_nssf) {
     Logger::amf_sbi().debug(
         "Send NS Selection to NSSF to discover the appropriate NRF");
 
