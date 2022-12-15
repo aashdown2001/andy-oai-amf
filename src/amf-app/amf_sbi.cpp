@@ -1620,7 +1620,8 @@ bool amf_sbi::get_nrf_uri(
   }
 
   // Else discovering NRF from NSSF (if enabled)
-  if (amf_cfg.support_features.enable_nssf) {
+  if (amf_cfg.support_features.enable_nrf_selection and
+      amf_cfg.support_features.enable_nssf) {
     Logger::amf_sbi().debug(
         "Send NS Selection to NSSF to discover the appropriate NRF");
 
