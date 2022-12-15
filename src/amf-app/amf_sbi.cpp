@@ -1612,7 +1612,7 @@ bool amf_sbi::get_nrf_uri(
     std::string& nrf_uri) {
   if (!amf_cfg.support_features.enable_nrf_selection) {
     // Get NRF info from configuration file if available
-    if (amf_cfg.support_features.enable_external_nrf) {
+    if (amf_cfg.support_features.enable_nrf) {
       nrf_uri = amf_cfg.get_nrf_nf_discovery_service_uri();
       return true;
     } else {

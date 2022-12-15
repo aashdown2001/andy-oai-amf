@@ -53,40 +53,39 @@ namespace config {
 
 //------------------------------------------------------------------------------
 amf_config::amf_config() {
-  nrf_addr.ipv4_addr.s_addr               = INADDR_ANY;
-  nrf_addr.port                           = DEFAULT_HTTP1_PORT;
-  nrf_addr.api_version                    = DEFAULT_SBI_API_VERSION;
-  ausf_addr.ipv4_addr.s_addr              = INADDR_ANY;
-  ausf_addr.port                          = DEFAULT_HTTP1_PORT;
-  ausf_addr.api_version                   = DEFAULT_SBI_API_VERSION;
-  udm_addr.ipv4_addr.s_addr               = INADDR_ANY;
-  udm_addr.port                           = DEFAULT_HTTP1_PORT;
-  udm_addr.api_version                    = DEFAULT_SBI_API_VERSION;
-  nssf_addr.ipv4_addr.s_addr              = INADDR_ANY;
-  nssf_addr.port                          = DEFAULT_HTTP1_PORT;
-  nssf_addr.api_version                   = DEFAULT_SBI_API_VERSION;
-  instance                                = 0;
-  n2                                      = {};
-  sbi                                     = {};
-  sbi_api_version                         = DEFAULT_SBI_API_VERSION;
-  sbi_http2_port                          = DEFAULT_HTTP2_PORT;
-  statistics_interval                     = 0;
-  guami                                   = {};
-  guami_list                              = {};
-  relative_amf_capacity                   = 0;
-  plmn_list                               = {};
-  auth_para                               = {};
-  nas_cfg                                 = {};
-  smf_pool                                = {};
-  support_features.enable_nf_registration = false;
-  support_features.enable_nrf_selection   = false;
-  support_features.enable_external_nrf    = false;
-  support_features.enable_smf_selection   = false;
-  support_features.enable_external_ausf   = false;
-  support_features.enable_external_udm    = false;
-  support_features.enable_external_nssf   = false;
-  support_features.use_fqdn_dns           = false;
-  support_features.use_http2              = false;
+  nrf_addr.ipv4_addr.s_addr             = INADDR_ANY;
+  nrf_addr.port                         = DEFAULT_HTTP1_PORT;
+  nrf_addr.api_version                  = DEFAULT_SBI_API_VERSION;
+  ausf_addr.ipv4_addr.s_addr            = INADDR_ANY;
+  ausf_addr.port                        = DEFAULT_HTTP1_PORT;
+  ausf_addr.api_version                 = DEFAULT_SBI_API_VERSION;
+  udm_addr.ipv4_addr.s_addr             = INADDR_ANY;
+  udm_addr.port                         = DEFAULT_HTTP1_PORT;
+  udm_addr.api_version                  = DEFAULT_SBI_API_VERSION;
+  nssf_addr.ipv4_addr.s_addr            = INADDR_ANY;
+  nssf_addr.port                        = DEFAULT_HTTP1_PORT;
+  nssf_addr.api_version                 = DEFAULT_SBI_API_VERSION;
+  instance                              = 0;
+  n2                                    = {};
+  sbi                                   = {};
+  sbi_api_version                       = DEFAULT_SBI_API_VERSION;
+  sbi_http2_port                        = DEFAULT_HTTP2_PORT;
+  statistics_interval                   = 0;
+  guami                                 = {};
+  guami_list                            = {};
+  relative_amf_capacity                 = 0;
+  plmn_list                             = {};
+  auth_para                             = {};
+  nas_cfg                               = {};
+  smf_pool                              = {};
+  support_features.enable_nrf_selection = false;
+  support_features.enable_nrf           = false;
+  support_features.enable_smf_selection = false;
+  support_features.enable_external_ausf = false;
+  support_features.enable_external_udm  = false;
+  support_features.enable_external_nssf = false;
+  support_features.use_fqdn_dns         = false;
+  support_features.use_http2            = false;
   // TODO:
 }
 
@@ -243,13 +242,6 @@ int amf_config::load(const std::string& config_file) {
     const Setting& support_features_cfg =
         amf_cfg[AMF_CONFIG_STRING_SUPPORT_FEATURES];
     string opt;
-    support_features_cfg.lookupValue(
-        AMF_CONFIG_STRING_SUPPORT_FEATURES_NF_REGISTRATION, opt);
-    if (boost::iequals(opt, "yes")) {
-      support_features.enable_nf_registration = true;
-    } else {
-      support_features.enable_nf_registration = false;
-    }
 
     support_features_cfg.lookupValue(
         AMF_CONFIG_STRING_SUPPORT_FEATURES_NRF_SELECTION, opt);
@@ -260,14 +252,12 @@ int amf_config::load(const std::string& config_file) {
     }
 
     support_features_cfg.lookupValue(
-        AMF_CONFIG_STRING_SUPPORT_FEATURES_EXTERNAL_NRF, opt);
+        AMF_CONFIG_STRING_SUPPORT_FEATURES_ENABLE_NRF, opt);
     if (boost::iequals(opt, "yes")) {
-      support_features.enable_external_nrf = true;
+      support_features.enable_nrf = true;
     } else {
-      support_features.enable_external_nrf = false;
+      support_features.enable_nrf = false;
     }
-    // TODO: should be removed
-    support_features.enable_external_nrf = true;
 
     support_features_cfg.lookupValue(
         AMF_CONFIG_STRING_SUPPORT_FEATURES_SMF_SELECTION, opt);
@@ -765,7 +755,7 @@ void amf_config::display() {
   Logger::config().info(
       "    API version............: %s", sbi_api_version.c_str());
 
-  if (support_features.enable_external_nrf) {
+  if (support_features.enable_nrf) {
     Logger::config().info("- NRF:");
     Logger::config().info(
         "    IP Addr ...............: %s", inet_ntoa(nrf_addr.ipv4_addr));
@@ -817,17 +807,14 @@ void amf_config::display() {
 
   Logger::config().info("- Supported Features:");
   Logger::config().info(
-      "    NF Registration .......: %s",
-      support_features.enable_nf_registration ? "Yes" : "No");
+      "    Enable NRF ..........: %s",
+      support_features.enable_nrf ? "Yes" : "No");
   Logger::config().info(
       "    NRF Selection .........: %s",
       support_features.enable_nrf_selection ? "Yes" : "No");
   Logger::config().info(
       "    SMF Selection .........: %s",
       support_features.enable_smf_selection ? "Yes" : "No");
-  Logger::config().info(
-      "    External NRF ..........: %s",
-      support_features.enable_external_nrf ? "Yes" : "No");
   Logger::config().info(
       "    External AUSF .........: %s",
       support_features.enable_external_ausf ? "Yes" : "No");
@@ -1037,7 +1024,7 @@ void amf_config::to_json(nlohmann::json& json_data) const {
 
   json_data["support_features"] = support_features.to_json();
 
-  if (support_features.enable_external_nrf) {
+  if (support_features.enable_nrf) {
     json_data["nrf"] = nrf_addr.to_json();
   }
 
@@ -1122,7 +1109,7 @@ bool amf_config::from_json(nlohmann::json& json_data) {
       support_features.from_json(json_data["support_features"]);
     }
 
-    if (support_features.enable_external_nrf) {
+    if (support_features.enable_nrf) {
       if (json_data.find("nrf") != json_data.end()) {
         nrf_addr.from_json(json_data["nrf"]);
         // if use FQDN -> update IP addr accordingly

@@ -75,7 +75,7 @@ services:
             - MYSQL_DB=oai_db
             - NRF_IPV4_ADDRESS=0.0.0.0
             - NRF_PORT=80
-            - NF_REGISTRATION=no
+            - ENABLE_NRF=no
             - SMF_SELECTION=no
             - USE_FQDN_DNS=no
             - NRF_API_VERSION=v1

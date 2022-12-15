@@ -102,9 +102,8 @@
 #define AMF_CONFIG_STRING_NAS_SUPPORTED_CIPHERING_ALGORITHM_LIST               \
   "ORDERED_SUPPORTED_CIPHERING_ALGORITHM_LIST"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES "SUPPORT_FEATURES"
-#define AMF_CONFIG_STRING_SUPPORT_FEATURES_NF_REGISTRATION "NF_REGISTRATION"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_NRF_SELECTION "NRF_SELECTION"
-#define AMF_CONFIG_STRING_SUPPORT_FEATURES_EXTERNAL_NRF "EXTERNAL_NRF"
+#define AMF_CONFIG_STRING_SUPPORT_FEATURES_ENABLE_NRF "ENABLE_NRF"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_SMF_SELECTION "SMF_SELECTION"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_EXTERNAL_AUSF "EXTERNAL_AUSF"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_EXTERNAL_UDM "EXTERNAL_UDM"
@@ -514,9 +513,8 @@ class amf_config {
   std::vector<smf_inst_t> smf_pool;
 
   struct {
-    bool enable_nf_registration;
+    bool enable_nrf;
     bool enable_nrf_selection;
-    bool enable_external_nrf;
     bool enable_smf_selection;
     bool enable_external_ausf;
     bool enable_external_udm;
@@ -524,26 +522,24 @@ class amf_config {
     bool use_fqdn_dns;
     bool use_http2;
     nlohmann::json to_json() const {
-      nlohmann::json json_data            = {};
-      json_data["enable_nf_registration"] = this->enable_nf_registration;
-      json_data["enable_nrf_selection"]   = this->enable_nrf_selection;
-      json_data["enable_external_nrf"]    = this->enable_external_nrf;
-      json_data["enable_smf_selection"]   = this->enable_smf_selection;
-      json_data["enable_external_ausf"]   = this->enable_external_ausf;
-      json_data["enable_external_udm"]    = this->enable_external_udm;
-      json_data["enable_external_nssf"]   = this->enable_external_nssf;
-      json_data["use_fqdn_dns"]           = this->use_fqdn_dns;
-      json_data["use_http2"]              = this->use_http2;
+      nlohmann::json json_data          = {};
+      json_data["enable_nrf_selection"] = this->enable_nrf_selection;
+      json_data["enable_nrf"]           = this->enable_nrf;
+      json_data["enable_smf_selection"] = this->enable_smf_selection;
+      json_data["enable_external_ausf"] = this->enable_external_ausf;
+      json_data["enable_external_udm"]  = this->enable_external_udm;
+      json_data["enable_external_nssf"] = this->enable_external_nssf;
+      json_data["use_fqdn_dns"]         = this->use_fqdn_dns;
+      json_data["use_http2"]            = this->use_http2;
       return json_data;
     }
 
     void from_json(nlohmann::json& json_data) {
-      this->enable_nf_registration =
-          json_data["enable_nf_registration"].get<bool>();
-      this->enable_external_nrf = json_data["enable_external_nrf"].get<bool>();
+      this->enable_nrf = json_data["enable_nrf"].get<bool>();
+      this->enable_nrf_selection =
+          json_data["enable_nrf_selection"].get<bool>();
       this->enable_smf_selection =
           json_data["enable_smf_selection"].get<bool>();
-      this->enable_external_nrf = json_data["enable_external_nrf"].get<bool>();
       this->enable_external_ausf =
           json_data["enable_external_ausf"].get<bool>();
       this->enable_external_udm = json_data["enable_external_udm"].get<bool>();

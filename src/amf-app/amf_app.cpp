@@ -89,8 +89,8 @@ amf_app::amf_app(const amf_config& amf_cfg)
   generate_amf_profile();
 
   // Register to NRF if needed
-  if (amf_cfg.support_features.enable_nf_registration and
-      amf_cfg.support_features.enable_external_nrf)
+  if (amf_cfg.support_features.enable_nrf and
+      !amf_cfg.support_features.enable_nrf_selection)
     register_to_nrf();
 
   timer_id_t tid = itti_inst->timer_setup(
@@ -817,8 +817,8 @@ void amf_app::handle_itti_message(itti_sbi_update_amf_configuration& itti_msg) {
 
     // Update AMF profile (complete replacement of the existing profile by a new
     // one)
-    if (amf_cfg.support_features.enable_nf_registration and
-        amf_cfg.support_features.enable_external_nrf)
+    if (amf_cfg.support_features.enable_nrf and
+        !amf_cfg.support_features.enable_nrf_selection)
       register_to_nrf();
 
   } else {
