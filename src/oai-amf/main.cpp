@@ -103,12 +103,8 @@ int main(int argc, char** argv) {
   Logger::init("AMF", Options::getlogStdout(), Options::getlogRotFilelog());
   Logger::amf_app().startup("Options parsed!");
 
-  // TODO: to be optimized
-  struct sigaction sigIntHandler;
-  sigIntHandler.sa_handler = amf_signal_handler;
-  sigemptyset(&sigIntHandler.sa_mask);
-  sigIntHandler.sa_flags = 0;
-  sigaction(SIGINT, &sigIntHandler, NULL);
+  std::signal(SIGTERM, amf_signal_handler);
+  std::signal(SIGINT, amf_signal_handler);
 
   amf_cfg.load(Options::getlibconfigConfig());
   amf_cfg.display();
