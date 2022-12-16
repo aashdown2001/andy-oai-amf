@@ -125,7 +125,12 @@ int Rejected_SNSSAI::encode2buffer(uint8_t* buf, int len) {
   ENCODE_U8(buf + encoded_size, sst_, encoded_size);
   Logger::nas_mm().debug("SST %d", sst_);
   if (sd_.has_value()) {
-    ENCODE_U24(buf + encoded_size, sd_.value(), encoded_size);
+    // ENCODE_U24(buf + encoded_size, sd_.value(), encoded_size);
+    ENCODE_U8(
+        buf + encoded_size, (sd_.value() & 0x00ff0000) >> 16, encoded_size);
+    ENCODE_U8(
+        buf + encoded_size, (sd_.value() & 0x0000ff00) >> 8, encoded_size);
+    ENCODE_U8(buf + encoded_size, (sd_.value() & 0x000000ff), encoded_size);
     Logger::nas_mm().debug("SD 0x%x", sd_.value());
   }
   Logger::nas_mm().debug("Encoded Rejected_SNSSAI (len %d)", encoded_size);
