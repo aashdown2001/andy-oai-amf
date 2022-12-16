@@ -80,10 +80,9 @@ int Rejected_NSSAI::encode2buffer(uint8_t* buf, int len) {
   for (auto n : rejected_nssais) {
     int size    = n.encode2buffer(buf + encoded_size, len - encoded_size);
     uint32_t sd = 0;
-
     Logger::nas_mm().debug("Encoded Rejected S-NSSAI, SST %d", n.getSST());
     if (n.getSd(sd)) {
-      Logger::nas_mm().debug("Encoded Rejected S-NSSAI, SD %ld", n.getSd());
+      Logger::nas_mm().debug("Encoded Rejected S-NSSAI, SD %ld", sd);
     } else {
       Logger::nas_mm().debug("Encoded Rejected S-NSSAI No SD");
     }
