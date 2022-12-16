@@ -4171,6 +4171,20 @@ void amf_n1::initialize_registration_accept(
     }
   }
 
+  // TODO: For testing purpose, should be removed later on
+
+  // Add to list of Rejected NSSAIs
+  Rejected_SNSSAI rejected_snssai = {};
+  rejected_snssai.setSST(5);
+  rejected_snssai.setSd(66);
+  rejected_snssai.setCause(1);
+  rejected_nssais.push_back(rejected_snssai);
+
+  rejected_snssai.setSST(6);
+  rejected_snssai.setSd(66);
+  rejected_snssai.setCause(1);
+  rejected_nssais.push_back(rejected_snssai);
+
   registration_accept->setALLOWED_NSSAI(allowed_nssais);
   registration_accept->setRejected_NSSAI(rejected_nssais);
   registration_accept->setCONFIGURED_NSSAI(allowed_nssais);  // TODO
