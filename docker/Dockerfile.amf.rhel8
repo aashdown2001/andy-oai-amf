@@ -98,7 +98,7 @@ RUN rm -f /etc/rhsm-host && \
     microdnf update -y && \
     microdnf install -y \
       tzdata \
-      libasan \
+#      libasan \
       lksctp-tools \
       procps-ng \
       psmisc \
