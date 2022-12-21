@@ -1616,7 +1616,6 @@ bool amf_sbi::get_nrf_uri(
     return true;
   } else {
     Logger::amf_sbi().debug("No NRF information from the configuration file");
-    return false;
   }
 
   // Else discovering NRF from NSSF (if enabled)
