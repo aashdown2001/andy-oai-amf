@@ -23,7 +23,7 @@
 #define FILE_3GPP_29_500_SEEN
 
 // SMF + AMF + 3GPP TS 29.571 (Common data)
-enum class http_response_codes_e {
+enum class http_response_codes_e : uint16_t {
   HTTP_RESPONSE_CODE_0                      = 0,
   HTTP_RESPONSE_CODE_200_OK                 = 200,
   HTTP_RESPONSE_CODE_201_CREATED            = 201,

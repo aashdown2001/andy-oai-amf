@@ -19,23 +19,33 @@
  *      contact@openairinterface.org
  */
 
-#ifndef FILE_3GPP_24_007_SEEN
-#define FILE_3GPP_24_007_SEEN
+#include "NasIe.hpp"
 
-#include <stdint.h>
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
+#include "logger.hpp"
 
-constexpr uint8_t kType1IeSize = 1;
+using namespace nas;
 
-// Extended Protocol Discriminator (EPD)
-// TODO: replaced by emum
-#define EPD_5GS_MM_MSG 0b01111110
-#define EPD_5GS_SM_MSG 0b00101110
+//------------------------------------------------------------------------------
+NasIe::NasIe() {
+  ie_name_ = {};
+}
 
-// Extended Protocol Discriminator (EPD)
-enum class EPDEnum {
-  EPD_RESERVED                     = 0b00001110,
-  _5GS_SESSION_MANAGEMENT_MESSAGE  = 0b00101110,
-  _5GS_MOBILITY_MANAGEMENT_MESSAGE = 0b01111110
-};
+//------------------------------------------------------------------------------
+NasIe::~NasIe() {}
 
-#endif
+//------------------------------------------------------------------------------
+void NasIe::SetIeName(const std::string& name) {
+  ie_name_ = name;
+}
+
+//------------------------------------------------------------------------------
+std::string NasIe::GetIeName() const {
+  return ie_name_;
+}
+
+//------------------------------------------------------------------------------
+void NasIe::GetIeName(std::string& name) const {
+  name = ie_name_;
+}

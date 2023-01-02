@@ -19,23 +19,32 @@
  *      contact@openairinterface.org
  */
 
-#ifndef FILE_3GPP_24_007_SEEN
-#define FILE_3GPP_24_007_SEEN
+#ifndef _NAS_IE_H_
+#define _NAS_IE_H_
 
-#include <stdint.h>
+#include <optional>
 
-constexpr uint8_t kType1IeSize = 1;
+namespace nas {
 
-// Extended Protocol Discriminator (EPD)
-// TODO: replaced by emum
-#define EPD_5GS_MM_MSG 0b01111110
-#define EPD_5GS_SM_MSG 0b00101110
+class NasIe {
+ public:
+  NasIe();
+  virtual ~NasIe();
 
-// Extended Protocol Discriminator (EPD)
-enum class EPDEnum {
-  EPD_RESERVED                     = 0b00001110,
-  _5GS_SESSION_MANAGEMENT_MESSAGE  = 0b00101110,
-  _5GS_MOBILITY_MANAGEMENT_MESSAGE = 0b01111110
+  virtual bool Validate(const int& len) const = 0;
+
+  void SetIeName(const std::string& name);
+  std::string GetIeName() const;
+  void GetIeName(std::string& name) const;
+
+  virtual int Encode(uint8_t* buf, const int& len) = 0;
+  virtual int Decode(
+      const uint8_t* const buf, const int& len, bool is_option = false) = 0;
+
+ protected:
+  std::string ie_name_;
 };
+
+}  // namespace nas
 
 #endif

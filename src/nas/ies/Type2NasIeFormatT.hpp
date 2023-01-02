@@ -19,23 +19,29 @@
  *      contact@openairinterface.org
  */
 
-#ifndef FILE_3GPP_24_007_SEEN
-#define FILE_3GPP_24_007_SEEN
+#ifndef _TYPE2_NAS_IE_FORMAT_T_H_
+#define _TYPE2_NAS_IE_FORMAT_T_H_
+#include "NasIe.hpp"
 
-#include <stdint.h>
+constexpr uint8_t kType2NasIeFormatTLength = 1;
+namespace nas {
 
-constexpr uint8_t kType1IeSize = 1;
+class Type2NasIeFormatT : public NasIe {
+ public:
+  Type2NasIeFormatT();
+  Type2NasIeFormatT(const uint8_t& iei);
+  virtual ~Type2NasIeFormatT();
 
-// Extended Protocol Discriminator (EPD)
-// TODO: replaced by emum
-#define EPD_5GS_MM_MSG 0b01111110
-#define EPD_5GS_SM_MSG 0b00101110
+  bool Validate(const int& len) const override;
 
-// Extended Protocol Discriminator (EPD)
-enum class EPDEnum {
-  EPD_RESERVED                     = 0b00001110,
-  _5GS_SESSION_MANAGEMENT_MESSAGE  = 0b00101110,
-  _5GS_MOBILITY_MANAGEMENT_MESSAGE = 0b01111110
+  int Encode(uint8_t* buf, const int& len) override;
+  int Decode(
+      const uint8_t* const buf, const int& len, bool is_iei = true) override;
+
+ protected:
+  uint8_t iei_;  // 1 byte
 };
+
+}  // namespace nas
 
 #endif

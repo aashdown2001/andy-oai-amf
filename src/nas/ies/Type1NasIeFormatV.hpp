@@ -19,23 +19,36 @@
  *      contact@openairinterface.org
  */
 
-#ifndef FILE_3GPP_24_007_SEEN
-#define FILE_3GPP_24_007_SEEN
+#ifndef _TYPE1_NAS_IE_FORMAT_V_H_
+#define _TYPE1_NAS_IE_FORMAT_V_H_
+#include "NasIe.hpp"
 
-#include <stdint.h>
+constexpr uint8_t kType1NasIeFormatVLength = 1;
+namespace nas {
 
-constexpr uint8_t kType1IeSize = 1;
+class Type1NasIeFormatV : public NasIe {
+ public:
+  Type1NasIeFormatV();
+  Type1NasIeFormatV(const bool& high_pos);
+  Type1NasIeFormatV(const bool& high_pos, const uint8_t& value);
+  virtual ~Type1NasIeFormatV();
 
-// Extended Protocol Discriminator (EPD)
-// TODO: replaced by emum
-#define EPD_5GS_MM_MSG 0b01111110
-#define EPD_5GS_SM_MSG 0b00101110
+  bool Validate(const int& len) const override;
 
-// Extended Protocol Discriminator (EPD)
-enum class EPDEnum {
-  EPD_RESERVED                     = 0b00001110,
-  _5GS_SESSION_MANAGEMENT_MESSAGE  = 0b00101110,
-  _5GS_MOBILITY_MANAGEMENT_MESSAGE = 0b01111110
+  void Set(const bool& high_pos, const uint8_t& value);
+  void Set(const uint8_t& value);
+
+  int Encode(uint8_t* buf, const int& len) override;
+  int Decode(
+      const uint8_t* const buf, const int& len, bool high_pos = false) override;
+
+ protected:
+  bool high_pos_;
+  uint8_t value_;  // only for value in bit positions 8, 7, 6, 5 of an octet
+                   // in case of value in bit positions 4, 3, 2, 1 of an octet,
+                   // use Type1NasIeFormatTV instead)
 };
+
+}  // namespace nas
 
 #endif
