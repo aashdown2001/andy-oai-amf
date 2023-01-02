@@ -20,116 +20,86 @@
  */
 
 #include "5GSRegistrationType.hpp"
-
 #include "3gpp_24.501.hpp"
-#include "common_defs.h"
+
 #include "logger.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
 _5GSRegistrationType::_5GSRegistrationType()
-    : iei_(0), follow_on_req_(false), reg_type_(0) {}
-
-//------------------------------------------------------------------------------
-_5GSRegistrationType::_5GSRegistrationType(bool follow_on_req, uint8_t type)
-    : iei_(0) {
-  follow_on_req_ = follow_on_req;
-  reg_type_      = 0x07 & type;
+    : Type1NasIeFormatTv(), follow_on_req_(false), reg_type_(0) {
+  SetIeName("5GS Registration Type");
 }
 
 //------------------------------------------------------------------------------
 _5GSRegistrationType::_5GSRegistrationType(
-    uint8_t iei, bool follow_on_req, uint8_t type) {
-  iei_           = 0x0f & iei;
+    const bool& follow_on_req, const uint8_t& type)
+    : Type1NasIeFormatTv(), follow_on_req_(follow_on_req) {
+  if (validateValue(follow_on_req, type)) reg_type_ = type;
+  setValue();
+  SetIeName(k5gsRegistrationTypeName);
+}
+
+//------------------------------------------------------------------------------
+_5GSRegistrationType::_5GSRegistrationType(
+    const uint8_t& iei, const bool& follow_on_req, const uint8_t& type)
+    : Type1NasIeFormatTv(iei) {
   follow_on_req_ = follow_on_req;
-  reg_type_      = 0x07 & type;
+  if (validateValue(follow_on_req, type)) reg_type_ = type;
+  setValue();
+  SetIeName("5GS Registration Type");
 }
 
 //------------------------------------------------------------------------------
 _5GSRegistrationType::~_5GSRegistrationType() {}
 
 //------------------------------------------------------------------------------
-int _5GSRegistrationType::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().error("Encoding 5gsregistrationtype IE");
-  if (len < kType1IeSize) {
-    Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        kType1IeSize);
-    return KEncodeDecodeError;
-  }
-
-  uint8_t octet        = 0;
-  uint8_t encoded_size = 0;
-
-  if (follow_on_req_) octet = 0b1000;
-  octet |= reg_type_;
-
-  if (!(iei_ & 0x0f)) {
-    ENCODE_U8(buf, 0x0f & octet, encoded_size);
-  } else {
-    ENCODE_U8(buf, (iei_ << 4) | octet, encoded_size);
-  }
-  Logger::nas_mm().debug(
-      "Encoded 5GSRegistrationType IE (%d octet))", encoded_size);
-  return encoded_size;
+void _5GSRegistrationType::setValue() {
+  if (follow_on_req_)
+    value_ = 0b1000 | (0x07 & reg_type_);
+  else
+    value_ = 0x07 & reg_type_;
 }
 
 //------------------------------------------------------------------------------
-int _5GSRegistrationType::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option) {
-  if (len < kType1IeSize) {
-    Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        kType1IeSize);
-    return KEncodeDecodeError;
-  }
+void _5GSRegistrationType::getValue() {
+  follow_on_req_ = (0b1000 & value_) >> 3;
+  reg_type_      = value_ & 0b00000111;
+}
 
-  if (is_option) {
-    return KEncodeDecodeError;
-  }
-
-  Logger::nas_mm().debug("Decoding 5GSRegistrationType");
-  uint8_t decoded_size = 0;
-  uint8_t octet        = 0;
-
-  DECODE_U8(buf, octet, decoded_size);
-
-  if (octet & 0x08)
-    follow_on_req_ = FOLLOW_ON_REQ_PENDING;
-  else
-    follow_on_req_ = NO_FOLLOW_ON_REQ_PENDING;
-
-  reg_type_ = 0x07 & octet;
-
-  Logger::nas_mm().debug(
-      "Decoded 5GSRegistrationType IE (%d octet)", decoded_size);
-  return 0;  // to read NAS Key Set Identifier (1/2 octet)
+//------------------------------------------------------------------------------
+bool _5GSRegistrationType::validateValue(
+    const bool& follow_on_req, const uint8_t& type) {
+  if (type > static_cast<uint8_t>(_5GSMobilityIdentityEnum::MAX_VALUE))
+    return false;
+  return true;
 }
 
 //------------------------------------------------------------------------------
 void _5GSRegistrationType::set(
     const bool& follow_on_req, const uint8_t& type, const uint8_t& iei) {
   follow_on_req_ = follow_on_req;
-  reg_type_      = 0x07 & type;
-  iei_           = 0x0f & iei;
+  if (validateValue(follow_on_req, type)) reg_type_ = type;
+  setValue();
+  SetIei(iei);
 }
+
 //------------------------------------------------------------------------------
-void _5GSRegistrationType::setFollowOnReq(const bool follow_on_req) {
+void _5GSRegistrationType::set(const bool& follow_on_req, const uint8_t& type) {
   follow_on_req_ = follow_on_req;
+  if (validateValue(follow_on_req, type)) reg_type_ = type;
+  setValue();
 }
 
 //------------------------------------------------------------------------------
 bool _5GSRegistrationType::isFollowOnReq() {
+  getValue();
   return follow_on_req_;
 }
 
 //------------------------------------------------------------------------------
-void _5GSRegistrationType::setRegType(const uint8_t type) {
-  reg_type_ = 0x07 & type;
-}
-
-//------------------------------------------------------------------------------
 uint8_t _5GSRegistrationType::getRegType() {
+  getValue();
   return reg_type_;
 }

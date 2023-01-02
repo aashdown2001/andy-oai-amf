@@ -64,8 +64,7 @@ void RegistrationRequest::setHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::set5gsRegistrationType(bool is_for, uint8_t type) {
-  ie_5gsregistrationtype.setFollowOnReq(is_for);
-  ie_5gsregistrationtype.setRegType(type);
+  ie_5gsregistrationtype.set(is_for, type);
 }
 
 //------------------------------------------------------------------------------
@@ -550,7 +549,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   encoded_size += encoded_ie_size;
 
   // 5GS Registration Type
-  if ((encoded_ie_size = ie_5gsregistrationtype.encode2Buffer(
+  if ((encoded_ie_size = ie_5gsregistrationtype.Encode(
            buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
     Logger::nas_mm().error("Encoding IE 5GS Registration Type error");
     return KEncodeDecodeError;
@@ -843,7 +842,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
   // plain_header           = header;
   decoded_size = NasMmPlainHeader::decodeFromBuffer(buf, len);
   // ie_5gsregistrationtype = new _5GSRegistrationType();
-  decoded_size += ie_5gsregistrationtype.decodeFromBuffer(
+  decoded_size += ie_5gsregistrationtype.Decode(
       buf + decoded_size, len - decoded_size, false);
   decoded_size += ie_ngKSI.decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, true);

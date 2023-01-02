@@ -22,22 +22,28 @@
 #ifndef _5GS_REGISTRATION_TYPE_H_
 #define _5GS_REGISTRATION_TYPE_H_
 
+#include "Type1NasIeFormatTv.hpp"
+
 #include <stdint.h>
+constexpr auto k5gsRegistrationTypeName = "5GS Registration Type";
 
 namespace nas {
 
-class _5GSRegistrationType {
+class _5GSRegistrationType : public Type1NasIeFormatTv {
  public:
   _5GSRegistrationType();
-  _5GSRegistrationType(bool follow_on_req, uint8_t type);
-  _5GSRegistrationType(uint8_t iei, bool follow_on_req, uint8_t type);
-  ~_5GSRegistrationType();
+  _5GSRegistrationType(const bool& follow_on_req, const uint8_t& type);
+  _5GSRegistrationType(
+      const uint8_t& iei, const bool& follow_on_req, const uint8_t& type);
+  virtual ~_5GSRegistrationType();
 
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option = false);
-  int encode2Buffer(uint8_t* buf, int len);
+  void setValue();
+  void getValue();
 
-  void set(
-      const bool& follow_on_req, const uint8_t& type, const uint8_t& iei = 0);
+  bool validateValue(const bool& follow_on_req, const uint8_t& type);
+
+  void set(const bool& follow_on_req, const uint8_t& type, const uint8_t& iei);
+  void set(const bool& follow_on_req, const uint8_t& type);
 
   void setFollowOnReq(const bool is);
   bool isFollowOnReq();
@@ -46,7 +52,6 @@ class _5GSRegistrationType {
   uint8_t getRegType();
 
  private:
-  uint8_t iei_ : 4;
   bool follow_on_req_;
   uint8_t reg_type_ : 3;
 };
