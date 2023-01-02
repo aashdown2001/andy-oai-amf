@@ -29,10 +29,21 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 NasMessageType::NasMessageType(const uint8_t& message_type)
-    : message_type_(message_type) {}
+    : NasIe(), message_type_(message_type) {}
 
 //------------------------------------------------------------------------------
 NasMessageType::~NasMessageType() {}
+
+//------------------------------------------------------------------------------
+bool NasMessageType::Validate(const int& len) const {
+  if (len < kNasMessageTypeIeSize) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kNasMessageTypeIeSize);
+    return false;
+  }
+  return true;
+}
 
 //------------------------------------------------------------------------------
 void NasMessageType::Set(const uint8_t& message_type) {
@@ -50,26 +61,18 @@ uint8_t NasMessageType::Get() const {
 }
 
 //------------------------------------------------------------------------------
-int NasMessageType::Encode(uint8_t* buf, const uint32_t& len) {
-  if (len < kType1IeSize) {
-    Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        kType1IeSize);
-    return KEncodeDecodeError;
-  }
+int NasMessageType::Encode(uint8_t* buf, const int& len) {
+  if (!Validate(len)) return KEncodeDecodeError;
+
   uint32_t encoded_size = 0;
   ENCODE_U8(buf, message_type_, encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int NasMessageType::Decode(const uint8_t* const buf, const uint32_t& len) {
-  if (len < kType1IeSize) {
-    Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        kType1IeSize);
-    return KEncodeDecodeError;
-  }
+int NasMessageType::Decode(
+    const uint8_t* const buf, const int& len, bool is_iei) {
+  if (!Validate(len)) return KEncodeDecodeError;
   uint32_t decoded_size = 0;
   DECODE_U8(buf, message_type_, decoded_size);
   return decoded_size;

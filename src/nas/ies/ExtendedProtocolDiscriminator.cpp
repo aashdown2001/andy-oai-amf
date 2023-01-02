@@ -29,10 +29,21 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 ExtendedProtocolDiscriminator::ExtendedProtocolDiscriminator(const uint8_t& epd)
-    : epd_(epd) {}
+    : NasIe(), epd_(epd) {}
 
 //------------------------------------------------------------------------------
 ExtendedProtocolDiscriminator::~ExtendedProtocolDiscriminator() {}
+
+//------------------------------------------------------------------------------
+bool ExtendedProtocolDiscriminator::Validate(const int& len) const {
+  if (len < kExtendedProtocolDiscriminatorLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kExtendedProtocolDiscriminatorLength);
+    return false;
+  }
+  return true;
+}
 
 //------------------------------------------------------------------------------
 void ExtendedProtocolDiscriminator::Set(const uint8_t& epd) {
@@ -50,13 +61,8 @@ uint8_t ExtendedProtocolDiscriminator::Get() const {
 }
 
 //------------------------------------------------------------------------------
-int ExtendedProtocolDiscriminator::Encode(uint8_t* buf, const uint32_t& len) {
-  if (len < kType1IeSize) {
-    Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        kType1IeSize);
-    return KEncodeDecodeError;
-  }
+int ExtendedProtocolDiscriminator::Encode(uint8_t* buf, const int& len) {
+  if (!Validate(len)) return KEncodeDecodeError;
   uint32_t encoded_size = 0;
   ENCODE_U8(buf, epd_, encoded_size);
   return encoded_size;
@@ -64,13 +70,8 @@ int ExtendedProtocolDiscriminator::Encode(uint8_t* buf, const uint32_t& len) {
 
 //------------------------------------------------------------------------------
 int ExtendedProtocolDiscriminator::Decode(
-    const uint8_t* const buf, const uint32_t& len) {
-  if (len < kType1IeSize) {
-    Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        kType1IeSize);
-    return KEncodeDecodeError;
-  }
+    const uint8_t* const buf, const int& len, bool is_iei) {
+  if (!Validate(len)) return KEncodeDecodeError;
   uint32_t decoded_size = 0;
   DECODE_U8(buf, epd_, decoded_size);
   return decoded_size;

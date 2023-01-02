@@ -28,10 +28,21 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-SecurityHeaderType::SecurityHeaderType() {}
+SecurityHeaderType::SecurityHeaderType() : NasIe() {}
 
 //------------------------------------------------------------------------------
 SecurityHeaderType::~SecurityHeaderType() {}
+
+//------------------------------------------------------------------------------
+bool SecurityHeaderType::Validate(const int& len) const {
+  if (len < kSecurityHeaderTypeLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kSecurityHeaderTypeLength);
+    return false;
+  }
+  return true;
+}
 
 //------------------------------------------------------------------------------
 void SecurityHeaderType::Set(
@@ -51,32 +62,21 @@ uint8_t SecurityHeaderType::Get() const {
 }
 
 //------------------------------------------------------------------------------
-int SecurityHeaderType::Encode(uint8_t* buf, const uint32_t& len) {
-  if (len < kType1IeSize) {
-    Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        kType1IeSize);
-    return KEncodeDecodeError;
-  }
-  uint8_t value = (secu_header_type_ & 0x0f) | (spare_ & 0xf0);
-
+int SecurityHeaderType::Encode(uint8_t* buf, const int& len) {
+  if (!Validate(len)) return KEncodeDecodeError;
+  uint8_t value         = (secu_header_type_ & 0x0f) | (spare_ & 0xf0);
   uint32_t encoded_size = 0;
   ENCODE_U8(buf, value, encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int SecurityHeaderType::Decode(const uint8_t* const buf, const uint32_t& len) {
-  if (len < kType1IeSize) {
-    Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        kType1IeSize);
-    return KEncodeDecodeError;
-  }
+int SecurityHeaderType::Decode(
+    const uint8_t* const buf, const int& len, bool is_iei) {
+  if (!Validate(len)) return KEncodeDecodeError;
   uint8_t value         = 0;
   uint32_t decoded_size = 0;
   DECODE_U8(buf, value, decoded_size);
-
   secu_header_type_ = 0x0f & value;
   spare_            = value & 0xf0;
 

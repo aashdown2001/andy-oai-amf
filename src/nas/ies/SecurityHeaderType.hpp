@@ -22,21 +22,27 @@
 #ifndef _SECURITY_HEADER_TYPE_H_
 #define _SECURITY_HEADER_TYPE_H_
 
+#include "NasIe.hpp"
 #include <stdint.h>
+
+constexpr uint8_t kSecurityHeaderTypeLength = 1;
 
 namespace nas {
 
-class SecurityHeaderType {
+class SecurityHeaderType : public NasIe {
  public:
   SecurityHeaderType();
   virtual ~SecurityHeaderType();
+
+  bool Validate(const int& len) const override;
 
   void Set(const uint8_t& secu_header_type, const uint8_t& spare = 0);
   void Get(uint8_t& secu_header_type) const;
   uint8_t Get() const;
 
-  int Encode(uint8_t* buf, const uint32_t& len);
-  int Decode(const uint8_t* const buf, const uint32_t& len);
+  int Encode(uint8_t* buf, const int& len) override;
+  int Decode(
+      const uint8_t* const buf, const int& len, bool is_iei = false) override;
 
  private:
   uint8_t spare_ : 4;

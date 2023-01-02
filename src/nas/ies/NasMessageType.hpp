@@ -22,24 +22,28 @@
 #ifndef _MESSAGE_TYPE_H_
 #define _MESSAGE_TYPE_H_
 
+#include "NasIe.hpp"
 #include <stdint.h>
 
 constexpr uint8_t kNasMessageTypeIeSize = 1;
 
 namespace nas {
 
-class NasMessageType {
+class NasMessageType : public NasIe {
  public:
   NasMessageType(){};  // TODO: = delete;
   NasMessageType(const uint8_t& message_type);
   virtual ~NasMessageType();
 
+  bool Validate(const int& len) const override;
+
   void Set(const uint8_t& message_type);
   void Get(uint8_t& message_type) const;
   uint8_t Get() const;
 
-  int Encode(uint8_t* buf, const uint32_t& len);
-  int Decode(const uint8_t* const buf, const uint32_t& len);
+  int Encode(uint8_t* buf, const int& len) override;
+  int Decode(
+      const uint8_t* const buf, const int& len, bool is_iei = false) override;
 
  private:
   uint8_t message_type_;
