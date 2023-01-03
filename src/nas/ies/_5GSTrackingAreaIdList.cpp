@@ -87,12 +87,14 @@ int _5GSTrackingAreaIdList::encode_00_type(
   // Encode TAC list
   for (int i = 0; i < item.tac_list.size(); i++) {
     // TODO: use ENCODE_U24
-    octet = (item.tac_list[i] & 0x00ff0000) >> 16;
-    ENCODE_U8(buf + encoded_size, octet, encoded_size);
-    octet = (item.tac_list[i] & 0x0000ff00) >> 8;
-    ENCODE_U8(buf + encoded_size, octet, encoded_size);
-    octet = (item.tac_list[i] & 0x000000ff) >> 0;
-    ENCODE_U8(buf + encoded_size, octet, encoded_size);
+    ENCODE_U24(buf + encoded_size, item.tac_list[i], encoded_size);
+    /*
+octet = (item.tac_list[i] & 0x00ff0000) >> 16;
+ENCODE_U8(buf + encoded_size, octet, encoded_size);
+octet = (item.tac_list[i] & 0x0000ff00) >> 8;
+ENCODE_U8(buf + encoded_size, octet, encoded_size);
+octet = (item.tac_list[i] & 0x000000ff) >> 0;
+ENCODE_U8(buf + encoded_size, octet, encoded_size);*/
   }
   return encoded_size;
 }

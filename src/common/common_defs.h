@@ -63,8 +63,14 @@ typedef enum {
   sIZE += sizeof(uint16_t)
 
 #define DECODE_U24(bUFFER, vALUE, sIZE)                                        \
-  vALUE = ntohl(*(uint32_t*) (bUFFER)) >> 8;                                   \
-  sIZE += sizeof(uint8_t) + sizeof(uint16_t)
+  do {                                                                         \
+    uint32_t value_tmp = 0;                                                    \
+    uint8_t size_tmp   = sizeof(uint8_t) + sizeof(uint16_t);                   \
+    memcpy((unsigned char*) &value_tmp, bUFFER, size_tmp);                     \
+    vALUE = ntohl(value_tmp);                                                  \
+    vALUE = vALUE >> 8;                                                        \
+    sIZE += size_tmp;                                                          \
+  } while (0)
 
 #define DECODE_U32(bUFFER, vALUE, sIZE)                                        \
   vALUE = ntohl(*(uint32_t*) (bUFFER));                                        \
@@ -89,8 +95,12 @@ typedef enum {
   size += sizeof(uint16_t)
 
 #define ENCODE_U24(buffer, value, size)                                        \
-  *(uint32_t*) (buffer) = htonl(value);                                        \
-  size += sizeof(uint8_t) + sizeof(uint16_t)
+  do {                                                                         \
+    uint32_t value_tmp = htonl(value << 8);                                    \
+    uint8_t size_tmp   = sizeof(uint8_t) + sizeof(uint16_t);                   \
+    memcpy(buffer, (unsigned char*) &value_tmp, size_tmp);                     \
+    size += size_tmp;                                                          \
+  } while (0)
 
 #define ENCODE_U32(buffer, value, size)                                        \
   *(uint32_t*) (buffer) = htonl(value);                                        \
