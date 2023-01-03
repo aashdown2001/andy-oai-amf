@@ -39,7 +39,7 @@ Payload_Container::Payload_Container(uint8_t iei, bstring b) {
   _iei    = iei;
   content = std::optional<bstring>(b);
   CONTENT = std::nullopt;
-  length  = 1 + blength(b);
+  length  = blength(b);
 }
 
 //------------------------------------------------------------------------------
@@ -48,15 +48,12 @@ Payload_Container::Payload_Container(
   _iei    = iei;
   content = std::nullopt;
 
-  if (_iei) {
-    length = 4;  // 1 for IEI, 2 for length, 1 for number of entries
-  } else {
-    length = 3;  // 2 for length, 1 for number of entries
-  }
+  length = 1;  // for number of entries
   // CONTENT.assign(content.begin(), content.end());
   CONTENT = std::optional<std::vector<PayloadContainerEntry>>(contents);
   for (int i = 0; i < contents.size(); i++) {
-    length = length + 1 + contents.at(i).length;
+    length = length + 2 +
+             contents.at(i).length;  // 2 for Length of Payload container entry
   }
 }
 
