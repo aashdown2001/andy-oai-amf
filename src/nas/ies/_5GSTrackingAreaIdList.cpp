@@ -19,16 +19,10 @@
  *      contact@openairinterface.org
  */
 
-/*! \file _5GSTrackingAreaIdList.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "_5GSTrackingAreaIdList.hpp"
 
 #include "String2Value.hpp"
+#include "NasUtils.hpp"
 
 using namespace nas;
 
@@ -37,16 +31,20 @@ _5GSTrackingAreaIdList::_5GSTrackingAreaIdList(
     uint8_t iei, std::vector<p_tai_t> tai_list) {
   m_tai_list = tai_list;
   m_iei      = iei;
+  length     = 0;  // TODO:
 }
 
 //------------------------------------------------------------------------------
 int _5GSTrackingAreaIdList::encode2Buffer(uint8_t* buf, int len) {
-  int encoded_size = 0, length = 0;
+  int encoded_size = 0;
+  int len_pos      = 0;
   if (m_iei) {
-    *(buf + encoded_size) = m_iei;
-    encoded_size++;
+    ENCODE_U8(buf + encoded_size, m_iei, encoded_size);  // IEI
   }
-  encoded_size++;  // for length octet
+
+  len_pos = encoded_size;  // position to encode Length
+  encoded_size++;          // for length octet later on
+
   for (int i = 0; i < m_tai_list.size(); i++) {
     int item_len = 0;
     switch (m_tai_list[i].type) {
@@ -66,29 +64,35 @@ int _5GSTrackingAreaIdList::encode2Buffer(uint8_t* buf, int len) {
     encoded_size += item_len;
     length += item_len;
   }
-  *(buf + encoded_size - length - 1) = length;
+  //*(buf + encoded_size - length - 1) = length;
+  uint8_t encoded_size_ie = 0;
+  ENCODE_U8(buf + len_pos, length, encoded_size_ie);
+
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
 int _5GSTrackingAreaIdList::encode_00_type(
     p_tai_t item, uint8_t* buf, int len) {
-  int encoded_size      = 0;
-  uint8_t octet         = 0x00 | ((item.tac_list.size() - 1) & 0x1f);
-  *(buf + encoded_size) = octet;
-  encoded_size++;
-  encoded_size +=
-      encode_mcc_mnc(item.plmn_list[0], buf + encoded_size, len - encoded_size);
+  int encoded_size = 0;
+  uint8_t octet    = 0x00 | ((item.tac_list.size() - 1) &
+                          0x1f);  // see Table 9.11.3.9.1@3GPP TS 24.501 V16.1.0
+  ENCODE_U8(buf + encoded_size, octet, encoded_size);  // IEI
+
+  // Encode PLMN
+  encoded_size += NasUtils::encodeMccMnc2Buffer(
+      item.plmn_list[0].mcc, item.plmn_list[0].mnc, buf + encoded_size,
+      len - encoded_size);
+
+  // Encode TAC list
   for (int i = 0; i < item.tac_list.size(); i++) {
-    octet                 = (item.tac_list[i] & 0x00ff0000) >> 16;
-    *(buf + encoded_size) = octet;
-    encoded_size++;
-    octet                 = (item.tac_list[i] & 0x0000ff00) >> 8;
-    *(buf + encoded_size) = octet;
-    encoded_size++;
-    octet                 = (item.tac_list[i] & 0x000000ff) >> 0;
-    *(buf + encoded_size) = octet;
-    encoded_size++;
+    // TODO: use ENCODE_U24
+    octet = (item.tac_list[i] & 0x00ff0000) >> 16;
+    ENCODE_U8(buf + encoded_size, octet, encoded_size);
+    octet = (item.tac_list[i] & 0x0000ff00) >> 8;
+    ENCODE_U8(buf + encoded_size, octet, encoded_size);
+    octet = (item.tac_list[i] & 0x000000ff) >> 0;
+    ENCODE_U8(buf + encoded_size, octet, encoded_size);
   }
   return encoded_size;
 }
@@ -96,12 +100,14 @@ int _5GSTrackingAreaIdList::encode_00_type(
 //------------------------------------------------------------------------------
 int _5GSTrackingAreaIdList::encode_01_type(
     p_tai_t item, uint8_t* buf, int len) {
+  // TODO:
   return 1;
 }
 
 //------------------------------------------------------------------------------
 int _5GSTrackingAreaIdList::encode_10_type(
     p_tai_t item, uint8_t* buf, int len) {
+  // TODO:
   return 1;
 }
 

@@ -19,19 +19,15 @@
  *      contact@openairinterface.org
  */
 
-/*! \file __5GSTrackingAreaIdList.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __5GSTrackingAreaIdList_H_
-#define __5GSTrackingAreaIdList_H_
+#ifndef _5GS_TRACKING_AREA_ID_LIST_H_
+#define _5GS_TRACKING_AREA_ID_LIST_H_
 
 #include <vector>
 
 #include "struct.hpp"
+
+constexpr uint8_t k5gsTrackingAreaIdListMinimumLength = 9;
+constexpr uint8_t k5gsTrackingAreaIdListMaximumLength = 114;
 
 namespace nas {
 
@@ -42,6 +38,7 @@ class _5GSTrackingAreaIdList {
 
  private:
   uint8_t m_iei;
+  uint8_t length;
   std::vector<p_tai_t> m_tai_list;
 
  private:
