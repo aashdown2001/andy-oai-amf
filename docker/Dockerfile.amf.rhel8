@@ -30,6 +30,8 @@
 #---------------------------------------------------------------------
 FROM registry.access.redhat.com/ubi8/ubi:latest AS oai-amf-builder
 
+ENV IS_DOCKERFILE=1
+
 # Copy the entitlements
 COPY ./etc-pki-entitlement /etc/pki/entitlement
 
@@ -96,7 +98,7 @@ RUN rm -f /etc/rhsm-host && \
     microdnf update -y && \
     microdnf install -y \
       tzdata \
-      libasan \
+#      libasan \
       lksctp-tools \
       procps-ng \
       psmisc \

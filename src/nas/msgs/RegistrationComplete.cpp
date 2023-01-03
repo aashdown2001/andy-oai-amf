@@ -35,9 +35,9 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 RegistrationComplete::RegistrationComplete() {
-  Logger::nas_mm().debug("initiating class RegistrationComplete");
-  plain_header                 = NULL;
-  ie_sor_transparent_container = NULL;
+  Logger::nas_mm().debug("Initiating class RegistrationComplete");
+  plain_header                 = nullptr;
+  ie_sor_transparent_container = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -102,9 +102,15 @@ int RegistrationComplete::decodeFromBuffer(
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+      default: {
+        Logger::nas_mm().debug("Unknown IEI");
+        // Stop the decoding process
+        octet = 0x00;
+        break;
+      }
     }
   }
   Logger::nas_mm().debug(
-      "Decoded RegistrationComplete message len (%d)", decoded_size);
-  return 1;
+      "Decoded RegistrationComplete message (len %d)", decoded_size);
+  return decoded_size;
 }

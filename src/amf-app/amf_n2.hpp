@@ -29,6 +29,7 @@
 #include "itti_msg_n2.hpp"
 #include "ngap_app.hpp"
 #include "ue_ngap_context.hpp"
+#include "struct.hpp"
 
 namespace amf_application {
 
@@ -81,7 +82,7 @@ class amf_n2 : public ngap::ngap_app {
   void handle_itti_message(itti_initial_ue_message& init_ue_msg);
 
   /*
-   * Handle ITTI message (ULNASTransport)
+   * Handle ITTI message (UplinkNASTransport)
    * @param [itti_ul_nas_transport&]: ITTI message
    * @return void
    */
@@ -205,14 +206,23 @@ class amf_n2 : public ngap::ngap_app {
 
   /*
    * Get list of common PLMN between AMF and gNB
-   * @param [const std::vector<SupportedItem_t>&] list: Supported TA list from
+   * @param [const std::vector<SupportedTaItem_t>&] list: Supported TA list from
    * gNB
-   * @param [std::vector<SupportedItem_t>&] result: list of common TA
+   * @param [std::vector<SupportedTaItem_t>&] result: list of common TA
    * @return true if there's at least 1 common TA, otherwise return false
    */
   bool get_common_plmn(
-      const std::vector<SupportedItem_t>& list,
-      std::vector<SupportedItem_t>& result);
+      const std::vector<SupportedTaItem_t>& list,
+      std::vector<SupportedTaItem_t>& result);
+
+  /*
+   * Get list of common S-NSSAIs between AMF and gNB to be used by UE
+   * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
+   * @param [std::vector<nas::SNSSAI_t>&] common_nssai: list of common S-NSSAIs
+   * @return void
+   */
+  bool get_common_NSSAI(
+      const uint32_t& ran_ue_ngap_id, std::vector<nas::SNSSAI_t>& common_nssai);
 
   /*
    * Get UE NGAP context associated with a RAN UE NGAP ID

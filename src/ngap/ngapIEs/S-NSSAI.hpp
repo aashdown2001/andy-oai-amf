@@ -22,6 +22,7 @@
 #ifndef _S_NSSAI_H_
 #define _S_NSSAI_H_
 
+#include <string>
 #include <optional>
 
 extern "C" {

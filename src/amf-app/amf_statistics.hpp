@@ -31,7 +31,7 @@
 typedef struct {
   uint32_t gnb_id;
   // TODO: list of PLMNs
-  std::vector<SupportedItem_t> plmn_list;
+  std::vector<SupportedTaItem_t> plmn_list;
   std::string mcc;
   std::string mnc;
   std::string gnb_name;

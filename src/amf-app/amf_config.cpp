@@ -217,13 +217,13 @@ int amf_config::load(const std::string& config_file) {
       for (int j = 0; j < numOfSlice; j++) {
         slice_t slice;
         const Setting& slice_item = slice_list_cfg[j];
-        std::string sst           = {};
+        unsigned int sst          = 0;
         std::string sd            = {};
         slice_item.lookupValue(AMF_CONFIG_STRING_SST, sst);
+        slice.sst = sst;
         slice_item.lookupValue(AMF_CONFIG_STRING_SD, sd);
         slice.sd = SD_NO_VALUE;  // Default value
         try {
-          slice.sst = std::stoi(sst);
           conv::sd_string_to_int(sd, slice.sd);
         } catch (const std::exception& err) {
           Logger::amf_app().error("Invalid SST/SD");

@@ -39,12 +39,12 @@ namespace nas {
 class S_NSSAI {
  public:
   S_NSSAI();
-  // S_NSSAI(uint8_t iei);
   S_NSSAI(std::optional<uint8_t> iei, SNSSAI_s snssai);
   ~S_NSSAI();
   // void setS_NSSAI(SNSSAI_s snssai);
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, const bool is_option = true);
+
   void getValue(SNSSAI_t& snssai);
   void SetSNSSAI(
       std::optional<int8_t> iei, uint8_t sst, std::optional<int32_t> sd,
@@ -54,10 +54,8 @@ class S_NSSAI {
   std::string ToString();
 
  private:
-  // uint8_t _iei;
   std::optional<int8_t> iei_;
   uint8_t length;
-  // SNSSAI_s SNSSAI;
   uint8_t sst_;
   std::optional<int32_t> sd_;
   std::optional<int8_t> mapped_hplmn_sst_;

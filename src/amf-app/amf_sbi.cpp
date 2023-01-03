@@ -241,8 +241,16 @@ void amf_sbi::handle_itti_message(
 
   Logger::amf_sbi().debug("SMF URI: %s", remote_uri.c_str());
 
+  std::string n1sm_msg                      = {};
   std::string n2sm_msg                      = {};
   nlohmann::json pdu_session_update_request = {};
+
+  if (itti_msg.is_n1sm_set) {
+    pdu_session_update_request["n1SmMsg"]["contentId"] = "n1SmMsg";
+    octet_stream_2_hex_stream(
+        (uint8_t*) bdata(itti_msg.n1sm), blength(itti_msg.n1sm), n1sm_msg);
+  }
+
   if (itti_msg.is_n2sm_set) {
     pdu_session_update_request["n2SmInfoType"] = itti_msg.n2sm_info_type;
     pdu_session_update_request["n2SmInfo"]["contentId"] = "n2msg";
@@ -270,7 +278,7 @@ void amf_sbi::handle_itti_message(
   if (amf_cfg.support_features.use_http2) http_version = 2;
 
   curl_http_client(
-      remote_uri, json_part, "", n2sm_msg, supi, itti_msg.pdu_session_id,
+      remote_uri, json_part, n1sm_msg, n2sm_msg, supi, itti_msg.pdu_session_id,
       http_version, itti_msg.promise_id);
 }
 
@@ -400,6 +408,7 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
       // TODO:
     } break;
     default: {
+      // TODO: should be removed
       // send Nsmf_PDUSession_UpdateSM_Context to SMF e.g., for PDU Session
       // release request
       send_pdu_session_update_sm_context_request(supi, psc, smf.sm_msg, dnn);
@@ -560,7 +569,7 @@ void amf_sbi::handle_itti_message(itti_sbi_notify_subscribed_event& itti_msg) {
     i.get_reports(event_reports);
     for (auto r : event_reports) {
       report["type"]            = r.getType().get_value();
-      report["state"]["active"] = "TRUE";
+      report["state"]["active"] = true;  // as boolean
       if (r.supiIsSet()) {
         report["supi"] = r.getSupi();
       }
@@ -592,8 +601,9 @@ void amf_sbi::handle_itti_message(itti_sbi_notify_subscribed_event& itti_msg) {
 
       // Timestamp
       std::time_t time_epoch_ntp = std::time(nullptr);
-      uint64_t tv_ntp            = time_epoch_ntp + SECONDS_SINCE_FIRST_EPOCH;
-      report["timeStamp"]        = std::to_string(tv_ntp);
+      uint64_t tv_ntp =
+          time_epoch_ntp;            // not needed: + SECONDS_SINCE_FIRST_EPOCH;
+      report["timeStamp"] = tv_ntp;  // don't convert to string, leave as int64
       report_lists.push_back(report);
     }
 

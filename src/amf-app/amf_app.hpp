@@ -144,6 +144,13 @@ class amf_app {
   void handle_itti_message(itti_sbi_n1n2_message_unsubscribe& itti_msg);
 
   /*
+   * Handle ITTI message (SBI PDU Session Release Notification)
+   * @param [itti_sbi_pdu_session_release_notif&]: ITTI message
+   * @return void
+   */
+  void handle_itti_message(itti_sbi_pdu_session_release_notif& itti_msg);
+
+  /*
    * Handle ITTI message (SBI AMF configuration)
    * @param [itti_sbi_amf_configuration&]: ITTI message
    * @return void
@@ -288,6 +295,18 @@ class amf_app {
   bool get_pdu_sessions_context(
       const string& supi,
       std::vector<std::shared_ptr<pdu_session_context>>& sessions_ctx);
+
+  /*
+   * Update PDU Session Context status
+   * @param [const std::string&] ue_id: UE SUPI
+   * @param [const uint8_t&] pdu_session_id: PDU Session ID
+   * @param [const oai::amf::model::SmContextStatusNotification&]
+   * statusNotification: Notification information received from SMF
+   * @return true if success, otherwise false
+   */
+  bool update_pdu_sessions_context(
+      const string& ue_id, const uint8_t& pdu_session_id,
+      const oai::amf::model::SmContextStatusNotification& statusNotification);
 
   /*
    * Generate a TMSI value for UE

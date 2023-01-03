@@ -81,3 +81,4 @@
 #include "_5GS_Update_Type.hpp"
 #include "struct.hpp"
 #include "Ie_Const.hpp"
+#include "NetworkName.hpp"

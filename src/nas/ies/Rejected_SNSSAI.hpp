@@ -19,44 +19,42 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _REGISTRATION_REJECT_H_
-#define _REGISTRATION_REJECT_H_
+#ifndef _REJECTED_SNSSAI_H_
+#define _REJECTED_SNSSAI_H_
 
-#include "NasIeHeader.hpp"
+#include <stdint.h>
+#include <optional>
 
 namespace nas {
 
-class RegistrationReject : public NasMmPlainHeader {
+class Rejected_SNSSAI {
  public:
-  RegistrationReject();
-  ~RegistrationReject();
+  Rejected_SNSSAI();
+  Rejected_SNSSAI(const uint8_t& cause, const uint8_t& sst, const uint32_t& sd);
+  ~Rejected_SNSSAI();
 
-  void setHeader(uint8_t security_header_type);
-  void getSecurityHeaderType(uint8_t security_header_type);
-  bool verifyHeader();
+  uint8_t getLength();
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  void setSST(const uint8_t& sst);
+  uint8_t getSST();
+  void getSST(uint8_t& sst);
 
-  void set_5GMM_Cause(uint8_t value);
-  // TODO: Get
+  void setSd(const uint32_t& sd);
+  bool getSd(uint32_t& sd);
+  void getSd(std::optional<uint32_t>& sd);
 
-  void setGPRS_Timer_2_3346(uint8_t value);
-  // TODO: Get
+  void setCause(const uint8_t& cause);
+  uint8_t getCause();
+  void getCause(uint8_t& cause);
 
-  void setGPRS_Timer_2_3502(uint8_t value);
-  // TOGO: Get
+  int encode2buffer(uint8_t* buf, int len);
+  int decodefrombuffer(uint8_t* buf, int len);
 
-  void setEAP_Message(bstring eap);
-  void setRejected_NSSAI(const std::vector<Rejected_SNSSAI>& nssai);
-  // TODO: Get
-
- public:
-  _5GMM_Cause ie_5gmm_cause;                        // Mandatory
-  std::optional<GPRS_Timer_2> ie_T3346_value;       // Optional
-  std::optional<GPRS_Timer_2> ie_T3502_value;       // Optional
-  std::optional<EAP_Message> ie_eap_message;        // Optional
-  std::optional<Rejected_NSSAI> ie_rejected_nssai;  // Release 16.4.1
+ private:
+  uint8_t length_;
+  uint8_t cause_;
+  uint8_t sst_;
+  std::optional<uint32_t> sd_;
 };
 
 }  // namespace nas

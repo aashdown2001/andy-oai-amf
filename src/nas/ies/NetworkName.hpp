@@ -19,46 +19,45 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _REGISTRATION_REJECT_H_
-#define _REGISTRATION_REJECT_H_
+#ifndef _NETWORK_NAME_H_
+#define _NETWORK_NAME_H_
 
-#include "NasIeHeader.hpp"
+#include "bstrlib.h"
+#include <stdint.h>
+#include <string>
+
+constexpr uint8_t kNetworkNameMinimumLength = 3;
 
 namespace nas {
 
-class RegistrationReject : public NasMmPlainHeader {
+class NetworkName {
  public:
-  RegistrationReject();
-  ~RegistrationReject();
+  NetworkName();
+  NetworkName(const uint8_t& iei);
+  ~NetworkName();
 
-  void setHeader(uint8_t security_header_type);
-  void getSecurityHeaderType(uint8_t security_header_type);
-  bool verifyHeader();
+  void setIEI(const uint8_t& iei);
+  void setCodingScheme(const uint8_t& value);
+  // TODO: getCodingScheme
+  void setAddCI(const uint8_t& value);
+  // TODO: getAddCI
+  void setNumberOfSpareBits(const uint8_t& value);
+  // TODO: getNumberOfSpareBits
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  void setTextString(const std::string& str);
+  void setTextString(const bstring& str);
 
-  void set_5GMM_Cause(uint8_t value);
-  // TODO: Get
+  int encode2buffer(uint8_t* buf, int len);
+  int decodefrombuffer(uint8_t* buf, int len, bool is_option = true);
 
-  void setGPRS_Timer_2_3346(uint8_t value);
-  // TODO: Get
-
-  void setGPRS_Timer_2_3502(uint8_t value);
-  // TOGO: Get
-
-  void setEAP_Message(bstring eap);
-  void setRejected_NSSAI(const std::vector<Rejected_SNSSAI>& nssai);
-  // TODO: Get
-
- public:
-  _5GMM_Cause ie_5gmm_cause;                        // Mandatory
-  std::optional<GPRS_Timer_2> ie_T3346_value;       // Optional
-  std::optional<GPRS_Timer_2> ie_T3502_value;       // Optional
-  std::optional<EAP_Message> ie_eap_message;        // Optional
-  std::optional<Rejected_NSSAI> ie_rejected_nssai;  // Release 16.4.1
+ private:
+  uint8_t iei_;
+  uint16_t length;
+  uint8_t coding_scheme;         // octet 3
+  uint8_t add_CI;                // octet 3
+  uint8_t number_of_spare_bits;  // octet 3
+  bstring text_string;
 };
-
 }  // namespace nas
 
 #endif

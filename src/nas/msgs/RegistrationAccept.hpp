@@ -64,15 +64,12 @@ class RegistrationAccept : public NasMmPlainHeader {
   // TODO: Get
 
   void setTaiList(std::vector<p_tai_t> tai_list);
-  // TODO: Get
 
-  void setALLOWED_NSSAI(std::vector<struct SNSSAI_s> nssai);
+  void setALLOWED_NSSAI(const std::vector<struct SNSSAI_s>& nssai);
   // TODO: Get
-
-  void setRejected_NSSAI(uint8_t cause, uint8_t value);
+  void setRejected_NSSAI(const std::vector<Rejected_SNSSAI>& nssai);
   // TODO: Get
-
-  void setCONFIGURED_NSSAI(std::vector<struct SNSSAI_s> nssai);
+  void setCONFIGURED_NSSAI(const std::vector<struct SNSSAI_s>& nssai);
   // TODO: Get
 
   void set_5GS_Network_Feature_Support(uint8_t value, uint8_t value2);
