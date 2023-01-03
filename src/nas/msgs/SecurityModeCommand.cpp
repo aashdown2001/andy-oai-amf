@@ -66,7 +66,7 @@ void SecurityModeCommand::setNAS_Security_Algorithms(
 
 //------------------------------------------------------------------------------
 void SecurityModeCommand::setngKSI(uint8_t tsc, uint8_t key_set_id) {
-  ie_ngKSI = new NasKeySetIdentifier(0x00, tsc, key_set_id);
+  ie_ngKSI = new NasKeySetIdentifier(tsc, key_set_id);
 }
 
 //------------------------------------------------------------------------------
@@ -144,13 +144,12 @@ int SecurityModeCommand::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_ngKSI) {
     Logger::nas_mm().warn("IE ie_ngKSI is not available");
   } else {
-    if (int size =
-            ie_ngKSI->encode2Buffer(buf + encoded_size, len - encoded_size)) {
-      encoded_size += size;
-    } else {
+    if (int size = ie_ngKSI->Encode(buf + encoded_size, len - encoded_size) ==
+                   KEncodeDecodeError) {
       Logger::nas_mm().error("Encoding ie_ngKSI error");
       return 0;
     }
+    encoded_size++;  // 1/2 octet for ngKSI, 1/2 for Spare half octet
   }
   if (!ie_ue_security_capability) {
     Logger::nas_mm().warn("IE ie_ue_security_capability is not available");
@@ -246,8 +245,9 @@ int SecurityModeCommand::decodeFromBuffer(
   decoded_size += ie_selected_nas_security_algorithms->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   ie_ngKSI = new NasKeySetIdentifier();
-  decoded_size += ie_ngKSI->decodeFromBuffer(
-      buf + decoded_size, len - decoded_size, false, false);
+  decoded_size +=
+      ie_ngKSI->Decode(buf + decoded_size, len - decoded_size, false, false);
+  decoded_size++;  // 1/2 octet for ngKSI, 1/2 for Spare half octet
   ie_ue_security_capability = new UESecurityCapability();
   decoded_size += ie_ue_security_capability->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);

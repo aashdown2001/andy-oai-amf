@@ -22,30 +22,43 @@
 #ifndef _NAS_KEY_SET_IDENTIFIER_H
 #define _NAS_KEY_SET_IDENTIFIER_H
 
+#include "Type1NasIe.hpp"
 #include <stdint.h>
 
+constexpr auto kNasKeySetIdentifierName = "NAS Key Set Identifier";
 namespace nas {
 
-class NasKeySetIdentifier {
+class NasKeySetIdentifier : public Type1NasIe {
  public:
   NasKeySetIdentifier();
   NasKeySetIdentifier(
-      const uint8_t& iei, const uint8_t& tsc, const uint8_t& key_id);
-  NasKeySetIdentifier(const uint8_t& tsc, const uint8_t& key_id);
+      const uint8_t& iei, const bool& tsc, const uint8_t& key_id);
+  NasKeySetIdentifier(
+      const bool& tsc, const uint8_t& key_id);  // Default: low position
+
   ~NasKeySetIdentifier();
 
-  int encode2Buffer(uint8_t* buf, const int& len);
-  int decodeFromBuffer(
-      uint8_t* buf, const int& len, bool is_option, bool is_high);
+  void Set(const bool& high_pos);
+  // void Set(const bool& tsc, const uint8_t& key_id);
+  // void Set(const bool& tsc, const uint8_t& key_id, const uint8_t& iei);
+  void Get(bool& tsc, uint8_t& key_id);
 
-  void setTypeOfSecurityContext(const uint8_t& type);
+  // int encode2Buffer(uint8_t* buf, const int& len);
+  // int decodeFromBuffer(
+  //    uint8_t* buf, const int& len, bool is_option, bool is_high);
+
+  void setTypeOfSecurityContext(const bool& type);
+  bool getTypeOfSecurityContext() const;
+
   void setNasKeyIdentifier(const uint8_t& id);
-  uint8_t getTypeOfSecurityContext() const;
   uint8_t getNasKeyIdentifier() const;
 
  private:
-  uint8_t iei_;
-  uint8_t tsc_;
+  void SetValue() override;
+  void GetValue() override;
+
+  // uint8_t iei_;
+  bool tsc_;
   uint8_t key_id_;
 };
 

@@ -70,6 +70,7 @@ void DeregistrationRequest::setDeregistrationType(
 //------------------------------------------------------------------------------
 void DeregistrationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
   ie_ngKSI = new NasKeySetIdentifier(tsc, key_set_id);
+  ie_ngKSI->Set(true);  // high position
 }
 
 //------------------------------------------------------------------------------
@@ -187,8 +188,9 @@ int DeregistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   encoded_size += 3;
   if (!(ie_deregistrationtype->encode2Buffer(
           buf + encoded_size, len - encoded_size))) {
-    if (!(ie_ngKSI->encode2Buffer(buf + encoded_size, len - encoded_size))) {
-      encoded_size += 1;
+    if (ie_ngKSI->Encode(buf + encoded_size, len - encoded_size) !=
+        KEncodeDecodeError) {
+      encoded_size += 1;  // 1/2 octet for Deregistration Request, 1/2 for ngKSI
     } else {
       Logger::nas_mm().error("Encoding IE ie_ngKSI error");
       return 0;
@@ -220,9 +222,10 @@ int DeregistrationRequest::decodeFromBuffer(
   decoded_size += ie_deregistrationtype->decodeFromBuffer(
       buf + decoded_size, len - decoded_size);
   ie_ngKSI = new NasKeySetIdentifier();
-  decoded_size += ie_ngKSI->decodeFromBuffer(
-      buf + decoded_size, len - decoded_size, false, true);
-  decoded_size++;
+  decoded_size += ie_ngKSI->Decode(
+      buf + decoded_size, len - decoded_size, true,
+      false);      // High position, 1/2 octet
+  decoded_size++;  // 1/2 octet for Deregistration type, 1/2 for ngKSI
   ie_5gs_mobility_id = new _5GSMobileIdentity();
   decoded_size += ie_5gs_mobility_id->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);

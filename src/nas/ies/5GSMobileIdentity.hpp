@@ -53,7 +53,12 @@ typedef struct IMEI_or_IMEISV_s {
   std::string identity;  // "46011000001"
 } IMEI_IMEISV_t;
 
-// SUCI and SUPI format IMSI
+// TODO:
+// 5GS mobile identity information element for type of identity "SUCI" and SUPI
+// format "IMSI"
+
+// SUCI and SUPI format IMSI and
+// Protection scheme Id "Null scheme"
 typedef struct SUCI_imsi_s {
   uint8_t supi_format : 3;
   std::string mcc;
@@ -65,6 +70,7 @@ typedef struct SUCI_imsi_s {
 } SUCI_imsi_t;       // SUPI format "IMSI"
 
 // TODO: SUCI and SUPI format "Network specific identifier"
+
 // 5G-S-TMSI
 typedef struct _5G_S_TMSI_s {
   uint16_t amf_set_id;

@@ -57,7 +57,7 @@ void ServiceRequest::setHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void ServiceRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
-  ie_ngKSI = new NasKeySetIdentifier(0x00, tsc, key_set_id);
+  ie_ngKSI = new NasKeySetIdentifier(tsc, key_set_id);
 }
 
 //------------------------------------------------------------------------------
@@ -114,10 +114,11 @@ int ServiceRequest::encode2Buffer(uint8_t* buf, int len) {
   }
   if (!(plain_header->encode2Buffer(buf, len))) return 0;
   encoded_size += 3;
-  if (ie_ngKSI->encode2Buffer(buf + encoded_size, len - encoded_size) != -1) {
+  if (ie_ngKSI->Encode(buf + encoded_size, len - encoded_size) !=
+      KEncodeDecodeError) {
     if (ie_service_type->encode2Buffer(
             buf + encoded_size, len - encoded_size) != -1) {
-      encoded_size++;
+      encoded_size++;  // 1/2 octet for ngKSI, 1/2 for Service Type
     } else {
       Logger::nas_mm().error("Encoding ie_service_type error");
       return 0;
@@ -193,12 +194,12 @@ int ServiceRequest::decodeFromBuffer(
   int decoded_size = 3;
   plain_header     = header;
   ie_ngKSI         = new NasKeySetIdentifier();
-  decoded_size += ie_ngKSI->decodeFromBuffer(
-      buf + decoded_size, len - decoded_size, false, false);
+  decoded_size +=
+      ie_ngKSI->Decode(buf + decoded_size, len - decoded_size, false, false);
   ie_service_type = new ServiceType();
   decoded_size += ie_service_type->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, true);
-  decoded_size++;
+  decoded_size++;  // 1/2 octet for ngKSI, 1/2 for Service Type
   ie_5g_s_tmsi = new _5GSMobileIdentity();
   decoded_size += ie_5g_s_tmsi->decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);

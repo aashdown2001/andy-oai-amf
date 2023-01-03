@@ -55,7 +55,7 @@ void AuthenticationRequest::setHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void AuthenticationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
-  ie_ngKSI = new NasKeySetIdentifier(0x00, tsc, key_set_id);
+  ie_ngKSI = new NasKeySetIdentifier(tsc, key_set_id);
 }
 
 //------------------------------------------------------------------------------
@@ -93,13 +93,15 @@ int AuthenticationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_ngKSI) {
     Logger::nas_mm().warn("IE ie_ngKSI is not available");
   } else {
-    int size = ie_ngKSI->encode2Buffer(buf + encoded_size, len - encoded_size);
-    if (size != -1) {
+    int size = ie_ngKSI->Encode(buf + encoded_size, len - encoded_size);
+    if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_ngKSI error");
       return 0;
     }
+    // Spare half octet
+    encoded_size++;  // 1/2 octet + 1/2 octet from ie_ngKSI
   }
   if (!ie_abba) {
     Logger::nas_mm().warn("IE ie_abba is not available");
@@ -166,9 +168,10 @@ int AuthenticationRequest::decodeFromBuffer(
   int decoded_size = 3;
   plain_header     = header;
   ie_ngKSI         = new NasKeySetIdentifier();
-  decoded_size += ie_ngKSI->decodeFromBuffer(
-      buf + decoded_size, len - decoded_size, false, false);
-  decoded_size++;
+  decoded_size += ie_ngKSI->Decode(
+      buf + decoded_size, len - decoded_size, false,
+      false);      // length 1/2, low position
+  decoded_size++;  // 1/2 octet from ie_ngKSI, 1/2 from Spare half octet
   ie_abba = new ABBA();
   decoded_size +=
       ie_abba->decodeFromBuffer(buf + decoded_size, len - decoded_size, false);

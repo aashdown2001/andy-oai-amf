@@ -283,7 +283,7 @@ int _5GSMobileIdentity::suci_encode2buffer(uint8_t* buf, int len) {
 
   if (!supi_format_imsi.has_value()) return KEncodeDecodeError;
   if (len < length) {
-    Logger::nas_mm().debug("error: len is less than %d", length);
+    Logger::nas_mm().debug("Error: len is less than %d", length);
     return KEncodeDecodeError;
   }
 
@@ -316,6 +316,26 @@ int _5GSMobileIdentity::suci_encode2buffer(uint8_t* buf, int len) {
   ENCODE_U8(
       buf + encoded_size, supi_format_imsi.value().homeNetworkPKI,
       encoded_size);
+
+  // MSIN
+  std::string msin   = {};
+  uint8_t digit_low  = 0;
+  uint8_t digit_high = 0;
+  for (int i = 0; i < supi_format_imsi.value().msin.length() / 2; i++) {
+    conv::string_to_int8(supi_format_imsi.value().msin.substr(i, 1), digit_low);
+    conv::string_to_int8(
+        supi_format_imsi.value().msin.substr(i + 1, 1), digit_high);
+    uint8_t octet = (0xf0 & (digit_high << 4)) | (digit_low & 0x0f);
+    ENCODE_U8(buf + encoded_size, octet, encoded_size);
+  }
+  if (supi_format_imsi.value().msin.length() % 2 != 0) {
+    conv::string_to_int8(
+        supi_format_imsi.value().msin.substr(
+            supi_format_imsi.value().msin.length() - 1, 1),
+        digit_low);
+    uint8_t octet = 0xf0 | (digit_low & 0x0f);
+    ENCODE_U8(buf + encoded_size, octet, encoded_size);
+  }
 
   // Encode Length
   int encoded_len_ie = 0;
@@ -708,8 +728,8 @@ int _5GSMobileIdentity::_5g_guti_decodefrombuffer(uint8_t* buf, int len) {
   tmp.amf_set_id = octet << 2;  // 8 most significant bits
   DECODE_U8(buf + decoded_size, octet, decoded_size);
   tmp.amf_set_id |=
-      ((octet & 0xc0) >> 6);  // 2 most significant bits of this octet
-                              // as 2 lest significant bits of AMF Set ID
+      ((octet & 0xc0) >> 6);       // 2 most significant bits of this octet
+                                   // as 2 lest significant bits of AMF Set ID
   tmp.amf_pointer = octet & 0x3f;  // 6 lest significant bits
 
   // TMSI, 4 octets

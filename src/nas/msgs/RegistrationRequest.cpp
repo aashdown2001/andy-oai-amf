@@ -77,6 +77,7 @@ bool RegistrationRequest::get5GSRegistrationType(
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
+  ie_ngKSI.Set(true);  // high pos
   ie_ngKSI.setNasKeyIdentifier(key_set_id);
   ie_ngKSI.setTypeOfSecurityContext(tsc);
 }
@@ -172,8 +173,8 @@ void RegistrationRequest::set5G_S_TMSI() {}
 //------------------------------------------------------------------------------
 void RegistrationRequest::setNonCurrentNativeNasKSI(
     uint8_t tsc, uint8_t key_set_id) {
-  ie_non_current_native_nas_ksi =
-      std::make_optional<NasKeySetIdentifier>(0xC, tsc, key_set_id);
+  ie_non_current_native_nas_ksi = std::make_optional<NasKeySetIdentifier>(
+      0xC, tsc, key_set_id);  // TODO: remove hardcoded value
 }
 
 //------------------------------------------------------------------------------
@@ -555,7 +556,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
     return KEncodeDecodeError;
   }
   //  ngKSI
-  if ((encoded_ie_size = ie_ngKSI.encode2Buffer(
+  if ((encoded_ie_size = ie_ngKSI.Encode(
            buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
     Logger::nas_mm().error("Encoding IE ie_ngKSI error");
     return KEncodeDecodeError;
@@ -576,7 +577,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
     Logger::nas_mm().warn(
         "IE Non-current native NAS key set identifier is not available");
   } else {
-    if ((encoded_ie_size = ie_non_current_native_nas_ksi.value().encode2Buffer(
+    if ((encoded_ie_size = ie_non_current_native_nas_ksi.value().Encode(
              buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
       Logger::nas_mm().error(
           "Encoding IE Non-current native NAS key set identifier error");
@@ -844,9 +845,10 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
   // ie_5gsregistrationtype = new _5GSRegistrationType();
   decoded_size += ie_5gsregistrationtype.Decode(
       buf + decoded_size, len - decoded_size, false);
-  decoded_size += ie_ngKSI.decodeFromBuffer(
-      buf + decoded_size, len - decoded_size, false, true);
-  decoded_size++;
+  decoded_size += ie_ngKSI.Decode(
+      buf + decoded_size, len - decoded_size, true, false);  // high, 1/2 octet
+  decoded_size++;  // 1/2 octet for ie_5gsregistrationtype, 1/2 octet for
+                   // ie_ngKSI
   decoded_size += ie_5gs_mobile_identity.decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);
   uint8_t octet = *(buf + decoded_size);
@@ -856,9 +858,8 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case 0xC: {
         Logger::nas_mm().debug("Decoding IEI(0xC)");
         NasKeySetIdentifier ie_non_current_native_nas_ksi_tmp = {};
-        if ((decoded_result =
-                 ie_non_current_native_nas_ksi_tmp.decodeFromBuffer(
-                     buf + decoded_size, len - decoded_size, true, false)) <= 0)
+        if ((decoded_result = ie_non_current_native_nas_ksi_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, false, true)) <= 0)
           return decoded_result;
         ie_non_current_native_nas_ksi = std::optional<NasKeySetIdentifier>(
             ie_non_current_native_nas_ksi_tmp);
