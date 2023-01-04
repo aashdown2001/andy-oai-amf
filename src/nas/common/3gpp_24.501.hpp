@@ -205,5 +205,6 @@ static const std::vector<std::string> nas_ciphering_algorithm_list_e2str = {
 #define NAS_MESSAGE_MIN_LENGTH 3
 
 constexpr int KEncodeDecodeError = -1;
+constexpr int KEncodeDecodeOK    = 0;
 
 #endif

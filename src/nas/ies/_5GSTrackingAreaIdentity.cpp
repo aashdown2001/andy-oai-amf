@@ -112,7 +112,7 @@ int _5GSTrackingAreaIdentity::encode2Buffer(uint8_t* buf, int len) {
   ENCODE_U24(buf + encoded_size, tac_, encoded_size);
 
   Logger::nas_mm().debug(
-      "Encoded _5GSTrackingAreaIdentity len(%d)", encoded_size);
+      "Encoded _5GSTrackingAreaIdentity len (%d)", encoded_size);
   return encoded_size;
 }
 
