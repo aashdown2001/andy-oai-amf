@@ -84,7 +84,7 @@ class nas_context {
   uint8_t ngKsi : 4;
   // mobility identity: imsi, supi, 5g-guti, etc
   std::string imsi;
-  uint8_t mmCapability;
+  uint8_t mmCapability;  // TODO: multiple octets
   uint8_t ueSecurityCaplen;
   uint8_t ueSecurityCapEnc;
   uint8_t ueSecurityCapInt;

@@ -43,10 +43,6 @@ class NasKeySetIdentifier : public Type1NasIe {
   // void Set(const bool& tsc, const uint8_t& key_id, const uint8_t& iei);
   void Get(bool& tsc, uint8_t& key_id);
 
-  // int encode2Buffer(uint8_t* buf, const int& len);
-  // int decodeFromBuffer(
-  //    uint8_t* buf, const int& len, bool is_option, bool is_high);
-
   void setTypeOfSecurityContext(const bool& type);
   bool getTypeOfSecurityContext() const;
 

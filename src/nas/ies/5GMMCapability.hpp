@@ -32,18 +32,20 @@ namespace nas {
 class _5GMMCapability {
  public:
   _5GMMCapability();
-  _5GMMCapability(const uint8_t iei, uint8_t value);
+  _5GMMCapability(const uint8_t iei, uint8_t octet3);
   ~_5GMMCapability();
 
-  void setValue(uint8_t iei, uint8_t value);
-  uint8_t getValue();
+  void setOctet3(const uint8_t iei, uint8_t octet3);
+  uint8_t getOctet3() const;
 
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option = true);
 
  private:
-  uint8_t m_iei;
+  uint8_t iei_;
   uint8_t octet3_;  // minimum length of 3 octets
+  std::optional<uint8_t> octet4_;
+  std::optional<uint8_t> octet5_;
   uint8_t length;
 };
 

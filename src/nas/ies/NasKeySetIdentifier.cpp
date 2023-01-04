@@ -57,6 +57,7 @@ NasKeySetIdentifier::~NasKeySetIdentifier(){};
 void NasKeySetIdentifier::Set(const bool& high_pos) {
   Type1NasIe::Set(high_pos);
 }
+
 //------------------------------------------------------------------------------
 void NasKeySetIdentifier::SetValue() {
   if (tsc_)
@@ -64,6 +65,7 @@ void NasKeySetIdentifier::SetValue() {
   else
     value_ = 0x07 & key_id_;
 }
+
 //------------------------------------------------------------------------------
 void NasKeySetIdentifier::GetValue() {
   tsc_    = (0b1000 & value_) >> 3;

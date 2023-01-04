@@ -28,10 +28,12 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-_5GMMCapability::_5GMMCapability(const uint8_t iei, uint8_t value) {
-  m_iei   = iei;
-  octet3_ = value;
-  length  = k5gmmCapabilityMinimumLength;
+_5GMMCapability::_5GMMCapability(const uint8_t iei, uint8_t octet3) {
+  iei_    = iei;
+  octet3_ = octet3;
+  octet4_ = std::nullopt;
+  octet5_ = std::nullopt;
+  length  = 1;
 }
 
 //------------------------------------------------------------------------------
@@ -41,36 +43,39 @@ _5GMMCapability::_5GMMCapability() {}
 _5GMMCapability::~_5GMMCapability() {}
 
 //------------------------------------------------------------------------------
-void _5GMMCapability::setValue(uint8_t iei, uint8_t value) {
-  m_iei   = iei;
-  octet3_ = value;
+void _5GMMCapability::setOctet3(const uint8_t iei, uint8_t octet3) {
+  iei_    = iei;
+  octet3_ = octet3;
 }
 
 //------------------------------------------------------------------------------
-uint8_t _5GMMCapability::getValue() {
+uint8_t _5GMMCapability::getOctet3() const {
   return octet3_;
 }
 
 //------------------------------------------------------------------------------
 int _5GMMCapability::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding _5GMMCapability IEI (0x%x)", m_iei);
-  if (len < length) {
-    Logger::nas_mm().error("Len is less than %d", length);
+  Logger::nas_mm().debug("Encoding _5GMMCapability IEI");
+  int ie_len = iei_ ? (length + 2) : (length + 1);  // 1 for IEI, 1 for Length
+
+  if (len < ie_len) {
+    Logger::nas_mm().error("Len is less than %d", ie_len);
     return KEncodeDecodeError;
   }
 
   int encoded_size = 0;
-  if (m_iei) {
-    ENCODE_U8(buf + encoded_size, m_iei, encoded_size);
-    ENCODE_U8(buf + encoded_size, length - 2, encoded_size);
-  } else {
-    ENCODE_U8(buf + encoded_size, length - 1, encoded_size);
+  // IEI
+  if (iei_) {
+    ENCODE_U8(buf + encoded_size, iei_, encoded_size);
   }
-
+  // Length
+  ENCODE_U8(buf + encoded_size, length, encoded_size);
+  // Octet 3
   ENCODE_U8(buf + encoded_size, octet3_, encoded_size);
   // TODO: Encode spare for the rest
   uint8_t spare = 0;
-  for (int i = 0; i < (length - encoded_size); i++) {
+  int spare_len = ie_len - encoded_size;
+  for (int i = 0; i < spare_len; i++) {
     ENCODE_U8(buf + encoded_size, spare, encoded_size);
   }
 
@@ -88,24 +93,25 @@ int _5GMMCapability::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   }
 
   uint8_t decoded_size = 0;
+  uint8_t octet        = 0;
 
-  Logger::nas_mm().debug("Decoding _5GMMCapability IEI (0x%x)", *buf);
+  Logger::nas_mm().debug("Decoding _5GMMCapability IE");
   if (is_option) {
-    decoded_size++;
+    DECODE_U8(buf + decoded_size, octet, decoded_size);
+    iei_ = std::optional<uint8_t>(octet);
   }
 
-  uint8_t ie_len = 0;
-  DECODE_U8(buf + decoded_size, ie_len, decoded_size);
-  length = ie_len + decoded_size;
+  DECODE_U8(buf + decoded_size, length, decoded_size);
 
   DECODE_U8(buf + decoded_size, octet3_, decoded_size);
   // TODO: decode the rest as spare for now
   uint8_t spare = 0;
-  for (int i = 0; i < (ie_len - 1); i++) {
+  for (int i = 0; i < (length - 1); i++) {
     ENCODE_U8(buf + decoded_size, spare, decoded_size);
   }
 
-  Logger::nas_mm().debug("Decoded _5GMMCapability value(0x%x)", octet3_);
-  Logger::nas_mm().debug("Decoded _5GMMCapability len(%d)", decoded_size);
+  Logger::nas_mm().debug(
+      "Decoded _5GMMCapability Octet3 value (0x%x)", octet3_);
+  Logger::nas_mm().debug("Decoded _5GMMCapability len (%d)", decoded_size);
   return decoded_size;
 }

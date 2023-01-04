@@ -47,7 +47,8 @@ void Type4NasIe::SetIei(const uint8_t& iei) {
 
 //------------------------------------------------------------------------------
 bool Type4NasIe::Validate(const int& len) const {
-  uint8_t actual_lengh = iei_.has_value() ? li_ + 1 : li_;
+  uint8_t actual_lengh =
+      iei_.has_value() ? (li_ + 2) : (li_ + 1);  // 1 for IEI and 1 for LI
   if (len < actual_lengh) {
     Logger::nas_mm().error(
         "Buffer length is less than the minimum length of this IE (%d octet)",
@@ -55,4 +56,44 @@ bool Type4NasIe::Validate(const int& len) const {
     return false;
   }
   return true;
+}
+
+//------------------------------------------------------------------------------
+int Type4NasIe::Encode(uint8_t* buf, const int& len) {
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
+  if (!Validate(len)) return KEncodeDecodeError;
+
+  int encoded_size = 0;
+  uint8_t octet    = 0;
+  if (iei_.has_value()) {
+    ENCODE_U8(buf + encoded_size, iei_.value(), encoded_size);
+  }
+
+  ENCODE_U8(buf + encoded_size, li_, encoded_size);
+
+  Logger::nas_mm().debug(
+      "Encoded %s (len %d)", GetIeName().c_str(), encoded_size);
+  return encoded_size;
+}
+
+//------------------------------------------------------------------------------
+int Type4NasIe::Decode(
+    const uint8_t* const buf, const int& len, bool is_iei = false) {
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+
+  if (!Validate(len)) return KEncodeDecodeError;
+
+  int decoded_size = 0;
+  uint8_t octet    = 0;
+
+  if (is_iei) {
+    DECODE_U8(buf + decoded_size, octet, decoded_size);
+    iei_ = std::optional<uint8_t>(octet);
+  }
+
+  DECODE_U8(buf + decoded_size, li_, decoded_size);
+
+  Logger::nas_mm().debug(
+      "Decoded %s (len %d)", GetIeName().c_str(), decoded_size);
+  return decoded_size;
 }
