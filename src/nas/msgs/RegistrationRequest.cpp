@@ -64,14 +64,14 @@ void RegistrationRequest::setHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::set5gsRegistrationType(bool is_for, uint8_t type) {
-  ie_5gsregistrationtype.set(is_for, type);
+  ie_5gs_registration_type.set(is_for, type);
 }
 
 //------------------------------------------------------------------------------
-bool RegistrationRequest::get5GSRegistrationType(
-    bool& is_for, uint8_t& reg_type /*3bits*/) {
-  is_for   = ie_5gsregistrationtype.isFollowOnReq();
-  reg_type = ie_5gsregistrationtype.getRegType();
+bool RegistrationRequest::get5gsRegistrationType(
+    bool& is_for, uint8_t& reg_type) {
+  is_for   = ie_5gs_registration_type.isFollowOnReq();
+  reg_type = ie_5gs_registration_type.getRegType();
   return true;
 }
 
@@ -531,12 +531,6 @@ bool RegistrationRequest::getEpsBearerContextStatus(uint16_t& value) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::get5gsRegistrationType(bool& is_for, uint8_t& type) {
-  is_for = ie_5gsregistrationtype.isFollowOnReq();
-  type   = ie_5gsregistrationtype.getRegType();
-}
-
-//------------------------------------------------------------------------------
 int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding RegistrationRequest message");
   int encoded_size    = 0;
@@ -551,7 +545,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   encoded_size += encoded_ie_size;
 
   // 5GS Registration Type
-  if ((encoded_ie_size = ie_5gsregistrationtype.Encode(
+  if ((encoded_ie_size = ie_5gs_registration_type.Encode(
            buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
     Logger::nas_mm().error("Encoding IE 5GS Registration Type error");
     return KEncodeDecodeError;
@@ -843,12 +837,12 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
   int decoded_result  = 0;
   // plain_header           = header;
   decoded_size = NasMmPlainHeader::decodeFromBuffer(buf, len);
-  // ie_5gsregistrationtype = new _5GSRegistrationType();
-  decoded_size += ie_5gsregistrationtype.Decode(
+  // ie_5gs_registration_type = new _5GSRegistrationType();
+  decoded_size += ie_5gs_registration_type.Decode(
       buf + decoded_size, len - decoded_size, false);
   decoded_size += ie_ngKSI.Decode(
       buf + decoded_size, len - decoded_size, true, false);  // high, 1/2 octet
-  decoded_size++;  // 1/2 octet for ie_5gsregistrationtype, 1/2 octet for
+  decoded_size++;  // 1/2 octet for ie_5gs_registration_type, 1/2 octet for
                    // ie_ngKSI
   decoded_size += ie_5gs_mobile_identity.decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false);

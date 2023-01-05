@@ -22,13 +22,13 @@
 #ifndef _REGISTRATION_REQUEST_H_
 #define _REGISTRATION_REQUEST_H_
 
+#include "NasIeHeader.hpp"
+
 #include <bstrlib.h>
 #include <stdint.h>
-
 #include <string>
 #include <vector>
 
-#include "NasIeHeader.hpp"
 using namespace std;
 namespace nas {
 
@@ -45,7 +45,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   bool verifyHeader();
 
   void set5gsRegistrationType(bool is_for, uint8_t type);
-  bool get5GSRegistrationType(bool& is_for, uint8_t& reg_type /*3bits*/);
+  bool get5gsRegistrationType(bool& is_for, uint8_t& reg_type /*3bits*/);
 
   void setngKSI(uint8_t tsc, uint8_t key_set_id);
   bool getngKSI(uint8_t& ng_ksi);
@@ -115,8 +115,6 @@ class RegistrationRequest : public NasMmPlainHeader {
   void set_5GS_DRX_arameters(uint8_t value);
   uint8_t get5GSDrxParameters();
 
-  void get5gsRegistrationType(bool& is_for, uint8_t& type);
-
   void setEPS_NAS_Message_Container(bstring value);
 
   void setLADN_Indication(std::vector<bstring> ladnValue);
@@ -147,10 +145,9 @@ class RegistrationRequest : public NasMmPlainHeader {
   bool getEpsBearerContextStatus(uint16_t& value);
 
  public:
-  // NasMmPlainHeader* plain_header;
-  _5GSRegistrationType ie_5gsregistrationtype;  // Mandatory
-  NasKeySetIdentifier ie_ngKSI;                 // Mandatory
-  _5GSMobileIdentity ie_5gs_mobile_identity;    // Mandatory
+  _5GSRegistrationType ie_5gs_registration_type;  // Mandatory
+  NasKeySetIdentifier ie_ngKSI;                   // Mandatory
+  _5GSMobileIdentity ie_5gs_mobile_identity;      // Mandatory
 
   std::optional<NasKeySetIdentifier> ie_non_current_native_nas_ksi;  // Optional
   std::optional<_5GMMCapability> ie_5g_mm_capability;                // Optional
