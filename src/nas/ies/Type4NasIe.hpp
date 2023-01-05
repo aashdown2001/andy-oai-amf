@@ -34,6 +34,7 @@ class Type4NasIe : public NasIe {
   bool Validate(const int& len) const override;
 
   void SetIei(const uint8_t& iei);
+  void SetLengthIndicator(const uint8_t& li);
 
   int Encode(uint8_t* buf, const int& len) override;
   int Decode(

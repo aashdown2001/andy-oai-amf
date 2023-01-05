@@ -46,6 +46,11 @@ void Type4NasIe::SetIei(const uint8_t& iei) {
 }
 
 //------------------------------------------------------------------------------
+void Type4NasIe::SetLengthIndicator(const uint8_t& li) {
+  li_ = li;
+}
+
+//------------------------------------------------------------------------------
 bool Type4NasIe::Validate(const int& len) const {
   uint8_t actual_lengh =
       iei_.has_value() ? (li_ + 2) : (li_ + 1);  // 1 for IEI and 1 for LI
@@ -78,8 +83,6 @@ int Type4NasIe::Encode(uint8_t* buf, const int& len) {
 
 //------------------------------------------------------------------------------
 int Type4NasIe::Decode(const uint8_t* const buf, const int& len, bool is_iei) {
-  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
-
   if (!Validate(len)) return KEncodeDecodeError;
 
   int decoded_size = 0;
@@ -92,7 +95,7 @@ int Type4NasIe::Decode(const uint8_t* const buf, const int& len, bool is_iei) {
 
   DECODE_U8(buf + decoded_size, li_, decoded_size);
 
-  Logger::nas_mm().debug(
-      "Decoded %s (len %d)", GetIeName().c_str(), decoded_size);
+  // Logger::nas_mm().debug(
+  //     "Decoded %s (len %d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
 }
