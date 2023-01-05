@@ -197,7 +197,8 @@ void RegistrationRequest::set5GMMCapability(uint8_t value) {
 //------------------------------------------------------------------------------
 bool RegistrationRequest::get5GMMCapability(uint8_t& value) {
   if (ie_5g_mm_capability.has_value()) {
-    value = ie_5g_mm_capability.value().getValue();
+    value =
+        ie_5g_mm_capability.value().getOctet3();  // TODO: get multiple octets
     return true;
   } else
     return false;

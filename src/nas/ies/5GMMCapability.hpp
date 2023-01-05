@@ -22,6 +22,7 @@
 #ifndef _5GMM_CAPABILITY_H_
 #define _5GMM_CAPABILITY_H_
 
+#include <optional>
 #include <stdint.h>
 
 constexpr uint8_t k5gmmCapabilityMinimumLength = 3;

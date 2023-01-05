@@ -77,8 +77,7 @@ int Type4NasIe::Encode(uint8_t* buf, const int& len) {
 }
 
 //------------------------------------------------------------------------------
-int Type4NasIe::Decode(
-    const uint8_t* const buf, const int& len, bool is_iei = false) {
+int Type4NasIe::Decode(const uint8_t* const buf, const int& len, bool is_iei) {
   Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
 
   if (!Validate(len)) return KEncodeDecodeError;

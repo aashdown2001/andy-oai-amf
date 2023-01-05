@@ -97,8 +97,7 @@ int _5GMMCapability::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
 
   Logger::nas_mm().debug("Decoding _5GMMCapability IE");
   if (is_option) {
-    DECODE_U8(buf + decoded_size, octet, decoded_size);
-    iei_ = std::optional<uint8_t>(octet);
+    DECODE_U8(buf + decoded_size, iei_, decoded_size);
   }
 
   DECODE_U8(buf + decoded_size, length, decoded_size);
