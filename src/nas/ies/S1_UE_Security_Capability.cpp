@@ -66,22 +66,22 @@ S1_UE_Security_Capability::S1_UE_Security_Capability(
 }
 
 //------------------------------------------------------------------------------
-void S1_UE_Security_Capability::setEEASel(uint8_t sel) {
+void S1_UE_Security_Capability::SetEea(uint8_t sel) {
   _5g_EEASel = sel;
 }
 
 //------------------------------------------------------------------------------
-void S1_UE_Security_Capability::setEIASel(uint8_t sel) {
+void S1_UE_Security_Capability::SetEia(uint8_t sel) {
   _5g_EIASel = sel;
 }
 
 //------------------------------------------------------------------------------
-uint8_t S1_UE_Security_Capability::getEEASel() {
+uint8_t S1_UE_Security_Capability::GetEea() {
   return _5g_EEASel;
 }
 
 //------------------------------------------------------------------------------
-uint8_t S1_UE_Security_Capability::getEIASel() {
+uint8_t S1_UE_Security_Capability::GetEia() {
   return _5g_EIASel;
 }
 

@@ -50,22 +50,21 @@ _5GMMCapability::_5GMMCapability() : Type4NasIe(kIei5gmmCapability) {
 _5GMMCapability::~_5GMMCapability() {}
 
 //------------------------------------------------------------------------------
-void _5GMMCapability::setOctet3(const uint8_t iei, uint8_t octet3) {
+void _5GMMCapability::SetOctet3(const uint8_t iei, uint8_t octet3) {
   SetIei(iei);
   SetLengthIndicator(1);
   octet3_ = octet3;
 }
 
 //------------------------------------------------------------------------------
-uint8_t _5GMMCapability::getOctet3() const {
+uint8_t _5GMMCapability::GetOctet3() const {
   return octet3_;
 }
 
 //------------------------------------------------------------------------------
-int _5GMMCapability::encode2Buffer(uint8_t* buf, int len) {
+int _5GMMCapability::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
-  int ie_len =
-      iei_.has_value() ? (li_ + 2) : (li_ + 1);  // 1 for IEI, 1 for Length
+  int ie_len = GetIeLength();
 
   if (len < ie_len) {
     Logger::nas_mm().error("Len is less than %d", ie_len);
@@ -90,7 +89,7 @@ int _5GMMCapability::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GMMCapability::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
+int _5GMMCapability::Decode(uint8_t* buf, int len, bool is_option) {
   if (len < k5gmmCapabilityMinimumLength) {
     Logger::nas_mm().error(
         "Buffer length is less than the minimum length of this IE (%d octet)",
@@ -109,7 +108,7 @@ int _5GMMCapability::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
   // TODO: decode the rest as spare for now
   uint8_t spare = 0;
   for (int i = 0; i < (li_ - 1); i++) {
-    ENCODE_U8(buf + decoded_size, spare, decoded_size);
+    DECODE_U8(buf + decoded_size, spare, decoded_size);
   }
 
   Logger::nas_mm().debug(

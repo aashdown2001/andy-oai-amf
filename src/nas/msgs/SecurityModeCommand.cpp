@@ -72,14 +72,14 @@ void SecurityModeCommand::setngKSI(uint8_t tsc, uint8_t key_set_id) {
 //------------------------------------------------------------------------------
 void SecurityModeCommand::setUE_Security_Capability(
     uint8_t g_EASel, uint8_t g_IASel) {
-  ie_ue_security_capability = new UESecurityCapability(0x00, g_EASel, g_IASel);
+  ie_ue_security_capability = new UESecurityCapability(g_EASel, g_IASel);
 }
 
 //------------------------------------------------------------------------------
 void SecurityModeCommand::setUE_Security_Capability(
-    uint8_t g_EASel, uint8_t g_IASel, uint8_t EEASel, uint8_t EIASel) {
+    uint8_t g_EASel, uint8_t g_IASel, uint8_t eea, uint8_t eia) {
   ie_ue_security_capability =
-      new UESecurityCapability(0x00, g_EASel, g_IASel, EEASel, EIASel);
+      new UESecurityCapability(g_EASel, g_IASel, eea, eia);
 }
 
 //------------------------------------------------------------------------------

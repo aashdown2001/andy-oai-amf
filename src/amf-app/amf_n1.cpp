@@ -1308,7 +1308,7 @@ void amf_n1::registration_request_handle(
     Logger::amf_n1().warn("No Optional IE UESecurityCapability available");
   } else {
     nc->ueSecurityCaplen =
-        registration_request->ie_ue_security_capability->getLength();
+        registration_request->ie_ue_security_capability->GetLengthIndicator();
   }
 
   nc->ueSecurityCapEnc = encrypt_alg;
@@ -2409,7 +2409,7 @@ bool amf_n1::start_security_mode_control_procedure(
   }
 
   if (smc->ie_ue_security_capability != NULL) {
-    smc->ie_ue_security_capability->setLength(nc->ueSecurityCaplen);
+    smc->ie_ue_security_capability->SetLengthIndicator(nc->ueSecurityCaplen);
   } else {
     Logger::amf_n1().error("UE Security Capability is missing");
   }

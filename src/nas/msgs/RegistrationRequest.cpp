@@ -198,7 +198,7 @@ void RegistrationRequest::set5GMMCapability(uint8_t value) {
 bool RegistrationRequest::get5GMMCapability(uint8_t& value) {
   if (ie_5g_mm_capability.has_value()) {
     value =
-        ie_5g_mm_capability.value().getOctet3();  // TODO: get multiple octets
+        ie_5g_mm_capability.value().GetOctet3();  // TODO: get multiple octets
     return true;
   } else
     return false;
@@ -213,16 +213,16 @@ void RegistrationRequest::setUESecurityCapability(
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setUESecurityCapability(
-    uint8_t g_EASel, uint8_t g_IASel, uint8_t EEASel, uint8_t EIASel) {
+    uint8_t g_EASel, uint8_t g_IASel, uint8_t eea, uint8_t eia) {
   ie_ue_security_capability = std::make_optional<UESecurityCapability>(
-      0x2E, g_EASel, g_IASel, EEASel, EIASel);
+      0x2E, g_EASel, g_IASel, eea, eia);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getUeSecurityCapability(uint8_t& ea, uint8_t& ia) {
   if (ie_ue_security_capability.has_value()) {
-    ea = ie_ue_security_capability.value().getEASel();
-    ia = ie_ue_security_capability.value().getIASel();
+    ea = ie_ue_security_capability.value().GetEa();
+    ia = ie_ue_security_capability.value().GetIa();
     return true;
   } else {
     return false;
@@ -234,11 +234,11 @@ bool RegistrationRequest::getUeSecurityCapability(uint8_t& ea, uint8_t& ia) {
 bool RegistrationRequest::getUeSecurityCapability(
     uint8_t& ea, uint8_t& ia, uint8_t& eea, uint8_t& eia) {
   if (ie_ue_security_capability.has_value()) {
-    ea = ie_ue_security_capability.value().getEASel();
-    ia = ie_ue_security_capability.value().getIASel();
-    if (ie_ue_security_capability.value().getLength() >= 4) {
-      eea = ie_ue_security_capability.value().getEEASel();
-      eia = ie_ue_security_capability.value().getEIASel();
+    ea = ie_ue_security_capability.value().GetEa();
+    ia = ie_ue_security_capability.value().GetIa();
+    if (ie_ue_security_capability.value().GetLengthIndicator() >= 4) {
+      ie_ue_security_capability.value().GetEea(eea);
+      ie_ue_security_capability.value().GetEia(eia);
     }
     return true;
   } else {
@@ -281,8 +281,8 @@ void RegistrationRequest::setUENetworkCapability(
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getS1UeNetworkCapability(uint8_t& eea, uint8_t& eia) {
   if (ie_s1_ue_network_capability.has_value()) {
-    eea = ie_s1_ue_network_capability.value().getEEASel();
-    eia = ie_s1_ue_network_capability.value().getEIASel();
+    eea = ie_s1_ue_network_capability.value().GetEea();
+    eia = ie_s1_ue_network_capability.value().GetEia();
   } else {
     return false;
   }
@@ -586,7 +586,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_5g_mm_capability.has_value()) {
     Logger::nas_mm().warn("IE 5GMM capability is not available");
   } else {
-    if ((encoded_ie_size = ie_5g_mm_capability.value().encode2Buffer(
+    if ((encoded_ie_size = ie_5g_mm_capability.value().Encode(
              buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
       Logger::nas_mm().error("Encoding 5GMM capability error");
       return KEncodeDecodeError;
@@ -895,10 +895,10 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
     }
     switch (octet) {
-      case 0x10: {
+      case kIei5gmmCapability: {
         Logger::nas_mm().debug("Decoding 5GMMCapability (IEI 0x10)");
         _5GMMCapability ie_5g_mm_capability_tmp = {};
-        if ((decoded_size_ie = ie_5g_mm_capability_tmp.decodeFromBuffer(
+        if ((decoded_size_ie = ie_5g_mm_capability_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError) {
           return KEncodeDecodeError;

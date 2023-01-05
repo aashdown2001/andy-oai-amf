@@ -35,6 +35,9 @@ class Type4NasIe : public NasIe {
 
   void SetIei(const uint8_t& iei);
   void SetLengthIndicator(const uint8_t& li);
+  void GetLengthIndicator(uint8_t& li) const;
+  uint8_t GetLengthIndicator() const;
+  uint8_t GetIeLength() const;
 
   int Encode(uint8_t* buf, const int& len) override;
   int Decode(

@@ -40,10 +40,10 @@ class S1_UE_Security_Capability {
   ~S1_UE_Security_Capability();
   S1_UE_Security_Capability(
       const uint8_t iei, uint8_t _5gg_EEASel, uint8_t _5gg_EIASel);
-  void setEEASel(uint8_t sel);
-  void setEIASel(uint8_t sel);
-  uint8_t getEEASel();
-  uint8_t getEIASel();
+  void SetEea(uint8_t sel);
+  void SetEia(uint8_t sel);
+  uint8_t GetEea();
+  uint8_t GetEia();
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
 

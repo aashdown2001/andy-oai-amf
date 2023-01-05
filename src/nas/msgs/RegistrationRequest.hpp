@@ -79,8 +79,9 @@ class RegistrationRequest : public NasMmPlainHeader {
 
   void setUESecurityCapability(uint8_t g_EASel, uint8_t g_IASel);
   void setUESecurityCapability(
-      uint8_t g_EASel, uint8_t g_IASel, uint8_t EEASel, uint8_t EIASel);
+      uint8_t g_EASel, uint8_t g_IASel, uint8_t eea, uint8_t eia);
   bool getUeSecurityCapability(uint8_t& ea, uint8_t& ia);
+  // TODO: use std::optional for optional fields eea,eia
   bool getUeSecurityCapability(
       uint8_t& ea, uint8_t& ia, uint8_t& eea, uint8_t& eia);
 

@@ -51,6 +51,20 @@ void Type4NasIe::SetLengthIndicator(const uint8_t& li) {
 }
 
 //------------------------------------------------------------------------------
+void Type4NasIe::GetLengthIndicator(uint8_t& li) const {
+  li = li_;
+}
+
+//------------------------------------------------------------------------------
+uint8_t Type4NasIe::GetLengthIndicator() const {
+  return li_;
+}
+//------------------------------------------------------------------------------
+uint8_t Type4NasIe::GetIeLength() const {
+  return (iei_.has_value() ? (li_ + 2) : (li_ + 1));  // 1 for IEI, 1 for Length
+}
+
+//------------------------------------------------------------------------------
 bool Type4NasIe::Validate(const int& len) const {
   uint8_t actual_lengh =
       iei_.has_value() ? (li_ + 2) : (li_ + 1);  // 1 for IEI and 1 for LI
@@ -65,7 +79,6 @@ bool Type4NasIe::Validate(const int& len) const {
 
 //------------------------------------------------------------------------------
 int Type4NasIe::Encode(uint8_t* buf, const int& len) {
-  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   if (!Validate(len)) return KEncodeDecodeError;
 
   int encoded_size = 0;
@@ -75,9 +88,6 @@ int Type4NasIe::Encode(uint8_t* buf, const int& len) {
   }
 
   ENCODE_U8(buf + encoded_size, li_, encoded_size);
-
-  Logger::nas_mm().debug(
-      "Encoded %s (len %d)", GetIeName().c_str(), encoded_size);
   return encoded_size;
 }
 

@@ -57,22 +57,22 @@ UENetworkCapability::UENetworkCapability(
 }
 
 //------------------------------------------------------------------------------
-void UENetworkCapability::setEEASel(uint8_t sel) {
+void UENetworkCapability::SetEea(uint8_t sel) {
   _5g_EEASel = sel;
 }
 
 //------------------------------------------------------------------------------
-void UENetworkCapability::setEIASel(uint8_t sel) {
+void UENetworkCapability::SetEia(uint8_t sel) {
   _5g_EIASel = sel;
 }
 
 //------------------------------------------------------------------------------
-uint8_t UENetworkCapability::getEEASel() {
+uint8_t UENetworkCapability::GetEea() {
   return _5g_EEASel;
 }
 
 //------------------------------------------------------------------------------
-uint8_t UENetworkCapability::getEIASel() {
+uint8_t UENetworkCapability::GetEia() {
   return _5g_EIASel;
 }
 

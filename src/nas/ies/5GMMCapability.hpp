@@ -39,11 +39,11 @@ class _5GMMCapability : public Type4NasIe {
   _5GMMCapability(const uint8_t iei, uint8_t octet3);
   ~_5GMMCapability();
 
-  void setOctet3(const uint8_t iei, uint8_t octet3);
-  uint8_t getOctet3() const;
+  void SetOctet3(const uint8_t iei, uint8_t octet3);
+  uint8_t GetOctet3() const;
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option = true);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option = true);
 
  private:
   uint8_t octet3_;  // minimum length of 3 octets

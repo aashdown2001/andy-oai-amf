@@ -90,8 +90,8 @@ int _5GS_Network_Feature_Support::encode2Buffer(uint8_t* buf, int len) {
   } else {
     *(buf + encoded_size) = length - 1;
     encoded_size++;
-    //		*(buf + encoded_size) = _5g_EASel; encoded_size++;
-    //		*(buf + encoded_size) = _5g_IASel; encoded_size++;
+    //		*(buf + encoded_size) = _5g_ea_; encoded_size++;
+    //		*(buf + encoded_size) = _5g_ia_; encoded_size++;
   }
   Logger::nas_mm().debug(
       "Encoded _5GS_Network_Feature_Support len (%d)", encoded_size);
