@@ -98,8 +98,9 @@ constexpr uint8_t kT3502Value = 0x16;
 
 constexpr uint8_t kEquivalentPlmns = 0x4A;
 
-constexpr uint8_t kIei5gsUpdateType = 0x53;
-constexpr uint8_t kT3346Value       = 0x5f;
+constexpr uint8_t kIeiPduSessionStatus = 0x50;
+constexpr uint8_t kIei5gsUpdateType    = 0x53;
+constexpr uint8_t kT3346Value          = 0x5f;
 
 constexpr uint8_t kIeiEpsBearerContextStatus = 0x60;
 constexpr uint8_t kIeiRejectedNssaiRr        = 0x69;

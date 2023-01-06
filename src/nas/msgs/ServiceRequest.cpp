@@ -79,7 +79,7 @@ void ServiceRequest::setUplink_data_status(uint16_t value) {
 
 //------------------------------------------------------------------------------
 void ServiceRequest::setPDU_session_status(uint16_t value) {
-  ie_PDU_session_status = new PDUSessionStatus(0x50, value);
+  ie_PDU_session_status = new PDUSessionStatus(value);
 }
 
 //------------------------------------------------------------------------------
@@ -150,8 +150,8 @@ int ServiceRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_PDU_session_status) {
     Logger::nas_mm().warn("IE ie_PDU_session_status is not available");
   } else {
-    size = ie_PDU_session_status->encode2Buffer(
-        buf + encoded_size, len - encoded_size);
+    size =
+        ie_PDU_session_status->Encode(buf + encoded_size, len - encoded_size);
     if (size != 0) {
       encoded_size += size;
     } else {
@@ -215,10 +215,11 @@ int ServiceRequest::decodeFromBuffer(
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x50: {
-        Logger::nas_mm().debug("Decoding ie_PDU_session_status (IEI: 0x50)");
+      case kIeiPduSessionStatus: {
+        Logger::nas_mm().debug(
+            "Decoding ie_PDU_session_status (IEI 0x%x)", kIeiPduSessionStatus);
         ie_PDU_session_status = new PDUSessionStatus();
-        decoded_size += ie_PDU_session_status->decodeFromBuffer(
+        decoded_size += ie_PDU_session_status->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -270,7 +271,7 @@ uint16_t ServiceRequest::getUplinkDataStatus() {
 //------------------------------------------------------------------------------
 uint16_t ServiceRequest::getPduSessionStatus() {
   if (ie_PDU_session_status) {
-    return ie_PDU_session_status->getValue();
+    return ie_PDU_session_status->GetValue();
   } else {
     return 0;
   }

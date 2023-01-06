@@ -19,30 +19,31 @@
  *      contact@openairinterface.org
  */
 
-#ifndef __PDU_Session_Status_H_
-#define __PDU_Session_Status_H_
+#ifndef _PDU_SESSION_STATUS_H_
+#define _PDU_SESSION_STATUS_H_
 
+#include "Type4NasIe.hpp"
 #include <stdint.h>
 
 constexpr uint8_t kPduSessionStatusMinimumLength = 4;
 constexpr uint8_t kPduSessionStatusMaximumLength = 34;
+constexpr auto kPduSessionStatusIeName           = "PDU Session Status";
 
 namespace nas {
 
-class PDUSessionStatus {
+class PDUSessionStatus : Type4NasIe {
  public:
   PDUSessionStatus();
-  PDUSessionStatus(uint8_t iei);
-  PDUSessionStatus(const uint8_t iei, uint16_t value);
+  PDUSessionStatus(uint16_t value);
   ~PDUSessionStatus();
-  void setValue(uint8_t iei, uint16_t value);
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
-  uint16_t getValue();
+
+  void SetValue(uint16_t value);
+  uint16_t GetValue() const;
+
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_iei);
 
  private:
-  uint8_t _iei;
-  uint8_t length;
   uint16_t _value;
   // TODO: spare
 };

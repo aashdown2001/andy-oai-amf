@@ -52,7 +52,7 @@ void ServiceAccept::setHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void ServiceAccept::setPDU_session_status(uint16_t value) {
-  ie_PDU_session_status = new PDUSessionStatus(0x50, value);
+  ie_PDU_session_status = new PDUSessionStatus(value);
 }
 
 //------------------------------------------------------------------------------
@@ -71,8 +71,8 @@ int ServiceAccept::encode2Buffer(uint8_t* buf, int len) {
   if (!(plain_header->encode2Buffer(buf, len))) return -1;
   encoded_size += 3;
   if (ie_PDU_session_status)
-    encoded_size += ie_PDU_session_status->encode2Buffer(
-        buf + encoded_size, len - encoded_size);
+    encoded_size +=
+        ie_PDU_session_status->Encode(buf + encoded_size, len - encoded_size);
   if (ie_session_reactivation_result)
     encoded_size += ie_session_reactivation_result->encode2Buffer(
         buf + encoded_size, len - encoded_size);
