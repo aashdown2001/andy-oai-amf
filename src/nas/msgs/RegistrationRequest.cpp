@@ -599,7 +599,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_ue_security_capability.has_value()) {
     Logger::nas_mm().warn("IE UE security capability is not available");
   } else {
-    if ((encoded_ie_size = ie_ue_security_capability.value().encode2Buffer(
+    if ((encoded_ie_size = ie_ue_security_capability.value().Encode(
              buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
       Logger::nas_mm().error("encoding UE security capability error");
       return KEncodeDecodeError;
@@ -912,7 +912,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x2E: {
         Logger::nas_mm().debug("Decoding IEI (0x2E)");
         UESecurityCapability ie_ue_security_capability_tmp = {};
-        if ((decoded_size_ie = ie_ue_security_capability_tmp.decodeFromBuffer(
+        if ((decoded_size_ie = ie_ue_security_capability_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError) {
           return KEncodeDecodeError;

@@ -30,26 +30,27 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-NSSAI::NSSAI(uint8_t iei) {
-  _iei   = iei;
-  length = 0;
+NSSAI::NSSAI(uint8_t iei) : Type4NasIe(iei) {
+  SetLengthIndicator(0);
+  SetIeName(kNssaiIeName);
 }
 
 //------------------------------------------------------------------------------
-NSSAI::NSSAI(const uint8_t iei, const std::vector<struct SNSSAI_s>& nssai) {
-  _iei   = iei;
-  length = 0;
+NSSAI::NSSAI(uint8_t iei, const std::vector<struct SNSSAI_s>& nssai)
+    : Type4NasIe(iei) {
+  int length = 0;
   S_NSSAIs.assign(nssai.begin(), nssai.end());
   for (int i = 0; i < nssai.size(); i++) {
     length += (1 + nssai[i].length);  // 1 for length of NSSAI[i]
-    // if (nssai[i].sd != SD_NO_VALUE) length += SD_LENGTH;
-    // if (nssai[i].mHplmnSst != -1) length += SST_LENGTH;
-    // if (nssai[i].mHplmnSd != SD_NO_VALUE) length += SD_LENGTH;
   }
+  SetLengthIndicator(length);
+  SetIeName(kNssaiIeName);
 }
 
 //------------------------------------------------------------------------------
-NSSAI::NSSAI() : _iei(), length(), S_NSSAIs() {}
+NSSAI::NSSAI() : Type4NasIe(), S_NSSAIs() {
+  SetIeName(kNssaiIeName);
+}
 
 //------------------------------------------------------------------------------
 NSSAI::~NSSAI() {}
@@ -61,22 +62,18 @@ void NSSAI::getValue(std::vector<struct SNSSAI_s>& nssai) {
 
 //------------------------------------------------------------------------------
 int NSSAI::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding NSSAI IEI (0x%x)", _iei);
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
+  int ie_len = GetIeLength();
 
-  int total_length = (_iei > 0) ? (length + 2) : (length + 1);
-  if (len < total_length) {
+  if (len < ie_len) {
     Logger::nas_mm().error(
-        "Buffer length is less than the length of this IE (%d octet)",
-        total_length);
+        "Buffer length is less than the length of this IE (%d octet)", ie_len);
     return KEncodeDecodeError;
   }
 
   int encoded_size = 0;
-  if (_iei) {
-    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
-  }
-
-  ENCODE_U8(buf + encoded_size, length, encoded_size);
+  // IEI and Length
+  encoded_size += Type4NasIe::Encode(buf + encoded_size, len);
 
   for (int i = 0; i < S_NSSAIs.size(); i++) {
     // TODO: Define encode for SNSSAI_s
@@ -87,23 +84,8 @@ int NSSAI::encode2Buffer(uint8_t* buf, int len) {
 
     if (S_NSSAIs.at(i).sd != SD_NO_VALUE) {
       len_s_nssai += SD_LENGTH;
-      ENCODE_U8(
-          buf + encoded_size, (S_NSSAIs.at(i).sd & 0x00ff0000) >> 16,
-          encoded_size);
-      Logger::nas_mm().debug(
-          "Encoded NSSAI SD first octet (0x%x)",
-          (S_NSSAIs.at(i).sd & 0x00ff0000) >> 16);
-
-      ENCODE_U8(
-          buf + encoded_size, (S_NSSAIs.at(i).sd & 0x0000ff00) >> 8,
-          encoded_size);
-      Logger::nas_mm().debug(
-          "Encoded NSSAI SD second octet (%x)", *(buf + encoded_size - 1));
-
-      ENCODE_U8(
-          buf + encoded_size, S_NSSAIs.at(i).sd & 0x000000ff, encoded_size);
-      Logger::nas_mm().debug(
-          "Encoded NSSAI SD third octet (%x)", *(buf + encoded_size - 1));
+      ENCODE_U24(buf + encoded_size, S_NSSAIs.at(i).sd, encoded_size);
+      Logger::nas_mm().debug("Encoded NSSAI SD (0x%x)", S_NSSAIs.at(i).sd);
     }
     if (S_NSSAIs.at(i).length > (SST_LENGTH + SD_LENGTH)) {
       if (S_NSSAIs.at(i).mHplmnSst != -1) {
@@ -113,16 +95,13 @@ int NSSAI::encode2Buffer(uint8_t* buf, int len) {
       }
       if (S_NSSAIs.at(i).mHplmnSd != SD_NO_VALUE) {
         len_s_nssai += SD_LENGTH;
-        *(buf + encoded_size) = (S_NSSAIs.at(i).mHplmnSd & 0x00ff0000) >> 16;
-        encoded_size++;
-        *(buf + encoded_size) = (S_NSSAIs.at(i).mHplmnSd & 0x0000ff00) >> 8;
-        encoded_size++;
-        *(buf + encoded_size) = S_NSSAIs.at(i).mHplmnSd & 0x000000ff;
-        encoded_size++;
+        ENCODE_U24(buf + encoded_size, S_NSSAIs.at(i).mHplmnSd, encoded_size);
       }
     }
 
-    *(buf + encoded_size - len_s_nssai - 1) = len_s_nssai;
+    int encoded_size_tmp = 0;
+    ENCODE_U8(
+        buf + encoded_size - len_s_nssai - 1, len_s_nssai, encoded_size_tmp);
   }
 
   Logger::nas_mm().debug("Encoded NSSAI len (%d)", encoded_size);
@@ -130,19 +109,16 @@ int NSSAI::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int NSSAI::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("Decoding NSSAI IEI (0x%x)", *buf);
+int NSSAI::decodeFromBuffer(uint8_t* buf, int len, bool is_iei) {
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+
   int decoded_size = 0;
   SNSSAI_s a       = {0, 0, 0, 0};
-  if (is_option) {
-    // IEI
-    DECODE_U8(buf + decoded_size, _iei, decoded_size);
-  }
 
-  // Length
-  DECODE_U8(buf + decoded_size, length, decoded_size);
+  // IEI and Length
+  decoded_size += Type4NasIe::Decode(buf + decoded_size, len, is_iei);
 
-  int length_tmp = length;
+  int length_tmp = GetLengthIndicator();
 
   while (length_tmp) {
     switch (*(buf + decoded_size)) {  // Length of SNSSAI
@@ -212,6 +188,8 @@ int NSSAI::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
     Logger::nas_mm().debug(
         "Decoded NSSAI %s", S_NSSAIs.at(i).ToString().c_str());
   }
-  Logger::nas_mm().debug("Decoded NSSAI len (%d)", decoded_size);
+
+  Logger::nas_mm().debug(
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
 }

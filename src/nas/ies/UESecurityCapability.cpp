@@ -34,7 +34,7 @@ UESecurityCapability::UESecurityCapability() : Type4NasIe() {
   eea_    = std::nullopt;
   eia_    = std::nullopt;
   SetLengthIndicator(2);
-  SetIeName(kUeSecurityCapability);
+  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ UESecurityCapability::UESecurityCapability(uint8_t iei) : Type4NasIe(iei) {
   eea_    = std::nullopt;
   eia_    = std::nullopt;
   SetLengthIndicator(2);
-  SetIeName(kUeSecurityCapability);
+  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -55,31 +55,31 @@ UESecurityCapability::UESecurityCapability(uint8_t _5g_ea, uint8_t _5g_ia)
   eea_    = std::nullopt;
   eia_    = std::nullopt;
   SetLengthIndicator(2);
-  SetIeName(kUeSecurityCapability);
+  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
 UESecurityCapability::UESecurityCapability(
-    const uint8_t iei, uint8_t _5g_ea, uint8_t _5g_ia)
+    uint8_t iei, uint8_t _5g_ea, uint8_t _5g_ia)
     : Type4NasIe(iei) {
   _5g_ea_ = _5g_ea;
   _5g_ia_ = _5g_ia;
   eea_    = std::nullopt;
   eia_    = std::nullopt;
   SetLengthIndicator(2);
-  SetIeName(kUeSecurityCapability);
+  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
 UESecurityCapability::UESecurityCapability(
-    const uint8_t iei, uint8_t _5g_ea, uint8_t _5g_ia, uint8_t eea, uint8_t eia)
+    uint8_t iei, uint8_t _5g_ea, uint8_t _5g_ia, uint8_t eea, uint8_t eia)
     : Type4NasIe(iei) {
   _5g_ea_ = _5g_ea;
   _5g_ia_ = _5g_ia;
   eea_    = std::optional<uint8_t>(eea);
   eia_    = std::optional<uint8_t>(eia);
   SetLengthIndicator(4);
-  SetIeName(kUeSecurityCapability);
+  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ UESecurityCapability::UESecurityCapability(
   eea_    = std::optional<uint8_t>(eea);
   eia_    = std::optional<uint8_t>(eia);
   SetLengthIndicator(4);
-  SetIeName(kUeSecurityCapability);
+  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ bool UESecurityCapability::GetEia(uint8_t& value) const {
 }
 
 //------------------------------------------------------------------------------
-int UESecurityCapability::encode2Buffer(uint8_t* buf, int len) {
+int UESecurityCapability::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   int ie_len = GetIeLength();
 
@@ -181,8 +181,7 @@ int UESecurityCapability::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int UESecurityCapability::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option) {
+int UESecurityCapability::Decode(uint8_t* buf, int len, bool is_iei) {
   Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
 
   if (len < kUeSecurityCapabilityMinimumLength) {
@@ -196,7 +195,7 @@ int UESecurityCapability::decodeFromBuffer(
   uint8_t octet    = 0;
 
   // IEI and Length
-  decoded_size += Type4NasIe::Decode(buf + decoded_size, len, is_option);
+  decoded_size += Type4NasIe::Decode(buf + decoded_size, len, is_iei);
   // EA
   DECODE_U8(buf + decoded_size, _5g_ea_, decoded_size);
   // IA

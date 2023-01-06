@@ -58,6 +58,7 @@ constexpr uint8_t kIeiNbN1ModeDrxParameters                  = 0x29;
 constexpr uint8_t kIeiNSSAIAllowed                           = 0x15;
 constexpr uint8_t kIeiNSSAIConfigured                        = 0x31;
 constexpr uint8_t kIeiNSSAIPending                           = 0x39;
+constexpr uint8_t kIeiNSSAIRequested                         = 0x2f;
 constexpr uint8_t kIeiOldPduSessionId                        = 0x59;
 constexpr uint8_t kIeiPduAddress                             = 0x29;
 constexpr uint8_t kIeiPduSessionId                           = 0x12;

@@ -154,7 +154,7 @@ int SecurityModeCommand::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_ue_security_capability) {
     Logger::nas_mm().warn("IE ie_ue_security_capability is not available");
   } else {
-    if (int size = ie_ue_security_capability->encode2Buffer(
+    if (int size = ie_ue_security_capability->Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -249,7 +249,7 @@ int SecurityModeCommand::decodeFromBuffer(
       ie_ngKSI->Decode(buf + decoded_size, len - decoded_size, false, false);
   decoded_size++;  // 1/2 octet for ngKSI, 1/2 for Spare half octet
   ie_ue_security_capability = new UESecurityCapability();
-  decoded_size += ie_ue_security_capability->decodeFromBuffer(
+  decoded_size += ie_ue_security_capability->Decode(
       buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
   uint8_t octet = *(buf + decoded_size);

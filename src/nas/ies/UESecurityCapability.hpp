@@ -28,7 +28,7 @@
 
 constexpr uint8_t kUeSecurityCapabilityMinimumLength = 4;
 constexpr uint8_t kUeSecurityCapabilityMaximumLength = 10;
-constexpr auto kUeSecurityCapability                 = "UE Security Capability";
+constexpr auto kUeSecurityCapabilityIeName           = "UE Security Capability";
 
 namespace nas {
 
@@ -37,10 +37,9 @@ class UESecurityCapability : public Type4NasIe {
   UESecurityCapability();
   UESecurityCapability(uint8_t iei);
   UESecurityCapability(uint8_t _5g_ea, uint8_t _5g_ia);
-  UESecurityCapability(const uint8_t iei, uint8_t _5g_ea, uint8_t _5g_ia);
+  UESecurityCapability(uint8_t iei, uint8_t _5g_ea, uint8_t _5g_ia);
   UESecurityCapability(
-      const uint8_t iei, uint8_t _5g_ea, uint8_t _5g_ia, uint8_t eea,
-      uint8_t eia);
+      uint8_t iei, uint8_t _5g_ea, uint8_t _5g_ia, uint8_t eea, uint8_t eia);
   UESecurityCapability(
       uint8_t _5g_ea, uint8_t _5g_ia, uint8_t eea, uint8_t eia);
   ~UESecurityCapability();
@@ -57,8 +56,8 @@ class UESecurityCapability : public Type4NasIe {
   void SetEia(uint8_t value);
   bool GetEia(uint8_t& value) const;
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_iei);
 
  private:
   uint8_t _5g_ea_;              // 3rd octet, Mandatory
