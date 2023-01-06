@@ -41,8 +41,8 @@ class UplinkDataStatus : public Type4NasIe {
   void SetValue(uint16_t value);
   uint16_t GetValue() const;
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_iei);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_iei);
 
  private:
   uint16_t _value;

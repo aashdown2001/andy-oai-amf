@@ -649,7 +649,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_uplink_data_status.has_value()) {
     Logger::nas_mm().warn("IE ie_uplink_data_status is not available");
   } else {
-    if (int size = ie_uplink_data_status.value().encode2Buffer(
+    if (int size = ie_uplink_data_status.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -957,7 +957,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case kIeiUplinkDataStatus: {
         Logger::nas_mm().debug("Decoding IEI(0x40)");
         UplinkDataStatus ie_uplink_data_status_tmp = {};
-        decoded_size += ie_uplink_data_status_tmp.decodeFromBuffer(
+        decoded_size += ie_uplink_data_status_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_uplink_data_status =
             std::optional<UplinkDataStatus>(ie_uplink_data_status_tmp);

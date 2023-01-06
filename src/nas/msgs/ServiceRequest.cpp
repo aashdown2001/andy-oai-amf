@@ -138,8 +138,8 @@ int ServiceRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_uplink_data_status) {
     Logger::nas_mm().warn("IE ie_uplink_data_status is not available");
   } else {
-    size = ie_uplink_data_status->encode2Buffer(
-        buf + encoded_size, len - encoded_size);
+    size =
+        ie_uplink_data_status->Encode(buf + encoded_size, len - encoded_size);
     if (size != 0) {
       encoded_size += size;
     } else {
@@ -210,7 +210,7 @@ int ServiceRequest::decodeFromBuffer(
       case kIeiUplinkDataStatus: {
         Logger::nas_mm().debug("Decoding ie_uplink_data_status (IEI: 0x40)");
         ie_uplink_data_status = new UplinkDataStatus();
-        decoded_size += ie_uplink_data_status->decodeFromBuffer(
+        decoded_size += ie_uplink_data_status->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

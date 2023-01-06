@@ -56,7 +56,7 @@ uint16_t UplinkDataStatus::GetValue() const {
 }
 
 //------------------------------------------------------------------------------
-int UplinkDataStatus::encode2Buffer(uint8_t* buf, int len) {
+int UplinkDataStatus::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
 
   int encoded_size = 0;
@@ -74,7 +74,7 @@ int UplinkDataStatus::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int UplinkDataStatus::decodeFromBuffer(uint8_t* buf, int len, bool is_iei) {
+int UplinkDataStatus::Decode(uint8_t* buf, int len, bool is_iei) {
   Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
 
   int decoded_size = 0;
