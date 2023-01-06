@@ -111,6 +111,12 @@ int NSSAI::encode2Buffer(uint8_t* buf, int len) {
 //------------------------------------------------------------------------------
 int NSSAI::decodeFromBuffer(uint8_t* buf, int len, bool is_iei) {
   Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+  if (len < kNssaiMinimumLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kNssaiMinimumLength);
+    return KEncodeDecodeError;
+  }
 
   int decoded_size = 0;
   SNSSAI_s a       = {0, 0, 0, 0};
@@ -121,11 +127,13 @@ int NSSAI::decodeFromBuffer(uint8_t* buf, int len, bool is_iei) {
   int length_tmp = GetLengthIndicator();
 
   while (length_tmp) {
-    switch (*(buf + decoded_size)) {  // Length of SNSSAI
-      case 1: {                       // Only SST
-        // Length of SNSSAI
-        decoded_size++;
-        length_tmp--;
+    // Decode length of SNSSAI
+    uint8_t len_snssai = 0;
+    DECODE_U8(buf + decoded_size, len_snssai, decoded_size);
+    length_tmp--;
+
+    switch (len_snssai) {
+      case 1: {  // Only SST
         // SST
         DECODE_U8(buf + decoded_size, a.sst, decoded_size);
         length_tmp--;
@@ -134,9 +142,6 @@ int NSSAI::decodeFromBuffer(uint8_t* buf, int len, bool is_iei) {
         a.mHplmnSd  = 0;
       } break;
       case 4: {  // SST and SD
-        // Length of SNSSAI
-        decoded_size++;
-        length_tmp--;
         // SST
         DECODE_U8(buf + decoded_size, a.sst, decoded_size);
         length_tmp--;
@@ -147,9 +152,6 @@ int NSSAI::decodeFromBuffer(uint8_t* buf, int len, bool is_iei) {
         a.mHplmnSd  = 0;
       } break;
       case 5: {  // SST, SD and HPLMN SST
-        // Length of SNSSAI
-        decoded_size++;
-        length_tmp--;
         // SST
         DECODE_U8(buf + decoded_size, a.sst, decoded_size);
         length_tmp--;
@@ -162,9 +164,6 @@ int NSSAI::decodeFromBuffer(uint8_t* buf, int len, bool is_iei) {
         a.mHplmnSd = SD_NO_VALUE;
       } break;
       case 8: {
-        // Length of SNSSAI
-        decoded_size++;
-        length_tmp--;
         // SST
         DECODE_U8(buf + decoded_size, a.sst, decoded_size);
         length_tmp--;
