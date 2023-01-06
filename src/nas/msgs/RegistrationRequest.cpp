@@ -638,7 +638,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_s1_ue_network_capability.has_value()) {
     Logger::nas_mm().warn("IE ie_s1_ue_network_capability is not available");
   } else {
-    if (int size = ie_s1_ue_network_capability.value().encode2Buffer(
+    if (int size = ie_s1_ue_network_capability.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -947,7 +947,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x17: {
         Logger::nas_mm().debug("Decoding IEI (0x17)");
         UENetworkCapability ie_s1_ue_network_capability_tmp = {};
-        decoded_size += ie_s1_ue_network_capability_tmp.decodeFromBuffer(
+        decoded_size += ie_s1_ue_network_capability_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_s1_ue_network_capability =
             std::optional<UENetworkCapability>(ie_s1_ue_network_capability_tmp);

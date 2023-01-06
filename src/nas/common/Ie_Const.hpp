@@ -90,6 +90,7 @@ constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
 
 constexpr uint8_t kIei5gmmCapability       = 0x10;
 constexpr uint8_t kIeiUeSecurityCapability = 0x2e;
+constexpr uint8_t kIeiUeNetworkCapability  = 0x17;
 
 constexpr uint8_t kT3502Value = 0x16;
 
