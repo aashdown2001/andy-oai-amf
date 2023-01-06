@@ -22,38 +22,39 @@
 #ifndef __5GS_TRACKING_AREA_IDENTITY_H_
 #define __5GS_TRACKING_AREA_IDENTITY_H_
 
+#include "Type3NasIe.hpp"
+
 #include <stdint.h>
 #include <string>
 
 constexpr uint8_t k5gsTrackingAreaIdentityLength = 7;
+constexpr auto k5gsTrackingAreaIdentityIeName    = "5GS Tracking Area Identity";
 
 namespace nas {
 
-class _5GSTrackingAreaIdentity {
+class _5GSTrackingAreaIdentity : public Type3NasIe {
  public:
   _5GSTrackingAreaIdentity();
-  _5GSTrackingAreaIdentity(uint8_t iei);
+  _5GSTrackingAreaIdentity(uint8_t iei) = delete;
   _5GSTrackingAreaIdentity(
-      const uint8_t iei, const std::string& mcc, const std::string& mnc,
-      const uint32_t& tac);
+      const std::string& mcc, const std::string& mnc, const uint32_t& tac);
 
   ~_5GSTrackingAreaIdentity();
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_iei = true);
 
-  void setTAC(const uint32_t& value);
-  uint32_t getTAC() const;
-  void getTAC(uint32_t& value) const;
+  void SetTac(const uint32_t& value);
+  uint32_t GetTac() const;
+  void GetTac(uint32_t& value) const;
 
-  void setMcc(const std::string& mcc);
-  void getMcc(std::string& mcc) const;
+  void SetMcc(const std::string& mcc);
+  void GetMcc(std::string& mcc) const;
 
-  void setMnc(const std::string& mnc);
-  void getMnc(std::string& mnc) const;
+  void SetMnc(const std::string& mnc);
+  void GetMnc(std::string& mnc) const;
 
  private:
-  uint8_t _iei;
   std::string mcc_;
   std::string mnc_;
   uint32_t tac_;

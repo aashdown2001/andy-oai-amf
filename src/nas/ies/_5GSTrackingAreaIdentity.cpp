@@ -25,75 +25,70 @@
 #include "common_defs.h"
 #include "logger.hpp"
 #include "NasUtils.hpp"
+#include "Ie_Const.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
-_5GSTrackingAreaIdentity::_5GSTrackingAreaIdentity(uint8_t iei) {
-  _iei = iei;
+_5GSTrackingAreaIdentity::_5GSTrackingAreaIdentity()
+    : Type3NasIe(kIei5gsTrackingAreaIdentity) {
   mcc_ = {};
   mnc_ = {};
-  tac_ = 0x0000;
+  tac_ = 0;
+  SetIeName(k5gsTrackingAreaIdentityIeName);
 }
 
 //------------------------------------------------------------------------------
 _5GSTrackingAreaIdentity::_5GSTrackingAreaIdentity(
-    const uint8_t iei, const std::string& mcc, const std::string& mnc,
-    const uint32_t& tac) {
-  _iei = iei;
+    const std::string& mcc, const std::string& mnc, const uint32_t& tac)
+    : Type3NasIe(kIei5gsTrackingAreaIdentity) {
   mcc_ = mcc;
   mnc_ = mnc;
   tac_ = tac & 0x0fff;
-}
-
-//------------------------------------------------------------------------------
-_5GSTrackingAreaIdentity::_5GSTrackingAreaIdentity() {
-  _iei = 0;
-  mcc_ = {};
-  mnc_ = {};
-  tac_ = 0;
+  SetIeName(k5gsTrackingAreaIdentityIeName);
 }
 
 //------------------------------------------------------------------------------
 _5GSTrackingAreaIdentity::~_5GSTrackingAreaIdentity() {}
 
 //------------------------------------------------------------------------------
-void _5GSTrackingAreaIdentity::setTAC(const uint32_t& value) {
+void _5GSTrackingAreaIdentity::SetTac(const uint32_t& value) {
   tac_ = value & 0x0fff;
 }
 
 //------------------------------------------------------------------------------
-uint32_t _5GSTrackingAreaIdentity::getTAC() const {
+uint32_t _5GSTrackingAreaIdentity::GetTac() const {
   return tac_;
 }
 //------------------------------------------------------------------------------
-void _5GSTrackingAreaIdentity::getTAC(uint32_t& value) const {
+void _5GSTrackingAreaIdentity::GetTac(uint32_t& value) const {
   value = tac_;
 }
 
 //------------------------------------------------------------------------------
-void _5GSTrackingAreaIdentity::setMcc(const std::string& mcc) {
+void _5GSTrackingAreaIdentity::SetMcc(const std::string& mcc) {
   mcc_ = mcc;
 }
 
 //------------------------------------------------------------------------------
-void _5GSTrackingAreaIdentity::getMcc(std::string& mcc) const {
+void _5GSTrackingAreaIdentity::GetMcc(std::string& mcc) const {
   mcc = mcc_;
 }
 
 //------------------------------------------------------------------------------
-void _5GSTrackingAreaIdentity::setMnc(const std::string& mnc) {
+void _5GSTrackingAreaIdentity::SetMnc(const std::string& mnc) {
   mnc_ = mnc;
 }
 
 //------------------------------------------------------------------------------
-void _5GSTrackingAreaIdentity::getMnc(std::string& mnc) const {
+void _5GSTrackingAreaIdentity::GetMnc(std::string& mnc) const {
   mnc = mnc_;
 }
 
 //------------------------------------------------------------------------------
-int _5GSTrackingAreaIdentity::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding _5GSTrackingAreaIdentity (IEI 0x%x)", _iei);
+int _5GSTrackingAreaIdentity::Encode(uint8_t* buf, int len) {
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
+
   if (len < k5gsTrackingAreaIdentityLength) {
     Logger::nas_mm().error(
         "Buffer length is less than the minimum length of this IE (%d octet)",
@@ -102,30 +97,35 @@ int _5GSTrackingAreaIdentity::encode2Buffer(uint8_t* buf, int len) {
   }
   int encoded_size = 0;
 
-  if (_iei) {
-    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
-  }
-
+  // IEI
+  encoded_size += Type3NasIe::Encode(buf + encoded_size, len);
+  // MCC, MNC
   encoded_size += NasUtils::encodeMccMnc2Buffer(
       mcc_, mnc_, buf + encoded_size, len - encoded_size);
-
+  // TAC
   ENCODE_U24(buf + encoded_size, tac_, encoded_size);
 
   Logger::nas_mm().debug(
-      "Encoded _5GSTrackingAreaIdentity len (%d)", encoded_size);
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int _5GSTrackingAreaIdentity::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("Decoding _5GSTrackingAreaIdentity");
-  int decoded_size = 0;
-  if (is_option) {
-    DECODE_U8(buf + decoded_size, _iei, decoded_size);
-    Logger::nas_mm().debug(
-        "Decoding _5GSTrackingAreaIdentity IEI (0x%x)", _iei);
+int _5GSTrackingAreaIdentity::Decode(uint8_t* buf, int len, bool is_iei) {
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+
+  if (len < k5gsTrackingAreaIdentityLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        k5gsTrackingAreaIdentityLength);
+    return KEncodeDecodeError;
   }
+
+  int decoded_size = 0;
+
+  // IEI and Length
+  decoded_size += Type3NasIe::Decode(buf + decoded_size, len, true);
+
   decoded_size += NasUtils::decodeMccMncFromBuffer(
       mcc_, mnc_, buf + decoded_size, len - decoded_size);
 
@@ -133,6 +133,6 @@ int _5GSTrackingAreaIdentity::decodeFromBuffer(
 
   Logger::nas_mm().debug("Decoded TAC 0x%x", tac_);
   Logger::nas_mm().debug(
-      "Decoded _5GSTrackingAreaIdentity len(%d)", decoded_size);
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
 }

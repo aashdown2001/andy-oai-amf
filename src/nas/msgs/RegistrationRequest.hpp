@@ -153,8 +153,8 @@ class RegistrationRequest : public NasMmPlainHeader {
   std::optional<NasKeySetIdentifier> ie_non_current_native_nas_ksi;  // Optional
   std::optional<_5GMMCapability> ie_5g_mm_capability;                // Optional
   std::optional<UESecurityCapability> ie_ue_security_capability;     // Optional
+  std::optional<NSSAI> ie_requested_NSSAI;                           // Optional
 
-  std::optional<NSSAI> ie_requested_NSSAI;  // Optional
   std::optional<_5GSTrackingAreaIdentity>
       ie_last_visited_registered_TAI;                              // Optional
   std::optional<UENetworkCapability> ie_s1_ue_network_capability;  // Optional

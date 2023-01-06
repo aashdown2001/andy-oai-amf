@@ -40,9 +40,9 @@ class NSSAI : public Type4NasIe {
   NSSAI(uint8_t iei);
   NSSAI(uint8_t iei, const std::vector<struct SNSSAI_s>& nssai);
   ~NSSAI();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_iei);
-  void getValue(std::vector<struct SNSSAI_s>& nssai);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_iei);
+  void GetValue(std::vector<struct SNSSAI_s>& nssai) const;
 
  private:
   std::vector<struct SNSSAI_s>

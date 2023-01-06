@@ -341,8 +341,8 @@ int RegistrationAccept::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_allowed_nssai) {
     Logger::nas_mm().warn("IE ie_allowed_nssai is not available");
   } else {
-    if (int size = ie_allowed_nssai->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
+    if (int size =
+            ie_allowed_nssai->Encode(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_allowed_nssai error");
@@ -362,7 +362,7 @@ int RegistrationAccept::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_configured_nssai) {
     Logger::nas_mm().warn("IE ie_configured_nssai is not available");
   } else {
-    if (int size = ie_configured_nssai->encode2Buffer(
+    if (int size = ie_configured_nssai->Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -600,8 +600,8 @@ int RegistrationAccept::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_pending_nssai) {
     Logger::nas_mm().warn("IE ie_pending_nssai is not available");
   } else {
-    if (int size = ie_pending_nssai->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
+    if (int size =
+            ie_pending_nssai->Encode(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_pending_nssai error");
@@ -684,7 +684,7 @@ int RegistrationAccept::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x15: {
         Logger::nas_mm().debug("Decoding IEI (0x15)");
         ie_allowed_nssai = new NSSAI();
-        decoded_size += ie_allowed_nssai->decodeFromBuffer(
+        decoded_size += ie_allowed_nssai->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -700,7 +700,7 @@ int RegistrationAccept::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x31: {
         Logger::nas_mm().debug("Decoding IEI (0x31)");
         ie_configured_nssai = new NSSAI();
-        decoded_size += ie_configured_nssai->decodeFromBuffer(
+        decoded_size += ie_configured_nssai->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -840,7 +840,7 @@ int RegistrationAccept::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x39: {
         Logger::nas_mm().debug("Decoding IEI (0x39)");
         ie_pending_nssai = new NSSAI();
-        decoded_size += ie_pending_nssai->decodeFromBuffer(
+        decoded_size += ie_pending_nssai->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

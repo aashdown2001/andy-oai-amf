@@ -56,12 +56,12 @@ NSSAI::NSSAI() : Type4NasIe(), S_NSSAIs() {
 NSSAI::~NSSAI() {}
 
 //------------------------------------------------------------------------------
-void NSSAI::getValue(std::vector<struct SNSSAI_s>& nssai) {
+void NSSAI::GetValue(std::vector<struct SNSSAI_s>& nssai) const {
   nssai.assign(S_NSSAIs.begin(), S_NSSAIs.end());
 }
 
 //------------------------------------------------------------------------------
-int NSSAI::encode2Buffer(uint8_t* buf, int len) {
+int NSSAI::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   int ie_len = GetIeLength();
 
@@ -109,7 +109,7 @@ int NSSAI::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int NSSAI::decodeFromBuffer(uint8_t* buf, int len, bool is_iei) {
+int NSSAI::Decode(uint8_t* buf, int len, bool is_iei) {
   Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
   if (len < kNssaiMinimumLength) {
     Logger::nas_mm().error(

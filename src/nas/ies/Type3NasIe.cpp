@@ -54,3 +54,29 @@ bool Type3NasIe::Validate(const int& len) const {
   }
   return true;
 }
+
+//------------------------------------------------------------------------------
+int Type3NasIe::Encode(uint8_t* buf, const int& len) {
+  if (!Validate(len)) return KEncodeDecodeError;
+
+  int encoded_size = 0;
+  uint8_t octet    = 0;
+  if (iei_.has_value()) {
+    ENCODE_U8(buf + encoded_size, iei_.value(), encoded_size);
+  }
+  return encoded_size;
+}
+
+//------------------------------------------------------------------------------
+int Type3NasIe::Decode(const uint8_t* const buf, const int& len, bool is_iei) {
+  if (!Validate(len)) return KEncodeDecodeError;
+
+  int decoded_size = 0;
+  uint8_t octet    = 0;
+
+  if (is_iei) {
+    DECODE_U8(buf + decoded_size, octet, decoded_size);
+    iei_ = std::optional<uint8_t>(octet);
+  }
+  return decoded_size;
+}

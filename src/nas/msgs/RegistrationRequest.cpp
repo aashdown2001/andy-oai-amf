@@ -250,14 +250,14 @@ bool RegistrationRequest::getUeSecurityCapability(
 //------------------------------------------------------------------------------
 void RegistrationRequest::setRequestedNSSAI(
     std::vector<struct SNSSAI_s> nssai) {
-  ie_requested_NSSAI = std::make_optional<NSSAI>(0x2F, nssai);
+  ie_requested_NSSAI = std::make_optional<NSSAI>(kIeiNSSAIRequested, nssai);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getRequestedNssai(
     std::vector<struct SNSSAI_s>& nssai) {
   if (ie_requested_NSSAI.has_value()) {
-    ie_requested_NSSAI.value().getValue(nssai);
+    ie_requested_NSSAI.value().GetValue(nssai);
   } else {
     return false;
   }
@@ -268,7 +268,7 @@ bool RegistrationRequest::getRequestedNssai(
 void RegistrationRequest::setLastVisitedRegisteredTAI(
     const std::string& mcc, const std::string mnc, const uint32_t& tac) {
   ie_last_visited_registered_TAI =
-      std::make_optional<_5GSTrackingAreaIdentity>(0, mcc, mnc, tac);
+      std::make_optional<_5GSTrackingAreaIdentity>(mcc, mnc, tac);
 }
 
 //------------------------------------------------------------------------------
@@ -612,7 +612,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_requested_NSSAI.has_value()) {
     Logger::nas_mm().warn("IE Requested NSSAI is not available");
   } else {
-    if ((encoded_ie_size = ie_requested_NSSAI.value().encode2Buffer(
+    if ((encoded_ie_size = ie_requested_NSSAI.value().Encode(
              buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
       Logger::nas_mm().error("Encoding Requested NSSAI error");
       return KEncodeDecodeError;
@@ -625,7 +625,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_last_visited_registered_TAI.has_value()) {
     Logger::nas_mm().warn("IE ie_Last_visited_registered_TAI is not available");
   } else {
-    if (int size = ie_last_visited_registered_TAI.value().encode2Buffer(
+    if (int size = ie_last_visited_registered_TAI.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -923,19 +923,20 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
-      case 0x2F: {
-        Logger::nas_mm().debug("Decoding IEI (0x2F)");
+      case kIeiNSSAIRequested: {
+        Logger::nas_mm().debug("Decoding IEI %d", kIeiNSSAIRequested);
         NSSAI ie_requested_NSSAI_tmp = {};
-        decoded_size += ie_requested_NSSAI_tmp.decodeFromBuffer(
+        decoded_size += ie_requested_NSSAI_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
-        ie_requested_NSSAI = std::optional<NSSAI>(ie_requested_NSSAI_tmp);
+        ie_requested_NSSAI = std::make_optional<NSSAI>(ie_requested_NSSAI_tmp);
         octet              = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
-      case 0x52: {
-        Logger::nas_mm().debug("Decoding IEI(0x52)");
+      case kIei5gsTrackingAreaIdentity: {
+        Logger::nas_mm().debug(
+            "Decoding IEI 0x%x", kIei5gsTrackingAreaIdentity);
         _5GSTrackingAreaIdentity last_visited_registered_tai_tmp = {};
-        decoded_size += last_visited_registered_tai_tmp.decodeFromBuffer(
+        decoded_size += last_visited_registered_tai_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_last_visited_registered_TAI =
             std::optional<_5GSTrackingAreaIdentity>(
