@@ -19,30 +19,32 @@
  *      contact@openairinterface.org
  */
 
-#ifndef __UplinkDataStatus_H_
-#define __UplinkDataStatus_H_
+#ifndef _UPLINK_DATA_STATUS_H_
+#define _UPLINK_DATA_STATUS_H_
+
+#include "Type4NasIe.hpp"
 
 #include <stdint.h>
 
 constexpr uint8_t kUplinkDataStatusMinimumLength = 4;
 constexpr uint8_t kUplinkDataStatusMaximumLength = 34;
+constexpr auto kUplinkDataStatusIeName           = "Uplink Data Status";
 
 namespace nas {
 
-class UplinkDataStatus {
+class UplinkDataStatus : public Type4NasIe {
  public:
   UplinkDataStatus();
-  UplinkDataStatus(uint8_t);
-  UplinkDataStatus(const uint8_t& iei, const uint16_t& value);
+  UplinkDataStatus(const uint16_t& value);
   ~UplinkDataStatus();
-  void setValue(uint8_t iei, uint16_t value);
+
+  void SetValue(uint16_t value);
+  uint16_t GetValue() const;
+
   int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
-  uint16_t getValue();
+  int decodeFromBuffer(uint8_t* buf, int len, bool is_iei);
 
  private:
-  uint8_t _iei;
-  uint8_t length;
   uint16_t _value;
   // TODO: spare
 };

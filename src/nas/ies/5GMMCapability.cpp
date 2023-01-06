@@ -73,7 +73,10 @@ int _5GMMCapability::Encode(uint8_t* buf, int len) {
 
   int encoded_size = 0;
   // IEI and Length
-  encoded_size += Type4NasIe::Encode(buf + encoded_size, len);
+  int encoded_header_size = Type4NasIe::Encode(buf + encoded_size, len);
+  if (encoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  encoded_size += encoded_header_size;
+
   // Octet 3
   ENCODE_U8(buf + encoded_size, octet3_, encoded_size);
   // TODO: Encode spare for the rest
@@ -89,7 +92,7 @@ int _5GMMCapability::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GMMCapability::Decode(uint8_t* buf, int len, bool is_option) {
+int _5GMMCapability::Decode(uint8_t* buf, int len, bool is_iei) {
   if (len < k5gmmCapabilityMinimumLength) {
     Logger::nas_mm().error(
         "Buffer length is less than the minimum length of this IE (%d octet)",
@@ -102,7 +105,10 @@ int _5GMMCapability::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
 
   // IEI and Length
-  decoded_size += Type4NasIe::Decode(buf + decoded_size, len, is_option);
+  int decoded_header_size = Type4NasIe::Decode(buf + decoded_size, len, is_iei);
+  // decoded_size += Type4NasIe::Decode(buf + decoded_size, len, is_iei);
+  if (decoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  decoded_size += decoded_header_size;
 
   DECODE_U8(buf + decoded_size, octet3_, decoded_size);
   // TODO: decode the rest as spare for now

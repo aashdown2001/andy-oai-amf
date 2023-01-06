@@ -43,7 +43,7 @@ class _5GMMCapability : public Type4NasIe {
   uint8_t GetOctet3() const;
 
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option = true);
+  int Decode(uint8_t* buf, int len, bool is_iei = true);
 
  private:
   uint8_t octet3_;  // minimum length of 3 octets

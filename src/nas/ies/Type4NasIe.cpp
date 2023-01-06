@@ -59,24 +59,41 @@ void Type4NasIe::GetLengthIndicator(uint8_t& li) const {
 uint8_t Type4NasIe::GetLengthIndicator() const {
   return li_;
 }
+
 //------------------------------------------------------------------------------
 uint8_t Type4NasIe::GetIeLength() const {
   return (iei_.has_value() ? (li_ + 2) : (li_ + 1));  // 1 for IEI, 1 for Length
 }
 
 //------------------------------------------------------------------------------
+uint8_t Type4NasIe::GetHeaderLength() const {
+  return (iei_.has_value() ? 2 : 1);  // 1 for IEI, 1 for Length
+}
+
+//------------------------------------------------------------------------------
 bool Type4NasIe::Validate(const int& len) const {
-  uint8_t actual_lengh =
-      iei_.has_value() ? (li_ + 2) : (li_ + 1);  // 1 for IEI and 1 for LI
-  if (len < actual_lengh) {
+  int ie_len = GetIeLength();  // Length of the content + IEI/Len
+  if (len < ie_len) {
     Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        actual_lengh);
+        "Buffer length is less than the length of this IE (%d octet(s))",
+        ie_len);
     return false;
   }
   return true;
 }
 
+//------------------------------------------------------------------------------
+bool Type4NasIe::ValidateHeader(const int& len) const {
+  int header_len = GetHeaderLength();  // Length of IEI/Len
+  if (len < header_len) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the length of the header (IEI/Length) of "
+        "this IE (%d octet(s))",
+        header_len);
+    return false;
+  }
+  return true;
+}
 //------------------------------------------------------------------------------
 int Type4NasIe::Encode(uint8_t* buf, const int& len) {
   if (!Validate(len)) return KEncodeDecodeError;
@@ -93,7 +110,7 @@ int Type4NasIe::Encode(uint8_t* buf, const int& len) {
 
 //------------------------------------------------------------------------------
 int Type4NasIe::Decode(const uint8_t* const buf, const int& len, bool is_iei) {
-  if (!Validate(len)) return KEncodeDecodeError;
+  if (!ValidateHeader(len)) return KEncodeDecodeError;
 
   int decoded_size = 0;
   uint8_t octet    = 0;
@@ -105,7 +122,8 @@ int Type4NasIe::Decode(const uint8_t* const buf, const int& len, bool is_iei) {
 
   DECODE_U8(buf + decoded_size, li_, decoded_size);
 
-  // Logger::nas_mm().debug(
-  //     "Decoded %s (len %d)", GetIeName().c_str(), decoded_size);
+  // after obtaining information for IEI/Length, validate the buffer size
+  if (!Validate(len)) return KEncodeDecodeError;
+
   return decoded_size;
 }

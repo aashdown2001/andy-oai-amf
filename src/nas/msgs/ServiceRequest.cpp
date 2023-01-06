@@ -74,7 +74,7 @@ void ServiceRequest::set5G_S_TMSI(
 
 //------------------------------------------------------------------------------
 void ServiceRequest::setUplink_data_status(uint16_t value) {
-  ie_uplink_data_status = new UplinkDataStatus(0x40, value);
+  ie_uplink_data_status = new UplinkDataStatus(value);
 }
 
 //------------------------------------------------------------------------------
@@ -207,7 +207,7 @@ int ServiceRequest::decodeFromBuffer(
   Logger::nas_mm().debug("First optional IE (0x%x)", octet);
   while ((octet != 0x0)) {
     switch (octet) {
-      case 0x40: {
+      case kIeiUplinkDataStatus: {
         Logger::nas_mm().debug("Decoding ie_uplink_data_status (IEI: 0x40)");
         ie_uplink_data_status = new UplinkDataStatus();
         decoded_size += ie_uplink_data_status->decodeFromBuffer(
@@ -261,7 +261,7 @@ bool ServiceRequest::getngKSI(uint8_t& ng_ksi) {
 //------------------------------------------------------------------------------
 uint16_t ServiceRequest::getUplinkDataStatus() {
   if (ie_uplink_data_status) {
-    return ie_uplink_data_status->getValue();
+    return ie_uplink_data_status->GetValue();
   } else {
     return -1;
   }

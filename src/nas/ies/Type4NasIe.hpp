@@ -32,12 +32,14 @@ class Type4NasIe : public NasIe {
   virtual ~Type4NasIe();
 
   bool Validate(const int& len) const override;
+  bool ValidateHeader(const int& len) const;
 
   void SetIei(const uint8_t& iei);
   void SetLengthIndicator(const uint8_t& li);
   void GetLengthIndicator(uint8_t& li) const;
   uint8_t GetLengthIndicator() const;
   uint8_t GetIeLength() const;
+  uint8_t GetHeaderLength() const;
 
   int Encode(uint8_t* buf, const int& len) override;
   int Decode(

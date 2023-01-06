@@ -291,13 +291,13 @@ bool RegistrationRequest::getS1UeNetworkCapability(uint8_t& eea, uint8_t& eia) {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setUplinkDataStatus(const uint16_t& value) {
-  ie_uplink_data_status = std::make_optional<UplinkDataStatus>(0x40, value);
+  ie_uplink_data_status = std::make_optional<UplinkDataStatus>(value);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getUplinkDataStatus(uint16_t& value) {
   if (ie_uplink_data_status.has_value()) {
-    value = ie_uplink_data_status.value().getValue();
+    value = ie_uplink_data_status.value().GetValue();
     return true;
   } else {
     return false;
@@ -954,7 +954,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
-      case 0x40: {
+      case kIeiUplinkDataStatus: {
         Logger::nas_mm().debug("Decoding IEI(0x40)");
         UplinkDataStatus ie_uplink_data_status_tmp = {};
         decoded_size += ie_uplink_data_status_tmp.decodeFromBuffer(

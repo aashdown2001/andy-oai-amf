@@ -93,7 +93,10 @@ int UENetworkCapability::Encode(uint8_t* buf, int len) {
   int encoded_size = 0;
 
   // IEI and Length
-  encoded_size += Type4NasIe::Encode(buf + encoded_size, len);
+  int encoded_header_size = Type4NasIe::Encode(buf + encoded_size, len);
+  if (encoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  encoded_size += encoded_header_size;
+
   // EEA
   ENCODE_U8(buf + encoded_size, eea_, encoded_size);
   // EIA
@@ -124,7 +127,10 @@ int UENetworkCapability::Decode(uint8_t* buf, int len, bool is_iei) {
   int decoded_size = 0;
 
   // IEI and Length
-  decoded_size += Type4NasIe::Decode(buf + decoded_size, len, is_iei);
+  int decoded_header_size = Type4NasIe::Decode(buf + decoded_size, len, is_iei);
+  // decoded_size += Type4NasIe::Decode(buf + decoded_size, len, is_iei);
+  if (decoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  decoded_size += decoded_header_size;
 
   DECODE_U8(buf + decoded_size, eea_, decoded_size);
   DECODE_U8(buf + decoded_size, eia_, decoded_size);
