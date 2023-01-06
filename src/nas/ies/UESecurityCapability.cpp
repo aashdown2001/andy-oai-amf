@@ -160,13 +160,6 @@ int UESecurityCapability::encode2Buffer(uint8_t* buf, int len) {
   int encoded_size = 0;
   // IEI and Length
   encoded_size += Type4NasIe::Encode(buf + encoded_size, len);
-  /*
-   if (_iei) {
-     ENCODE_U8(buf + encoded_size, _iei, encoded_size);
-   }
-   // Length
-   ENCODE_U8(buf + encoded_size, length, encoded_size);
-   */
 
   // EA
   ENCODE_U8(buf + encoded_size, _5g_ea_, encoded_size);
@@ -204,27 +197,19 @@ int UESecurityCapability::decodeFromBuffer(
 
   // IEI and Length
   decoded_size += Type4NasIe::Decode(buf + decoded_size, len, is_option);
-  /*
-  if (is_option) {
-    DECODE_U8(buf + decoded_size, _iei, decoded_size);
-  }
-
-  // Length
-  DECODE_U8(buf + decoded_size, length, decoded_size);
-  */
   // EA
   DECODE_U8(buf + decoded_size, _5g_ea_, decoded_size);
   // IA
   DECODE_U8(buf + decoded_size, _5g_ia_, decoded_size);
 
   int ie_len = GetIeLength();
-  if (ie_len >= 3) {
+  if (ie_len > decoded_size) {
     // EEA
     DECODE_U8(buf + decoded_size, octet, decoded_size);
     eea_ = std::make_optional<uint8_t>(octet);
   }
 
-  if (ie_len >= 4) {
+  if (ie_len > decoded_size) {
     // EIA
     DECODE_U8(buf + decoded_size, octet, decoded_size);
     eia_ = std::make_optional<uint8_t>(octet);
@@ -239,7 +224,7 @@ int UESecurityCapability::decodeFromBuffer(
   Logger::nas_mm().debug(
       "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
 
-  Logger::nas_mm().debug("EA 0x%x, IA 0x%x", _5g_ea_, _5g_ia_);
+  Logger::nas_mm().debug("5G EA 0x%x, 5G IA 0x%x", _5g_ea_, _5g_ia_);
   if (eea_.has_value()) {
     Logger::nas_mm().debug("EEA 0x%x", eea_.value());
   }

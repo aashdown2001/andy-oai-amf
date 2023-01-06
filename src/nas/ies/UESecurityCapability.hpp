@@ -57,15 +57,10 @@ class UESecurityCapability : public Type4NasIe {
   void SetEia(uint8_t value);
   bool GetEia(uint8_t& value) const;
 
-  // void setLength(uint8_t len);
-  // uint8_t getLength();
-
   int encode2Buffer(uint8_t* buf, int len);
   int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
 
  private:
-  // uint8_t _iei;
-  // uint8_t length;  // Length of UE security capability contents
   uint8_t _5g_ea_;              // 3rd octet, Mandatory
   uint8_t _5g_ia_;              // 4th octet, Mandatory
   std::optional<uint8_t> eea_;  // 5th octet, Optional
