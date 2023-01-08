@@ -336,14 +336,14 @@ bool RegistrationRequest::getMicoIndication(uint8_t& sprti, uint8_t& raai) {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setUEStatus(bool n1, bool s1) {
-  ie_ue_status = std::make_optional<UEStatus>(0x2B, n1, s1);
+  ie_ue_status = std::make_optional<UEStatus>(n1, s1);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getUeStatus(uint8_t& n1ModeReg, uint8_t& s1ModeReg) {
   if (ie_ue_status.has_value()) {
-    n1ModeReg = ie_ue_status.value().getN1();
-    s1ModeReg = ie_ue_status.value().getS1();
+    n1ModeReg = ie_ue_status.value().GetN1();
+    s1ModeReg = ie_ue_status.value().GetS1();
     return true;
   } else {
     return false;
@@ -682,7 +682,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_ue_status.has_value()) {
     Logger::nas_mm().warn("IE ie_ue_status is not available");
   } else {
-    if (int size = ie_ue_status.value().encode2Buffer(
+    if (int size = ie_ue_status.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -975,10 +975,10 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
-      case 0x2B: {
+      case kIeiUeStatus: {
         Logger::nas_mm().debug("Decoding IEI (0x2B)");
         UEStatus ie_ue_status_tmp = {};
-        decoded_size += ie_ue_status_tmp.decodeFromBuffer(
+        decoded_size += ie_ue_status_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_ue_status = std::optional<UEStatus>(ie_ue_status_tmp);
         octet        = *(buf + decoded_size);

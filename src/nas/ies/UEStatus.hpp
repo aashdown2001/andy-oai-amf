@@ -19,36 +19,35 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _UE_Status_H_
-#define _UE_Status_H_
+#ifndef _UE_STATUS_H_
+#define _UE_STATUS_H_
 
+#include "Type4NasIe.hpp"
 #include <stdint.h>
 
-constexpr uint8_t kUEStatusIELength = 3;
+constexpr uint8_t kUeStatusIeLength = 3;
+constexpr auto kUeStatusIeName      = "UE Status";
 
 namespace nas {
 
-class UEStatus {
+class UEStatus : public Type4NasIe {
  public:
   UEStatus();
-  UEStatus(uint8_t iei);
-  UEStatus(const uint8_t iei, bool n1, bool s1);
+  UEStatus(bool n1, bool s1);
   ~UEStatus();
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_iei);
 
-  void setN1(bool value);
-  bool getN1();
+  void SetN1(bool value);
+  bool GetN1() const;
 
-  void setS1(bool value);
-  bool getS1();
+  void SetS1(bool value);
+  bool GetS1() const;
 
  private:
-  uint8_t _iei;
-  uint8_t length;
-  bool N1;
-  bool S1;
+  bool n1_;
+  bool s1_;
 };
 }  // namespace nas
 

@@ -21,106 +21,104 @@
 
 #include "3gpp_24.501.hpp"
 #include "common_defs.h"
+#include "Ie_Const.hpp"
 #include "logger.hpp"
 #include "UEStatus.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
-UEStatus::UEStatus(uint8_t iei) {
-  _iei   = iei;
-  length = 1;
-  S1     = false;
-  N1     = false;
+UEStatus::UEStatus() : Type4NasIe(kIeiUeStatus) {
+  s1_ = false;
+  n1_ = false;
+  SetLengthIndicator(1);
+  SetIeName(kUeStatusIeName);
 }
 
 //------------------------------------------------------------------------------
-UEStatus::UEStatus(const uint8_t iei, bool n1, bool s1) {
-  _iei   = iei;
-  length = 1;
-  S1     = s1;
-  N1     = n1;
-}
-
-//------------------------------------------------------------------------------
-UEStatus::UEStatus() {
-  _iei   = 0;
-  length = 1;
-  S1     = false;
-  N1     = false;
+UEStatus::UEStatus(bool n1, bool s1) : Type4NasIe(kIeiUeStatus) {
+  s1_ = s1;
+  n1_ = n1;
+  SetLengthIndicator(1);
+  SetIeName(kUeStatusIeName);
 }
 
 //------------------------------------------------------------------------------
 UEStatus::~UEStatus() {}
 
 //------------------------------------------------------------------------------
-void UEStatus::setS1(bool value) {
-  S1 = value;
+void UEStatus::SetS1(bool value) {
+  s1_ = value;
 }
 
 //------------------------------------------------------------------------------
-void UEStatus::setN1(bool value) {
-  N1 = value;
+bool UEStatus::GetS1() const {
+  return s1_;
 }
 
 //------------------------------------------------------------------------------
-bool UEStatus::getS1() {
-  return S1;
+void UEStatus::SetN1(bool value) {
+  n1_ = value;
 }
 
 //------------------------------------------------------------------------------
-bool UEStatus::getN1() {
-  return N1;
+bool UEStatus::GetN1() const {
+  return n1_;
 }
 
 //------------------------------------------------------------------------------
-int UEStatus::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding UE Status (IEI 0x%x)", _iei);
+int UEStatus::Encode(uint8_t* buf, int len) {
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
+  int ie_len = GetIeLength();
 
-  if ((len < kUEStatusIELength) or (len < length + 2)) {
+  if (len < ie_len) {  // Length of the content + IEI/Len
     Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        kUEStatusIELength);
+        "Size of the buffer is not enough to store this IE (IE len %d)",
+        ie_len);
     return KEncodeDecodeError;
   }
 
   int encoded_size = 0;
-  if (_iei) {
-    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
-  }
+  // IEI and Length
+  int encoded_header_size = Type4NasIe::Encode(buf + encoded_size, len);
+  if (encoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  encoded_size += encoded_header_size;
 
-  ENCODE_U8(buf + encoded_size, length, encoded_size);
-
-  uint8_t octet = 0x03 & (S1 | (N1 << 1));
+  uint8_t octet = 0x03 & (s1_ | (n1_ << 1));
   ENCODE_U8(buf + encoded_size, octet, encoded_size);
 
-  Logger::nas_mm().debug("Encoded UE Status ( len %d)", encoded_size);
+  Logger::nas_mm().debug(
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int UEStatus::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("Decoding UE Status");
+int UEStatus::Decode(uint8_t* buf, int len, bool is_iei) {
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
 
-  if ((len < kUEStatusIELength) or (len < length + 2)) {
+  if (len < kUeStatusIeLength) {
     Logger::nas_mm().error(
         "Buffer length is less than the minimum length of this IE (%d octet)",
-        kUEStatusIELength);
+        kUeStatusIeLength);
     return KEncodeDecodeError;
   }
 
   int decoded_size = 0;
-  if (is_option) {
-    DECODE_U8(buf + decoded_size, _iei, decoded_size);
-  }
-  DECODE_U8(buf + decoded_size, length, decoded_size);
+  // IEI and Length
+  int decoded_header_size = Type4NasIe::Decode(buf + decoded_size, len, is_iei);
+  // decoded_size += Type4NasIe::Decode(buf + decoded_size, len, is_iei);
+  if (decoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  decoded_size += decoded_header_size;
 
   uint8_t octet = 0;
   DECODE_U8(buf + decoded_size, octet, decoded_size);
 
-  N1 = octet & 0x02;
-  S1 = octet & 0x01;
+  n1_ = octet & 0x02;
+  s1_ = octet & 0x01;
+
   Logger::nas_mm().debug(
-      "Decoded UE Status, N1 0x%x, S1 0x%x, len %d", N1, S1, decoded_size);
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
+
+  Logger::nas_mm().debug("N1 0x%x, S1 0x%x", n1_, s1_);
   return decoded_size;
 }
