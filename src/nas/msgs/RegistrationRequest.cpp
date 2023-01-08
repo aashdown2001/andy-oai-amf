@@ -320,14 +320,14 @@ uint16_t RegistrationRequest::getPduSessionStatus() {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setMICOIndication(bool sprti, bool raai) {
-  ie_MICO_indication = std::make_optional<MICOIndication>(0x0B, sprti, raai);
+  ie_MICO_indication = std::make_optional<MicoIndication>(sprti, raai);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getMicoIndication(uint8_t& sprti, uint8_t& raai) {
   if (ie_MICO_indication.has_value()) {
-    sprti = ie_MICO_indication.value().getSPRTI();
-    raai  = ie_MICO_indication.value().getRAAI();
+    sprti = ie_MICO_indication.value().GetSprti();
+    raai  = ie_MICO_indication.value().GetRaai();
     return true;
   } else {
     return false;
@@ -669,13 +669,13 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
     }
   }
   if (!ie_MICO_indication.has_value()) {
-    Logger::nas_mm().warn("IE ie_MICO_indicationl is not available");
+    Logger::nas_mm().warn("IE ie_MICO_indication is not available");
   } else {
-    if (int size = ie_MICO_indication.value().encode2Buffer(
+    if (int size = ie_MICO_indication.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
-      Logger::nas_mm().error("encoding ie_MICO_indicationl  error");
+      Logger::nas_mm().error("encoding ie_MICO_indication  error");
       return 0;
     }
   }
@@ -864,11 +864,11 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       } break;
       case 0xB: {
         Logger::nas_mm().debug("Decoding IEI (0xB)");
-        MICOIndication ie_MICO_indication_tmp = {};
-        decoded_size += ie_MICO_indication_tmp.decodeFromBuffer(
+        MicoIndication ie_MICO_indication_tmp = {};
+        decoded_size += ie_MICO_indication_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_MICO_indication =
-            std::optional<MICOIndication>(ie_MICO_indication_tmp);
+            std::optional<MicoIndication>(ie_MICO_indication_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;

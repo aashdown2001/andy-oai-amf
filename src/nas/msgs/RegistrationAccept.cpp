@@ -46,7 +46,7 @@ RegistrationAccept::RegistrationAccept()
   ie_PDU_session_status                          = nullptr;
   ie_pdu_session_reactivation_result             = nullptr;
   ie_pdu_session_reactivation_result_error_cause = nullptr;
-  ie_MICO_indicationl                            = nullptr;
+  ie_MICO_indication                             = nullptr;
   ie_network_slicing_indication                  = nullptr;
   ie_T3512_value                                 = nullptr;
   ie_Non_3GPP_de_registration_timer_value        = nullptr;
@@ -188,7 +188,7 @@ void RegistrationAccept::setPDU_session_reactivation_result_error_cause(
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setMICO_Indication(bool sprti, bool raai) {
-  ie_MICO_indicationl = new MICOIndication(0x0B, sprti, raai);
+  ie_MICO_indication = new MicoIndication(sprti, raai);
 }
 
 //------------------------------------------------------------------------------
@@ -419,14 +419,14 @@ int RegistrationAccept::encode2Buffer(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_MICO_indicationl) {
-    Logger::nas_mm().warn("IE ie_MICO_indicationl is not available");
+  if (!ie_MICO_indication) {
+    Logger::nas_mm().warn("IE ie_MICO_indication is not available");
   } else {
-    if (int size = ie_MICO_indicationl->encode2Buffer(
+    if (int size = ie_MICO_indication->Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
-      Logger::nas_mm().error("Encoding ie_MICO_indicationl error");
+      Logger::nas_mm().error("Encoding ie_MICO_indication error");
       return 0;
     }
   }
@@ -640,8 +640,8 @@ int RegistrationAccept::decodeFromBuffer(uint8_t* buf, int len) {
     switch ((octet & 0xf0) >> 4) {
       case 0xB: {
         Logger::nas_mm().debug("Decoding IEI (0xB)");
-        ie_MICO_indicationl = new MICOIndication();
-        decoded_size += ie_MICO_indicationl->decodeFromBuffer(
+        ie_MICO_indication = new MicoIndication();
+        decoded_size += ie_MICO_indication->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -714,7 +714,7 @@ int RegistrationAccept::decodeFromBuffer(uint8_t* buf, int len) {
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
       case kIeiPduSessionStatus: {
-        Logger::nas_mm().debug("Decoding IEI (0x50)");
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiPduSessionStatus);
         ie_PDU_session_status = new PDUSessionStatus();
         decoded_size += ie_PDU_session_status->Decode(
             buf + decoded_size, len - decoded_size, true);

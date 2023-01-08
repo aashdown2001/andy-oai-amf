@@ -57,6 +57,11 @@ bool Type1NasIeFormatTv::Validate(const int& len) const {
 }
 
 //------------------------------------------------------------------------------
+uint8_t Type1NasIeFormatTv::GetIeLength() const {
+  return kType1NasIeFormatTvLength;
+}
+
+//------------------------------------------------------------------------------
 void Type1NasIeFormatTv::SetValue(const uint8_t& value) {
   value_ = value & 0x0f;  // 4 lower bits
 }

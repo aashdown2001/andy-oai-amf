@@ -162,7 +162,7 @@ class RegistrationAccept : public NasMmPlainHeader {
   PDU_Session_Reactivation_Result_Error_Cause*
       ie_pdu_session_reactivation_result_error_cause;  // Optional
   // TODO: LADN information
-  MICOIndication* ie_MICO_indicationl;                      // Optional
+  MicoIndication* ie_MICO_indication;                       // Optional
   NetworkSlicingIndication* ie_network_slicing_indication;  // Optional
   // TODO: Service Area List
   GPRS_Timer_3* ie_T3512_value;  // Optional

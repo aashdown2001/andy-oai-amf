@@ -19,34 +19,38 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _MICO_Indication_H
-#define _MICO_Indication_H
+#ifndef _MICO_INDICATION_H
+#define _MICO_INDICATION_H
 
+#include "Type1NasIeFormatTv.hpp"
 #include <stdint.h>
 
-constexpr uint8_t kMICOIndicationIELength = 1;
+constexpr uint8_t kMicoIndicationIELength = 1;
+constexpr auto kMicoIndicationIeName      = "MICO Indication";
 
 namespace nas {
 
-class MICOIndication {
+class MicoIndication : public Type1NasIeFormatTv {
  public:
-  MICOIndication();
-  MICOIndication(const uint8_t _iei, bool sprti, bool raai);
-  MICOIndication(bool sprti, bool raai);
-  ~MICOIndication();
+  MicoIndication();
+  MicoIndication(const uint8_t _iei, bool sprti, bool raai);
+  MicoIndication(bool sprti, bool raai);
+  ~MicoIndication();
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
 
-  void setSPRTI(bool value);
-  void setRAAI(bool value);
-  bool getRAAI();
-  bool getSPRTI();
+  void SetSprti(bool value);
+  bool GetSprti() const;
+
+  void SetRaai(bool value);
+  bool GetRaai() const;
+
+  void SetValue();
 
  private:
-  uint8_t iei;
-  bool SPRTI;
-  bool RAAI;
+  bool sprti_;
+  bool raai_;
 };
 
 }  // namespace nas
