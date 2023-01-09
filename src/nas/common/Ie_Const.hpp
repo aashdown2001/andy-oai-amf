@@ -90,8 +90,9 @@ constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
 
 constexpr uint8_t kIeiMicoIndication = 0x0B;  // B-(4 higher bits)
 
-constexpr uint8_t kIei5gmmCapability = 0x10;
-constexpr uint8_t kIeiUeStatus       = 0x2b;
+constexpr uint8_t kIei5gmmCapability          = 0x10;
+constexpr uint8_t kIeiAllowedPduSessionStatus = 0x25;
+constexpr uint8_t kIeiUeStatus                = 0x2b;
 
 constexpr uint8_t kIeiUeSecurityCapability = 0x2e;
 constexpr uint8_t kIeiUeNetworkCapability  = 0x17;

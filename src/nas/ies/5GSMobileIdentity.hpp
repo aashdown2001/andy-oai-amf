@@ -68,9 +68,9 @@ typedef struct SUCI_imsi_s {
   uint8_t supi_format : 3;
   std::string mcc;
   std::string mnc;
-  std::optional<std::string> routingIndicator;  //"1234"
-  uint8_t protectionSchemeId : 4;               // 0000
-  uint8_t homeNetworkPKI;                       // 00000000
+  std::optional<std::string> routing_indicator;  //"1234"
+  uint8_t protection_scheme_id : 4;              // 0000
+  uint8_t home_network_pki;                      // 00000000
   std::string msin;  // two types of coding; BCD & hexadecimal
 } SUCI_imsi_t;       // SUPI format "IMSI"
 

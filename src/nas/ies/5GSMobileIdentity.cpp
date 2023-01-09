@@ -264,17 +264,17 @@ int _5GSMobileIdentity::EncodeSuci(uint8_t* buf, int len) {
 
   // Routing Indicator
   encoded_size += EncodeRoutingIndicator(
-      supi_format_imsi_.value().routingIndicator, buf + encoded_size,
+      supi_format_imsi_.value().routing_indicator, buf + encoded_size,
       len - encoded_size);
 
   // Protection Scheme
   ENCODE_U8(
-      buf + encoded_size, 0x0f & supi_format_imsi_.value().protectionSchemeId,
+      buf + encoded_size, 0x0f & supi_format_imsi_.value().protection_scheme_id,
       encoded_size);
 
   // Home Network Public Key Identifier
   ENCODE_U8(
-      buf + encoded_size, supi_format_imsi_.value().homeNetworkPKI,
+      buf + encoded_size, supi_format_imsi_.value().home_network_pki,
       encoded_size);
 
   // MSIN
@@ -339,7 +339,7 @@ int _5GSMobileIdentity::DecodeSuci(uint8_t* buf, int len, int ie_len) {
 
       if (!digit[0] && digit[1] == 0x0f && digit[2] == 0x0f &&
           digit[3] == 0x0f) {
-        supi_format_imsi_tmp.routingIndicator =
+        supi_format_imsi_tmp.routing_indicator =
             std::nullopt;  // No Routing Indicator is configured
         Logger::nas_mm().debug("No Routing Indicator is configured");
       } else {
@@ -354,19 +354,19 @@ int _5GSMobileIdentity::DecodeSuci(uint8_t* buf, int len, int ie_len) {
                 "Decoded Routing Indicator is not BCD coding");
         }
 
-        supi_format_imsi_tmp.routingIndicator =
+        supi_format_imsi_tmp.routing_indicator =
             std::optional<std::string>(result);
         Logger::nas_mm().debug(
             "Decoded Routing Indicator %s",
-            supi_format_imsi_tmp.routingIndicator.value().c_str());
+            supi_format_imsi_tmp.routing_indicator.value().c_str());
       }
 
       // Protection scheme Id
       DECODE_U8(buf + decoded_size, octet, decoded_size);
-      supi_format_imsi_tmp.protectionSchemeId = 0x0f & octet;
+      supi_format_imsi_tmp.protection_scheme_id = 0x0f & octet;
       // Home network public key identifier
       DECODE_U8(buf + decoded_size, octet, decoded_size);
-      supi_format_imsi_tmp.homeNetworkPKI = octet;
+      supi_format_imsi_tmp.home_network_pki = octet;
 
       // MSIN
       std::string msin = {};
@@ -421,11 +421,11 @@ void _5GSMobileIdentity::SetSuciWithSupiImsi(
   supi_format_imsi_tmp.supi_format = SUPI_FORMAT_IMSI;
   supi_format_imsi_tmp.mcc         = mcc;
   supi_format_imsi_tmp.mnc         = mnc;
-  supi_format_imsi_tmp.routingIndicator =
+  supi_format_imsi_tmp.routing_indicator =
       std::optional<std::string>(routing_ind);
-  supi_format_imsi_tmp.protectionSchemeId = protection_sch_id;
-  supi_format_imsi_tmp.homeNetworkPKI     = HOME_NETWORK_PKI_0_WHEN_PSI_0;
-  supi_format_imsi_tmp.msin               = msin;
+  supi_format_imsi_tmp.protection_scheme_id = protection_sch_id;
+  supi_format_imsi_tmp.home_network_pki     = HOME_NETWORK_PKI_0_WHEN_PSI_0;
+  supi_format_imsi_tmp.msin                 = msin;
   SetLengthIndicator(10 + ceil(msin.length() / 2));
 
   supi_format_imsi_ = std::optional<SUCI_imsi_t>(supi_format_imsi_tmp);

@@ -113,7 +113,7 @@ int _5GMMCapability::Decode(uint8_t* buf, int len, bool is_iei) {
   DECODE_U8(buf + decoded_size, octet3_, decoded_size);
   // TODO: decode the rest as spare for now
   uint8_t spare = 0;
-  for (int i = 0; i < (li_ - 1); i++) {
+  for (int i = 0; i < (GetLengthIndicator() - 1); i++) {
     DECODE_U8(buf + decoded_size, spare, decoded_size);
   }
 

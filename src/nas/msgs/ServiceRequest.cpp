@@ -84,7 +84,7 @@ void ServiceRequest::setPDU_session_status(uint16_t value) {
 
 //------------------------------------------------------------------------------
 void ServiceRequest::setAllowed_PDU_Session_Status(uint16_t value) {
-  ie_allowed_PDU_session_status = new AllowedPDUSessionStatus(0x25, value);
+  ie_allowed_PDU_session_status = new AllowedPDUSessionStatus(value);
 }
 
 //------------------------------------------------------------------------------
@@ -161,7 +161,7 @@ int ServiceRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_allowed_PDU_session_status) {
     Logger::nas_mm().warn("IE ie_allowed_PDU_session_status is not available");
   } else {
-    size = ie_allowed_PDU_session_status->encode2Buffer(
+    size = ie_allowed_PDU_session_status->Encode(
         buf + encoded_size, len - encoded_size);
     if (size != 0) {
       encoded_size += size;
@@ -223,11 +223,12 @@ int ServiceRequest::decodeFromBuffer(
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x25: {
+      case kIeiAllowedPduSessionStatus: {
         Logger::nas_mm().debug(
-            "Decoding ie_allowed_PDU_session_status (IEI: 0x25)");
+            "Decoding ie_allowed_PDU_session_status, IEI 0x%x",
+            kIeiAllowedPduSessionStatus);
         ie_allowed_PDU_session_status = new AllowedPDUSessionStatus();
-        decoded_size += ie_allowed_PDU_session_status->decodeFromBuffer(
+        decoded_size += ie_allowed_PDU_session_status->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -279,7 +280,7 @@ uint16_t ServiceRequest::getPduSessionStatus() {
 //------------------------------------------------------------------------------
 uint16_t ServiceRequest::getAllowedPduSessionStatus() {
   if (ie_allowed_PDU_session_status) {
-    return ie_allowed_PDU_session_status->getValue();
+    return ie_allowed_PDU_session_status->GetValue();
   } else {
     return 0;
   }

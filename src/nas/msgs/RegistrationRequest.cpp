@@ -352,14 +352,14 @@ bool RegistrationRequest::getUeStatus(uint8_t& n1ModeReg, uint8_t& s1ModeReg) {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setAllowedPDUSessionStatus(uint16_t value) {
-  ie_allowed_PDU_session_status = std::make_optional<AllowedPDUSessionStatus>(
-      0x25, value);  // TODO: remove hardcoded value
+  ie_allowed_PDU_session_status =
+      std::make_optional<AllowedPDUSessionStatus>(value);
 }
 
 //------------------------------------------------------------------------------
 uint16_t RegistrationRequest::getAllowedPduSessionStatus() {
   if (ie_allowed_PDU_session_status.has_value()) {
-    return ie_allowed_PDU_session_status.value().getValue();
+    return ie_allowed_PDU_session_status.value().GetValue();
   } else {
     return 0;
   }
@@ -704,7 +704,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_allowed_PDU_session_status.has_value()) {
     Logger::nas_mm().warn("IE ie_allowed_PDU_session_status is not available");
   } else {
-    if (int size = ie_allowed_PDU_session_status.value().encode2Buffer(
+    if (int size = ie_allowed_PDU_session_status.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -998,7 +998,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x25: {
         Logger::nas_mm().debug("Decoding IEI(0x25)");
         AllowedPDUSessionStatus ie_allowed_PDU_session_status_tmp = {};
-        decoded_size += ie_allowed_PDU_session_status_tmp.decodeFromBuffer(
+        decoded_size += ie_allowed_PDU_session_status_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_allowed_PDU_session_status = std::optional<AllowedPDUSessionStatus>(
             ie_allowed_PDU_session_status_tmp);
