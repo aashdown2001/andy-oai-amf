@@ -40,8 +40,8 @@ class PDU_Session_Reactivation_Result {
   PDU_Session_Reactivation_Result(const uint8_t iei, uint16_t value);
   ~PDU_Session_Reactivation_Result();
   void setValue(uint8_t iei, uint16_t value);
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
   uint16_t getValue();
 
  private:

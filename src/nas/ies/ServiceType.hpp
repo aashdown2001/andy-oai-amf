@@ -40,8 +40,8 @@ class ServiceType {
   ServiceType(uint8_t iei, uint8_t stp);
 
  public:
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* nuf, int len, bool is_optional, bool is_high);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* nuf, int len, bool is_optional, bool is_high);
   uint8_t getValue();
 
  private:

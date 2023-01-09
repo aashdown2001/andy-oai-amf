@@ -83,7 +83,7 @@ void _5GSDeregistrationType::get(uint8_t& type) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSDeregistrationType::encode2Buffer(uint8_t* buf, int len) {
+int _5GSDeregistrationType::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().error("Encoding 5GSDeregistrationType IE");
   if (len < 1) {
     Logger::nas_mm().error(
@@ -95,7 +95,7 @@ int _5GSDeregistrationType::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GSDeregistrationType::decodeFromBuffer(uint8_t* buf, int len) {
+int _5GSDeregistrationType::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding 5GSDeregistrationType");
   u1.b = *buf;
 

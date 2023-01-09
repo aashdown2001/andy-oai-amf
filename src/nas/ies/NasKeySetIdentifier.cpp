@@ -74,7 +74,7 @@ void NasKeySetIdentifier::GetValue() {
 
 /*
 //------------------------------------------------------------------------------
-int NasKeySetIdentifier::encode2Buffer(uint8_t* buf, const int& len) {
+int NasKeySetIdentifier::Encode(uint8_t* buf, const int& len) {
   Logger::nas_mm().debug("Encoding NasKeySetIdentifier IE");
   if (len < kType1IeSize) {
     Logger::nas_mm().error(
@@ -91,7 +91,7 @@ int NasKeySetIdentifier::encode2Buffer(uint8_t* buf, const int& len) {
 }
 
 //------------------------------------------------------------------------------
-int NasKeySetIdentifier::decodeFromBuffer(
+int NasKeySetIdentifier::Decode(
     uint8_t* buf, const int& len, bool is_option, bool is_high) {
   Logger::nas_mm().debug("Decoding NasKeySetIdentifier IE");
 

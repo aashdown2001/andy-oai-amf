@@ -19,33 +19,35 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _EPS_NAS_Message_Container_H_
-#define _EPS_NAS_Message_Container_H_
+#ifndef _EPS_NAS_MESSAGE_CONTAINER_H_
+#define _EPS_NAS_MESSAGE_CONTAINER_H_
 
+#include "Type6NasIe.hpp"
 #include <stdint.h>
-#include <iostream>
 
 extern "C" {
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"
 #include "bstrlib.h"
 }
+
+constexpr auto kEpsNasMessageContainerIeName = "EPS NAS Message Container";
+
 namespace nas {
 
-class EPS_NAS_Message_Container {
+class EPS_NAS_Message_Container : Type6NasIe {
  public:
   EPS_NAS_Message_Container();
-  EPS_NAS_Message_Container(uint8_t iei);
-  EPS_NAS_Message_Container(const uint8_t iei, bstring value);
+  EPS_NAS_Message_Container(bstring value);
   ~EPS_NAS_Message_Container();
-  void setValue(uint8_t iei);
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
-  void getValue(bstring& value);
+
+  // TODO: SetValue(const bstring& value)
+  void getValue(bstring& value) const;
+
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_iei);
 
  private:
-  uint8_t _iei;
-  uint16_t length;
   bstring _value;
 };
 

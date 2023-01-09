@@ -91,7 +91,7 @@ void _5GS_Registration_Result::set(
 }
 
 //------------------------------------------------------------------------------
-int _5GS_Registration_Result::encode2Buffer(uint8_t* buf, int len) {
+int _5GS_Registration_Result::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding _5GS_Registration_Result");
   uint8_t ie_len = 0;
   if (_iei) {
@@ -129,8 +129,7 @@ int _5GS_Registration_Result::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GS_Registration_Result::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option) {
+int _5GS_Registration_Result::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding _5GS_Registration_Result");
 
   if (len < k5gsRegistrationResultLength) {

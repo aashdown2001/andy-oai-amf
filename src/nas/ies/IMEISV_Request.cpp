@@ -60,7 +60,7 @@ uint8_t IMEISV_Request::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int IMEISV_Request::encode2Buffer(uint8_t* buf, int len) {
+int IMEISV_Request::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding IMEISV_Request iei (0x%x)", _iei);
   if (len < 1) {
     Logger::nas_mm().error("Len is less than 1");
@@ -82,7 +82,7 @@ int IMEISV_Request::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int IMEISV_Request::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
+int IMEISV_Request::Decode(uint8_t* buf, int len, bool is_option) {
   if (len < 1) {
     Logger::nas_mm().error("Len is less than one");
     return 0;

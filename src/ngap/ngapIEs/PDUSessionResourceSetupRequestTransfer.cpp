@@ -478,7 +478,7 @@ void PduSessionResourceSetupRequestTransferIE::setQosFlowSetupRequestList(
 }
 
 //------------------------------------------------------------------------------
-int PduSessionResourceSetupRequestTransferIE::encode2Buffer(
+int PduSessionResourceSetupRequestTransferIE::Encode(
     uint8_t* buf, int buf_size) {
   asn_fprint(
       stderr, &asn_DEF_Ngap_PDUSessionResourceSetupRequestTransfer,

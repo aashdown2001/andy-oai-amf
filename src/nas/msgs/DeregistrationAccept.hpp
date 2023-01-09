@@ -37,8 +37,8 @@ class DeregistrationAccept {
  public:
   DeregistrationAccept();
   ~DeregistrationAccept();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int Encode(uint8_t* buf, int len);
+  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
   void setHeader(uint8_t security_header_type);
 
  public:

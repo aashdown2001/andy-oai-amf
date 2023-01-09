@@ -93,19 +93,19 @@ void DLNASTransport::setBack_off_timer_value(uint8_t unit, uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-int DLNASTransport::encode2Buffer(uint8_t* buf, int len) {
+int DLNASTransport::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding DLNASTransport message");
   int encoded_size = 0;
   if (!plain_header) {
     Logger::nas_mm().error("Mandatory IE missing Header");
     return 0;
   }
-  if (!(plain_header->encode2Buffer(buf, len))) return 0;
+  if (!(plain_header->Encode(buf, len))) return 0;
   encoded_size += 3;
   if (!ie_payload_container_type) {
     Logger::nas_mm().warn("IE ie_payload_container_type is not available");
   } else {
-    if (int size = ie_payload_container_type->encode2Buffer(
+    if (int size = ie_payload_container_type->Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -116,7 +116,7 @@ int DLNASTransport::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_payload_container or !ie_payload_container_type) {
     Logger::nas_mm().warn("IE ie_payload_container is not available");
   } else {
-    if (int size = ie_payload_container->encode2Buffer(
+    if (int size = ie_payload_container->Encode(
             buf + encoded_size, len - encoded_size,
             ie_payload_container_type->getValue())) {
       encoded_size += size;
@@ -128,7 +128,7 @@ int DLNASTransport::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_pdu_session_identity_2) {
     Logger::nas_mm().warn("IE ie_pdu_session_identity_2 is not available");
   } else {
-    if (int size = ie_pdu_session_identity_2->encode2Buffer(
+    if (int size = ie_pdu_session_identity_2->Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -139,7 +139,7 @@ int DLNASTransport::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_additional_information) {
     Logger::nas_mm().warn("IE ie_additional_information is not available");
   } else {
-    if (int size = ie_additional_information->encode2Buffer(
+    if (int size = ie_additional_information->Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -150,8 +150,8 @@ int DLNASTransport::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_5gmm_cause) {
     Logger::nas_mm().warn("IE ie_5gmm_cause is not available");
   } else {
-    if (int size = ie_5gmm_cause->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
+    if (int size =
+            ie_5gmm_cause->Encode(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_5gmm_cause error");
@@ -160,7 +160,7 @@ int DLNASTransport::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_back_off_timer_value) {
     Logger::nas_mm().warn("IE ie_back_off_timer_value is not available");
   } else {
-    if (int size = ie_back_off_timer_value->encode2Buffer(
+    if (int size = ie_back_off_timer_value->Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -174,16 +174,15 @@ int DLNASTransport::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int DLNASTransport::decodeFromBuffer(
-    NasMmPlainHeader* header, uint8_t* buf, int len) {
+int DLNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding DLNASTransport message");
   int decoded_size          = 3;
   plain_header              = header;
   ie_payload_container_type = new Payload_Container_Type();
-  decoded_size += ie_payload_container_type->decodeFromBuffer(
+  decoded_size += ie_payload_container_type->Decode(
       buf + decoded_size, len - decoded_size, false);
   ie_payload_container = new Payload_Container();
-  decoded_size += ie_payload_container->decodeFromBuffer(
+  decoded_size += ie_payload_container->Decode(
       buf + decoded_size, len - decoded_size, false,
       N1_SM_INFORMATION);  // TODO: verified Typeb of Payload Container
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
@@ -194,7 +193,7 @@ int DLNASTransport::decodeFromBuffer(
       case 0x12: {
         Logger::nas_mm().debug("Decoding IEI (0x12)");
         ie_pdu_session_identity_2 = new PDU_Session_Identity_2();
-        decoded_size += ie_pdu_session_identity_2->decodeFromBuffer(
+        decoded_size += ie_pdu_session_identity_2->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -202,7 +201,7 @@ int DLNASTransport::decodeFromBuffer(
       case 0x24: {
         Logger::nas_mm().debug("Decoding IEI (0x24)");
         ie_additional_information = new Additional_Information();
-        decoded_size += ie_additional_information->decodeFromBuffer(
+        decoded_size += ie_additional_information->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -210,15 +209,15 @@ int DLNASTransport::decodeFromBuffer(
       case 0x58: {
         Logger::nas_mm().debug("Decoding IEI (0x58)");
         ie_5gmm_cause = new _5GMM_Cause();
-        decoded_size += ie_5gmm_cause->decodeFromBuffer(
-            buf + decoded_size, len - decoded_size, true);
+        decoded_size +=
+            ie_5gmm_cause->Decode(buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
       case 0x37: {
         Logger::nas_mm().debug("Decoding IEI (0x37)");
         ie_back_off_timer_value = new GPRS_Timer_3();
-        decoded_size += ie_back_off_timer_value->decodeFromBuffer(
+        decoded_size += ie_back_off_timer_value->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

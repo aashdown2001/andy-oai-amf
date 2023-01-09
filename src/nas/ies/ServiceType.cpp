@@ -42,7 +42,7 @@ ServiceType::ServiceType(uint8_t iei, uint8_t stp) {
 }
 
 //------------------------------------------------------------------------------
-int ServiceType::encode2Buffer(uint8_t* buf, int len) {
+int ServiceType::Encode(uint8_t* buf, int len) {
   if (len < 1) return -1;
   int encoded_size = 0;
   if (_iei) {
@@ -58,8 +58,7 @@ int ServiceType::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int ServiceType::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_optional, bool is_high) {
+int ServiceType::Decode(uint8_t* buf, int len, bool is_optional, bool is_high) {
   if (len < 1) return -1;
   if (is_optional) {
     _iei = *buf;

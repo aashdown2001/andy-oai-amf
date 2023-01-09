@@ -73,7 +73,7 @@ void NasMmPlainHeader::setHeader(
 }
 
 //------------------------------------------------------------------------------
-int NasMmPlainHeader::encode2Buffer(uint8_t* buf, int len) {
+int NasMmPlainHeader::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding NasMmPlainHeader");
   if (len < kNasMmPlainHeaderLength) {
     Logger::nas_mm().error("buffer length is less than 3 octets");
@@ -108,7 +108,7 @@ int NasMmPlainHeader::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int NasMmPlainHeader::decodeFromBuffer(const uint8_t* const buf, int len) {
+int NasMmPlainHeader::Decode(const uint8_t* const buf, int len) {
   Logger::nas_mm().debug("Decoding NasMmPlainHeader");
   uint32_t decoded_size = 0;
   if (len < kNasMmPlainHeaderLength) {

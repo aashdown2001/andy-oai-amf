@@ -40,8 +40,8 @@ class Extended_DRX_Parameters {
   Extended_DRX_Parameters(
       const uint8_t iei, uint8_t paging_time, uint8_t value);
   ~Extended_DRX_Parameters();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
   void setValue(uint8_t value);
   uint8_t getValue();
   void setPaging_time(uint8_t value);

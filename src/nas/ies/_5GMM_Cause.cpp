@@ -56,7 +56,7 @@ void _5GMM_Cause::set(uint8_t iei, uint8_t value) {
   _value = value;
 }
 //------------------------------------------------------------------------------
-int _5GMM_Cause::encode2Buffer(uint8_t* buf, int len) {
+int _5GMM_Cause::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding _5GMM_Cause IE ");
 
   int encoded_size = 0;
@@ -77,7 +77,7 @@ int _5GMM_Cause::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GMM_Cause::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
+int _5GMM_Cause::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding _5GMM_Cause IE");
   int decoded_size = 0;
   if (is_option) {

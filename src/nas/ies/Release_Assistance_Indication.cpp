@@ -64,7 +64,7 @@ uint8_t Release_Assistance_Indication::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int Release_Assistance_Indication::encode2Buffer(uint8_t* buf, int len) {
+int Release_Assistance_Indication::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "encoding Release_Assistance_Indication iei(0x%x)", _iei);
   if (len < 1) {
@@ -85,7 +85,7 @@ int Release_Assistance_Indication::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Release_Assistance_Indication::decodeFromBuffer(
+int Release_Assistance_Indication::Decode(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug(
       "decoding Release_Assistance_Indication iei(0x%x)", *buf);

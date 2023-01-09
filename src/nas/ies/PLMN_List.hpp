@@ -37,8 +37,8 @@ class PLMN_List {
   PLMN_List(uint8_t iei);
   ~PLMN_List();
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
 
   void set(uint8_t iei, const std::vector<nas_plmn_t>& list);
   void getPLMNList(std::vector<nas_plmn_t>& list);

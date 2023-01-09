@@ -41,8 +41,8 @@ class NAS_Message_Container {
   NAS_Message_Container(const uint8_t iei, bstring value);
   ~NAS_Message_Container();
   void setValue(uint8_t iei, uint8_t value);
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
   void getValue(bstring& value);
 
  private:

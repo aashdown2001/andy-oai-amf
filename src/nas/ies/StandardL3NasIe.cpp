@@ -19,58 +19,39 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#include "DeregistrationAccept.hpp"
+#include "StandardL3NasIe.hpp"
 
 #include "3gpp_24.501.hpp"
-#include "String2Value.hpp"
+#include "common_defs.h"
 #include "logger.hpp"
 
 using namespace nas;
-
 //------------------------------------------------------------------------------
-DeregistrationAccept::DeregistrationAccept() {
-  plain_header = NULL;
+StandardL3NasIe::StandardL3NasIe() : NasIe() {
+  iei_ = std::nullopt;
 }
 
 //------------------------------------------------------------------------------
-DeregistrationAccept::~DeregistrationAccept() {}
-
-//------------------------------------------------------------------------------
-void DeregistrationAccept::setHeader(uint8_t security_header_type) {
-  plain_header = new NasMmPlainHeader();
-  plain_header->setHeader(
-      EPD_5GS_MM_MSG, security_header_type,
-      DEREGISTRATION_ACCEPT_UE_ORIGINATING);
+StandardL3NasIe::StandardL3NasIe(const uint8_t& iei) : NasIe() {
+  iei_ = std::optional<uint8_t>(iei);
 }
 
 //------------------------------------------------------------------------------
-int DeregistrationAccept::Encode(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding De-registration Accept message");
-  int encoded_size = 0;
-  if (!plain_header) {
-    Logger::nas_mm().error("Mandatory IE missing Header");
-    return 0;
+StandardL3NasIe::~StandardL3NasIe() {}
+
+//------------------------------------------------------------------------------
+void StandardL3NasIe::SetIei(const uint8_t& iei) {
+  iei_ = std::optional<uint8_t>(iei);
+}
+
+//------------------------------------------------------------------------------
+bool StandardL3NasIe::Validate(const int& len) const {
+  int ie_len = GetIeLength();  // Length of the content + IEI/Len
+  if (len < ie_len) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the length of this IE (%d octet(s))",
+        ie_len);
+    return false;
   }
-  encoded_size = plain_header->Encode(buf, len);
-  Logger::nas_mm().debug(
-      "Encoded De-registration Accept message len (%d)", encoded_size);
-  return encoded_size;
-}
-
-//------------------------------------------------------------------------------
-int DeregistrationAccept::Decode(
-    NasMmPlainHeader* header, uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Decoding De-registrationReject message");
-  int decoded_size = 3;
-  plain_header     = header;
-  Logger::nas_mm().debug(
-      "decoded De-registrationReject message len (%d)", decoded_size);
-  return 1;
+  return true;
 }

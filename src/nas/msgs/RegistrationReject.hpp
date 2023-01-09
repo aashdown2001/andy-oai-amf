@@ -35,8 +35,8 @@ class RegistrationReject : public NasMmPlainHeader {
   void getSecurityHeaderType(uint8_t security_header_type);
   bool verifyHeader();
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int Encode(uint8_t* buf, int len);
+  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
 
   void set_5GMM_Cause(uint8_t value);
   // TODO: Get

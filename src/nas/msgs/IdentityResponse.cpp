@@ -81,14 +81,14 @@ void IdentityResponse::setIMEI_IMEISV() {}
 void IdentityResponse::Set5gSTmsi() {}
 
 //------------------------------------------------------------------------------
-int IdentityResponse::encode2Buffer(uint8_t* buf, int len) {
+int IdentityResponse::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding IdentityResponse message");
   int encoded_size = 0;
   if (!plain_header) {
     Logger::nas_mm().error("Mandatory IE missing Header");
     return 0;
   }
-  if (!(plain_header->encode2Buffer(buf, len))) return 0;
+  if (!(plain_header->Encode(buf, len))) return 0;
   encoded_size += 3;
   if (!ie_mobility_id) {
     Logger::nas_mm().warn("IE ie_mobility_id is not available");
@@ -107,8 +107,7 @@ int IdentityResponse::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int IdentityResponse::decodeFromBuffer(
-    NasMmPlainHeader* header, uint8_t* buf, int len) {
+int IdentityResponse::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("decoding IdentityResponse message");
   int decoded_size = 3;
   plain_header     = header;

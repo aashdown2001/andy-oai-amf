@@ -78,7 +78,7 @@ bool Additional_5G_Security_Information::getHDP() {
 }
 
 //------------------------------------------------------------------------------
-int Additional_5G_Security_Information::encode2Buffer(uint8_t* buf, int len) {
+int Additional_5G_Security_Information::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "encoding Additional_5G_Security_Information iei(0x%x)", _iei);
   if (len < 3) {
@@ -101,7 +101,7 @@ int Additional_5G_Security_Information::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Additional_5G_Security_Information::decodeFromBuffer(
+int Additional_5G_Security_Information::Decode(
     uint8_t* buf, int len, bool is_option) {
   if (len < 3) {
     Logger::nas_mm().error("len is less than 3");

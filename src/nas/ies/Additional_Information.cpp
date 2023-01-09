@@ -64,7 +64,7 @@ uint8_t Additional_Information::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int Additional_Information::encode2Buffer(uint8_t* buf, int len) {
+int Additional_Information::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding Additional_Information iei(0x%x)", _iei);
   if (len < length) {
     Logger::nas_mm().error("len is less than %d", length);
@@ -91,8 +91,7 @@ int Additional_Information::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Additional_Information::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option) {
+int Additional_Information::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding Additional_Information iei(0x%x)", *buf);
   int decoded_size = 0;
   if (is_option) {

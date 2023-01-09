@@ -64,7 +64,7 @@ uint8_t SOR_Transparent_Container::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int SOR_Transparent_Container::encode2Buffer(uint8_t* buf, int len) {
+int SOR_Transparent_Container::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding SOR_Transparent_Container iei(0x%x)", _iei);
   if (len < 18) {
     Logger::nas_mm().error("len is less than 18");
@@ -94,8 +94,7 @@ int SOR_Transparent_Container::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int SOR_Transparent_Container::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option) {
+int SOR_Transparent_Container::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding SOR_Transparent_Container iei(0x%x)", *buf);
   int decoded_size = 0;
   if (is_option) {

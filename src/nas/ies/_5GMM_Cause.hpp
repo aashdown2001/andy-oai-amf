@@ -76,8 +76,8 @@ class _5GMM_Cause {
   _5GMM_Cause();
   _5GMM_Cause(uint8_t _iei, uint8_t value);
   ~_5GMM_Cause();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
   void set(uint8_t _iei, uint8_t value);
   void setValue(uint8_t value);
   uint8_t getValue();

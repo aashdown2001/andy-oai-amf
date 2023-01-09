@@ -35,8 +35,8 @@ class _5GS_Registration_Result {
   _5GS_Registration_Result(
       const uint8_t iei, bool emergency, bool nssaa, bool sms, uint8_t value);
   ~_5GS_Registration_Result();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
   void setValue(uint8_t value);
   uint8_t getValue();
   void set(

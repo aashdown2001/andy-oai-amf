@@ -165,7 +165,7 @@ void DeregistrationRequest::setIMEI_IMEISV() {}
 void DeregistrationRequest::Set5gSTmsi() {}
 
 //------------------------------------------------------------------------------
-int DeregistrationRequest::encode2Buffer(uint8_t* buf, int len) {
+int DeregistrationRequest::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding DeregistrationRequest message");
   int encoded_size = 0;
   if (!plain_header) {
@@ -184,9 +184,9 @@ int DeregistrationRequest::encode2Buffer(uint8_t* buf, int len) {
     Logger::nas_mm().error("Mandatory IE missing ie_5gs_mobility_id");
     return 0;
   }
-  if (!(plain_header->encode2Buffer(buf, len))) return 0;
+  if (!(plain_header->Encode(buf, len))) return 0;
   encoded_size += 3;
-  if (!(ie_deregistrationtype->encode2Buffer(
+  if (!(ie_deregistrationtype->Encode(
           buf + encoded_size, len - encoded_size))) {
     if (ie_ngKSI->Encode(buf + encoded_size, len - encoded_size) !=
         KEncodeDecodeError) {
@@ -213,14 +213,14 @@ int DeregistrationRequest::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int DeregistrationRequest::decodeFromBuffer(
+int DeregistrationRequest::Decode(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding DeregistrationRequest message");
   int decoded_size      = 3;
   plain_header          = header;
   ie_deregistrationtype = new _5GSDeregistrationType();
-  decoded_size += ie_deregistrationtype->decodeFromBuffer(
-      buf + decoded_size, len - decoded_size);
+  decoded_size +=
+      ie_deregistrationtype->Decode(buf + decoded_size, len - decoded_size);
   ie_ngKSI = new NasKeySetIdentifier();
   decoded_size += ie_ngKSI->Decode(
       buf + decoded_size, len - decoded_size, true,

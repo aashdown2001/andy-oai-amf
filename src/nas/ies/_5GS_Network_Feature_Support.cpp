@@ -70,7 +70,7 @@ uint8_t _5GS_Network_Feature_Support::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int _5GS_Network_Feature_Support::encode2Buffer(uint8_t* buf, int len) {
+int _5GS_Network_Feature_Support::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "Encoding _5GS_Network_Feature_Support IEI (0x%x)", _iei);
   if (len < length) {
@@ -99,7 +99,7 @@ int _5GS_Network_Feature_Support::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GS_Network_Feature_Support::decodeFromBuffer(
+int _5GS_Network_Feature_Support::Decode(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug(
       "Decoding _5GS_Network_Feature_Support IEI (0x%x)", *buf);

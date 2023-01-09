@@ -92,7 +92,7 @@ void ConfigurationUpdateCommand::getShortNameForNetwork(
     NetworkName& name) const {}
 
 //------------------------------------------------------------------------------
-int ConfigurationUpdateCommand::encode2Buffer(uint8_t* buf, int len) {
+int ConfigurationUpdateCommand::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding ConfigurationUpdateCommand message");
   int encoded_size = 0;
   if (!plain_header) {
@@ -100,7 +100,7 @@ int ConfigurationUpdateCommand::encode2Buffer(uint8_t* buf, int len) {
     return -1;
   }
   uint8_t encoded_size_ie = 0;
-  if (!(encoded_size_ie = plain_header->encode2Buffer(buf, len))) return 0;
+  if (!(encoded_size_ie = plain_header->Encode(buf, len))) return 0;
   encoded_size += encoded_size_ie;
 
   if (!full_name_for_network.has_value()) {
@@ -133,11 +133,11 @@ int ConfigurationUpdateCommand::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int ConfigurationUpdateCommand::decodeFromBuffer(uint8_t* buf, int len) {
+int ConfigurationUpdateCommand::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding ConfigurationUpdateCommand message");
   int decoded_size        = 0;
   uint8_t decoded_size_ie = 0;
-  if (!(decoded_size_ie = plain_header->decodeFromBuffer(buf, len))) return 0;
+  if (!(decoded_size_ie = plain_header->Decode(buf, len))) return 0;
   decoded_size += decoded_size_ie;
 
   uint8_t octet = *(buf + decoded_size);

@@ -68,7 +68,7 @@ uint8_t EPS_NAS_Security_Algorithms::getINTEGRITY_PROTECTION() {
 }
 
 //------------------------------------------------------------------------------
-int EPS_NAS_Security_Algorithms::encode2Buffer(uint8_t* buf, int len) {
+int EPS_NAS_Security_Algorithms::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "encoding EPS_NAS_Security_Algorithms iei(0x%x)", _iei);
   int encoded_size = 0;
@@ -89,8 +89,7 @@ int EPS_NAS_Security_Algorithms::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int EPS_NAS_Security_Algorithms::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option) {
+int EPS_NAS_Security_Algorithms::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding EPS_NAS_Security_Algorithms IE");
   if (len < 2) {
     Logger::nas_mm().error("len is less than 2");

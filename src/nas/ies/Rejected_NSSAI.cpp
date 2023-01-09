@@ -56,7 +56,7 @@ void Rejected_NSSAI::getRejectedSNSSAIs(std::vector<Rejected_SNSSAI>& nssais) {
 }
 //------------------------------------------------------------------------------
 
-int Rejected_NSSAI::encode2Buffer(uint8_t* buf, int len) {
+int Rejected_NSSAI::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding Rejected_NSSAI");
   uint8_t ie_len = 0;
   if (_iei) {
@@ -98,7 +98,7 @@ int Rejected_NSSAI::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Rejected_NSSAI::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
+int Rejected_NSSAI::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding Rejected_NSSAI");
   int decoded_size = 0;
   if (is_option) {

@@ -120,7 +120,7 @@ void PDUSessionResourceReleaseCommandTransfer::setCauseMisc(
   }
 }
 
-int PDUSessionResourceReleaseCommandTransfer::encode2Buffer(
+int PDUSessionResourceReleaseCommandTransfer::Encode(
     uint8_t* buf, int buf_size) {
   asn_fprint(
       stderr, &asn_DEF_Ngap_PDUSessionResourceReleaseCommandTransfer,

@@ -54,7 +54,7 @@ uint8_t NSSAI_Inclusion_Mode::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int NSSAI_Inclusion_Mode::encode2Buffer(uint8_t* buf, int len) {
+int NSSAI_Inclusion_Mode::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding NSSAI_Inclusion_Mode IE iei (0x%x)", _iei);
   if (len < 1) {
     Logger::nas_mm().error("Len is less than one");
@@ -77,8 +77,7 @@ int NSSAI_Inclusion_Mode::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int NSSAI_Inclusion_Mode::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option) {
+int NSSAI_Inclusion_Mode::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding NSSAI_Inclusion_Mode IE");
   if (len < 1) {
     Logger::nas_mm().error("Len is less than one");

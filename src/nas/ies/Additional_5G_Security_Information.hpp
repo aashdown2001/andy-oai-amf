@@ -39,8 +39,8 @@ class Additional_5G_Security_Information {
   Additional_5G_Security_Information(uint8_t iei);
   Additional_5G_Security_Information(const uint8_t iei, bool RINMR, bool HDP);
   ~Additional_5G_Security_Information();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
   void setRINMR(bool value);
   void setHDP(bool value);
   bool getRINMR();

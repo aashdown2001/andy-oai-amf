@@ -41,8 +41,8 @@ class EAP_Message {
   EAP_Message(const uint8_t iei, bstring eap);
   ~EAP_Message();
   // void setValue(uint8_t iei, uint8_t value);
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
   void getValue(bstring& eap);
 
  private:

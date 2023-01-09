@@ -37,8 +37,8 @@ class SecurityModeCommand {
  public:
   SecurityModeCommand();
   ~SecurityModeCommand();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int Encode(uint8_t* buf, int len);
+  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
   void setHeader(uint8_t security_header_type);
   void setNAS_Security_Algorithms(uint8_t ciphering, uint8_t integrity);
   void setngKSI(uint8_t tsc, uint8_t key_set_id);

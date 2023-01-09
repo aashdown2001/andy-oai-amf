@@ -64,7 +64,7 @@ uint8_t MA_PDU_Session_Information::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int MA_PDU_Session_Information::encode2Buffer(uint8_t* buf, int len) {
+int MA_PDU_Session_Information::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding MA_PDU_Session_Information iei(0x%x)", _iei);
   if (len < 1) {
     Logger::nas_mm().error("len is less than 1");
@@ -84,8 +84,7 @@ int MA_PDU_Session_Information::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int MA_PDU_Session_Information::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option) {
+int MA_PDU_Session_Information::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding MA_PDU_Session_Information iei(0x%x)", *buf);
   int decoded_size = 0;
   uint8_t octet    = 0;

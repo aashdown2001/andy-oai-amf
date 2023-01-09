@@ -102,7 +102,7 @@ bool _5GS_Update_Type::getSMS() {
 }
 
 //------------------------------------------------------------------------------
-int _5GS_Update_Type::encode2Buffer(uint8_t* buf, int len) {
+int _5GS_Update_Type::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding _5GS_Update_Type");
   if (len < k5gsUpdateTypeLength) {
     Logger::nas_mm().error(
@@ -126,7 +126,7 @@ int _5GS_Update_Type::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GS_Update_Type::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
+int _5GS_Update_Type::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding _5GS_Update_Type");
 
   int decoded_size = 0;

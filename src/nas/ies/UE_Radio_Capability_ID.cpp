@@ -64,7 +64,7 @@ uint8_t UE_Radio_Capability_ID::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int UE_Radio_Capability_ID::encode2Buffer(uint8_t* buf, int len) {
+int UE_Radio_Capability_ID::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding UE_Radio_Capability_ID iei(0x%x)", _iei);
   if (len < 3) {
     Logger::nas_mm().error("len is less than 3");
@@ -88,8 +88,7 @@ int UE_Radio_Capability_ID::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int UE_Radio_Capability_ID::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option) {
+int UE_Radio_Capability_ID::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding UE_Radio_Capability_ID iei(0x%x)", *buf);
   int decoded_size = 0;
   if (is_option) {

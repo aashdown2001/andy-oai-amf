@@ -35,8 +35,8 @@ class EPS_Bearer_Context_Status {
   EPS_Bearer_Context_Status(const uint8_t iei, uint16_t value);
   ~EPS_Bearer_Context_Status();
   void setValue(uint8_t iei, uint16_t value);
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
   uint16_t getValue();
 
  private:

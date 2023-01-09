@@ -45,8 +45,8 @@ class _5GSDeregistrationType {
   _5GSDeregistrationType(uint8_t type);
   _5GSDeregistrationType(_5gs_deregistration_type_t type);
   ~_5GSDeregistrationType();
-  int decodeFromBuffer(uint8_t* buf, int len);
-  int encode2Buffer(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
+  int Encode(uint8_t* buf, int len);
 
   void set(_5gs_deregistration_type_t type);
   void get(_5gs_deregistration_type_t& type);

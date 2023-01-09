@@ -39,8 +39,8 @@ class NasMmPlainHeader {
       const uint8_t& epd, const uint8_t& security_header_type,
       const uint8_t& msg_type);
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(const uint8_t* const buf, int len);
+  int Encode(uint8_t* buf, int len);
+  int Decode(const uint8_t* const buf, int len);
 
   void SetEpd(const uint8_t epd);
   uint8_t GetEpd();

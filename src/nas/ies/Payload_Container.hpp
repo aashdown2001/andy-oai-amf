@@ -46,8 +46,8 @@ class Payload_Container {
       const uint8_t iei, std::vector<PayloadContainerEntry> content);
   ~Payload_Container();
   void setValue(uint8_t iei, uint8_t value);
-  int encode2Buffer(uint8_t* buf, int len, uint8_t type);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option, uint8_t type);
+  int Encode(uint8_t* buf, int len, uint8_t type);
+  int Decode(uint8_t* buf, int len, bool is_option, uint8_t type);
   bool getValue(std::vector<PayloadContainerEntry>& content);
   bool getValue(bstring& cnt);
 

@@ -35,8 +35,8 @@ class RegistrationAccept : public NasMmPlainHeader {
   void getSecurityHeaderType(uint8_t security_header_type);  // TODO
   bool verifyHeader();                                       // TODO
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
 
   void set5GSRegistrationResult(
       bool emergency, bool nssaa, bool sms, const uint8_t& value);

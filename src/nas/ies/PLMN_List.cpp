@@ -61,7 +61,7 @@ void PLMN_List::getPLMNList(std::vector<nas_plmn_t>& list) {
 }
 
 //------------------------------------------------------------------------------
-int PLMN_List::encode2Buffer(uint8_t* buf, int len) {
+int PLMN_List::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding PLMN_List");
 
   if (len < length) {
@@ -86,7 +86,7 @@ int PLMN_List::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int PLMN_List::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
+int PLMN_List::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding PLMN_List");
   int decoded_size = 0;
   if (is_option) {

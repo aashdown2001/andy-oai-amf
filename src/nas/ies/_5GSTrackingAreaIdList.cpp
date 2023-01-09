@@ -35,7 +35,7 @@ _5GSTrackingAreaIdList::_5GSTrackingAreaIdList(
 }
 
 //------------------------------------------------------------------------------
-int _5GSTrackingAreaIdList::encode2Buffer(uint8_t* buf, int len) {
+int _5GSTrackingAreaIdList::Encode(uint8_t* buf, int len) {
   int encoded_size = 0;
   int len_pos      = 0;
   if (m_iei) {

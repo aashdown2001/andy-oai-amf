@@ -60,7 +60,7 @@ uint16_t EPS_Bearer_Context_Status::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int EPS_Bearer_Context_Status::encode2Buffer(uint8_t* buf, int len) {
+int EPS_Bearer_Context_Status::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding EPS_Bearer_Context_Status");
   if (len < kEpsBearerContextStatusLength) {
     Logger::nas_mm().error(
@@ -84,8 +84,7 @@ int EPS_Bearer_Context_Status::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int EPS_Bearer_Context_Status::decodeFromBuffer(
-    uint8_t* buf, int len, bool is_option) {
+int EPS_Bearer_Context_Status::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("Decoding EPS_Bearer_Context_Status");
   int decoded_size = 0;
   if (is_option) {

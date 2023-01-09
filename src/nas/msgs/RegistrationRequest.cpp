@@ -395,8 +395,8 @@ uint8_t RegistrationRequest::get5GSDrxParameters() {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setEPS_NAS_Message_Container(bstring value) {
-  ie_eps_nas_message_container = std::make_optional<EPS_NAS_Message_Container>(
-      kIeiEpsNasMessageContainer, value);
+  ie_eps_nas_message_container =
+      std::make_optional<EPS_NAS_Message_Container>(value);
 }
 
 //------------------------------------------------------------------------------
@@ -529,13 +529,13 @@ bool RegistrationRequest::getEpsBearerContextStatus(uint16_t& value) {
 }
 
 //------------------------------------------------------------------------------
-int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
+int RegistrationRequest::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding RegistrationRequest message");
   int encoded_size    = 0;
   int encoded_ie_size = 0;
 
   // Header
-  if ((encoded_ie_size = NasMmPlainHeader::encode2Buffer(buf, len)) ==
+  if ((encoded_ie_size = NasMmPlainHeader::Encode(buf, len)) ==
       KEncodeDecodeError) {
     Logger::nas_mm().error("Encoding NAS Header error");
     return KEncodeDecodeError;
@@ -735,7 +735,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_eps_nas_message_container) {
     Logger::nas_mm().warn("IE ie_eps_nas_message_container is not available");
   } else {
-    if (int size = ie_eps_nas_message_container->encode2Buffer(
+    if (int size = ie_eps_nas_message_container->Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -746,7 +746,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_ladn_indication.has_value()) {
     Logger::nas_mm().warn("IE ie_ladn_indication is not available");
   } else {
-    if (int size = ie_ladn_indication.value().encode2Buffer(
+    if (int size = ie_ladn_indication.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -757,7 +757,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_payload_container_type.has_value()) {
     Logger::nas_mm().warn("IE ie_payload_container_type is not available");
   } else {
-    if (int size = ie_payload_container_type.value().encode2Buffer(
+    if (int size = ie_payload_container_type.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -768,7 +768,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_payload_container or !ie_payload_container_type) {
     Logger::nas_mm().warn("IE ie_payload_container is not available");
   } else {
-    if (int size = ie_payload_container->encode2Buffer(
+    if (int size = ie_payload_container->Encode(
             buf + encoded_size, len - encoded_size,
             ie_payload_container_type.value().getValue())) {
       encoded_size += size;
@@ -780,7 +780,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_network_slicing_indication.has_value()) {
     Logger::nas_mm().warn("IE ie_network_slicing_indication is not available");
   } else {
-    if (int size = ie_network_slicing_indication.value().encode2Buffer(
+    if (int size = ie_network_slicing_indication.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -791,7 +791,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_5gs_update_type.has_value()) {
     Logger::nas_mm().warn("IE ie_5gs_update_type is not available");
   } else {
-    if (int size = ie_5gs_update_type.value().encode2Buffer(
+    if (int size = ie_5gs_update_type.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -803,7 +803,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_nas_message_container.has_value()) {
     Logger::nas_mm().warn("IE ie_nas_message_container is not available");
   } else {
-    if (int size = ie_nas_message_container.value().encode2Buffer(
+    if (int size = ie_nas_message_container.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -814,7 +814,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_eps_bearer_context_status.has_value()) {
     Logger::nas_mm().warn("IE ie_eps_bearer_context_status is not available");
   } else {
-    if (int size = ie_eps_bearer_context_status.value().encode2Buffer(
+    if (int size = ie_eps_bearer_context_status.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -828,13 +828,13 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
+int RegistrationRequest::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding RegistrationRequest message");
   int decoded_size    = 0;
   int decoded_size_ie = 0;
   int decoded_result  = 0;
   // plain_header           = header;
-  decoded_size = NasMmPlainHeader::decodeFromBuffer(buf, len);
+  decoded_size = NasMmPlainHeader::Decode(buf, len);
   // ie_5gs_registration_type = new _5GSRegistrationType();
   decoded_size += ie_5gs_registration_type.Decode(
       buf + decoded_size, len - decoded_size, false);
@@ -873,7 +873,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case kIeiPayloadContainerType: {
         Logger::nas_mm().debug("Decoding IEI 0x8: Payload Container Type");
         Payload_Container_Type ie_payload_container_type_tmp = {};
-        decoded_size += ie_payload_container_type_tmp.decodeFromBuffer(
+        decoded_size += ie_payload_container_type_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_payload_container_type = std::optional<Payload_Container_Type>(
             ie_payload_container_type_tmp);
@@ -883,7 +883,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x9: {
         Logger::nas_mm().debug("Decoding IEI (0x9)");
         NetworkSlicingIndication ie_network_slicing_indication_tmp = {};
-        decoded_size += ie_network_slicing_indication_tmp.decodeFromBuffer(
+        decoded_size += ie_network_slicing_indication_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_network_slicing_indication = std::optional<NetworkSlicingIndication>(
             ie_network_slicing_indication_tmp);
@@ -1027,7 +1027,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case kIeiEpsNasMessageContainer: {
         Logger::nas_mm().debug("Decoding IEI 0x70: EPS NAS Message Container ");
         EPS_NAS_Message_Container ie_eps_nas_message_container_tmp = {};
-        decoded_size += ie_eps_nas_message_container_tmp.decodeFromBuffer(
+        decoded_size += ie_eps_nas_message_container_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_eps_nas_message_container = std::optional<EPS_NAS_Message_Container>(
             ie_eps_nas_message_container_tmp);
@@ -1037,7 +1037,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x74: {  // TODO: verify IEI value (spec Ox79)
         Logger::nas_mm().debug("Decoding IEI(0x74)");
         LADN_Indication ie_ladn_indication_tmp = {};
-        decoded_size += ie_ladn_indication_tmp.decodeFromBuffer(
+        decoded_size += ie_ladn_indication_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_ladn_indication =
             std::optional<LADN_Indication>(ie_ladn_indication_tmp);
@@ -1047,7 +1047,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case kIeiPayloadContainer: {
         Logger::nas_mm().debug("Decoding IEI 0x7B: Payload Container");
         Payload_Container ie_payload_container_tmp = {};
-        decoded_size += ie_payload_container_tmp.decodeFromBuffer(
+        decoded_size += ie_payload_container_tmp.Decode(
             buf + decoded_size, len - decoded_size, true,
             N1_SM_INFORMATION);  // TODO: verified type of Payload container
         ie_payload_container =
@@ -1058,7 +1058,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x53: {
         Logger::nas_mm().debug("Decoding IEI(0x53)");
         _5GS_Update_Type ie_5gs_update_type_tmp = {};
-        decoded_size += ie_5gs_update_type_tmp.decodeFromBuffer(
+        decoded_size += ie_5gs_update_type_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_5gs_update_type =
             std::optional<_5GS_Update_Type>(ie_5gs_update_type_tmp);
@@ -1068,7 +1068,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x71: {
         Logger::nas_mm().debug("Decoding IEI(0x71)");
         NAS_Message_Container ie_nas_message_container_tmp = {};
-        decoded_size += ie_nas_message_container_tmp.decodeFromBuffer(
+        decoded_size += ie_nas_message_container_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_nas_message_container =
             std::optional<NAS_Message_Container>(ie_nas_message_container_tmp);
@@ -1078,7 +1078,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x60: {
         Logger::nas_mm().debug("Decoding IEI(0x71)");
         EPS_Bearer_Context_Status ie_eps_bearer_context_status_tmp = {};
-        decoded_size += ie_eps_bearer_context_status_tmp.decodeFromBuffer(
+        decoded_size += ie_eps_bearer_context_status_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_eps_bearer_context_status = std::optional<EPS_Bearer_Context_Status>(
             ie_eps_bearer_context_status_tmp);

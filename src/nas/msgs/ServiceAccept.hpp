@@ -46,7 +46,7 @@ class ServiceAccept {
   void setHeader(uint8_t security_header_type);
   void setPDU_session_status(uint16_t value);
   void setPDU_session_reactivation_result(uint16_t);
-  int encode2Buffer(uint8_t* buf, int len);
+  int Encode(uint8_t* buf, int len);
 
  private:
   NasMmPlainHeader* plain_header;

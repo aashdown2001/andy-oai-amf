@@ -55,20 +55,20 @@ void AuthenticationReject::setEAP_Message(bstring eap) {
 }
 
 //------------------------------------------------------------------------------
-int AuthenticationReject::encode2Buffer(uint8_t* buf, int len) {
+int AuthenticationReject::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding AuthenticationReject message");
   int encoded_size = 0;
   if (!plain_header) {
     Logger::nas_mm().error("Mandatory IE missing Header");
     return 0;
   }
-  if (!(plain_header->encode2Buffer(buf, len))) return 0;
+  if (!(plain_header->Encode(buf, len))) return 0;
   encoded_size += 3;
   if (!ie_eap_message) {
     Logger::nas_mm().warn("IE ie_eap_message is not available");
   } else {
-    if (int size = ie_eap_message->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
+    if (int size =
+            ie_eap_message->Encode(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_eap_message error");
@@ -81,7 +81,7 @@ int AuthenticationReject::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int AuthenticationReject::decodeFromBuffer(
+int AuthenticationReject::Decode(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding AuthenticationReject message");
   int decoded_size = 3;
@@ -94,7 +94,7 @@ int AuthenticationReject::decodeFromBuffer(
       case 0x78: {
         Logger::nas_mm().debug("Decoding IEI (0x78)");
         ie_eap_message = new EAP_Message();
-        decoded_size += ie_eap_message->decodeFromBuffer(
+        decoded_size += ie_eap_message->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

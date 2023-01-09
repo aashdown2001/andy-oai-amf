@@ -295,7 +295,7 @@ void amf_n2::handle_itti_message(itti_paging& itti_msg) {
   paging_msg.setTAIListForPaging(list);
 
   uint8_t buffer[BUFFER_SIZE_512];
-  int encoded_size = paging_msg.encode2Buffer(buffer, BUFFER_SIZE_512);
+  int encoded_size = paging_msg.Encode(buffer, BUFFER_SIZE_512);
   bstring b        = blk2bstr(buffer, encoded_size);
 
   amf_n2_inst->sctp_s_38412.sctp_send_msg(
@@ -385,8 +385,7 @@ void amf_n2::handle_itti_message(
     uint8_t* buffer = (uint8_t*) calloc(1, BUFFER_SIZE_1024);
     NGSetupFailureMsg ngSetupFailure;
     ngSetupFailure.set(Ngap_CauseRadioNetwork_unspecified, Ngap_TimeToWait_v5s);
-    int encoded =
-        ngSetupFailure.encode2Buffer((uint8_t*) buffer, BUFFER_SIZE_1024);
+    int encoded = ngSetupFailure.Encode((uint8_t*) buffer, BUFFER_SIZE_1024);
 
     if (encoded < 1) {
       Logger::amf_n2().error("Encode NG Setup Failure message error!");
@@ -442,7 +441,7 @@ void amf_n2::handle_itti_message(
   }
 
   ngSetupResp.setPlmnSupportList(plmn_list);
-  int encoded = ngSetupResp.encode2Buffer((uint8_t*) buffer, BUFFER_SIZE_1024);
+  int encoded = ngSetupResp.Encode((uint8_t*) buffer, BUFFER_SIZE_1024);
 
   if (encoded < 1) {
     Logger::amf_n2().error("Encode NG Setup Response message error!");
@@ -522,7 +521,7 @@ void amf_n2::handle_itti_message(itti_ng_reset& itti_msg) {
   }
 
   uint8_t buffer[BUFFER_SIZE_512];
-  int encoded_size = ng_reset_ack->encode2Buffer(buffer, BUFFER_SIZE_512);
+  int encoded_size = ng_reset_ack->Encode(buffer, BUFFER_SIZE_512);
 
   bstring b = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(gc->sctp_assoc_id, itti_msg.stream, &b);
@@ -674,7 +673,7 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
         "Store InitialUEMessage for Reroute NAS (if necessary)");
     uint8_t* initial_ue_msg_buf = (uint8_t*) calloc(1, BUFFER_SIZE_1024);
     int encoded_size            = 0;
-    init_ue_msg.initUeMsg->encode2Buffer(initial_ue_msg_buf, encoded_size);
+    init_ue_msg.initUeMsg->Encode(initial_ue_msg_buf, encoded_size);
 
     if (encoded_size > 0) {
       Logger::amf_n2().debug("Encoded InitialUEMessage size %d", encoded_size);
@@ -800,7 +799,7 @@ void amf_n2::handle_itti_message(itti_dl_nas_transport& dl_nas_transport) {
   ngap_msg->setNasPdu(dl_nas_transport.nas);
 
   uint8_t buffer[BUFFER_SIZE_1024];
-  int encoded_size = ngap_msg->encode2Buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = ngap_msg->Encode(buffer, BUFFER_SIZE_1024);
   bstring b        = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(gc->sctp_assoc_id, unc->sctp_stream_send, &b);
   bdestroy_wrapper(&b);
@@ -937,7 +936,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
   }
 
   uint8_t buffer[BUFFER_SIZE_2048];
-  int encoded_size = msg->encode2Buffer(buffer, BUFFER_SIZE_2048);
+  int encoded_size = msg->Encode(buffer, BUFFER_SIZE_2048);
   bstring b        = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(gc->sctp_assoc_id, unc->sctp_stream_send, &b);
   bdestroy_wrapper(&b);
@@ -1150,7 +1149,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_request& itti_msg) {
   ueCtxRelCmd->setCauseRadioNetwork(cause);
 
   uint8_t buffer[BUFFER_SIZE_512];
-  int encoded_size = ueCtxRelCmd->encode2Buffer(buffer, BUFFER_SIZE_512);
+  int encoded_size = ueCtxRelCmd->Encode(buffer, BUFFER_SIZE_512);
   bstring b        = blk2bstr(buffer, encoded_size);
 
   sctp_s_38412.sctp_send_msg(itti_msg.assoc_id, itti_msg.stream, &b);
@@ -1192,7 +1191,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
   }
 
   uint8_t buffer[BUFFER_SIZE_256];
-  int encoded_size = ueCtxRelCmd->encode2Buffer(buffer, BUFFER_SIZE_256);
+  int encoded_size = ueCtxRelCmd->Encode(buffer, BUFFER_SIZE_256);
 
   bstring b = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(gc->sctp_assoc_id, unc->sctp_stream_send, &b);
@@ -1682,7 +1681,7 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   handover_request->setPduSessionResourceSetupList(list);
 
   uint8_t buffer[BUFFER_SIZE_4096];
-  int encoded_size = handover_request->encode2Buffer(buffer, BUFFER_SIZE_4096);
+  int encoded_size = handover_request->Encode(buffer, BUFFER_SIZE_4096);
   bstring b        = blk2bstr(buffer, encoded_size);
   std::shared_ptr<gnb_context> gc_target = {};
   gc_target                              = gnb_id_2_gnb_context(gnb_id_value);
@@ -1843,7 +1842,7 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
   handovercommand->setTargetToSource_TransparentContainer(targetTosource);
 
   uint8_t buffer[BUFFER_SIZE_1024];
-  int encoded_size = handovercommand->encode2Buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = handovercommand->Encode(buffer, BUFFER_SIZE_1024);
   bstring b        = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(unc->gnb_assoc_id, 0, &b);
   bdestroy_wrapper(&b);
@@ -1980,9 +1979,8 @@ void amf_n2::handle_itti_message(itti_handover_notify& itti_msg) {
       Ngap_CauseRadioNetwork_successful_handover);
 
   uint8_t buffer[BUFFER_SIZE_1024];
-  int encoded_size =
-      ueContextReleaseCommand->encode2Buffer(buffer, BUFFER_SIZE_1024);
-  bstring b = blk2bstr(buffer, encoded_size);
+  int encoded_size = ueContextReleaseCommand->Encode(buffer, BUFFER_SIZE_1024);
+  bstring b        = blk2bstr(buffer, encoded_size);
 
   sctp_s_38412.sctp_send_msg(unc->gnb_assoc_id, 0, &b);
   bdestroy_wrapper(&b);
@@ -2060,9 +2058,8 @@ void amf_n2::handle_itti_message(itti_uplink_ran_status_transfer& itti_msg) {
   dl_ran_status_transfer->setRANStatusTransfer_TransparentContainer(
       amf_drb_id, amf_ul_pdcp, amf_hfn_ul_pdcp, amf_dl_pdcp, amf_hfn_dl_pdcp);
   uint8_t buffer[BUFFER_SIZE_1024];
-  int encode_size =
-      dl_ran_status_transfer->encode2Buffer(buffer, BUFFER_SIZE_1024);
-  bstring b = blk2bstr(buffer, encode_size);
+  int encode_size = dl_ran_status_transfer->Encode(buffer, BUFFER_SIZE_1024);
+  bstring b       = blk2bstr(buffer, encode_size);
   sctp_s_38412.sctp_send_msg(unc->target_gnb_assoc_id, 0, &b);
   bdestroy_wrapper(&b);
 }
@@ -2100,9 +2097,8 @@ void amf_n2::handle_itti_message(itti_rereoute_nas& itti_msg) {
   // TODO: AllowedNSSAI (Optional)
 
   uint8_t buffer[BUFFER_SIZE_2048];
-  int encoded_size =
-      reroute_nas_request.encode2Buffer(buffer, BUFFER_SIZE_2048);
-  bstring b = blk2bstr(buffer, encoded_size);
+  int encoded_size = reroute_nas_request.Encode(buffer, BUFFER_SIZE_2048);
+  bstring b        = blk2bstr(buffer, encoded_size);
 
   amf_n2_inst->sctp_s_38412.sctp_send_msg(
       unc->gnb_assoc_id, unc->sctp_stream_send, &b);
@@ -2122,7 +2118,7 @@ void amf_n2::send_handover_preparation_failure(
 
   uint8_t buffer[BUFFER_SIZE_1024];
   int encoded_size =
-      ho_preparation_failure_msg->encode2Buffer(buffer, BUFFER_SIZE_1024);
+      ho_preparation_failure_msg->Encode(buffer, BUFFER_SIZE_1024);
   bstring b = blk2bstr(buffer, encoded_size);
 
   sctp_s_38412.sctp_send_msg(gnb_assoc_id, 0, &b);

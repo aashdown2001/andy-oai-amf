@@ -42,8 +42,8 @@ class NAS_Security_Algorithms {
   void setINTEGRITY_PROTECTION(uint8_t value);
   uint8_t getCIPHERING();
   uint8_t getINTEGRITY_PROTECTION();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
 
  private:
   uint8_t CIPHERING;

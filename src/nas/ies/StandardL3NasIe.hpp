@@ -19,35 +19,26 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __Release_Assistance_Indication_H_
-#define __Release_Assistance_Indication_H_
-
-#include <stdint.h>
+#ifndef _STANDARD_L3_NAS_IE_H_
+#define _STANDARD_L3_NAS_IE_H_
+#include "NasIe.hpp"
 
 namespace nas {
 
-class Release_Assistance_Indication {
+class StandardL3NasIe : public NasIe {
  public:
-  Release_Assistance_Indication();
-  Release_Assistance_Indication(uint8_t iei);
-  Release_Assistance_Indication(const uint8_t iei, uint8_t value);
-  ~Release_Assistance_Indication();
-  int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void setValue(uint8_t value);
-  uint8_t getValue();
+  StandardL3NasIe();
+  StandardL3NasIe(const uint8_t& iei);
+  virtual ~StandardL3NasIe();
 
- private:
-  uint8_t _iei;
-  uint8_t _value;
+  bool Validate(const int& len) const override;
+  void SetIei(const uint8_t& iei);
+  virtual uint8_t GetIeLength() const = 0;
+
+ protected:
+  std::optional<uint8_t> iei_;  // IEI (Optional)
 };
+
 }  // namespace nas
 
 #endif

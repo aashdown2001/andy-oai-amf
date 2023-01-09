@@ -103,14 +103,14 @@ bool SecurityModeComplete::getNON_IMEISV(IMEISV_t& imeisv) {
 }
 
 //------------------------------------------------------------------------------
-int SecurityModeComplete::encode2Buffer(uint8_t* buf, int len) {
+int SecurityModeComplete::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding SecurityModeComplete message");
   int encoded_size = 0;
   if (!plain_header) {
     Logger::nas_mm().error("Mandatory IE missing Header");
     return 0;
   }
-  if (!(plain_header->encode2Buffer(buf, len))) return 0;
+  if (!(plain_header->Encode(buf, len))) return 0;
   encoded_size += 3;
   if (!ie_imeisv) {
     Logger::nas_mm().warn("IE ie_imeisv is not available");
@@ -125,7 +125,7 @@ int SecurityModeComplete::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_nas_message_container) {
     Logger::nas_mm().warn("IE ie_nas_message_container is not available");
   } else {
-    if (int size = ie_nas_message_container->encode2Buffer(
+    if (int size = ie_nas_message_container->Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -150,7 +150,7 @@ int SecurityModeComplete::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int SecurityModeComplete::decodeFromBuffer(
+int SecurityModeComplete::Decode(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding SecurityModeComplete message");
   int decoded_size = 3;  // For the header
@@ -171,7 +171,7 @@ int SecurityModeComplete::decodeFromBuffer(
       case 0x71: {
         Logger::nas_mm().debug("Decoding IEI (0x71)");
         ie_nas_message_container = new NAS_Message_Container();
-        decoded_size += ie_nas_message_container->decodeFromBuffer(
+        decoded_size += ie_nas_message_container->Decode(
             buf + decoded_size, len - decoded_size, true);
       } break;
       case 0x78: {

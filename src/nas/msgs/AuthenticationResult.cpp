@@ -67,14 +67,14 @@ void AuthenticationResult::setEAP_Message(bstring eap) {
 }
 
 //------------------------------------------------------------------------------
-int AuthenticationResult::encode2Buffer(uint8_t* buf, int len) {
+int AuthenticationResult::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding AuthenticationResult message");
   int encoded_size = 0;
   if (!plain_header) {
     Logger::nas_mm().error("Mandatory IE missing Header");
     return 0;
   }
-  if (!(plain_header->encode2Buffer(buf, len))) return 0;
+  if (!(plain_header->Encode(buf, len))) return 0;
   encoded_size += 3;
   if (!ie_ngKSI) {
     Logger::nas_mm().warn("IE ie_ngKSI is not available");
@@ -90,8 +90,8 @@ int AuthenticationResult::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_eap_message) {
     Logger::nas_mm().warn("IE ie_eap_message is not available");
   } else {
-    if (int size = ie_eap_message->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
+    if (int size =
+            ie_eap_message->Encode(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_eap_message error");
@@ -101,8 +101,7 @@ int AuthenticationResult::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_abba) {
     Logger::nas_mm().warn("IE ie_abba is not available");
   } else {
-    if (int size =
-            ie_abba->encode2Buffer(buf + encoded_size, len - encoded_size)) {
+    if (int size = ie_abba->Encode(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("encoding ie_abba error");
@@ -115,7 +114,7 @@ int AuthenticationResult::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int AuthenticationResult::decodeFromBuffer(
+int AuthenticationResult::Decode(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding AuthenticationResult message");
   int decoded_size = 3;
@@ -126,8 +125,8 @@ int AuthenticationResult::decodeFromBuffer(
       false);      // length 1/2, low position
   decoded_size++;  // 1/2 octet from ie_ngKSI, 1/2 from Spare half octet
   ie_eap_message = new EAP_Message();
-  decoded_size += ie_eap_message->decodeFromBuffer(
-      buf + decoded_size, len - decoded_size, false);
+  decoded_size +=
+      ie_eap_message->Decode(buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
@@ -136,8 +135,8 @@ int AuthenticationResult::decodeFromBuffer(
       case 0x38: {
         Logger::nas_mm().debug("Decoding IEI (0x38)");
         ie_abba = new ABBA();
-        decoded_size += ie_abba->decodeFromBuffer(
-            buf + decoded_size, len - decoded_size, true);
+        decoded_size +=
+            ie_abba->Decode(buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

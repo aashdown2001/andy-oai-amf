@@ -92,7 +92,7 @@ bool Payload_Container::getValue(bstring& cnt) {
 }
 
 //------------------------------------------------------------------------------
-int Payload_Container::encode2Buffer(uint8_t* buf, int len, uint8_t type) {
+int Payload_Container::Encode(uint8_t* buf, int len, uint8_t type) {
   Logger::nas_mm().debug("Encoding Payload_Container");
 
   if ((len < kPayloadContainerMinimumLength) or (len < length + 3)) {
@@ -153,7 +153,7 @@ int Payload_Container::encode2Buffer(uint8_t* buf, int len, uint8_t type) {
 }
 
 //------------------------------------------------------------------------------
-int Payload_Container::decodeFromBuffer(
+int Payload_Container::Decode(
     uint8_t* buf, int len, bool is_option, uint8_t type) {
   Logger::nas_mm().debug("Decoding Payload_Container");
 

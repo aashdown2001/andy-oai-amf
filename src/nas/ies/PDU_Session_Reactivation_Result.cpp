@@ -68,7 +68,7 @@ uint16_t PDU_Session_Reactivation_Result::getValue() {
 }
 
 //------------------------------------------------------------------------------
-int PDU_Session_Reactivation_Result::encode2Buffer(uint8_t* buf, int len) {
+int PDU_Session_Reactivation_Result::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug(
       "encoding PDU_Session_Reactivation_Result iei(0x%x)", _iei);
   if (len < length) {
@@ -95,7 +95,7 @@ int PDU_Session_Reactivation_Result::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int PDU_Session_Reactivation_Result::decodeFromBuffer(
+int PDU_Session_Reactivation_Result::Decode(
     uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug(
       "decoding PDU_Session_Reactivation_Result iei(0x%x)", *buf);

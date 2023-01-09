@@ -39,8 +39,8 @@ class GPRS_Timer_3 {
   GPRS_Timer_3(uint8_t iei);
   GPRS_Timer_3(const uint8_t iei, uint8_t unit, uint8_t value);
   ~GPRS_Timer_3();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
   void setValue(uint8_t unit, uint8_t value);
   uint8_t getValue();
   uint8_t getUnit();

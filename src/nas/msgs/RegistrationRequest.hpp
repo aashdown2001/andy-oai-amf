@@ -37,8 +37,8 @@ class RegistrationRequest : public NasMmPlainHeader {
   RegistrationRequest();
   ~RegistrationRequest();
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
 
   void setHeader(uint8_t security_header_type);
   void getSecurityHeaderType(uint8_t security_header_type);

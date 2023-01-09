@@ -356,7 +356,7 @@ void amf_app::handle_itti_message(
     dl->setPDUSessionId(itti_msg.pdu_session_id);
 
     uint8_t nas[BUFFER_SIZE_1024];
-    int encoded_size = dl->encode2Buffer(nas, BUFFER_SIZE_1024);
+    int encoded_size = dl->Encode(nas, BUFFER_SIZE_1024);
     comUt::print_buffer("amf_app", "n1n2 transfer", nas, encoded_size);
 
     std::shared_ptr<itti_downlink_nas_transfer> dl_msg =

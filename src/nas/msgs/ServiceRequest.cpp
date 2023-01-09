@@ -93,7 +93,7 @@ void ServiceRequest::setNAS_Message_Container(bstring value) {
 }
 
 //------------------------------------------------------------------------------
-int ServiceRequest::encode2Buffer(uint8_t* buf, int len) {
+int ServiceRequest::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding ServiceRequest message...");
   int encoded_size = 0;
   if (!plain_header) {
@@ -112,12 +112,11 @@ int ServiceRequest::encode2Buffer(uint8_t* buf, int len) {
     Logger::nas_mm().error("Mandatory IE missing ie_5g_s_tmsi");
     return 0;
   }
-  if (!(plain_header->encode2Buffer(buf, len))) return 0;
+  if (!(plain_header->Encode(buf, len))) return 0;
   encoded_size += 3;
   if (ie_ngKSI->Encode(buf + encoded_size, len - encoded_size) !=
       KEncodeDecodeError) {
-    if (ie_service_type->encode2Buffer(
-            buf + encoded_size, len - encoded_size) != -1) {
+    if (ie_service_type->Encode(buf + encoded_size, len - encoded_size) != -1) {
       encoded_size++;  // 1/2 octet for ngKSI, 1/2 for Service Type
     } else {
       Logger::nas_mm().error("Encoding ie_service_type error");
@@ -173,7 +172,7 @@ int ServiceRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_nas_message_container) {
     Logger::nas_mm().warn("IE ie_nas_message_container is not available");
   } else {
-    size = ie_nas_message_container->encode2Buffer(
+    size = ie_nas_message_container->Encode(
         buf + encoded_size, len - encoded_size);
     if (size != 0) {
       encoded_size += size;
@@ -187,8 +186,7 @@ int ServiceRequest::encode2Buffer(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int ServiceRequest::decodeFromBuffer(
-    NasMmPlainHeader* header, uint8_t* buf, int len) {
+int ServiceRequest::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding ServiceRequest message");
   int decoded_size = 3;
   plain_header     = header;
@@ -196,7 +194,7 @@ int ServiceRequest::decodeFromBuffer(
   decoded_size +=
       ie_ngKSI->Decode(buf + decoded_size, len - decoded_size, false, false);
   ie_service_type = new ServiceType();
-  decoded_size += ie_service_type->decodeFromBuffer(
+  decoded_size += ie_service_type->Decode(
       buf + decoded_size, len - decoded_size, false, true);
   decoded_size++;  // 1/2 octet for ngKSI, 1/2 for Service Type
   ie_5g_s_tmsi = new _5GSMobileIdentity();
@@ -236,7 +234,7 @@ int ServiceRequest::decodeFromBuffer(
       case 0x71: {
         Logger::nas_mm().debug("Decoding ie_nas_message_container(IEI: 0x71)");
         ie_nas_message_container = new NAS_Message_Container();
-        decoded_size += ie_nas_message_container->decodeFromBuffer(
+        decoded_size += ie_nas_message_container->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

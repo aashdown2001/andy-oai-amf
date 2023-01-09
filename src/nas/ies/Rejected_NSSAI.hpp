@@ -34,8 +34,8 @@ class Rejected_NSSAI {
   Rejected_NSSAI();
   Rejected_NSSAI(uint8_t iei);
   ~Rejected_NSSAI();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_option);
   void setRejectedSNSSAIs(const std::vector<Rejected_SNSSAI>& nssais);
   void getRejectedSNSSAIs(std::vector<Rejected_SNSSAI>& nssais);
 

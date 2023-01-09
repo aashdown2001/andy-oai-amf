@@ -46,8 +46,8 @@ class ConfigurationUpdateCommand {
   void setShortNameForNetwork(const std::string& text_string);
   void getShortNameForNetwork(NetworkName& name) const;
 
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len);
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
 
  public:
   NasMmPlainHeader*
