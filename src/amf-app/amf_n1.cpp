@@ -712,7 +712,7 @@ void amf_n1::identity_response_handle(
   string supi = {};
   if (identity_response->ie_mobility_id) {
     nas::SUCI_imsi_t imsi;
-    identity_response->ie_mobility_id->getSuciWithSupiImsi(imsi);
+    identity_response->ie_mobility_id->GetSuciWithSupiImsi(imsi);
     supi = imsi.mcc + imsi.mnc + imsi.msin;
     Logger::amf_n1().debug("Identity Response: SUCI (%s)", supi.c_str());
   }

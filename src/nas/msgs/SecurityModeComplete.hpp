@@ -41,11 +41,11 @@ class SecurityModeComplete {
   int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
   void setHeader(uint8_t security_header_type);
 
-  void setIMEISV(IMEISV_t imeisv);
+  void SetImeisv(IMEISV_t imeisv);
   void setNAS_Message_Container(bstring value);
   void setNON_IMEISV(IMEISV_t imeisv);
 
-  bool getIMEISV(IMEISV_t& imeisv);
+  bool GetImeisv(IMEISV_t& imeisv);
   bool getNasMessageContainer(bstring& nas);
   bool getNON_IMEISV(IMEISV_t& imeisv);
 

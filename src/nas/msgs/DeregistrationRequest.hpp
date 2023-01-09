@@ -54,7 +54,7 @@ class DeregistrationRequest {
       uint8_t protection_sch_id, uint8_t hnpki, const string msin);
   void set5G_GUTI();
   void setIMEI_IMEISV();
-  void set5G_S_TMSI();
+  void Set5gSTmsi();
 
   void getDeregistrationType(uint8_t& dereg_type);
   void getDeregistrationType(_5gs_deregistration_type_t& type);

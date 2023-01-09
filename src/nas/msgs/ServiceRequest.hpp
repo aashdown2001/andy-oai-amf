@@ -47,7 +47,7 @@ class ServiceRequest {
   void setHeader(uint8_t security_header_type);
   void setngKSI(uint8_t tsc, uint8_t key_set_id);
   void setServiceType(uint8_t stp);
-  void set5G_S_TMSI(uint16_t amfSetId, uint8_t amfPointer, string tmsi);
+  void Set5gSTmsi(uint16_t amfSetId, uint8_t amfPointer, string tmsi);
   void setUplink_data_status(uint16_t value);
   void setPDU_session_status(uint16_t value);
   void setAllowed_PDU_Session_Status(uint16_t value);
@@ -58,7 +58,7 @@ class ServiceRequest {
   int decodeFromBuffer(NasMmPlainHeader* header, uint8_t* buf, int len);
   bool getngKSI(uint8_t& ng_ksi);
   uint8_t getServiceType();
-  bool get5G_S_TMSI(uint16_t& amfSetId, uint8_t& amfPointer, string& tmsi);
+  bool Get5gSTmsi(uint16_t& amfSetId, uint8_t& amfPointer, string& tmsi);
   uint16_t getUplinkDataStatus();
   uint16_t getPduSessionStatus();
   uint16_t getAllowedPduSessionStatus();

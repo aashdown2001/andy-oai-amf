@@ -93,7 +93,7 @@ void RegistrationAccept::setSUCI_SUPI_format_IMSI(
   } else {
     _5GSMobileIdentity ie_5g_guti_tmp = {};
     ie_5g_guti_tmp.SetIei(kIei5gGuti);
-    ie_5g_guti_tmp.setSuciWithSupiImsi(
+    ie_5g_guti_tmp.SetSuciWithSupiImsi(
         mcc, mnc, routingInd, protection_sch_id, msin);
     ie_5g_guti = std::optional<_5GSMobileIdentity>(ie_5g_guti_tmp);
   }
@@ -117,7 +117,7 @@ void RegistrationAccept::set5G_GUTI(
   int setId                         = fromString<int>(amfSetId);
   int pointer                       = fromString<int>(amfPointer);
   ie_5g_guti_tmp.SetIei(kIei5gGuti);
-  ie_5g_guti_tmp.set5GGUTI(
+  ie_5g_guti_tmp.Set5gGuti(
       mcc, mnc, (uint8_t) regionId, (uint16_t) setId, (uint8_t) pointer, tmsi);
   ie_5g_guti = std::optional<_5GSMobileIdentity>(ie_5g_guti_tmp);
 }
@@ -126,7 +126,7 @@ void RegistrationAccept::set5G_GUTI(
 void RegistrationAccept::setIMEI_IMEISV() {}
 
 //------------------------------------------------------------------------------
-void RegistrationAccept::set5G_S_TMSI() {}
+void RegistrationAccept::Set5gSTmsi() {}
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setEquivalent_PLMNs(
@@ -306,8 +306,8 @@ int RegistrationAccept::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_5g_guti.has_value()) {
     Logger::nas_mm().warn("IE ie_5g_guti is not available");
   } else {
-    int size = ie_5g_guti.value().encode2Buffer(
-        buf + encoded_size, len - encoded_size);
+    int size =
+        ie_5g_guti.value().Encode(buf + encoded_size, len - encoded_size);
     if (size) {
       encoded_size += size;
     } else {
@@ -675,8 +675,8 @@ int RegistrationAccept::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x77: {
         Logger::nas_mm().debug("Decoding IEI (0x77)");
         _5GSMobileIdentity ie_5g_guti_tmp = {};
-        decoded_size += ie_5g_guti_tmp.decodeFromBuffer(
-            buf + decoded_size, len - decoded_size, true);
+        decoded_size +=
+            ie_5g_guti_tmp.Decode(buf + decoded_size, len - decoded_size, true);
         ie_5g_guti = std::optional<_5GSMobileIdentity>(ie_5g_guti_tmp);
         octet      = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

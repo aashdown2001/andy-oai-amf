@@ -99,26 +99,26 @@ void RegistrationRequest::setSUCI_SUPI_format_IMSI(
         "interface");
     return;
   } else {
-    ie_5gs_mobile_identity.setSuciWithSupiImsi(
+    ie_5gs_mobile_identity.SetSuciWithSupiImsi(
         mcc, mnc, routingInd, protection_sch_id, msin);
   }
 }
 
 //------------------------------------------------------------------------------
 uint8_t RegistrationRequest::getMobileIdentityType() {
-  return ie_5gs_mobile_identity.getTypeOfIdentity();
+  return ie_5gs_mobile_identity.GetTypeOfIdentity();
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi) {
-  ie_5gs_mobile_identity.getSuciWithSupiImsi(imsi);
+  ie_5gs_mobile_identity.GetSuciWithSupiImsi(imsi);
   return true;
 }
 
 //------------------------------------------------------------------------------
 std::string RegistrationRequest::get_5g_guti() {
   std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
-  ie_5gs_mobile_identity.get5GGUTI(guti);
+  ie_5gs_mobile_identity.Get5gGuti(guti);
   if (!guti.has_value()) return {};
 
   std::string guti_str = guti.value().mcc + guti.value().mnc +
@@ -138,7 +138,7 @@ void RegistrationRequest::setAdditional_GUTI_SUCI_SUPI_format_IMSI(
   _5GSMobileIdentity ie_additional_guti_tmp = {};
   ie_additional_guti_tmp.SetIei(kIei5gGuti);
   uint32_t tmsi = fromString<uint32_t>(_5g_tmsi);
-  ie_additional_guti_tmp.set5GGUTI(
+  ie_additional_guti_tmp.Set5gGuti(
       mcc, mnc, amf_region_id, amf_set_id, amf_pointer, tmsi);
   ie_additional_guti =
       std::optional<_5GSMobileIdentity>(ie_additional_guti_tmp);
@@ -148,7 +148,7 @@ void RegistrationRequest::setAdditional_GUTI_SUCI_SUPI_format_IMSI(
 bool RegistrationRequest::getAdditionalGuti(nas::_5G_GUTI_t& guti) {
   if (ie_additional_guti.has_value()) {
     std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
-    ie_additional_guti.value().get5GGUTI(guti);
+    ie_additional_guti.value().Get5gGuti(guti);
     if (!guti.has_value()) return false;
     return true;
   } else {
@@ -168,7 +168,7 @@ void RegistrationRequest::set5G_GUTI() {}
 void RegistrationRequest::setIMEI_IMEISV() {}
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::set5G_S_TMSI() {}
+void RegistrationRequest::Set5gSTmsi() {}
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setNonCurrentNativeNasKSI(
@@ -559,7 +559,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   encoded_size += 1;  // 1/2 for 5GS registration type and 1/2 for ngKSI
 
   // 5GS Mobile Identity
-  if ((encoded_ie_size = ie_5gs_mobile_identity.encode2Buffer(
+  if ((encoded_ie_size = ie_5gs_mobile_identity.Encode(
            buf + encoded_size, len - encoded_size)) == KEncodeDecodeError) {
     Logger::nas_mm().error("Encoding IE 5GS Mobile Identity error");
     return KEncodeDecodeError;
@@ -693,7 +693,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_additional_guti.has_value()) {
     Logger::nas_mm().warn("IE ie_additional_guti- is not available");
   } else {
-    if (int size = ie_additional_guti.value().encode2Buffer(
+    if (int size = ie_additional_guti.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -844,7 +844,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       buf + decoded_size, len - decoded_size, true, false);  // high, 1/2 octet
   decoded_size++;  // 1/2 octet for ie_5gs_registration_type, 1/2 octet for
                    // ie_ngKSI
-  decoded_size += ie_5gs_mobile_identity.decodeFromBuffer(
+  decoded_size += ie_5gs_mobile_identity.Decode(
       buf + decoded_size, len - decoded_size, false);
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI 0x%x", octet);
@@ -987,7 +987,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case 0x77: {
         Logger::nas_mm().debug("Decoding IEI (0x77)");
         _5GSMobileIdentity ie_additional_guti_tmp = {};
-        decoded_size += ie_additional_guti_tmp.decodeFromBuffer(
+        decoded_size += ie_additional_guti_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_additional_guti =
             std::optional<_5GSMobileIdentity>(ie_additional_guti_tmp);

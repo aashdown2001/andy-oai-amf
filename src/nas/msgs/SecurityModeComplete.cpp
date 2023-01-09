@@ -54,10 +54,10 @@ void SecurityModeComplete::setHeader(uint8_t security_header_type) {
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeComplete::setIMEISV(IMEISV_t imeisv) {
+void SecurityModeComplete::SetImeisv(IMEISV_t imeisv) {
   ie_imeisv = new _5GSMobileIdentity();
   ie_imeisv->SetIei(kIeiImeisv);
-  ie_imeisv->setIMEISV(imeisv);
+  ie_imeisv->SetImeisv(imeisv);
 }
 
 //------------------------------------------------------------------------------
@@ -69,13 +69,13 @@ void SecurityModeComplete::setNAS_Message_Container(bstring value) {
 void SecurityModeComplete::setNON_IMEISV(IMEISV_t imeisv) {
   ie_non_imeisvpei = new _5GSMobileIdentity();
   ie_non_imeisvpei->SetIei(kIeiNonImeisvPei);
-  ie_non_imeisvpei->setIMEISV(imeisv);
+  ie_non_imeisvpei->SetImeisv(imeisv);
 }
 
 //------------------------------------------------------------------------------
-bool SecurityModeComplete::getIMEISV(IMEISV_t& imeisv) {
+bool SecurityModeComplete::GetImeisv(IMEISV_t& imeisv) {
   if (ie_imeisv) {
-    ie_imeisv->getIMEISV(imeisv);
+    ie_imeisv->GetImeisv(imeisv);
     return true;
   } else {
     return false;
@@ -95,7 +95,7 @@ bool SecurityModeComplete::getNasMessageContainer(bstring& nas) {
 //------------------------------------------------------------------------------
 bool SecurityModeComplete::getNON_IMEISV(IMEISV_t& imeisv) {
   if (ie_non_imeisvpei) {
-    ie_non_imeisvpei->getIMEISV(imeisv);
+    ie_non_imeisvpei->GetImeisv(imeisv);
     return true;
   } else {
     return false;
@@ -115,8 +115,7 @@ int SecurityModeComplete::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_imeisv) {
     Logger::nas_mm().warn("IE ie_imeisv is not available");
   } else {
-    if (int size =
-            ie_imeisv->encode2Buffer(buf + encoded_size, len - encoded_size)) {
+    if (int size = ie_imeisv->Encode(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding IE ie_imeisv error");
@@ -137,8 +136,8 @@ int SecurityModeComplete::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_non_imeisvpei) {
     Logger::nas_mm().warn("IE ie_non_imeisvpei is not available");
   } else {
-    if (int size = ie_non_imeisvpei->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
+    if (int size =
+            ie_non_imeisvpei->Encode(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding IE ie_non_imeisvpei error");
@@ -166,8 +165,8 @@ int SecurityModeComplete::decodeFromBuffer(
       case 0x77: {
         Logger::nas_mm().debug("Decoding IEI (0x77)");
         ie_imeisv = new _5GSMobileIdentity();
-        decoded_size += ie_imeisv->decodeFromBuffer(
-            buf + decoded_size, len - decoded_size, true);
+        decoded_size +=
+            ie_imeisv->Decode(buf + decoded_size, len - decoded_size, true);
       } break;
       case 0x71: {
         Logger::nas_mm().debug("Decoding IEI (0x71)");
@@ -178,7 +177,7 @@ int SecurityModeComplete::decodeFromBuffer(
       case 0x78: {
         Logger::nas_mm().debug("Decoding IEI (0x78)");
         ie_non_imeisvpei = new _5GSMobileIdentity();
-        decoded_size += ie_non_imeisvpei->decodeFromBuffer(
+        decoded_size += ie_non_imeisvpei->Decode(
             buf + decoded_size, len - decoded_size, true);
       } break;
       default: {

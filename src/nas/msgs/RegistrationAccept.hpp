@@ -56,7 +56,7 @@ class RegistrationAccept : public NasMmPlainHeader {
       const std::string& amfRegionId, const std::string& amfSetId,
       const std::string& amfPointer, const uint32_t& tmsi);
   void setIMEI_IMEISV();  // TODO:
-  void set5G_S_TMSI();    // TODO:
+  void Set5gSTmsi();      // TODO:
   // TODO: Get
 
   // Equivalent PLMNs

@@ -65,7 +65,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   std::string get_5g_guti();
 
   void setIMEI_IMEISV();
-  void set5G_S_TMSI();
+  void Set5gSTmsi();
   void setAdditional_GUTI_SUCI_SUPI_format_IMSI(
       const string mcc, const string mnc, uint8_t amf_region_id,
       uint8_t amf_set_id, uint8_t amf_pointer, const string _5g_tmsi);
@@ -161,8 +161,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   std::optional<PDUSessionStatus> ie_PDU_session_status;           // Optional
   std::optional<MicoIndication> ie_MICO_indication;                // Optional
   std::optional<UEStatus> ie_ue_status;                            // Optional
-
-  std::optional<_5GSMobileIdentity> ie_additional_guti;  // Optional
+  std::optional<_5GSMobileIdentity> ie_additional_guti;            // Optional
   std::optional<AllowedPDUSessionStatus>
       ie_allowed_PDU_session_status;                         // Optional
   std::optional<UEUsageSetting> ie_ues_usage_setting;        // Optional

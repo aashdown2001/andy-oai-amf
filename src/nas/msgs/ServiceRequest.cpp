@@ -66,10 +66,10 @@ void ServiceRequest::setServiceType(uint8_t stp) {
 }
 
 //------------------------------------------------------------------------------
-void ServiceRequest::set5G_S_TMSI(
+void ServiceRequest::Set5gSTmsi(
     uint16_t amfSetId, uint8_t amfPointer, string tmsi) {
   ie_5g_s_tmsi = new _5GSMobileIdentity(0x00);
-  ie_5g_s_tmsi->set5G_S_TMSI(amfSetId, amfPointer, tmsi);
+  ie_5g_s_tmsi->Set5gSTmsi(amfSetId, amfPointer, tmsi);
 }
 
 //------------------------------------------------------------------------------
@@ -127,8 +127,7 @@ int ServiceRequest::encode2Buffer(uint8_t* buf, int len) {
     Logger::nas_mm().error("Encoding ie_ngKSI error");
     return 0;
   }
-  int size =
-      ie_5g_s_tmsi->encode2Buffer(buf + encoded_size, len - encoded_size);
+  int size = ie_5g_s_tmsi->Encode(buf + encoded_size, len - encoded_size);
   if (size != 0) {
     encoded_size += size;
   } else {
@@ -201,8 +200,8 @@ int ServiceRequest::decodeFromBuffer(
       buf + decoded_size, len - decoded_size, false, true);
   decoded_size++;  // 1/2 octet for ngKSI, 1/2 for Service Type
   ie_5g_s_tmsi = new _5GSMobileIdentity();
-  decoded_size += ie_5g_s_tmsi->decodeFromBuffer(
-      buf + decoded_size, len - decoded_size, false);
+  decoded_size +=
+      ie_5g_s_tmsi->Decode(buf + decoded_size, len - decoded_size, false);
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First optional IE (0x%x)", octet);
   while ((octet != 0x0)) {
@@ -305,10 +304,10 @@ uint8_t ServiceRequest::getServiceType() {
 }
 
 //------------------------------------------------------------------------------
-bool ServiceRequest::get5G_S_TMSI(
+bool ServiceRequest::Get5gSTmsi(
     uint16_t& amfSetId, uint8_t& amfPointer, string& tmsi) {
   if (ie_5g_s_tmsi)
-    return ie_5g_s_tmsi->get5G_S_TMSI(amfSetId, amfPointer, tmsi);
+    return ie_5g_s_tmsi->Get5gSTmsi(amfSetId, amfPointer, tmsi);
   else
     return false;
 }

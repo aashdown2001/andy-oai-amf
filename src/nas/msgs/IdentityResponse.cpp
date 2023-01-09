@@ -61,7 +61,7 @@ void IdentityResponse::setSUCI_SUPI_format_IMSI(
     return;
   } else {
     ie_mobility_id = new _5GSMobileIdentity();
-    ie_mobility_id->setSuciWithSupiImsi(
+    ie_mobility_id->SetSuciWithSupiImsi(
         mcc, mnc, routingInd, protection_sch_id, msin);
   }
 }
@@ -78,7 +78,7 @@ void IdentityResponse::set5G_GUTI() {}
 void IdentityResponse::setIMEI_IMEISV() {}
 
 //------------------------------------------------------------------------------
-void IdentityResponse::set5G_S_TMSI() {}
+void IdentityResponse::Set5gSTmsi() {}
 
 //------------------------------------------------------------------------------
 int IdentityResponse::encode2Buffer(uint8_t* buf, int len) {
@@ -93,8 +93,8 @@ int IdentityResponse::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_mobility_id) {
     Logger::nas_mm().warn("IE ie_mobility_id is not available");
   } else {
-    if (int size = ie_mobility_id->encode2Buffer(
-            buf + encoded_size, len - encoded_size)) {
+    if (int size =
+            ie_mobility_id->Encode(buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("encoding ie_mobility_id  error");
@@ -113,8 +113,8 @@ int IdentityResponse::decodeFromBuffer(
   int decoded_size = 3;
   plain_header     = header;
   ie_mobility_id   = new _5GSMobileIdentity();
-  decoded_size += ie_mobility_id->decodeFromBuffer(
-      buf + decoded_size, len - decoded_size, false);
+  decoded_size +=
+      ie_mobility_id->Decode(buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("decoded_size(%d)", decoded_size);
   Logger::nas_mm().debug(
       "decoded IdentityResponse message len(%d)", decoded_size);

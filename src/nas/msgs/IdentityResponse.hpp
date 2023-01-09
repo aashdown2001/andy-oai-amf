@@ -48,7 +48,7 @@ class IdentityResponse {
       uint8_t protection_sch_id, uint8_t hnpki, const string msin);
   void set5G_GUTI();
   void setIMEI_IMEISV();
-  void set5G_S_TMSI();
+  void Set5gSTmsi();
   /*** belongs to _5GSMobileIdentity**/
  public:
   NasMmPlainHeader* plain_header;

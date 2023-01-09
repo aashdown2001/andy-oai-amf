@@ -107,7 +107,7 @@ void DeregistrationRequest::setSUCI_SUPI_format_IMSI(
     return;
   } else {
     ie_5gs_mobility_id = new _5GSMobileIdentity();
-    ie_5gs_mobility_id->setSuciWithSupiImsi(
+    ie_5gs_mobility_id->SetSuciWithSupiImsi(
         mcc, mnc, routingInd, protection_sch_id, msin);
   }
 }
@@ -115,7 +115,7 @@ void DeregistrationRequest::setSUCI_SUPI_format_IMSI(
 //------------------------------------------------------------------------------
 void DeregistrationRequest::getMobilityIdentityType(uint8_t& type) {
   if (ie_5gs_mobility_id) {
-    type = ie_5gs_mobility_id->getTypeOfIdentity();
+    type = ie_5gs_mobility_id->GetTypeOfIdentity();
   } else {
     type = 0;
   }
@@ -124,7 +124,7 @@ void DeregistrationRequest::getMobilityIdentityType(uint8_t& type) {
 //------------------------------------------------------------------------------
 bool DeregistrationRequest::getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi) {
   if (ie_5gs_mobility_id) {
-    ie_5gs_mobility_id->getSuciWithSupiImsi(imsi);
+    ie_5gs_mobility_id->GetSuciWithSupiImsi(imsi);
     return true;
   } else {
     return false;
@@ -135,7 +135,7 @@ bool DeregistrationRequest::getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi) {
 std::string DeregistrationRequest::get_5g_guti() {
   if (ie_5gs_mobility_id) {
     std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
-    ie_5gs_mobility_id->get5GGUTI(guti);
+    ie_5gs_mobility_id->Get5gGuti(guti);
     if (!guti.has_value()) return {};
 
     std::string guti_str = guti.value().mcc + guti.value().mnc +
@@ -162,7 +162,7 @@ void DeregistrationRequest::set5G_GUTI() {}
 void DeregistrationRequest::setIMEI_IMEISV() {}
 
 //------------------------------------------------------------------------------
-void DeregistrationRequest::set5G_S_TMSI() {}
+void DeregistrationRequest::Set5gSTmsi() {}
 
 //------------------------------------------------------------------------------
 int DeregistrationRequest::encode2Buffer(uint8_t* buf, int len) {
@@ -199,8 +199,8 @@ int DeregistrationRequest::encode2Buffer(uint8_t* buf, int len) {
     Logger::nas_mm().error("Encoding IE Deregistration Type error");
     return 0;
   }
-  if (int size = ie_5gs_mobility_id->encode2Buffer(
-          buf + encoded_size, len - encoded_size)) {
+  if (int size =
+          ie_5gs_mobility_id->Encode(buf + encoded_size, len - encoded_size)) {
     encoded_size += size;
   } else {
     Logger::nas_mm().error("Encoding IE ie_5gs_mobility_id  error");
@@ -227,8 +227,8 @@ int DeregistrationRequest::decodeFromBuffer(
       false);      // High position, 1/2 octet
   decoded_size++;  // 1/2 octet for Deregistration type, 1/2 for ngKSI
   ie_5gs_mobility_id = new _5GSMobileIdentity();
-  decoded_size += ie_5gs_mobility_id->decodeFromBuffer(
-      buf + decoded_size, len - decoded_size, false);
+  decoded_size +=
+      ie_5gs_mobility_id->Decode(buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug(
       "Decoded DeregistrationRequest message (len %d)", decoded_size);
   return 1;
