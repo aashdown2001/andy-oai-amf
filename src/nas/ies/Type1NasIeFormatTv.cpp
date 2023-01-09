@@ -67,6 +67,10 @@ void Type1NasIeFormatTv::SetValue(const uint8_t& value) {
 }
 
 //------------------------------------------------------------------------------
+uint8_t Type1NasIeFormatTv::GetValue() const {
+  return value_;
+}
+//------------------------------------------------------------------------------
 int Type1NasIeFormatTv::Encode(uint8_t* buf, const int& len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   if (!Validate(len)) return KEncodeDecodeError;

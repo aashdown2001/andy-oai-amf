@@ -167,10 +167,10 @@ class RegistrationRequest : public NasMmPlainHeader {
   std::optional<UEUsageSetting> ie_ues_usage_setting;        // Optional
   std::optional<_5GS_DRX_Parameters> ie_5gs_drx_parameters;  // Optional
   std::optional<EPS_NAS_Message_Container>
-      ie_eps_nas_message_container;                                 // Optional
-  std::optional<LadnIndication> ie_ladn_indication;                 // Optional
-  std::optional<Payload_Container_Type> ie_payload_container_type;  // Optional
-  std::optional<Payload_Container> ie_payload_container;            // Optional
+      ie_eps_nas_message_container;                               // Optional
+  std::optional<LadnIndication> ie_ladn_indication;               // Optional
+  std::optional<PayloadContainerType> ie_payload_container_type;  // Optional
+  std::optional<Payload_Container> ie_payload_container;          // Optional
   std::optional<NetworkSlicingIndication>
       ie_network_slicing_indication;                   // Optional
   std::optional<_5GS_Update_Type> ie_5gs_update_type;  // Optional

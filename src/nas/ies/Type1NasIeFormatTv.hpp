@@ -37,7 +37,7 @@ class Type1NasIeFormatTv : public NasIe {
   void SetIei(const uint8_t& iei);
 
   void SetValue(const uint8_t& value);
-  void GetValue();
+  uint8_t GetValue() const;
 
   uint8_t GetIeLength() const;
 

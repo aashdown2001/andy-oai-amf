@@ -53,13 +53,13 @@ void ULNASTransport::setHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void ULNASTransport::setPayload_Container_Type(uint8_t value) {
-  ie_payload_container_type = new Payload_Container_Type(0x00, value);
+  ie_payload_container_type = new PayloadContainerType(0x00, value);
 }
 
 //------------------------------------------------------------------------------
 uint8_t ULNASTransport::getPayloadContainerType() {
   if (ie_payload_container_type) {
-    return ie_payload_container_type->getValue();
+    return ie_payload_container_type->GetValue();
   } else {
     return -1;
   }
@@ -200,7 +200,7 @@ int ULNASTransport::Encode(uint8_t* buf, int len) {
   } else {
     if (int size = ie_payload_container->Encode(
             buf + encoded_size, len - encoded_size,
-            ie_payload_container_type->getValue())) {
+            ie_payload_container_type->GetValue())) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("encoding ie_payload_container  error");
@@ -307,13 +307,14 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding ULNASTransport message");
   int decoded_size          = 3;
   plain_header              = header;
-  ie_payload_container_type = new Payload_Container_Type();
+  ie_payload_container_type = new PayloadContainerType();
   decoded_size += ie_payload_container_type->Decode(
       buf + decoded_size, len - decoded_size, false);
+  decoded_size++;  // 1/2 octet for PayloadContainerType, 1/2 octet for spare
   ie_payload_container = new Payload_Container();
   decoded_size += ie_payload_container->Decode(
       buf + decoded_size, len - decoded_size, false,
-      ie_payload_container_type->getValue());
+      ie_payload_container_type->GetValue());
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);

@@ -426,14 +426,14 @@ bool RegistrationRequest::getLadnIndication(std::vector<bstring>& ladnValue) {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setPayload_Container_Type(uint8_t value) {
-  ie_payload_container_type = std::make_optional<Payload_Container_Type>(
-      kIeiPayloadContainerType, value);
+  ie_payload_container_type =
+      std::make_optional<PayloadContainerType>(kIeiPayloadContainerType, value);
 }
 
 //------------------------------------------------------------------------------
 uint8_t RegistrationRequest::getPayloadContainerType() {
   if (ie_payload_container_type.has_value()) {
-    return ie_payload_container_type.value().getValue();
+    return ie_payload_container_type.value().GetValue();
   } else {
     return 0;
   }
@@ -770,7 +770,7 @@ int RegistrationRequest::Encode(uint8_t* buf, int len) {
   } else {
     if (int size = ie_payload_container->Encode(
             buf + encoded_size, len - encoded_size,
-            ie_payload_container_type.value().getValue())) {
+            ie_payload_container_type.value().GetValue())) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("encoding ie_payload_container  error");
@@ -872,11 +872,11 @@ int RegistrationRequest::Decode(uint8_t* buf, int len) {
       } break;
       case kIeiPayloadContainerType: {
         Logger::nas_mm().debug("Decoding IEI 0x8: Payload Container Type");
-        Payload_Container_Type ie_payload_container_type_tmp = {};
+        PayloadContainerType ie_payload_container_type_tmp = {};
         decoded_size += ie_payload_container_type_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
-        ie_payload_container_type = std::optional<Payload_Container_Type>(
-            ie_payload_container_type_tmp);
+        ie_payload_container_type =
+            std::optional<PayloadContainerType>(ie_payload_container_type_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;

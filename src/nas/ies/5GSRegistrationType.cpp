@@ -29,7 +29,7 @@ using namespace nas;
 //------------------------------------------------------------------------------
 _5GSRegistrationType::_5GSRegistrationType()
     : Type1NasIeFormatTv(), follow_on_req_(false), reg_type_(0) {
-  SetIeName("5GS Registration Type");
+  SetIeName(k5gsRegistrationTypeName);
 }
 
 //------------------------------------------------------------------------------

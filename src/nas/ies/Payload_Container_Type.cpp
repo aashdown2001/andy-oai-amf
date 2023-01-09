@@ -27,30 +27,33 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-Payload_Container_Type::Payload_Container_Type(
-    const uint8_t iei, uint8_t value) {
-  _iei   = iei;
+PayloadContainerType::PayloadContainerType(const uint8_t iei, uint8_t value)
+    : Type1NasIeFormatTv(iei) {
+  SetValue(value & 0x0f);
+  SetIeName(kPayloadContainerTypeIeName);
+}
+
+//------------------------------------------------------------------------------
+PayloadContainerType::PayloadContainerType() : Type1NasIeFormatTv() {
+  SetIeName(kPayloadContainerTypeIeName);
+}
+
+//------------------------------------------------------------------------------
+PayloadContainerType::~PayloadContainerType(){};
+
+/*
+//------------------------------------------------------------------------------
+void PayloadContainerType::SetValue(const uint8_t value) {
   _value = value & 0x0f;
 }
 
 //------------------------------------------------------------------------------
-Payload_Container_Type::Payload_Container_Type() {}
-
-//------------------------------------------------------------------------------
-Payload_Container_Type::~Payload_Container_Type(){};
-
-//------------------------------------------------------------------------------
-void Payload_Container_Type::setValue(const uint8_t value) {
-  _value = value & 0x0f;
-}
-
-//------------------------------------------------------------------------------
-uint8_t Payload_Container_Type::getValue() {
+uint8_t PayloadContainerType::GetValue() const {
   return _value;
 }
 
 //------------------------------------------------------------------------------
-int Payload_Container_Type::Encode(uint8_t* buf, int len) {
+int PayloadContainerType::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding Payload_Container_Type IE");
 
   if (len < kPayloadContainerTypeLength) {
@@ -74,7 +77,7 @@ int Payload_Container_Type::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Payload_Container_Type::Decode(uint8_t* buf, int len, bool is_option) {
+int PayloadContainerType::Decode(uint8_t* buf, int len, bool is_option) {
   Logger::nas_mm().debug("decoding Payload_Container_Type IE");
 
   if (len < kPayloadContainerTypeLength) {
@@ -97,3 +100,4 @@ int Payload_Container_Type::Decode(uint8_t* buf, int len, bool is_option) {
       "Decoded Payload_Container_Type (IEI 0x%x, value 0x%x)", _iei, _value);
   return decoded_size;
 }
+*/

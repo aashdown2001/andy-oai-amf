@@ -50,7 +50,7 @@ class DLNASTransport {
 
  public:
   NasMmPlainHeader* plain_header;
-  Payload_Container_Type* ie_payload_container_type;
+  PayloadContainerType* ie_payload_container_type;
   Payload_Container* ie_payload_container;
   PDU_Session_Identity_2* ie_pdu_session_identity_2;
   Additional_Information* ie_additional_information;
