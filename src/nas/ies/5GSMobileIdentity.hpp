@@ -99,8 +99,8 @@ class _5GSMobileIdentity : public Type6NasIe {
   int decodeFromBuffer(uint8_t* buf, int len, bool is_iei);
 
   // 5G GUTI
-  int _5g_guti_decodefrombuffer(uint8_t* buf, int len);
   int _5g_guti_encode2buffer(uint8_t* buf, int len);
+  int _5g_guti_decodefrombuffer(uint8_t* buf, int len);
   void set5GGUTI(
       const std::string& mcc, const std::string& mnc,
       const uint8_t& amf_region_id, const uint16_t& amf_set_id,
@@ -108,9 +108,8 @@ class _5GSMobileIdentity : public Type6NasIe {
   void get5GGUTI(std::optional<_5G_GUTI_t>&) const;
 
   // SUCI
-  int suci_decodefrombuffer(uint8_t* buf, int len, int length);
   int suci_encode2buffer(uint8_t* buf, int len);
-
+  int suci_decodefrombuffer(uint8_t* buf, int len, int length);
   void setSuciWithSupiImsi(
       const std::string& mcc, const std::string& mnc,
       const std::string& routing_ind, const uint8_t protection_sch_id,
@@ -126,8 +125,8 @@ class _5GSMobileIdentity : public Type6NasIe {
   int encodeMSIN2buffer(const std::string& msin_str, uint8_t* buf, int len);
 
   // TMSI
-  int _5g_s_tmsi_decodefrombuffer(uint8_t* buf, int len);
   int _5g_s_tmsi_encode2buffer(uint8_t* buf, int len);
+  int _5g_s_tmsi_decodefrombuffer(uint8_t* buf, int len);
 
   void set5G_S_TMSI(
       const uint16_t amf_set_id, const uint8_t amf_pointer,
