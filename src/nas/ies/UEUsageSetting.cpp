@@ -21,6 +21,7 @@
 
 #include "UEUsageSetting.hpp"
 
+#include "Ie_Const.hpp"
 #include "3gpp_24.501.hpp"
 #include "common_defs.h"
 #include "logger.hpp"
@@ -28,77 +29,82 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-UEUsageSetting::UEUsageSetting(uint8_t iei) {
-  _iei               = iei;
-  _ues_usage_setting = false;
+UEUsageSetting::UEUsageSetting() : Type4NasIe(kIeiUeUsageSetting) {
+  ues_usage_setting_ = false;
+  SetLengthIndicator(1);
+  SetIeName(kUeUsageSettingIeName);
 }
 
 //------------------------------------------------------------------------------
-UEUsageSetting::UEUsageSetting(const uint8_t iei, bool ues_usage_setting) {
-  _iei               = iei;
-  _ues_usage_setting = ues_usage_setting;
-}
-
-//------------------------------------------------------------------------------
-UEUsageSetting::UEUsageSetting() {
-  _iei               = 0;
-  _ues_usage_setting = false;
+UEUsageSetting::UEUsageSetting(bool ues_usage_setting)
+    : Type4NasIe(kIeiUeUsageSetting) {
+  ues_usage_setting_ = ues_usage_setting;
+  SetLengthIndicator(1);
+  SetIeName(kUeUsageSettingIeName);
 }
 
 //------------------------------------------------------------------------------
 UEUsageSetting::~UEUsageSetting() {}
 
 //------------------------------------------------------------------------------
-void UEUsageSetting::setValue(bool value) {
-  _ues_usage_setting = value;
+void UEUsageSetting::SetValue(bool value) {
+  ues_usage_setting_ = value;
 }
 
 //------------------------------------------------------------------------------
-bool UEUsageSetting::getValue() {
-  return _ues_usage_setting;
+bool UEUsageSetting::GetValue() const {
+  return ues_usage_setting_;
 }
 
 //------------------------------------------------------------------------------
-int UEUsageSetting::encode2Buffer(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding UEUsageSetting (iei 0x%x)", _iei);
+int UEUsageSetting::Encode(uint8_t* buf, int len) {
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
 
-  if ((len < kUEUsageSettingLength) or (len < length + 2)) {
+  if (len < kUeUsageSettingLength) {
     Logger::nas_mm().error(
         "Buffer length is less than the minimum length of this IE (%d octet)",
-        kUEUsageSettingLength);
+        kUeUsageSettingLength);
     return KEncodeDecodeError;
   }
 
   int encoded_size = 0;
-  if (_iei) {
-    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
-  }
+  // IEI and Length
+  int encoded_header_size = Type4NasIe::Encode(buf + encoded_size, len);
+  if (encoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  encoded_size += encoded_header_size;
 
-  ENCODE_U8(buf + encoded_size, length, encoded_size);
-  ENCODE_U8(buf + encoded_size, 0x01 & _ues_usage_setting, encoded_size);
+  ENCODE_U8(buf + encoded_size, 0x01 & ues_usage_setting_, encoded_size);
 
-  Logger::nas_mm().debug("Encoded UEUsageSetting (len %d)", encoded_size);
+  Logger::nas_mm().debug(
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int UEUsageSetting::decodeFromBuffer(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("Decoding UEUsageSetting");
+int UEUsageSetting::Decode(uint8_t* buf, int len, bool is_iei) {
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+
+  if (len < kUeUsageSettingLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kUeUsageSettingLength);
+    return KEncodeDecodeError;
+  }
 
   int decoded_size = 0;
-  if (is_option) {
-    DECODE_U8(buf + decoded_size, _iei, decoded_size);
-  }
-  DECODE_U8(buf + decoded_size, length, decoded_size);
+
+  // IEI and Length
+  int decoded_header_size = Type4NasIe::Decode(buf + decoded_size, len, true);
+  if (decoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  decoded_size += decoded_header_size;
+
   uint8_t octet = 0;
   DECODE_U8(buf + decoded_size, octet, decoded_size);
 
-  _ues_usage_setting = octet & 0x01;
+  ues_usage_setting_ = octet & 0x01;
 
   Logger::nas_mm().debug(
-      "Decoded UE's Usage Setting, UE's Usage Setting 0x%x, IEI 0x%x, decoded "
-      "len %d",
-      _ues_usage_setting, _iei, decoded_size);
-
+      "Decoded %s, UE's Usage Setting 0x%x, len %d", GetIeName().c_str(),
+      ues_usage_setting_, decoded_size);
   return decoded_size;
 }

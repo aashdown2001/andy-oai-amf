@@ -232,7 +232,7 @@ void RegistrationAccept::setNSSAI_Inclusion_Mode(uint8_t value) {
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::set_5GS_DRX_arameters(uint8_t value) {
-  ie_negotiated_drx_parameters = new _5GS_DRX_Parameters(0x51, value);
+  ie_negotiated_drx_parameters = new _5GS_DRX_Parameters(value);
 }
 
 //------------------------------------------------------------------------------
@@ -512,7 +512,7 @@ int RegistrationAccept::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_negotiated_drx_parameters) {
     Logger::nas_mm().warn("IE ie_negotiated_drx_parameters is not available");
   } else {
-    if (int size = ie_negotiated_drx_parameters->encode2Buffer(
+    if (int size = ie_negotiated_drx_parameters->Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -781,10 +781,10 @@ int RegistrationAccept::decodeFromBuffer(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x51: {
-        Logger::nas_mm().debug("Decoding IEI (0x51)");
+      case kIei5gsDrxParameters: {
+        Logger::nas_mm().debug("Decoding IEI (0x%x)", kIei5gsDrxParameters);
         ie_negotiated_drx_parameters = new _5GS_DRX_Parameters();
-        decoded_size += ie_negotiated_drx_parameters->decodeFromBuffer(
+        decoded_size += ie_negotiated_drx_parameters->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

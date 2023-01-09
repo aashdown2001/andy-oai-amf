@@ -19,29 +19,31 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _5GS_DRX_Parameters_H_
-#define _5GS_DRX_Parameters_H_
+#ifndef _5GS_DRX_PARAMETERS_H_
+#define _5GS_DRX_PARAMETERS_H_
+
+#include "Type4NasIe.hpp"
 
 #include <stdint.h>
 
 constexpr uint8_t k5gsDrxParametersLength = 3;
+constexpr auto k5gsDrxParametersIeName    = "5GS DRX Parameters";
 
 namespace nas {
 
-class _5GS_DRX_Parameters {
+class _5GS_DRX_Parameters : public Type4NasIe {
  public:
   _5GS_DRX_Parameters();
-  _5GS_DRX_Parameters(uint8_t iei);
-  _5GS_DRX_Parameters(const uint8_t iei, uint8_t value);
+  _5GS_DRX_Parameters(uint8_t value);
   ~_5GS_DRX_Parameters();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
-  void setValue(uint8_t value);
-  uint8_t getValue();
+
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_iei);
+
+  void SetValue(uint8_t value);
+  uint8_t GetValue() const;
 
  private:
-  uint8_t _iei;
-  uint8_t length;
   uint8_t _value;
 };
 }  // namespace nas

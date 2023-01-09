@@ -26,7 +26,7 @@ constexpr uint8_t kIeIsNotOptional = false;
 
 constexpr uint8_t kIei5gmmCause                        = 0x58;
 constexpr uint8_t kIei5gsmCapability                   = 0x28;
-constexpr uint8_t kIei5gsDrxParameters                 = 0x51;  // OK
+constexpr uint8_t kIei5gsDrxParameters                 = 0x51;
 constexpr uint8_t kIei5gsmCongestionReAttemptIndicator = 0x61;
 constexpr uint8_t kIei5gsmNetworkFeatureSupport        = 0x17;
 constexpr uint8_t kIei5gsMobileIdentityImeiSv          = 0x77;
@@ -91,6 +91,7 @@ constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
 constexpr uint8_t kIeiMicoIndication = 0x0B;  // B-(4 higher bits)
 
 constexpr uint8_t kIei5gmmCapability          = 0x10;
+constexpr uint8_t kIeiUeUsageSetting          = 0x18;
 constexpr uint8_t kIeiAllowedPduSessionStatus = 0x25;
 constexpr uint8_t kIeiUeStatus                = 0x2b;
 

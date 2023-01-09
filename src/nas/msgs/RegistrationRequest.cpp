@@ -367,14 +367,13 @@ uint16_t RegistrationRequest::getAllowedPduSessionStatus() {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setUES_Usage_Setting(bool ues_usage_setting) {
-  ie_ues_usage_setting =
-      std::make_optional<UEUsageSetting>(0x18, ues_usage_setting);
+  ie_ues_usage_setting = std::make_optional<UEUsageSetting>(ues_usage_setting);
 }
 
 //------------------------------------------------------------------------------
 uint8_t RegistrationRequest::getUEsUsageSetting() {
   if (ie_ues_usage_setting.has_value()) {
-    return ie_ues_usage_setting.value().getValue();
+    return ie_ues_usage_setting.value().GetValue();
   } else {
     return 0;
   }
@@ -382,14 +381,13 @@ uint8_t RegistrationRequest::getUEsUsageSetting() {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::set_5GS_DRX_arameters(uint8_t value) {
-  ie_5gs_drx_parameters =
-      std::make_optional<_5GS_DRX_Parameters>(kIei5gsDrxParameters, value);
+  ie_5gs_drx_parameters = std::make_optional<_5GS_DRX_Parameters>(value);
 }
 
 //------------------------------------------------------------------------------
 uint8_t RegistrationRequest::get5GSDrxParameters() {
   if (ie_5gs_drx_parameters.has_value()) {
-    return ie_5gs_drx_parameters.value().getValue();
+    return ie_5gs_drx_parameters.value().GetValue();
   } else {
     return 0;
   }
@@ -715,7 +713,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_ues_usage_setting.has_value()) {
     Logger::nas_mm().warn("IE ie_ues_usage_setting is not available");
   } else {
-    if (int size = ie_ues_usage_setting.value().encode2Buffer(
+    if (int size = ie_ues_usage_setting.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -726,7 +724,7 @@ int RegistrationRequest::encode2Buffer(uint8_t* buf, int len) {
   if (!ie_5gs_drx_parameters.has_value()) {
     Logger::nas_mm().warn("IE ie_5gs_drx_parameters is not available");
   } else {
-    if (int size = ie_5gs_drx_parameters.value().encode2Buffer(
+    if (int size = ie_5gs_drx_parameters.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -1006,10 +1004,10 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
 
       } break;
-      case 0x18: {
-        Logger::nas_mm().debug("Decoding IEI(0x18)");
+      case kIeiUeUsageSetting: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiUeUsageSetting);
         UEUsageSetting ie_ues_usage_setting_tmp = {};
-        decoded_size += ie_ues_usage_setting_tmp.decodeFromBuffer(
+        decoded_size += ie_ues_usage_setting_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_ues_usage_setting =
             std::optional<UEUsageSetting>(ie_ues_usage_setting_tmp);
@@ -1019,7 +1017,7 @@ int RegistrationRequest::decodeFromBuffer(uint8_t* buf, int len) {
       case kIei5gsDrxParameters: {
         Logger::nas_mm().debug("Decoding IEI 0x51: 5GS DRX Parameters");
         _5GS_DRX_Parameters ie_5gs_drx_parameters_tmp = {};
-        decoded_size += ie_5gs_drx_parameters_tmp.decodeFromBuffer(
+        decoded_size += ie_5gs_drx_parameters_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_5gs_drx_parameters =
             std::optional<_5GS_DRX_Parameters>(ie_5gs_drx_parameters_tmp);

@@ -22,27 +22,29 @@
 #ifndef _UES_USAGE_SETTING_H_
 #define _UES_USAGE_SETTING_H_
 
+#include "Type4NasIe.hpp"
+
 #include <stdint.h>
 
-constexpr uint8_t kUEUsageSettingLength = 3;
+constexpr uint8_t kUeUsageSettingLength = 3;
+constexpr auto kUeUsageSettingIeName    = "UE's Usage Setting";
 
 namespace nas {
 
-class UEUsageSetting {
+class UEUsageSetting : public Type4NasIe {
  public:
   UEUsageSetting();
-  UEUsageSetting(uint8_t iei);
-  UEUsageSetting(const uint8_t iei, bool ues_usage_setting);
+  UEUsageSetting(bool ues_usage_setting);
   ~UEUsageSetting();
-  int encode2Buffer(uint8_t* buf, int len);
-  int decodeFromBuffer(uint8_t* buf, int len, bool is_option);
-  void setValue(bool value);
-  bool getValue();
+
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len, bool is_iei = true);
+
+  void SetValue(bool value);
+  bool GetValue() const;
 
  private:
-  uint8_t _iei;
-  uint8_t length;
-  bool _ues_usage_setting;
+  bool ues_usage_setting_;
 };
 }  // namespace nas
 
