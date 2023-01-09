@@ -113,6 +113,7 @@ constexpr uint8_t kIeiRejectedNssaiRr        = 0x69;
 
 constexpr uint8_t kIeiEpsNasMessageContainer = 0x70;
 constexpr uint8_t kIeiNasMessageContainer    = 0x71;
+constexpr uint8_t kIeiLadnIndication         = 0x74;
 constexpr uint8_t kIei5gGuti                 = 0x77;
 constexpr uint8_t kIeiImeisv                 = 0x77;
 constexpr uint8_t kIeiNonImeisvPei           = 0x78;

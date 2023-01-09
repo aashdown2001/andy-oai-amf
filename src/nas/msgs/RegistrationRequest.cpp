@@ -411,13 +411,13 @@ bool RegistrationRequest::getEpsNasMessageContainer(bstring& epsNas) {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setLADN_Indication(std::vector<bstring> ladnValue) {
-  ie_ladn_indication = std::make_optional<LADN_Indication>(0x74, ladnValue);
+  ie_ladn_indication = std::make_optional<LadnIndication>(ladnValue);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getLadnIndication(std::vector<bstring>& ladnValue) {
   if (ie_ladn_indication.has_value()) {
-    ie_ladn_indication.value().getValue(ladnValue);
+    ie_ladn_indication.value().GetValue(ladnValue);
     return true;
   } else {
     return false;
@@ -1036,11 +1036,11 @@ int RegistrationRequest::Decode(uint8_t* buf, int len) {
       } break;
       case 0x74: {  // TODO: verify IEI value (spec Ox79)
         Logger::nas_mm().debug("Decoding IEI(0x74)");
-        LADN_Indication ie_ladn_indication_tmp = {};
+        LadnIndication ie_ladn_indication_tmp = {};
         decoded_size += ie_ladn_indication_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_ladn_indication =
-            std::optional<LADN_Indication>(ie_ladn_indication_tmp);
+            std::optional<LadnIndication>(ie_ladn_indication_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;

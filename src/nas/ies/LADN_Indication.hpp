@@ -22,6 +22,8 @@
 #ifndef _LADN_Indication_H_
 #define _LADN_Indication_H_
 
+#include "Type6NasIe.hpp"
+
 #include <stdint.h>
 #include <iostream>
 #include <vector>
@@ -35,23 +37,23 @@ using namespace std;
 
 constexpr uint8_t kLadnIndicationMinimumLength  = 3;
 constexpr uint16_t kLadnIndicationMaximumLength = 1715;
+constexpr auto kLadnIndicationIeName            = "LADN Indication";
 
 namespace nas {
 
-class LADN_Indication {
+class LadnIndication : Type6NasIe {
  public:
-  LADN_Indication();
-  LADN_Indication(uint8_t iei);
-  LADN_Indication(const uint8_t iei, std::vector<bstring> ladn);
-  ~LADN_Indication();
-  void setValue(uint8_t iei);
+  LadnIndication();
+  LadnIndication(const std::vector<bstring>& ladn);
+  ~LadnIndication();
+
+  // void SetValue(const std::vector<bstring>& ladn);
+  void GetValue(std::vector<bstring>& ladn);
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
-  void getValue(std::vector<bstring>& ladn);
 
  private:
-  uint8_t _iei;
-  uint16_t length;
   std::vector<bstring> LADN;
 };
 
