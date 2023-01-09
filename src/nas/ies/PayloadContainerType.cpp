@@ -19,33 +19,24 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _PAYLOAD_CONTAINER_TYPE_H
-#define _PAYLOAD_CONTAINER_TYPE_H
+#include "PayloadContainerType.hpp"
 
-#include "Type1NasIeFormatTv.hpp"
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
+#include "logger.hpp"
+using namespace nas;
 
-#include <stdint.h>
+//------------------------------------------------------------------------------
+PayloadContainerType::PayloadContainerType(const uint8_t iei, uint8_t value)
+    : Type1NasIeFormatTv(iei) {
+  SetValue(value & 0x0f);
+  SetIeName(kPayloadContainerTypeIeName);
+}
 
-constexpr uint8_t kPayloadContainerTypeLength = 1;
-constexpr auto kPayloadContainerTypeIeName    = "Payload Container Type";
+//------------------------------------------------------------------------------
+PayloadContainerType::PayloadContainerType() : Type1NasIeFormatTv() {
+  SetIeName(kPayloadContainerTypeIeName);
+}
 
-namespace nas {
-
-class PayloadContainerType : public Type1NasIeFormatTv {
- public:
-  PayloadContainerType();
-  PayloadContainerType(const uint8_t iei, uint8_t value);
-  ~PayloadContainerType();
-
-  /* void setValue(const uint8_t value);
-     uint8_t getValue();
-
-   int Encode(uint8_t* buf, int len);
-   int Decode(uint8_t* buf, int len, bool is_option);
- */
- private:
-};
-
-}  // namespace nas
-
-#endif
+//------------------------------------------------------------------------------
+PayloadContainerType::~PayloadContainerType(){};

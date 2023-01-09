@@ -57,7 +57,7 @@
 #include "PDU_Session_Reactivation_Result_Error_Cause.hpp"
 #include "PLMN_List.hpp"
 #include "Payload_Container.hpp"
-#include "Payload_Container_Type.hpp"
+#include "PayloadContainerType.hpp"
 #include "Rejected_NSSAI.hpp"
 #include "Release_Assistance_Indication.hpp"
 #include "Request_Type.hpp"
