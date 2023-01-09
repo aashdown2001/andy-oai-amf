@@ -41,7 +41,7 @@ NSSAI::NSSAI(uint8_t iei, const std::vector<struct SNSSAI_s>& nssai)
   int length = 0;
   S_NSSAIs.assign(nssai.begin(), nssai.end());
   for (int i = 0; i < nssai.size(); i++) {
-    length += (1 + nssai[i].length);  // 1 for length of NSSAI[i]
+    length += (1 + nssai[i].length);  // 1 for length IE
   }
   SetLengthIndicator(length);
   SetIeName(kNssaiIeName);

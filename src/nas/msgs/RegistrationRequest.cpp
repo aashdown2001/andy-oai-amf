@@ -136,7 +136,7 @@ void RegistrationRequest::setAdditional_GUTI_SUCI_SUPI_format_IMSI(
     const string mcc, const string mnc, uint8_t amf_region_id,
     uint8_t amf_set_id, uint8_t amf_pointer, const string _5g_tmsi) {
   _5GSMobileIdentity ie_additional_guti_tmp = {};
-  ie_additional_guti_tmp.setIEI(0x77);
+  ie_additional_guti_tmp.SetIei(kIei5gGuti);
   uint32_t tmsi = fromString<uint32_t>(_5g_tmsi);
   ie_additional_guti_tmp.set5GGUTI(
       mcc, mnc, amf_region_id, amf_set_id, amf_pointer, tmsi);

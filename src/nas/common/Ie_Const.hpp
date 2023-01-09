@@ -112,6 +112,9 @@ constexpr uint8_t kIeiRejectedNssaiRr        = 0x69;
 constexpr uint8_t kIeiEpsNasMessageContainer = 0x70;
 constexpr uint8_t kIeiNasMessageContainer    = 0x71;
 constexpr uint8_t kIei5gGuti                 = 0x77;
-constexpr uint8_t kIeiEapMessage             = 0x78;
+constexpr uint8_t kIeiImeisv                 = 0x77;
+constexpr uint8_t kIeiNonImeisvPei           = 0x78;
+
+constexpr uint8_t kIeiEapMessage = 0x78;  // TODO: to be verified
 constexpr uint8_t kIeiPayloadContainer =
     0x7b;  // Should be verified (kIeiExtendedProtocolConfigurationOptions)

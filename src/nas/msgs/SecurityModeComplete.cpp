@@ -29,6 +29,7 @@
 #include "SecurityModeComplete.hpp"
 
 #include "3gpp_24.501.hpp"
+#include "Ie_Const.hpp"
 #include "logger.hpp"
 
 using namespace nas;
@@ -55,7 +56,7 @@ void SecurityModeComplete::setHeader(uint8_t security_header_type) {
 //------------------------------------------------------------------------------
 void SecurityModeComplete::setIMEISV(IMEISV_t imeisv) {
   ie_imeisv = new _5GSMobileIdentity();
-  ie_imeisv->setIEI(0x77);
+  ie_imeisv->SetIei(kIeiImeisv);
   ie_imeisv->setIMEISV(imeisv);
 }
 
@@ -67,7 +68,7 @@ void SecurityModeComplete::setNAS_Message_Container(bstring value) {
 //------------------------------------------------------------------------------
 void SecurityModeComplete::setNON_IMEISV(IMEISV_t imeisv) {
   ie_non_imeisvpei = new _5GSMobileIdentity();
-  ie_non_imeisvpei->setIEI(0x78);
+  ie_non_imeisvpei->SetIei(kIeiNonImeisvPei);
   ie_non_imeisvpei->setIMEISV(imeisv);
 }
 

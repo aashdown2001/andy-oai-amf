@@ -92,7 +92,7 @@ void RegistrationAccept::setSUCI_SUPI_format_IMSI(
     return;
   } else {
     _5GSMobileIdentity ie_5g_guti_tmp = {};
-    ie_5g_guti_tmp.setIEI(kIei5gGuti);
+    ie_5g_guti_tmp.SetIei(kIei5gGuti);
     ie_5g_guti_tmp.setSuciWithSupiImsi(
         mcc, mnc, routingInd, protection_sch_id, msin);
     ie_5g_guti = std::optional<_5GSMobileIdentity>(ie_5g_guti_tmp);
@@ -116,7 +116,7 @@ void RegistrationAccept::set5G_GUTI(
   int regionId                      = fromString<int>(amfRegionId);
   int setId                         = fromString<int>(amfSetId);
   int pointer                       = fromString<int>(amfPointer);
-  ie_5g_guti_tmp.setIEI(kIei5gGuti);
+  ie_5g_guti_tmp.SetIei(kIei5gGuti);
   ie_5g_guti_tmp.set5GGUTI(
       mcc, mnc, (uint8_t) regionId, (uint16_t) setId, (uint8_t) pointer, tmsi);
   ie_5g_guti = std::optional<_5GSMobileIdentity>(ie_5g_guti_tmp);

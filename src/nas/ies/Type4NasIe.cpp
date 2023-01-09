@@ -94,6 +94,7 @@ bool Type4NasIe::ValidateHeader(const int& len) const {
   }
   return true;
 }
+
 //------------------------------------------------------------------------------
 int Type4NasIe::Encode(uint8_t* buf, const int& len) {
   if (!Validate(len)) return KEncodeDecodeError;
@@ -105,6 +106,21 @@ int Type4NasIe::Encode(uint8_t* buf, const int& len) {
   }
 
   ENCODE_U8(buf + encoded_size, li_, encoded_size);
+  return encoded_size;
+}
+
+//------------------------------------------------------------------------------
+int Type4NasIe::Encode(uint8_t* buf, const int& len, int& len_pos) {
+  if (!Validate(len)) return KEncodeDecodeError;
+
+  int encoded_size = 0;
+  uint8_t octet    = 0;
+  if (iei_.has_value()) {
+    ENCODE_U8(buf + encoded_size, iei_.value(), encoded_size);
+  }
+  len_pos = encoded_size;
+  encoded_size++;  // IE len will be encoded later
+  //  ENCODE_U8(buf + encoded_size, li_, encoded_size);
   return encoded_size;
 }
 
