@@ -62,7 +62,7 @@ void SecurityModeComplete::SetImeisv(IMEISV_t imeisv) {
 
 //------------------------------------------------------------------------------
 void SecurityModeComplete::setNAS_Message_Container(bstring value) {
-  ie_nas_message_container = new NAS_Message_Container(0x71, value);
+  ie_nas_message_container = new NAS_Message_Container(value);
 }
 
 //------------------------------------------------------------------------------

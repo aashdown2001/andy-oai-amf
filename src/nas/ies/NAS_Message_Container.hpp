@@ -19,8 +19,10 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _NAS_Message_Container_H_
-#define _NAS_Message_Container_H_
+#ifndef _NAS_MESSAGE_CONTAINER_H_
+#define _NAS_MESSAGE_CONTAINER_H_
+
+#include "Type6NasIe.hpp"
 #include <stdint.h>
 
 extern "C" {
@@ -31,23 +33,22 @@ extern "C" {
 
 constexpr uint8_t kNasMessageContainerMinimumLength  = 3;
 constexpr uint32_t kNasMessageContainerMaximumLength = 65535;
+constexpr auto kNasMessageContainerIeName            = "NAS Message Container";
 
 namespace nas {
 
-class NAS_Message_Container {
+class NAS_Message_Container : Type6NasIe {
  public:
   NAS_Message_Container();
-  NAS_Message_Container(uint8_t iei);
-  NAS_Message_Container(const uint8_t iei, bstring value);
+  NAS_Message_Container(bstring value);
   ~NAS_Message_Container();
-  void setValue(uint8_t iei, uint8_t value);
+
+  void getValue(bstring& value) const;
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
-  void getValue(bstring& value);
 
  private:
-  uint8_t _iei;
-  uint16_t length;
   bstring _value;
 };
 

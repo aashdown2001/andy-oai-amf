@@ -498,8 +498,7 @@ bool RegistrationRequest::get5GSUpdateType(
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setNAS_Message_Container(bstring value) {
-  ie_nas_message_container =
-      std::make_optional<NAS_Message_Container>(kIeiNasMessageContainer, value);
+  ie_nas_message_container = std::make_optional<NAS_Message_Container>(value);
 }
 
 //------------------------------------------------------------------------------
