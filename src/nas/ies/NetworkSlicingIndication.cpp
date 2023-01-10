@@ -28,98 +28,93 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-NetworkSlicingIndication::NetworkSlicingIndication(uint8_t iei) {
-  _iei  = iei;
-  DCNI  = false;
-  NSSCI = false;
+NetworkSlicingIndication::NetworkSlicingIndication()
+    : Type1NasIeFormatTv(), dcni_(), nssci_() {
+  SetIeName(kNetworkSlicingIndicationIeName);
+}
+
+//------------------------------------------------------------------------------
+NetworkSlicingIndication::NetworkSlicingIndication(uint8_t iei)
+    : Type1NasIeFormatTv(iei) {
+  dcni_  = false;
+  nssci_ = false;
+  SetIeName(kNetworkSlicingIndicationIeName);
+}
+
+//------------------------------------------------------------------------------
+NetworkSlicingIndication::NetworkSlicingIndication(bool dcni, bool nssci)
+    : Type1NasIeFormatTv() {
+  dcni_  = dcni;
+  nssci_ = nssci;
+  SetIeName(kNetworkSlicingIndicationIeName);
 }
 
 //------------------------------------------------------------------------------
 NetworkSlicingIndication::NetworkSlicingIndication(
-    const uint8_t iei, bool dcni, bool nssci) {
-  _iei  = iei;
-  DCNI  = dcni;
-  NSSCI = nssci;
+    const uint8_t iei, bool dcni, bool nssci)
+    : Type1NasIeFormatTv(iei) {
+  dcni_  = dcni;
+  nssci_ = nssci;
+  SetIeName(kNetworkSlicingIndicationIeName);
 }
-
-//------------------------------------------------------------------------------
-NetworkSlicingIndication::NetworkSlicingIndication()
-    : _iei(), DCNI(), NSSCI() {}
 
 //------------------------------------------------------------------------------
 NetworkSlicingIndication::~NetworkSlicingIndication() {}
 
 //------------------------------------------------------------------------------
-void NetworkSlicingIndication::setDCNI(bool value) {
-  DCNI = value;
+void NetworkSlicingIndication::SetValue() {
+  value_ = 0x0f | (dcni_ << 1) | nssci_;
 }
 
 //------------------------------------------------------------------------------
-void NetworkSlicingIndication::setNSSCI(bool value) {
-  NSSCI = value;
+void NetworkSlicingIndication::GetValue() {
+  dcni_  = value_ & 0x02;
+  nssci_ = value_ & 0x01;
 }
 
 //------------------------------------------------------------------------------
-bool NetworkSlicingIndication::getDCNI() {
-  return DCNI;
+void NetworkSlicingIndication::SetDcni(bool value) {
+  dcni_ = value;
 }
 
 //------------------------------------------------------------------------------
-bool NetworkSlicingIndication::getNSSCI() {
-  return NSSCI;
+void NetworkSlicingIndication::SetNssci(bool value) {
+  nssci_ = value;
+}
+
+//------------------------------------------------------------------------------
+bool NetworkSlicingIndication::GetDcni() const {
+  return dcni_;
+}
+
+//------------------------------------------------------------------------------
+bool NetworkSlicingIndication::GetNssci() const {
+  return nssci_;
 }
 
 //------------------------------------------------------------------------------
 int NetworkSlicingIndication::Encode(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding Network Slicing Indication");
-
-  if (len < kNetworkSlicingIndicationLength) {
-    Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        kNetworkSlicingIndicationLength);
-    return KEncodeDecodeError;
-  }
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
 
   int encoded_size = 0;
-  uint8_t octet    = 0;
-  if (_iei) {
-    octet = (_iei << 4) | (DCNI << 1) | NSSCI;
-  } else {
-    octet = 0x0f & ((DCNI << 1) | NSSCI);
-  }
-
-  ENCODE_U8(buf + encoded_size, octet, encoded_size);
+  SetValue();  // Update Value in Type1NasIeFormatTv
+  encoded_size = Type1NasIeFormatTv::Encode(buf, len);
 
   Logger::nas_mm().debug(
-      "Encoded NetworkSlicingIndication DCNI (0x%x) NSSCI (0x%x)", DCNI, NSSCI);
-
-  Logger::nas_mm().debug(
-      "Encoded NetworkSlicingIndication IE (len, %d octet)", encoded_size);
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int NetworkSlicingIndication::Decode(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("Decoding Network Slicing Indication");
-
-  if (len < kNetworkSlicingIndicationLength) {
-    Logger::nas_mm().error(
-        "Buffer length is less than the minimum length of this IE (%d octet)",
-        kNetworkSlicingIndicationLength);
-    return KEncodeDecodeError;
-  }
-
+int NetworkSlicingIndication::Decode(uint8_t* buf, int len, bool is_iei) {
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
   int decoded_size = 0;
-  uint8_t octet    = 0;
-  DECODE_U8(buf + decoded_size, octet, decoded_size);
+  decoded_size     = Type1NasIeFormatTv::Decode(buf, len, is_iei);
+  // Get DCNI/NSSCI from value
+  GetValue();
 
-  if (is_option) {
-    _iei = (octet & 0xf0) >> 4;
-  }
-  DCNI  = octet & 0x02;
-  NSSCI = octet & 0x01;
-
+  Logger::nas_mm().debug("DCNI 0x%x, NSSCI 0x%x", dcni_, nssci_);
   Logger::nas_mm().debug(
-      "Decoded NetworkSlicingIndication DCNI (0x%x) NSSCI (0x%x)", DCNI, NSSCI);
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
 }

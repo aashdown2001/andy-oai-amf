@@ -92,7 +92,7 @@ int MicoIndication::Encode(uint8_t* buf, int len) {
   ENCODE_U8(buf + encoded_size, octet, encoded_size);
 
   Logger::nas_mm().debug(
-      "Encoded MicoIndication IE (len: %d octet)", encoded_size);
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
 
   return encoded_size;
 }

@@ -466,8 +466,8 @@ void RegistrationRequest::setNetwork_Slicing_Indication(bool dcni, bool nssci) {
 bool RegistrationRequest::getNetworkSlicingIndication(
     uint8_t& dcni, uint8_t& nssci) {
   if (ie_network_slicing_indication.has_value()) {
-    dcni  = ie_network_slicing_indication.value().getDCNI();
-    nssci = ie_network_slicing_indication.value().getNSSCI();
+    dcni  = ie_network_slicing_indication.value().GetDcni();
+    nssci = ie_network_slicing_indication.value().GetNssci();
     return true;
   } else {
     return false;
