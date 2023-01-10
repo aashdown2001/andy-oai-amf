@@ -63,13 +63,13 @@ void DLNASTransport::setPayload_Container_Type(uint8_t value) {
 //------------------------------------------------------------------------------
 void DLNASTransport::setPayload_Container(
     std::vector<PayloadContainerEntry> content) {
-  ie_payload_container = new Payload_Container(0x00, content);
+  ie_payload_container = new Payload_Container(content);
 }
 
 //------------------------------------------------------------------------------
 void DLNASTransport::setPayload_Container(uint8_t* buf, int len) {
   bstring b            = blk2bstr(buf, len);
-  ie_payload_container = new Payload_Container(0x00, b);
+  ie_payload_container = new Payload_Container(b);
 }
 
 //------------------------------------------------------------------------------

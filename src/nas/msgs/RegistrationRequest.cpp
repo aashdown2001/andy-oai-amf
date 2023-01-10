@@ -450,7 +450,7 @@ void RegistrationRequest::setPayload_Container(
 bool RegistrationRequest::getPayloadContainer(
     std::vector<PayloadContainerEntry>& content) {
   if (ie_payload_container.has_value()) {
-    return ie_payload_container.value().getValue(content);
+    return ie_payload_container.value().GetValue(content);
   } else {
     return false;
   }

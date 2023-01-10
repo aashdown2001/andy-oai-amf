@@ -27,6 +27,8 @@
 #include <vector>
 
 #include "NasIeHeader.hpp"
+#include "Type6NasIe.hpp"
+
 extern "C" {
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"
@@ -35,25 +37,28 @@ extern "C" {
 
 constexpr uint8_t kPayloadContainerMinimumLength  = 4;
 constexpr uint32_t kPayloadContainerMaximumLength = 65538;
+constexpr auto kPayloadContainerIeName            = "Payload Container";
 
 namespace nas {
-class Payload_Container {
+class Payload_Container : Type6NasIe {
  public:
   Payload_Container();
   Payload_Container(uint8_t iei);
-  Payload_Container(uint8_t iei, bstring b);
+  Payload_Container(const bstring& b);
+  Payload_Container(uint8_t iei, const bstring& b);
+  Payload_Container(const std::vector<PayloadContainerEntry>& content);
   Payload_Container(
-      const uint8_t iei, std::vector<PayloadContainerEntry> content);
+      const uint8_t iei, const std::vector<PayloadContainerEntry>& content);
   ~Payload_Container();
-  void setValue(uint8_t iei, uint8_t value);
+
+  // void setValue(uint8_t iei, uint8_t value);
   int Encode(uint8_t* buf, int len, uint8_t type);
-  int Decode(uint8_t* buf, int len, bool is_option, uint8_t type);
-  bool getValue(std::vector<PayloadContainerEntry>& content);
-  bool getValue(bstring& cnt);
+  int Decode(uint8_t* buf, int len, bool is_iei, uint8_t type);
+
+  bool GetValue(std::vector<PayloadContainerEntry>& content) const;
+  bool GetValue(bstring& cnt) const;
 
  private:
-  uint8_t _iei;
-  uint16_t length;
   std::optional<bstring> content;
   std::optional<std::vector<PayloadContainerEntry>> CONTENT;
 };

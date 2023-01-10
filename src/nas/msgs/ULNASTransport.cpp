@@ -68,12 +68,12 @@ uint8_t ULNASTransport::getPayloadContainerType() {
 //------------------------------------------------------------------------------
 void ULNASTransport::setPayload_Container(
     std::vector<PayloadContainerEntry> content) {
-  ie_payload_container = new Payload_Container(0x00, content);
+  ie_payload_container = new Payload_Container(content);
 }
 
 //------------------------------------------------------------------------------
 bool ULNASTransport::getPayloadContainer(bstring& content) {
-  ie_payload_container->getValue(content);
+  ie_payload_container->GetValue(content);
   return true;
 }
 
@@ -81,7 +81,7 @@ bool ULNASTransport::getPayloadContainer(bstring& content) {
 bool ULNASTransport::getPayloadContainer(
     std::vector<PayloadContainerEntry>& content) {
   if (ie_payload_container) {
-    ie_payload_container->getValue(content);
+    ie_payload_container->GetValue(content);
     return 0;
   } else {
     return -1;
