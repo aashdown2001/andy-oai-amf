@@ -177,10 +177,15 @@ class RegistrationRequest : public NasMmPlainHeader {
   // TODO: Mobile station classmark 2
   // TODO: Supported codecs
   std::optional<NasMessageContainer> ie_nas_message_container;  // Optional
-  std::optional<EPS_Bearer_Context_Status>
+  std::optional<EpsBearerContextStatus>
       ie_eps_bearer_context_status;  // Optional
   // TODO: Requested extended DRX parameters
   // TODO: T3324 value
+  // TODO: UE radio capability ID (Rel 16.4.1)
+  // TODO: Requested mapped NSSAI (Rel 16.4.1)
+  // TODO: Additional information requested (Rel 16.4.1)
+  // TODO: Requested WUS assistance information (Rel 16.4.1)
+  // TODO: N5GC indication (Rel 16.4.1)
 };
 
 }  // namespace nas

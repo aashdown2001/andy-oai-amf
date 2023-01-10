@@ -37,7 +37,7 @@
 #include "Authentication_Response_Parameter.hpp"
 #include "DNN.hpp"
 #include "EAP_Message.hpp"
-#include "EPS_Bearer_Context_Status.hpp"
+#include "EpsBearerContextStatus.hpp"
 #include "EPS_NAS_Message_Container.hpp"
 #include "EPS_NAS_Security_Algorithms.hpp"
 #include "Extended_DRX_Parameters.hpp"

@@ -242,7 +242,7 @@ void RegistrationAccept::setNon_3GPP_NW_Provided_Policies(uint8_t value) {
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setEPS_Bearer_Context_Status(uint16_t value) {
-  ie_eps_bearer_context_status = new EPS_Bearer_Context_Status(0x60, value);
+  ie_eps_bearer_context_status = new EpsBearerContextStatus(value);
 }
 
 //------------------------------------------------------------------------------
@@ -787,7 +787,7 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
       } break;
       case 0x60: {
         Logger::nas_mm().debug("Decoding IEI (0x60)");
-        ie_eps_bearer_context_status = new EPS_Bearer_Context_Status();
+        ie_eps_bearer_context_status = new EpsBearerContextStatus();
         decoded_size += ie_eps_bearer_context_status->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

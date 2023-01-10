@@ -19,30 +19,31 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _EPS_Bearer_Context_Status_H_
-#define _EPS_Bearer_Context_Status_H_
+#ifndef _EPS_BEARER_CONTEXT_STATUS_H_
+#define _EPS_BEARER_CONTEXT_STATUS_H_
 
+#include "Type4NasIe.hpp"
 #include <stdint.h>
 
 constexpr uint8_t kEpsBearerContextStatusLength = 4;
+constexpr auto kEpsBearerContextStatusIeName    = "EPS Bearer Context Status";
 
 namespace nas {
 
-class EPS_Bearer_Context_Status {
+class EpsBearerContextStatus : public Type4NasIe {
  public:
-  EPS_Bearer_Context_Status();
-  EPS_Bearer_Context_Status(uint8_t iei);
-  EPS_Bearer_Context_Status(const uint8_t iei, uint16_t value);
-  ~EPS_Bearer_Context_Status();
-  void setValue(uint8_t iei, uint16_t value);
+  EpsBearerContextStatus();
+  EpsBearerContextStatus(uint16_t value);
+  ~EpsBearerContextStatus();
+
+  void SetValue(uint16_t value);
+  uint16_t GetValue() const;
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  uint16_t getValue();
+  int Decode(uint8_t* buf, int len, bool is_iei);
 
  private:
-  uint8_t _iei;
-  uint8_t length;
-  uint16_t _value;
+  uint16_t value_;
 };
 
 }  // namespace nas

@@ -513,14 +513,14 @@ bool RegistrationRequest::getNasMessageContainer(bstring& nas) {
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setEPS_Bearer_Context_Status(uint16_t value) {
-  ie_eps_bearer_context_status = std::make_optional<EPS_Bearer_Context_Status>(
-      kIeiEpsBearerContextStatus, value);
+  ie_eps_bearer_context_status =
+      std::make_optional<EpsBearerContextStatus>(value);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getEpsBearerContextStatus(uint16_t& value) {
   if (ie_eps_bearer_context_status.has_value()) {
-    value = ie_eps_bearer_context_status.value().getValue();
+    value = ie_eps_bearer_context_status.value().GetValue();
     return true;
   } else {
     return false;
@@ -1076,10 +1076,10 @@ int RegistrationRequest::Decode(uint8_t* buf, int len) {
       } break;
       case 0x60: {
         Logger::nas_mm().debug("Decoding IEI(0x71)");
-        EPS_Bearer_Context_Status ie_eps_bearer_context_status_tmp = {};
+        EpsBearerContextStatus ie_eps_bearer_context_status_tmp = {};
         decoded_size += ie_eps_bearer_context_status_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
-        ie_eps_bearer_context_status = std::optional<EPS_Bearer_Context_Status>(
+        ie_eps_bearer_context_status = std::optional<EpsBearerContextStatus>(
             ie_eps_bearer_context_status_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);

@@ -175,13 +175,13 @@ class RegistrationAccept : public NasMmPlainHeader {
   EAP_Message* ie_eap_message;                              // Optional
   NSSAI_Inclusion_Mode* ie_nssai_inclusion_mode;            // Optional
   // TODO: Operator-defined access category definitions
-  _5GS_DRX_Parameters* ie_negotiated_drx_parameters;        // Optional
-  Non_3GPP_NW_Provided_Policies* ie_non_3gpp_nw_policies;   // Optional
-  EPS_Bearer_Context_Status* ie_eps_bearer_context_status;  // Optional
-  Extended_DRX_Parameters* ie_extended_drx_parameters;      // Optional
-  GPRS_Timer_3* ie_T3447_value;                             // Optional
-  GPRS_Timer_3* ie_T3448_value;                             // Optional
-  GPRS_Timer_3* ie_T3324_value;                             // Optional
+  _5GS_DRX_Parameters* ie_negotiated_drx_parameters;       // Optional
+  Non_3GPP_NW_Provided_Policies* ie_non_3gpp_nw_policies;  // Optional
+  EpsBearerContextStatus* ie_eps_bearer_context_status;    // Optional
+  Extended_DRX_Parameters* ie_extended_drx_parameters;     // Optional
+  GPRS_Timer_3* ie_T3447_value;                            // Optional
+  GPRS_Timer_3* ie_T3448_value;                            // Optional
+  GPRS_Timer_3* ie_T3324_value;                            // Optional
   UE_Radio_Capability_ID* ie_ue_radio_capability_id;  // Which Release 16.x.x?
   NSSAI* ie_pending_nssai;                            // Which Release 16.x.x?
 };

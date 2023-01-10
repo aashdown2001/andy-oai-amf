@@ -19,50 +19,44 @@
  *      contact@openairinterface.org
  */
 
-#include "5GMMCapability.hpp"
+#include "EpsBearerContextStatus.hpp"
 
 #include "3gpp_24.501.hpp"
 #include "common_defs.h"
 #include "Ie_Const.hpp"
 #include "logger.hpp"
-
 using namespace nas;
 
 //------------------------------------------------------------------------------
-_5GMMCapability::_5GMMCapability(const uint8_t iei, uint8_t octet3)
-    : Type4NasIe(kIei5gmmCapability) {
-  octet3_ = octet3;
-  octet4_ = std::nullopt;
-  octet5_ = std::nullopt;
-  SetLengthIndicator(1);
-  SetIeName(k5gmmCapabilityIeName);
+EpsBearerContextStatus::EpsBearerContextStatus()
+    : Type4NasIe(kIeiEpsBearerContextStatus) {
+  value_ = 0;
+  SetLengthIndicator(2);
+  SetIeName(kEpsBearerContextStatusIeName);
 }
 
 //------------------------------------------------------------------------------
-_5GMMCapability::_5GMMCapability() : Type4NasIe(kIei5gmmCapability) {
-  octet4_ = std::nullopt;
-  octet5_ = std::nullopt;
-  SetLengthIndicator(1);
-  SetIeName(k5gmmCapabilityIeName);
+EpsBearerContextStatus::EpsBearerContextStatus(uint16_t value) {
+  value_ = value;
+  SetLengthIndicator(2);
+  SetIeName(kEpsBearerContextStatusIeName);
 }
 
 //------------------------------------------------------------------------------
-_5GMMCapability::~_5GMMCapability() {}
+EpsBearerContextStatus::~EpsBearerContextStatus() {}
 
 //------------------------------------------------------------------------------
-void _5GMMCapability::SetOctet3(const uint8_t iei, uint8_t octet3) {
-  SetIei(iei);
-  SetLengthIndicator(1);
-  octet3_ = octet3;
+void EpsBearerContextStatus::SetValue(uint16_t value) {
+  value_ = value;
 }
 
 //------------------------------------------------------------------------------
-uint8_t _5GMMCapability::GetOctet3() const {
-  return octet3_;
+uint16_t EpsBearerContextStatus::GetValue() const {
+  return value_;
 }
 
 //------------------------------------------------------------------------------
-int _5GMMCapability::Encode(uint8_t* buf, int len) {
+int EpsBearerContextStatus::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   int ie_len = GetIeLength();
 
@@ -77,14 +71,8 @@ int _5GMMCapability::Encode(uint8_t* buf, int len) {
   if (encoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
   encoded_size += encoded_header_size;
 
-  // Octet 3
-  ENCODE_U8(buf + encoded_size, octet3_, encoded_size);
-  // TODO: Encode spare for the rest
-  uint8_t spare = 0;
-  int spare_len = ie_len - encoded_size;
-  for (int i = 0; i < spare_len; i++) {
-    ENCODE_U8(buf + encoded_size, spare, encoded_size);
-  }
+  // Value
+  ENCODE_U16(buf + encoded_size, value_, encoded_size);
 
   Logger::nas_mm().debug(
       "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
@@ -92,11 +80,11 @@ int _5GMMCapability::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GMMCapability::Decode(uint8_t* buf, int len, bool is_iei) {
-  if (len < k5gmmCapabilityMinimumLength) {
+int EpsBearerContextStatus::Decode(uint8_t* buf, int len, bool is_iei) {
+  if (len < kEpsBearerContextStatusLength) {
     Logger::nas_mm().error(
         "Buffer length is less than the minimum length of this IE (%d octet)",
-        k5gmmCapabilityMinimumLength);
+        kEpsBearerContextStatusLength);
     return KEncodeDecodeError;
   }
 
@@ -110,15 +98,10 @@ int _5GMMCapability::Decode(uint8_t* buf, int len, bool is_iei) {
   if (decoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
   decoded_size += decoded_header_size;
 
-  DECODE_U8(buf + decoded_size, octet3_, decoded_size);
-  // TODO: decode the rest as spare for now
-  uint8_t spare = 0;
-  for (int i = 0; i < (GetLengthIndicator() - 1); i++) {
-    DECODE_U8(buf + decoded_size, spare, decoded_size);
-  }
+  // Value
+  DECODE_U16(buf + decoded_size, value_, decoded_size);  // for IE
 
-  Logger::nas_mm().debug(
-      "Decoded %s, Octet3 value (0x%x)", GetIeName().c_str(), octet3_);
+  Logger::nas_mm().debug("EPS_Bearer_Context_Status, value 0x%0x", value_);
   Logger::nas_mm().debug(
       "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
