@@ -176,7 +176,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   std::optional<_5gsUpdateType> ie_5gs_update_type;  // Optional
   // TODO: Mobile station classmark 2
   // TODO: Supported codecs
-  std::optional<NAS_Message_Container> ie_nas_message_container;  // Optional
+  std::optional<NasMessageContainer> ie_nas_message_container;  // Optional
   std::optional<EPS_Bearer_Context_Status>
       ie_eps_bearer_context_status;  // Optional
   // TODO: Requested extended DRX parameters

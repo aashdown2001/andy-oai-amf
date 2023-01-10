@@ -52,7 +52,7 @@ class SecurityModeComplete {
  public:
   NasMmPlainHeader* plain_header;
   _5GSMobileIdentity* ie_imeisv;
-  NAS_Message_Container* ie_nas_message_container;
+  NasMessageContainer* ie_nas_message_container;
   _5GSMobileIdentity* ie_non_imeisvpei;
 };
 

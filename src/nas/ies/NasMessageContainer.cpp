@@ -19,7 +19,7 @@
  *      contact@openairinterface.org
  */
 
-#include "NAS_Message_Container.hpp"
+#include "NasMessageContainer.hpp"
 
 #include "3gpp_24.501.hpp"
 #include "common_defs.h"
@@ -29,30 +29,30 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-NAS_Message_Container::NAS_Message_Container()
-    : Type6NasIe(kIeiNasMessageContainer), _value() {
+NasMessageContainer::NasMessageContainer()
+    : Type6NasIe(kIeiNasMessageContainer), value_() {
   SetLengthIndicator(0);
   SetIeName(kNasMessageContainerIeName);
 }
 
 //------------------------------------------------------------------------------
-NAS_Message_Container::NAS_Message_Container(bstring value)
+NasMessageContainer::NasMessageContainer(bstring value)
     : Type6NasIe(kIeiNasMessageContainer) {
-  _value = bstrcpy(value);
+  value_ = bstrcpy(value);
   SetLengthIndicator(blength(value));
   SetIeName(kNasMessageContainerIeName);
 }
 
 //------------------------------------------------------------------------------
-NAS_Message_Container::~NAS_Message_Container() {}
+NasMessageContainer::~NasMessageContainer() {}
 
 //------------------------------------------------------------------------------
-void NAS_Message_Container::getValue(bstring& value) const {
-  value = bstrcpy(_value);
+void NasMessageContainer::GetValue(bstring& value) const {
+  value = bstrcpy(value_);
 }
 
 //------------------------------------------------------------------------------
-int NAS_Message_Container::Encode(uint8_t* buf, int len) {
+int NasMessageContainer::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
 
   int ie_len = GetIeLength();
@@ -72,25 +72,8 @@ int NAS_Message_Container::Encode(uint8_t* buf, int len) {
   if (encoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
   encoded_size += encoded_header_size;
 
-  /*
-Logger::nas_mm().debug("Encoding NAS_Message_Container IEI");
-if (len < kNasMessageContainerMinimumLength) {
-Logger::nas_mm().error(
- "Buffer length is less than the minimum length of this IE (%d octet)",
- kNasMessageContainerMinimumLength);
-return KEncodeDecodeError;
-}
-
-int encoded_size = 0;
-if (_iei) {
-ENCODE_U8(buf + encoded_size, _iei, encoded_size);
-}
-// Length
-ENCODE_U16(buf + encoded_size, length, encoded_size);
-*/
-
   // Value
-  int size = encode_bstring(_value, (buf + encoded_size), len - encoded_size);
+  int size = encode_bstring(value_, (buf + encoded_size), len - encoded_size);
   encoded_size += size;
 
   // Encode length
@@ -103,7 +86,7 @@ ENCODE_U16(buf + encoded_size, length, encoded_size);
 }
 
 //------------------------------------------------------------------------------
-int NAS_Message_Container::Decode(uint8_t* buf, int len, bool is_iei) {
+int NasMessageContainer::Decode(uint8_t* buf, int len, bool is_iei) {
   Logger::nas_mm().debug("Decoding EPS_NAS_Message_Container");
   int decoded_size = 0;
 
@@ -114,23 +97,12 @@ int NAS_Message_Container::Decode(uint8_t* buf, int len, bool is_iei) {
   decoded_size += decoded_header_size;
   ie_len = GetLengthIndicator();
 
-  /*
-
-    Logger::nas_mm().debug("Decoding NAS_Message_Container");
-    int decoded_size = 0;
-    if (is_option) {
-      DECODE_U8(buf + decoded_size, _iei, decoded_size);  // for IE
-    }
-    // Length
-    DECODE_U16(buf + decoded_size, length, decoded_size);
-  */
-
   // Value
-  decode_bstring(&_value, ie_len, (buf + decoded_size), len - decoded_size);
+  decode_bstring(&value_, ie_len, (buf + decoded_size), len - decoded_size);
   decoded_size += ie_len;
   for (int i = 0; i < ie_len; i++) {
     Logger::nas_mm().debug(
-        "Decoded NAS_Message_Container value 0x%x", (uint8_t) _value->data[i]);
+        "Decoded NasMessageContainer value 0x%x", (uint8_t) value_->data[i]);
   }
 
   Logger::nas_mm().debug(

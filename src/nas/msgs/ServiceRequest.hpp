@@ -72,7 +72,7 @@ class ServiceRequest {
   UplinkDataStatus* ie_uplink_data_status;
   PDUSessionStatus* ie_PDU_session_status;
   AllowedPDUSessionStatus* ie_allowed_PDU_session_status;
-  NAS_Message_Container* ie_nas_message_container;
+  NasMessageContainer* ie_nas_message_container;
 };
 
 }  // namespace nas

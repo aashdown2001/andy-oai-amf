@@ -62,7 +62,7 @@ void SecurityModeComplete::SetImeisv(IMEISV_t imeisv) {
 
 //------------------------------------------------------------------------------
 void SecurityModeComplete::setNAS_Message_Container(bstring value) {
-  ie_nas_message_container = new NAS_Message_Container(value);
+  ie_nas_message_container = new NasMessageContainer(value);
 }
 
 //------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ bool SecurityModeComplete::GetImeisv(IMEISV_t& imeisv) {
 //------------------------------------------------------------------------------
 bool SecurityModeComplete::getNasMessageContainer(bstring& nas) {
   if (ie_nas_message_container) {
-    ie_nas_message_container->getValue(nas);
+    ie_nas_message_container->GetValue(nas);
     return true;
   } else {
     return false;
@@ -170,7 +170,7 @@ int SecurityModeComplete::Decode(
       } break;
       case 0x71: {
         Logger::nas_mm().debug("Decoding IEI (0x71)");
-        ie_nas_message_container = new NAS_Message_Container();
+        ie_nas_message_container = new NasMessageContainer();
         decoded_size += ie_nas_message_container->Decode(
             buf + decoded_size, len - decoded_size, true);
       } break;

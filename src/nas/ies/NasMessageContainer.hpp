@@ -37,19 +37,19 @@ constexpr auto kNasMessageContainerIeName            = "NAS Message Container";
 
 namespace nas {
 
-class NAS_Message_Container : Type6NasIe {
+class NasMessageContainer : Type6NasIe {
  public:
-  NAS_Message_Container();
-  NAS_Message_Container(bstring value);
-  ~NAS_Message_Container();
+  NasMessageContainer();
+  NasMessageContainer(bstring value);
+  ~NasMessageContainer();
 
-  void getValue(bstring& value) const;
+  void GetValue(bstring& value) const;
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
 
  private:
-  bstring _value;
+  bstring value_;
 };
 
 }  // namespace nas

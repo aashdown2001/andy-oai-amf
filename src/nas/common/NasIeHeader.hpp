@@ -46,7 +46,7 @@
 #include "IMEISV_Request.hpp"
 #include "LADN_Indication.hpp"
 #include "MA_PDU_Session_Information.hpp"
-#include "NAS_Message_Container.hpp"
+#include "NasMessageContainer.hpp"
 #include "NAS_Security_Algorithms.hpp"
 #include "NSSAI.hpp"
 #include "NSSAI_Inclusion_Mode.hpp"

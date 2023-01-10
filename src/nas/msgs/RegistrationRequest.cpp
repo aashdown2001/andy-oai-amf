@@ -498,13 +498,13 @@ bool RegistrationRequest::get5GSUpdateType(
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::setNAS_Message_Container(bstring value) {
-  ie_nas_message_container = std::make_optional<NAS_Message_Container>(value);
+  ie_nas_message_container = std::make_optional<NasMessageContainer>(value);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getNasMessageContainer(bstring& nas) {
   if (ie_nas_message_container.has_value()) {
-    ie_nas_message_container.value().getValue(nas);
+    ie_nas_message_container.value().GetValue(nas);
     return true;
   } else {
     return false;
@@ -1066,11 +1066,11 @@ int RegistrationRequest::Decode(uint8_t* buf, int len) {
       } break;
       case 0x71: {
         Logger::nas_mm().debug("Decoding IEI(0x71)");
-        NAS_Message_Container ie_nas_message_container_tmp = {};
+        NasMessageContainer ie_nas_message_container_tmp = {};
         decoded_size += ie_nas_message_container_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_nas_message_container =
-            std::optional<NAS_Message_Container>(ie_nas_message_container_tmp);
+            std::optional<NasMessageContainer>(ie_nas_message_container_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
