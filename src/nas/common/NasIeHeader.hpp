@@ -78,7 +78,7 @@
 #include "_5GS_Network_Feature_Support.hpp"
 #include "_5GS_Registration_Result.hpp"
 #include "_5GSTrackingAreaIdentity.hpp"
-#include "_5GS_Update_Type.hpp"
+#include "_5gsUpdateType.hpp"
 #include "struct.hpp"
 #include "Ie_Const.hpp"
 #include "NetworkName.hpp"

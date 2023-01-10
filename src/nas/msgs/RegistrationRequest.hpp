@@ -172,8 +172,8 @@ class RegistrationRequest : public NasMmPlainHeader {
   std::optional<PayloadContainerType> ie_payload_container_type;  // Optional
   std::optional<Payload_Container> ie_payload_container;          // Optional
   std::optional<NetworkSlicingIndication>
-      ie_network_slicing_indication;                   // Optional
-  std::optional<_5GS_Update_Type> ie_5gs_update_type;  // Optional
+      ie_network_slicing_indication;                 // Optional
+  std::optional<_5gsUpdateType> ie_5gs_update_type;  // Optional
   // TODO: Mobile station classmark 2
   // TODO: Supported codecs
   std::optional<NAS_Message_Container> ie_nas_message_container;  // Optional

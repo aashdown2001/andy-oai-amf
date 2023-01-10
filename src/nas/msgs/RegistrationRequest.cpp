@@ -477,8 +477,8 @@ bool RegistrationRequest::getNetworkSlicingIndication(
 //------------------------------------------------------------------------------
 void RegistrationRequest::set_5GS_Update_Type(
     uint8_t eps_pnb_ciot, uint8_t _5gs_pnb_ciot, bool ng_ran, bool sms) {
-  ie_5gs_update_type = std::make_optional<_5GS_Update_Type>(
-      kIei5gsUpdateType, eps_pnb_ciot, _5gs_pnb_ciot, ng_ran, sms);
+  ie_5gs_update_type = std::make_optional<_5gsUpdateType>(
+      eps_pnb_ciot, _5gs_pnb_ciot, ng_ran, sms);
 }
 
 //------------------------------------------------------------------------------
@@ -486,10 +486,10 @@ bool RegistrationRequest::get5GSUpdateType(
     uint8_t& eps_pnb_ciot, uint8_t& _5gs_pnb_ciot, bool& ng_ran_rcu,
     bool& sms_requested) {
   if (ie_5gs_update_type.has_value()) {
-    eps_pnb_ciot  = ie_5gs_update_type.value().getEPS_PNB_CIoT();
-    _5gs_pnb_ciot = ie_5gs_update_type.value().get_5GS_PNB_CIoT();
-    ng_ran_rcu    = ie_5gs_update_type.value().getNG_RAN();
-    sms_requested = ie_5gs_update_type.value().getSMS();
+    eps_pnb_ciot  = ie_5gs_update_type.value().GetEpsPnbCiot();
+    _5gs_pnb_ciot = ie_5gs_update_type.value().Get5gsPnbCiot();
+    ng_ran_rcu    = ie_5gs_update_type.value().GetNgRan();
+    sms_requested = ie_5gs_update_type.value().GetSms();
     return true;
   } else {
     return false;
@@ -1057,11 +1057,11 @@ int RegistrationRequest::Decode(uint8_t* buf, int len) {
       } break;
       case 0x53: {
         Logger::nas_mm().debug("Decoding IEI(0x53)");
-        _5GS_Update_Type ie_5gs_update_type_tmp = {};
+        _5gsUpdateType ie_5gs_update_type_tmp = {};
         decoded_size += ie_5gs_update_type_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_5gs_update_type =
-            std::optional<_5GS_Update_Type>(ie_5gs_update_type_tmp);
+            std::optional<_5gsUpdateType>(ie_5gs_update_type_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;

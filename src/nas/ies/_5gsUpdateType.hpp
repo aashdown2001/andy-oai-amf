@@ -19,40 +19,41 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _5GS_Update_Type_H
-#define _5GS_Update_Type_H
+#ifndef _5GS_UPDATE_TYPE_H
+#define _5GS_UPDATE_TYPE_H
 
+#include "Type4NasIe.hpp"
 #include <stdint.h>
 
 constexpr uint8_t k5gsUpdateTypeLength = 3;
+constexpr auto k5gsUpdateTypeIeName    = "5GS Update Type";
+
 namespace nas {
 
-class _5GS_Update_Type {
+class _5gsUpdateType : public Type4NasIe {
  public:
-  _5GS_Update_Type();
-  _5GS_Update_Type(uint8_t iei);
-  ~_5GS_Update_Type();
-  _5GS_Update_Type(
-      const uint8_t iei, uint8_t eps_PNB_CIoT, uint8_t _5gs_PNB_CIoT,
-      bool ng_RAN, bool sms);
-  void setEPS_PNB_CIoT(uint8_t value);
-  void set_5GS_PNB_CIoT(uint8_t value);
-  void setNG_RAN(uint8_t value);
-  void setSMS(uint8_t value);
-  uint8_t getEPS_PNB_CIoT();
-  uint8_t get_5GS_PNB_CIoT();
-  bool getNG_RAN();
-  bool getSMS();
+  _5gsUpdateType();
+  _5gsUpdateType(
+      uint8_t eps_PNB_CIoT, uint8_t _5gs_PNB_CIoT, bool ng_RAN, bool sms);
+  ~_5gsUpdateType();
+
+  void SetEpsPnbCiot(uint8_t value);
+  void Set5gsPnbCiot(uint8_t value);
+  void SetNgRan(uint8_t value);
+  void SetSms(uint8_t value);
+  uint8_t GetEpsPnbCiot();
+  uint8_t Get5gsPnbCiot();
+  bool GetNgRan();
+  bool GetSms();
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
 
  private:
-  uint8_t _iei;
-  uint8_t length;
-  uint8_t EPS_PNB_CIoT;   // bit 4,5
-  uint8_t _5GS_PNB_CIoT;  // bit 2,3
-  bool NG_RAN;            // bit 1
-  bool SMS;               // bit 0
+  uint8_t eps_pnb_ciot_;   // bit 4,5
+  uint8_t _5gs_pnb_ciot_;  // bit 2,3
+  bool ng_ran_;            // bit 1
+  bool sms_;               // bit 0
 };
 
 }  // namespace nas
