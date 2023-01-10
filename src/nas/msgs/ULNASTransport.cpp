@@ -53,7 +53,7 @@ void ULNASTransport::setHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void ULNASTransport::setPayload_Container_Type(uint8_t value) {
-  ie_payload_container_type = new PayloadContainerType(0x00, value);
+  ie_payload_container_type = new PayloadContainerType(value);
 }
 
 //------------------------------------------------------------------------------
@@ -187,13 +187,15 @@ int ULNASTransport::Encode(uint8_t* buf, int len) {
   if (!ie_payload_container_type) {
     Logger::nas_mm().warn("IE ie_payload_container_type is not available");
   } else {
-    if (int size = ie_payload_container_type->Encode(
-            buf + encoded_size, len - encoded_size)) {
-      encoded_size += size;
-    } else {
-      Logger::nas_mm().error("encoding ie_payload_container_type  error");
+    int size = ie_payload_container_type->Encode(
+        buf + encoded_size, len - encoded_size);
+    if (size == KEncodeDecodeError) {
+      Logger::nas_mm().error("Encoding ie_payload_container_type error");
       return 0;
     }
+    if (size == 0)
+      size++;  // 1/2 octet for  ie_payload_container_type, 1/2 octet for spare
+    encoded_size += size;
   }
   if (!ie_payload_container or !ie_payload_container_type) {
     Logger::nas_mm().warn("IE ie_payload_container is not available");

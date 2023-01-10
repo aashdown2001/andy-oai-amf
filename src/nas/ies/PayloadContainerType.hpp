@@ -34,6 +34,7 @@ namespace nas {
 class PayloadContainerType : public Type1NasIeFormatTv {
  public:
   PayloadContainerType();
+  PayloadContainerType(uint8_t value);
   PayloadContainerType(const uint8_t iei, uint8_t value);
   ~PayloadContainerType();
 

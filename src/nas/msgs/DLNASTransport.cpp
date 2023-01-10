@@ -57,7 +57,7 @@ void DLNASTransport::setHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void DLNASTransport::setPayload_Container_Type(uint8_t value) {
-  ie_payload_container_type = new PayloadContainerType(0x00, value);
+  ie_payload_container_type = new PayloadContainerType(value);
 }
 
 //------------------------------------------------------------------------------
@@ -105,13 +105,15 @@ int DLNASTransport::Encode(uint8_t* buf, int len) {
   if (!ie_payload_container_type) {
     Logger::nas_mm().warn("IE ie_payload_container_type is not available");
   } else {
-    if (int size = ie_payload_container_type->Encode(
-            buf + encoded_size, len - encoded_size)) {
-      encoded_size += size;
-    } else {
+    int size = ie_payload_container_type->Encode(
+        buf + encoded_size, len - encoded_size);
+    if (size == KEncodeDecodeError) {
       Logger::nas_mm().error("Encoding ie_payload_container_type error");
       return 0;
     }
+    if (size == 0)
+      size++;  // 1/2 octet for  ie_payload_container_type, 1/2 octet for spare
+    encoded_size += size;
   }
   if (!ie_payload_container or !ie_payload_container_type) {
     Logger::nas_mm().warn("IE ie_payload_container is not available");
@@ -181,8 +183,8 @@ int DLNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
   ie_payload_container_type = new PayloadContainerType();
   decoded_size += ie_payload_container_type->Decode(
       buf + decoded_size, len - decoded_size, false);
-  ie_payload_container = new Payload_Container();
   decoded_size++;  // 1/2 octet for PayloadContainerType, 1/2 octet for spare
+  ie_payload_container = new Payload_Container();
   decoded_size += ie_payload_container->Decode(
       buf + decoded_size, len - decoded_size, false,
       N1_SM_INFORMATION);  // TODO: verified Typeb of Payload Container

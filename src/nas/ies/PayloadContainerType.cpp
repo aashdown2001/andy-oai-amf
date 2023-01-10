@@ -27,14 +27,21 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-PayloadContainerType::PayloadContainerType(const uint8_t iei, uint8_t value)
-    : Type1NasIeFormatTv(iei) {
+PayloadContainerType::PayloadContainerType() : Type1NasIeFormatTv() {
+  SetIeName(kPayloadContainerTypeIeName);
+}
+
+//------------------------------------------------------------------------------
+PayloadContainerType::PayloadContainerType(uint8_t value)
+    : Type1NasIeFormatTv() {
   SetValue(value & 0x0f);
   SetIeName(kPayloadContainerTypeIeName);
 }
 
 //------------------------------------------------------------------------------
-PayloadContainerType::PayloadContainerType() : Type1NasIeFormatTv() {
+PayloadContainerType::PayloadContainerType(const uint8_t iei, uint8_t value)
+    : Type1NasIeFormatTv(iei) {
+  SetValue(value & 0x0f);
   SetIeName(kPayloadContainerTypeIeName);
 }
 
