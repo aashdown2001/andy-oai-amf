@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "AuthenticationRequest.hpp"
 
 #include "3gpp_24.501.hpp"
@@ -34,9 +27,8 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-AuthenticationRequest::AuthenticationRequest() {
-  plain_header                     = NULL;
-  ie_ngKSI                         = NULL;
+AuthenticationRequest::AuthenticationRequest()
+    : NasMmPlainHeader(EPD_5GS_MM_MSG, AUTHENTICATION_REQUEST) {
   ie_abba                          = NULL;
   ie_authentication_parameter_rand = NULL;
   ie_authentication_parameter_autn = NULL;
@@ -48,14 +40,14 @@ AuthenticationRequest::~AuthenticationRequest() {}
 
 //------------------------------------------------------------------------------
 void AuthenticationRequest::setHeader(uint8_t security_header_type) {
-  plain_header = new NasMmPlainHeader();
-  plain_header->setHeader(
-      EPD_5GS_MM_MSG, security_header_type, AUTHENTICATION_REQUEST);
+  NasMmPlainHeader::SetSecurityHeaderType(security_header_type);
 }
 
 //------------------------------------------------------------------------------
 void AuthenticationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
-  ie_ngKSI = new NasKeySetIdentifier(tsc, key_set_id);
+  ie_ngKSI.Set(false);  // 4 lower bits
+  ie_ngKSI.setNasKeyIdentifier(key_set_id);
+  ie_ngKSI.setTypeOfSecurityContext(tsc);
 }
 
 //------------------------------------------------------------------------------
@@ -83,26 +75,27 @@ void AuthenticationRequest::setEAP_Message(bstring eap) {
 //------------------------------------------------------------------------------
 int AuthenticationRequest::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding AuthenticationRequest message");
-  int encoded_size = 0;
-  if (!plain_header) {
-    Logger::nas_mm().error("Mandatory IE missing Header");
+  int encoded_size    = 0;
+  int encoded_ie_size = 0;
+
+  // Header
+  if ((encoded_ie_size = NasMmPlainHeader::Encode(buf, len)) ==
+      KEncodeDecodeError) {
+    Logger::nas_mm().error("Encoding NAS Header error");
+    return KEncodeDecodeError;
+  }
+  encoded_size += encoded_ie_size;
+
+  int size = ie_ngKSI.Encode(buf + encoded_size, len - encoded_size);
+  if (size != KEncodeDecodeError) {
+    encoded_size += size;
+  } else {
+    Logger::nas_mm().error("Encoding ie_ngKSI error");
     return 0;
   }
-  if (!(plain_header->Encode(buf, len))) return 0;
-  encoded_size += 3;
-  if (!ie_ngKSI) {
-    Logger::nas_mm().warn("IE ie_ngKSI is not available");
-  } else {
-    int size = ie_ngKSI->Encode(buf + encoded_size, len - encoded_size);
-    if (size != KEncodeDecodeError) {
-      encoded_size += size;
-    } else {
-      Logger::nas_mm().error("Encoding ie_ngKSI error");
-      return 0;
-    }
-    // Spare half octet
-    encoded_size++;  // 1/2 octet + 1/2 octet from ie_ngKSI
-  }
+  // Spare half octet
+  encoded_size++;  // 1/2 octet + 1/2 octet from ie_ngKSI
+
   if (!ie_abba) {
     Logger::nas_mm().warn("IE ie_abba is not available");
   } else {
@@ -161,13 +154,12 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int AuthenticationRequest::Decode(
-    NasMmPlainHeader* header, uint8_t* buf, int len) {
+int AuthenticationRequest::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding RegistrationReject message");
-  int decoded_size = 3;
-  plain_header     = header;
-  ie_ngKSI         = new NasKeySetIdentifier();
-  decoded_size += ie_ngKSI->Decode(
+  int decoded_size = 0;
+  decoded_size     = NasMmPlainHeader::Decode(buf, len);
+
+  decoded_size += ie_ngKSI.Decode(
       buf + decoded_size, len - decoded_size, false,
       false);      // length 1/2, low position
   decoded_size++;  // 1/2 octet from ie_ngKSI, 1/2 from Spare half octet

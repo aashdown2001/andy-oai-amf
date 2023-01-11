@@ -19,27 +19,23 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _AuthenticationRequest_H_
-#define _AuthenticationRequest_H_
+#ifndef _AUTHENTICATION_REQUEST_H_
+#define _AUTHENTICATION_REQUEST_H_
 
 #include "NasIeHeader.hpp"
 
 namespace nas {
 
-class AuthenticationRequest {
+class AuthenticationRequest : public NasMmPlainHeader {
  public:
   AuthenticationRequest();
   ~AuthenticationRequest();
+
   int Encode(uint8_t* buf, int len);
-  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
+
   void setHeader(uint8_t security_header_type);
+
   void setngKSI(uint8_t tsc, uint8_t key_set_id);
   void setEAP_Message(bstring eap);
   void setABBA(uint8_t length, uint8_t* value);
@@ -47,8 +43,7 @@ class AuthenticationRequest {
   void setAuthentication_Parameter_AUTN(uint8_t* value);
 
  public:
-  NasMmPlainHeader* plain_header;
-  NasKeySetIdentifier* ie_ngKSI;
+  NasKeySetIdentifier ie_ngKSI;
   ABBA* ie_abba;
   Authentication_Parameter_RAND* ie_authentication_parameter_rand;
   Authentication_Parameter_AUTN* ie_authentication_parameter_autn;

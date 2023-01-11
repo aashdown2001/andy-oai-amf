@@ -73,6 +73,21 @@ void NasMmPlainHeader::setHeader(
 }
 
 //------------------------------------------------------------------------------
+void NasMmPlainHeader::SetMessageName(const std::string& name) {
+  msg_name_ = name;
+}
+
+//------------------------------------------------------------------------------
+std::string NasMmPlainHeader::GetMessageName() const {
+  return msg_name_;
+}
+
+//------------------------------------------------------------------------------
+void NasMmPlainHeader::GetMessageName(std::string& name) const {
+  name = msg_name_;
+}
+
+//------------------------------------------------------------------------------
 int NasMmPlainHeader::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding NasMmPlainHeader");
   if (len < kNasMmPlainHeaderLength) {

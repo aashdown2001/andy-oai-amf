@@ -35,9 +35,13 @@ class NasMmPlainHeader {
   NasMmPlainHeader(){};
   NasMmPlainHeader(const uint8_t& epd, const uint8_t& msg_type);
   virtual ~NasMmPlainHeader();
+
   void setHeader(
       const uint8_t& epd, const uint8_t& security_header_type,
       const uint8_t& msg_type);
+  void SetMessageName(const std::string& name);
+  std::string GetMessageName() const;
+  void GetMessageName(std::string& name) const;
 
   int Encode(uint8_t* buf, int len);
   int Decode(const uint8_t* const buf, int len);
@@ -52,10 +56,12 @@ class NasMmPlainHeader {
   uint8_t GetMessageType();
 
  private:
-  ExtendedProtocolDiscriminator epd_;  // Mandatory
-  // TODO: Spare half octet (1/2 octet)
+  ExtendedProtocolDiscriminator epd_;    // Mandatory
   SecurityHeaderType secu_header_type_;  // Mandatory (1/2 octet)
-  NasMessageType msg_type_;              // Mandatory
+  // TODO: Spare half octet (1/2 octet)
+  NasMessageType msg_type_;  // Mandatory
+
+  std::string msg_name_;  // non 3GPP IE
 };
 
 }  // namespace nas
