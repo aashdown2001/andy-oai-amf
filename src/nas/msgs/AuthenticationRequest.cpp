@@ -55,14 +55,16 @@ void AuthenticationRequest::setABBA(uint8_t length, uint8_t* value) {
 }
 
 //------------------------------------------------------------------------------
-void AuthenticationRequest::setAuthentication_Parameter_RAND(uint8_t* value) {
+void AuthenticationRequest::setAuthentication_Parameter_RAND(
+    uint8_t value[kAuthenticationParameterRandValueLength]) {
   ie_authentication_parameter_rand =
       std::make_optional<Authentication_Parameter_RAND>(
           kIeiAuthenticationParameterRand, value);
 }
 
 //------------------------------------------------------------------------------
-void AuthenticationRequest::setAuthentication_Parameter_AUTN(uint8_t* value) {
+void AuthenticationRequest::setAuthentication_Parameter_AUTN(
+    uint8_t value[kAuthenticationParameterAutnValueLength]) {
   ie_authentication_parameter_autn =
       std::make_optional<Authentication_Parameter_AUTN>(
           kIeiAuthenticationParameterAutn, value);

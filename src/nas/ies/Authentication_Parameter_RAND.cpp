@@ -39,9 +39,9 @@ Authentication_Parameter_RAND::Authentication_Parameter_RAND(uint8_t iei)
 
 //------------------------------------------------------------------------------
 Authentication_Parameter_RAND::Authentication_Parameter_RAND(
-    uint8_t iei, uint8_t* value)
+    uint8_t iei, uint8_t value[kAuthenticationParameterRandValueLength])
     : Type3NasIe(iei) {
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < kAuthenticationParameterRandValueLength; i++) {
     this->_value[i] = value[i];
   }
   SetIeName(kAuthenticationParameterRandIeName);
@@ -71,7 +71,8 @@ int Authentication_Parameter_RAND::Encode(uint8_t* buf, int len) {
 
   // IEI
   encoded_size += Type3NasIe::Encode(buf + encoded_size, len);
-  for (int i = 0; i < kAuthenticationParameterRandLength - 1; i++) {
+
+  for (int i = 0; i < kAuthenticationParameterRandValueLength; i++) {
     ENCODE_U8(buf + encoded_size, _value[i], encoded_size);
   }
 
@@ -96,11 +97,11 @@ int Authentication_Parameter_RAND::Decode(uint8_t* buf, int len, bool is_iei) {
   // IEI and Length
   decoded_size += Type3NasIe::Decode(buf + decoded_size, len, is_iei);
 
-  for (int i = 0; i < kAuthenticationParameterRandLength - 1; i++) {
+  for (int i = 0; i < kAuthenticationParameterRandValueLength; i++) {
     DECODE_U8(buf + decoded_size, _value[i], decoded_size);
   }
 
-  for (int j = 0; j < kAuthenticationParameterRandLength - 1; j++) {
+  for (int j = 0; j < kAuthenticationParameterRandValueLength; j++) {
     Logger::nas_mm().debug(
         "Decoded Authentication_Parameter_RAND value (0x%2x)", _value[j]);
   }

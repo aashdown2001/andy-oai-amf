@@ -2116,11 +2116,12 @@ bool amf_n1::start_authentication_procedure(
   abba[0] = 0x00;
   abba[1] = 0x00;
   auth_request->setABBA(2, abba);
-  uint8_t* rand = nc->_5g_av[vindex].rand;
-  if (rand) auth_request->setAuthentication_Parameter_RAND(rand);
+  // uint8_t* rand = nc->_5g_av[vindex].rand;
+  auth_request->setAuthentication_Parameter_RAND(nc->_5g_av[vindex].rand);
   Logger::amf_n1().debug("Sending Authentication Request with RAND");
   printf("0x");
-  for (int i = 0; i < 16; i++) printf("%x", rand[i]);
+  for (int i = 0; i < kAuthenticationParameterRandValueLength; i++)
+    printf("%x", nc->_5g_av[vindex].rand[i]);
   printf("\n");
 
   uint8_t* autn = nc->_5g_av[vindex].autn;

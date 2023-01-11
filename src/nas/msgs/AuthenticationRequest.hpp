@@ -39,8 +39,10 @@ class AuthenticationRequest : public NasMmPlainHeader {
   void setngKSI(uint8_t tsc, uint8_t key_set_id);
   void setEAP_Message(bstring eap);
   void setABBA(uint8_t length, uint8_t* value);
-  void setAuthentication_Parameter_RAND(uint8_t* value);
-  void setAuthentication_Parameter_AUTN(uint8_t* value);
+  void setAuthentication_Parameter_RAND(
+      uint8_t value[kAuthenticationParameterRandValueLength]);
+  void setAuthentication_Parameter_AUTN(
+      uint8_t value[kAuthenticationParameterAutnValueLength]);
 
  public:
   NasKeySetIdentifier ie_ngKSI;  // Mandatory
