@@ -43,11 +43,13 @@ class AuthenticationRequest : public NasMmPlainHeader {
   void setAuthentication_Parameter_AUTN(uint8_t* value);
 
  public:
-  NasKeySetIdentifier ie_ngKSI;                                     // Mandatory
-  ABBA ie_abba;                                                     // Mandatory
-  Authentication_Parameter_RAND* ie_authentication_parameter_rand;  // Optional
-  Authentication_Parameter_AUTN* ie_authentication_parameter_autn;  // Optional
-  EAP_Message* ie_eap_message;                                      // Optional
+  NasKeySetIdentifier ie_ngKSI;  // Mandatory
+  ABBA ie_abba;                  // Mandatory
+  std::optional<Authentication_Parameter_RAND>
+      ie_authentication_parameter_rand;  // Optional
+  std::optional<Authentication_Parameter_AUTN>
+      ie_authentication_parameter_autn;       // Optional
+  std::optional<EAP_Message> ie_eap_message;  // Optional
 };
 
 }  // namespace nas

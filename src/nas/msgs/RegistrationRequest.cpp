@@ -174,7 +174,7 @@ void RegistrationRequest::Set5gSTmsi() {}
 void RegistrationRequest::setNonCurrentNativeNasKSI(
     uint8_t tsc, uint8_t key_set_id) {
   ie_non_current_native_nas_ksi = std::make_optional<NasKeySetIdentifier>(
-      0xC, tsc, key_set_id);  // TODO: remove hardcoded value
+      kIeiNasKeySetIdentifier, tsc, key_set_id);
 }
 
 //------------------------------------------------------------------------------

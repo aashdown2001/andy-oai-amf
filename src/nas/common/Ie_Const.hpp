@@ -89,10 +89,14 @@ constexpr uint8_t kIeiShortNameForNetwork                   = 0x45;
 constexpr uint8_t kIeiPayloadContainerType     = 0x08;  // Should be verified
 constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
 
-constexpr uint8_t kIeiMicoIndication = 0x0B;  // B-(4 higher bits)
+constexpr uint8_t kIeiMicoIndication      = 0x0B;  // B-(4 higher bits)
+constexpr uint8_t kIeiNasKeySetIdentifier = 0x0C;  // C-(4 higher bits)
 
-constexpr uint8_t kIei5gmmCapability          = 0x10;
-constexpr uint8_t kIeiUeUsageSetting          = 0x18;
+constexpr uint8_t kIei5gmmCapability              = 0x10;
+constexpr uint8_t kIeiUeUsageSetting              = 0x18;
+constexpr uint8_t kIeiAuthenticationParameterAutn = 0x20;
+constexpr uint8_t kIeiAuthenticationParameterRand = 0x21;
+
 constexpr uint8_t kIeiAllowedPduSessionStatus = 0x25;
 constexpr uint8_t kIeiUeStatus                = 0x2b;
 
@@ -121,5 +125,5 @@ constexpr uint8_t kIei5gGuti                 = 0x77;
 constexpr uint8_t kIeiImeisv                 = 0x77;
 constexpr uint8_t kIeiNonImeisvPei           = 0x78;
 
-constexpr uint8_t kIeiEapMessage       = 0x78;  // TODO: to be verified
+constexpr uint8_t kIeiEapMessage       = 0x78;
 constexpr uint8_t kIeiPayloadContainer = 0x7b;

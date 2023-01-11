@@ -29,9 +29,9 @@ using namespace nas;
 //------------------------------------------------------------------------------
 AuthenticationRequest::AuthenticationRequest()
     : NasMmPlainHeader(EPD_5GS_MM_MSG, AUTHENTICATION_REQUEST) {
-  ie_authentication_parameter_rand = NULL;
-  ie_authentication_parameter_autn = NULL;
-  ie_eap_message                   = NULL;
+  ie_authentication_parameter_rand = std::nullopt;
+  ie_authentication_parameter_autn = std::nullopt;
+  ie_eap_message                   = std::nullopt;
 }
 
 //------------------------------------------------------------------------------
@@ -57,18 +57,20 @@ void AuthenticationRequest::setABBA(uint8_t length, uint8_t* value) {
 //------------------------------------------------------------------------------
 void AuthenticationRequest::setAuthentication_Parameter_RAND(uint8_t* value) {
   ie_authentication_parameter_rand =
-      new Authentication_Parameter_RAND(0x21, value);
+      std::make_optional<Authentication_Parameter_RAND>(
+          kIeiAuthenticationParameterRand, value);
 }
 
 //------------------------------------------------------------------------------
 void AuthenticationRequest::setAuthentication_Parameter_AUTN(uint8_t* value) {
   ie_authentication_parameter_autn =
-      new Authentication_Parameter_AUTN(0x20, value);
+      std::make_optional<Authentication_Parameter_AUTN>(
+          kIeiAuthenticationParameterAutn, value);
 }
 
 //------------------------------------------------------------------------------
 void AuthenticationRequest::setEAP_Message(bstring eap) {
-  ie_eap_message = new EAP_Message(0x78, eap);
+  ie_eap_message = std::make_optional<EAP_Message>(kIeiEapMessage, eap);
 }
 
 //------------------------------------------------------------------------------
@@ -105,11 +107,11 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
   }
 
   // Authentication parameter RAND
-  if (!ie_authentication_parameter_rand) {
+  if (!ie_authentication_parameter_rand.has_value()) {
     Logger::nas_mm().warn(
         "IE ie_authentication_parameter_rand is not available");
   } else {
-    int size = ie_authentication_parameter_rand->Encode(
+    int size = ie_authentication_parameter_rand.value().Encode(
         buf + encoded_size, len - encoded_size);
     if (size != 0) {
       encoded_size += size;
@@ -119,11 +121,11 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
     }
   }
   // Authentication parameter AUTN
-  if (!ie_authentication_parameter_autn) {
+  if (!ie_authentication_parameter_autn.has_value()) {
     Logger::nas_mm().warn(
         "IE ie_authentication_parameter_autn is not available");
   } else {
-    int size = ie_authentication_parameter_autn->Encode(
+    int size = ie_authentication_parameter_autn.value().Encode(
         buf + encoded_size, len - encoded_size);
     if (size != 0) {
       encoded_size += size;
@@ -133,10 +135,11 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
     }
   }
   // EAP message
-  if (!ie_eap_message) {
+  if (!ie_eap_message.has_value()) {
     Logger::nas_mm().warn("IE ie_eap_message is not available");
   } else {
-    int size = ie_eap_message->Encode(buf + encoded_size, len - encoded_size);
+    int size =
+        ie_eap_message.value().Encode(buf + encoded_size, len - encoded_size);
     if (size != 0) {
       encoded_size += size;
     } else {
@@ -153,8 +156,9 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
 //------------------------------------------------------------------------------
 int AuthenticationRequest::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding RegistrationReject message");
-  int decoded_size = 0;
-  decoded_size     = NasMmPlainHeader::Decode(buf, len);
+  int decoded_size   = 0;
+  int decoded_result = 0;
+  decoded_size       = NasMmPlainHeader::Decode(buf, len);
 
   decoded_size += ie_ngKSI.Decode(
       buf + decoded_size, len - decoded_size, false,
@@ -168,27 +172,45 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("First option IEI 0x%x", octet);
   while ((octet != 0x0)) {
     switch (octet) {
-      case 0x21: {
-        Logger::nas_mm().debug("Decoding IEI(0x21)");
-        ie_authentication_parameter_rand = new Authentication_Parameter_RAND();
-        decoded_size += ie_authentication_parameter_rand->Decode(
-            buf + decoded_size, len - decoded_size, true);
+      case kIeiAuthenticationParameterRand: {
+        Logger::nas_mm().debug(
+            "Decoding IEI 0x%x", kIeiAuthenticationParameterRand);
+        Authentication_Parameter_RAND ie_authentication_parameter_rand_tmp = {};
+        if ((decoded_result = ie_authentication_parameter_rand_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return decoded_result;
+        decoded_size += decoded_result;
+        ie_authentication_parameter_rand =
+            std::optional<Authentication_Parameter_RAND>(
+                ie_authentication_parameter_rand_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
-      case 0x20: {
-        ie_authentication_parameter_autn = new Authentication_Parameter_AUTN();
-        decoded_size += ie_authentication_parameter_autn->Decode(
-            buf + decoded_size, len - decoded_size, true);
+      case kIeiAuthenticationParameterAutn: {
+        Authentication_Parameter_AUTN ie_authentication_parameter_autn_tmp = {};
+
+        if ((decoded_result = ie_authentication_parameter_autn_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return decoded_result;
+        decoded_size += decoded_result;
+        ie_authentication_parameter_autn =
+            std::optional<Authentication_Parameter_AUTN>(
+                ie_authentication_parameter_autn_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
-      case 0x78: {
-        Logger::nas_mm().debug("Decoding IEI 0x78");
-        ie_eap_message = new EAP_Message();
-        decoded_size += ie_eap_message->Decode(
-            buf + decoded_size, len - decoded_size, true);
-        octet = *(buf + decoded_size);
+      case kIeiEapMessage: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiEapMessage);
+        EAP_Message ie_eap_message_tmp = {};
+        if ((decoded_result = ie_eap_message_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return decoded_result;
+        decoded_size += decoded_result;
+        ie_eap_message = std::optional<EAP_Message>(ie_eap_message_tmp);
+        octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
     }
