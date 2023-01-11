@@ -29,15 +29,15 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-PLMN_List::PLMN_List(uint8_t iei) {
-  _iei   = iei;
-  length = 2;
+PLMN_List::PLMN_List(uint8_t iei) : Type4NasIe(iei) {
+  SetLengthIndicator(0);
+  SetIeName(kPlmnListIeName);
 }
 
 //------------------------------------------------------------------------------
-PLMN_List::PLMN_List() {
-  _iei   = 0;
-  length = 2;
+PLMN_List::PLMN_List() : Type4NasIe() {
+  SetLengthIndicator(0);
+  SetIeName(kPlmnListIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -45,14 +45,16 @@ PLMN_List::~PLMN_List() {}
 
 //------------------------------------------------------------------------------
 void PLMN_List::set(uint8_t iei, const std::vector<nas_plmn_t>& list) {
-  _iei      = iei;
-  plmn_list = list;
+  plmn_list  = list;
+  int length = 0;
   if (list.size() > 0)
     length =
         kPlmnListMinimumLength +
         (list.size() - 1) *
             3;  // 3 - size of each PLMN
                 // size of the first PLMN is included in kPlmnListMinimumLength
+
+  SetLengthIndicator(length);
 }
 
 //------------------------------------------------------------------------------
@@ -62,39 +64,49 @@ void PLMN_List::getPLMNList(std::vector<nas_plmn_t>& list) {
 
 //------------------------------------------------------------------------------
 int PLMN_List::Encode(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding PLMN_List");
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
 
-  if (len < length) {
-    Logger::nas_mm().error(
-        "Buffer length is less than the length of this IE (%d octet)", length);
+  int ie_len = GetIeLength();
+
+  if (len < ie_len) {
+    Logger::nas_mm().error("Len is less than %d", ie_len);
     return KEncodeDecodeError;
   }
 
   int encoded_size = 0;
-  if (_iei) {
-    ENCODE_U8(buf + encoded_size, _iei, encoded_size);  // IEI
-  }
-  // Length
-  ENCODE_U8(buf + encoded_size, length, encoded_size);
+  // IEI and Length
+  int encoded_header_size = Type4NasIe::Encode(buf + encoded_size, len);
+  if (encoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  encoded_size += encoded_header_size;
 
   for (auto it : plmn_list)
     encoded_size += NasUtils::encodeMccMnc2Buffer(
         it.mcc, it.mnc, buf + encoded_size, len - encoded_size);
 
-  Logger::nas_mm().debug("Encoded PLMN_List (len %d)", encoded_size);
+  Logger::nas_mm().debug(
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int PLMN_List::Decode(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("Decoding PLMN_List");
-  int decoded_size = 0;
-  if (is_option) {
-    DECODE_U8(buf + decoded_size, _iei, decoded_size);  // IEI
+int PLMN_List::Decode(uint8_t* buf, int len, bool is_iei) {
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+
+  if (len < kPlmnListMinimumLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kPlmnListMinimumLength);
+    return KEncodeDecodeError;
   }
-  // Length
-  DECODE_U8(buf + decoded_size, length, decoded_size);
-  uint8_t len_ie = length;
+
+  int decoded_size = 0;
+
+  // IEI and Length
+  int decoded_header_size = Type4NasIe::Decode(buf + decoded_size, len, true);
+  if (decoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  decoded_size += decoded_header_size;
+
+  uint8_t len_ie = GetLengthIndicator();
   while (len_ie > 0) {
     nas_plmn_t nas_plmn = {};
     uint8_t size        = NasUtils::decodeMccMncFromBuffer(
@@ -106,6 +118,7 @@ int PLMN_List::Decode(uint8_t* buf, int len, bool is_option) {
       break;
     }
   }
-  Logger::nas_mm().debug("Decoded PLMN_List (len %d)", decoded_size);
+  Logger::nas_mm().debug(
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
 }

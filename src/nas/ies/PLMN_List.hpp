@@ -22,16 +22,19 @@
 #ifndef _PLMN_LIST_H_
 #define _PLMN_LIST_H_
 
+#include "Type4NasIe.hpp"
+
 #include "struct.hpp"
 #include <stdint.h>
 #include <vector>
 
 constexpr uint8_t kPlmnListMinimumLength = 5;
 constexpr uint8_t kPlmnListMaximumLength = 47;
+constexpr auto kPlmnListIeName           = "PLMN List";
 
 namespace nas {
 
-class PLMN_List {
+class PLMN_List : public Type4NasIe {
  public:
   PLMN_List();
   PLMN_List(uint8_t iei);
@@ -44,8 +47,6 @@ class PLMN_List {
   void getPLMNList(std::vector<nas_plmn_t>& list);
 
  private:
-  uint8_t _iei;
-  uint8_t length;
   std::vector<nas_plmn_t> plmn_list;
 };
 }  // namespace nas
