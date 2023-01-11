@@ -43,11 +43,11 @@ class AuthenticationRequest : public NasMmPlainHeader {
   void setAuthentication_Parameter_AUTN(uint8_t* value);
 
  public:
-  NasKeySetIdentifier ie_ngKSI;
-  ABBA* ie_abba;
-  Authentication_Parameter_RAND* ie_authentication_parameter_rand;
-  Authentication_Parameter_AUTN* ie_authentication_parameter_autn;
-  EAP_Message* ie_eap_message;
+  NasKeySetIdentifier ie_ngKSI;                                     // Mandatory
+  ABBA ie_abba;                                                     // Mandatory
+  Authentication_Parameter_RAND* ie_authentication_parameter_rand;  // Optional
+  Authentication_Parameter_AUTN* ie_authentication_parameter_autn;  // Optional
+  EAP_Message* ie_eap_message;                                      // Optional
 };
 
 }  // namespace nas

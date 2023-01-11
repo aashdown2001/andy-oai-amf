@@ -38,9 +38,11 @@ class ABBA : public Type4NasIe {
   ABBA(uint8_t iei, uint8_t length, uint8_t* value);
   ~ABBA();
 
+  void Set(uint8_t length, uint8_t* value);
+  void Set(uint8_t iei, uint8_t length, uint8_t* value);
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
-  // uint8_t GetValue() const;
 
  private:
   uint8_t value_[256];  // TODO:

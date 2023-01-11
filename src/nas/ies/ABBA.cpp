@@ -60,6 +60,23 @@ ABBA::ABBA(uint8_t iei, uint8_t length, uint8_t* value) : Type4NasIe(iei) {
 ABBA::~ABBA() {}
 
 //------------------------------------------------------------------------------
+void ABBA::Set(uint8_t length, uint8_t* value) {
+  for (int i = 0; i < length; i++) {
+    this->value_[i] = value[i];
+  }
+  SetLengthIndicator(length);
+}
+
+//------------------------------------------------------------------------------
+void ABBA::Set(uint8_t iei, uint8_t length, uint8_t* value) {
+  SetIei(iei);
+  for (int i = 0; i < length; i++) {
+    this->value_[i] = value[i];
+  }
+  SetLengthIndicator(length);
+}
+
+//------------------------------------------------------------------------------
 int ABBA::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   int ie_len = GetIeLength();

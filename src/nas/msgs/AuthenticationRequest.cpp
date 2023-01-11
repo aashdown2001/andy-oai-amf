@@ -29,7 +29,6 @@ using namespace nas;
 //------------------------------------------------------------------------------
 AuthenticationRequest::AuthenticationRequest()
     : NasMmPlainHeader(EPD_5GS_MM_MSG, AUTHENTICATION_REQUEST) {
-  ie_abba                          = NULL;
   ie_authentication_parameter_rand = NULL;
   ie_authentication_parameter_autn = NULL;
   ie_eap_message                   = NULL;
@@ -52,7 +51,7 @@ void AuthenticationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
 
 //------------------------------------------------------------------------------
 void AuthenticationRequest::setABBA(uint8_t length, uint8_t* value) {
-  ie_abba = new ABBA(length, value);
+  ie_abba.Set(length, value);
 }
 
 //------------------------------------------------------------------------------
@@ -96,20 +95,16 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
   // Spare half octet
   encoded_size++;  // 1/2 octet + 1/2 octet from ie_ngKSI
 
-  if (!ie_abba) {
-    Logger::nas_mm().warn("IE ie_abba is not available");
+  // ABBA
+  size = ie_abba.Encode(buf + encoded_size, len - encoded_size);
+  if (size != KEncodeDecodeError) {
+    encoded_size += size;
   } else {
-    int size = ie_abba->Encode(buf + encoded_size, len - encoded_size);
-    if (size != 0) {
-      Logger::nas_mm().debug(
-          "0x%x, 0x%x, 0x%x", (buf + encoded_size)[0], (buf + encoded_size)[1],
-          (buf + encoded_size)[2]);
-      encoded_size += size;
-    } else {
-      Logger::nas_mm().error("Encoding ie_abba error");
-      return 0;
-    }
+    Logger::nas_mm().error("Encoding ie_abba error");
+    return 0;
   }
+
+  // Authentication parameter RAND
   if (!ie_authentication_parameter_rand) {
     Logger::nas_mm().warn(
         "IE ie_authentication_parameter_rand is not available");
@@ -123,6 +118,7 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+  // Authentication parameter AUTN
   if (!ie_authentication_parameter_autn) {
     Logger::nas_mm().warn(
         "IE ie_authentication_parameter_autn is not available");
@@ -136,6 +132,7 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+  // EAP message
   if (!ie_eap_message) {
     Logger::nas_mm().warn("IE ie_eap_message is not available");
   } else {
@@ -163,10 +160,10 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
       buf + decoded_size, len - decoded_size, false,
       false);      // length 1/2, low position
   decoded_size++;  // 1/2 octet from ie_ngKSI, 1/2 from Spare half octet
-  ie_abba = new ABBA();
-  decoded_size +=
-      ie_abba->Decode(buf + decoded_size, len - decoded_size, false);
+  // ABBA
+  decoded_size += ie_abba.Decode(buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("Decoded_size %d", decoded_size);
+
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI 0x%x", octet);
   while ((octet != 0x0)) {
