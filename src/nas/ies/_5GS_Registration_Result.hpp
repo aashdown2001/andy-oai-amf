@@ -22,34 +22,36 @@
 #ifndef _5GS_REGISTRATION_RESULT_H_
 #define _5GS_REGISTRATION_RESULT_H_
 
+#include "Type4NasIe.hpp"
 #include <stdint.h>
 
 constexpr uint8_t k5gsRegistrationResultLength = 3;
+constexpr auto k5gsRegistrationResultIeName    = "5GS Registration Result";
 
 namespace nas {
 
-class _5GS_Registration_Result {
+class _5GS_Registration_Result : public Type4NasIe {
  public:
   _5GS_Registration_Result();
   _5GS_Registration_Result(uint8_t iei);
+  _5GS_Registration_Result(bool emergency, bool nssaa, bool sms, uint8_t value);
   _5GS_Registration_Result(
-      const uint8_t iei, bool emergency, bool nssaa, bool sms, uint8_t value);
+      uint8_t iei, bool emergency, bool nssaa, bool sms, uint8_t value);
   ~_5GS_Registration_Result();
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
+  int Decode(uint8_t* buf, int len, bool is_iei);
+
   void setValue(uint8_t value);
-  uint8_t getValue();
-  void set(
-      const uint8_t iei, bool emergency, bool nssaa, bool sms, uint8_t value);
+  uint8_t getValue() const;
+  void set(uint8_t iei, bool emergency, bool nssaa, bool sms, uint8_t value);
   void set(bool emergency, bool nssaa, bool sms, uint8_t value);
 
  private:
-  uint8_t _iei;
-  uint8_t length;
-  bool emergency_registered;
-  bool NSSAA_performed;
-  bool SMS_allowed;
-  uint8_t _value;
+  bool emergency_registered_;
+  bool nssaa_performed_;
+  bool sms_allowed_;
+  uint8_t value_;
 };
 }  // namespace nas
 
