@@ -52,7 +52,7 @@ void AuthenticationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
 
 //------------------------------------------------------------------------------
 void AuthenticationRequest::setABBA(uint8_t length, uint8_t* value) {
-  ie_abba = new ABBA(0x00, length, value);
+  ie_abba = new ABBA(length, value);
 }
 
 //------------------------------------------------------------------------------

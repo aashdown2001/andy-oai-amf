@@ -19,35 +19,31 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _ABBA_H_
+#define _ABBA_H_
 
-#ifndef __ABBA_H_
-#define __ABBA_H_
-
+#include "Type4NasIe.hpp"
 #include <stdint.h>
+
+constexpr uint8_t kAbbaMinimumLength = 4;
+constexpr auto kAbbaIeName           = "ABBA";
 
 namespace nas {
 
-class ABBA {
+class ABBA : public Type4NasIe {
  public:
   ABBA();
   ABBA(uint8_t iei);
-  ABBA(const uint8_t iei, uint8_t length, uint8_t* value);
+  ABBA(uint8_t length, uint8_t* value);
+  ABBA(uint8_t iei, uint8_t length, uint8_t* value);
   ~ABBA();
-  // void setValue(uint8_t iei, uint8_t value);
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
-  uint8_t getValue();
+  // uint8_t GetValue() const;
 
  private:
-  uint8_t _iei;
-  uint8_t _length;
-  uint8_t _value[256];
+  uint8_t value_[256];  // TODO:
 };
 
 }  // namespace nas

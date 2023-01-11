@@ -99,6 +99,8 @@ constexpr uint8_t kIeiUeStatus                = 0x2b;
 constexpr uint8_t kIeiUeSecurityCapability = 0x2e;
 constexpr uint8_t kIeiUeNetworkCapability  = 0x17;
 
+constexpr uint8_t kIeiAbba = 0x38;
+
 constexpr uint8_t kIeiUplinkDataStatus = 0x40;
 
 constexpr uint8_t kT3502Value = 0x16;
