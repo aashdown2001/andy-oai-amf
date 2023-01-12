@@ -98,8 +98,9 @@ constexpr uint8_t kIeiAuthenticationParameterAutn = 0x20;
 constexpr uint8_t kIeiAuthenticationParameterRand = 0x21;
 constexpr uint8_t kIei5gsNetworkFeatureSupport    = 0x21;
 
-constexpr uint8_t kIeiAllowedPduSessionStatus = 0x25;
-constexpr uint8_t kIeiUeStatus                = 0x2b;
+constexpr uint8_t kIeiAllowedPduSessionStatus      = 0x25;
+constexpr uint8_t kIeiPduSessionReactivationResult = 0x26;
+constexpr uint8_t kIeiUeStatus                     = 0x2b;
 
 constexpr uint8_t kIeiUeSecurityCapability = 0x2e;
 constexpr uint8_t kIeiUeNetworkCapability  = 0x17;

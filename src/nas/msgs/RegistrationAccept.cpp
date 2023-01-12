@@ -166,7 +166,7 @@ void RegistrationAccept::setCONFIGURED_NSSAI(
 void RegistrationAccept::set_5GS_Network_Feature_Support(
     uint8_t value, uint8_t value2) {
   ie_5gs_network_feature_support =
-      std::make_optional<_5GS_Network_Feature_Support>(0x21, value, value2);
+      std::make_optional<_5GS_Network_Feature_Support>(value, value2);
 }
 
 //------------------------------------------------------------------------------
@@ -177,7 +177,7 @@ void RegistrationAccept::setPDU_session_status(uint16_t value) {
 //------------------------------------------------------------------------------
 void RegistrationAccept::setPDU_session_reactivation_result(uint16_t value) {
   ie_pdu_session_reactivation_result =
-      std::make_optional<PDU_Session_Reactivation_Result>(0x26, value);
+      std::make_optional<PDU_Session_Reactivation_Result>(value);
 }
 
 //------------------------------------------------------------------------------
@@ -433,6 +433,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+  /*
   if (!ie_ladn_information.has_value()) {
     Logger::nas_mm().warn("IE ie_ladn_information is not available");
   } else {
@@ -443,7 +444,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       Logger::nas_mm().error("encoding ie_ladn_information  error");
       return 0;
     }
-  }
+  }*/
   if (!ie_MICO_indication.has_value()) {
     Logger::nas_mm().warn("IE ie_MICO_indication is not available");
   } else {
@@ -750,8 +751,9 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x26: {
-        Logger::nas_mm().debug("Decoding IEI (0x26)");
+      case kIeiPduSessionReactivationResult: {
+        Logger::nas_mm().debug(
+            "Decoding IEI 0x%x", kIeiPduSessionReactivationResult);
         PDU_Session_Reactivation_Result ie_pdu_session_reactivation_result_tmp =
             {};
         decoded_size += ie_pdu_session_reactivation_result_tmp.Decode(

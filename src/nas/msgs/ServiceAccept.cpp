@@ -57,8 +57,7 @@ void ServiceAccept::setPDU_session_status(uint16_t value) {
 
 //------------------------------------------------------------------------------
 void ServiceAccept::setPDU_session_reactivation_result(uint16_t value) {
-  ie_session_reactivation_result =
-      new PDU_Session_Reactivation_Result(0x26, value);
+  ie_session_reactivation_result = new PDU_Session_Reactivation_Result(value);
 }
 
 //------------------------------------------------------------------------------

@@ -155,8 +155,7 @@ class RegistrationAccept : public NasMmPlainHeader {
   std::optional<Rejected_NSSAI> ie_rejected_nssai;    // Optional
   std::optional<NSSAI> ie_configured_nssai;           // Optional
   std::optional<_5GS_Network_Feature_Support>
-      ie_5gs_network_feature_support;  // Optional
-
+      ie_5gs_network_feature_support;                     // Optional
   std::optional<PDUSessionStatus> ie_PDU_session_status;  // Optional
   std::optional<PDU_Session_Reactivation_Result>
       ie_pdu_session_reactivation_result;  // Optional
