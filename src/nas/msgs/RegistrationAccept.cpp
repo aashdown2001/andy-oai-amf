@@ -202,13 +202,14 @@ void RegistrationAccept::setLADN_Information(std::vector<bstring> ladnValue) {
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setNetwork_Slicing_Indication(bool dcni, bool nssci) {
-  ie_network_slicing_indication =
-      std::make_optional<NetworkSlicingIndication>(0x09, dcni, nssci);
+  ie_network_slicing_indication = std::make_optional<NetworkSlicingIndication>(
+      kIeiNetworkSlicingIndication, dcni, nssci);
 }
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setT3512_Value(uint8_t unit, uint8_t value) {
-  ie_T3512_value = std::make_optional<GPRS_Timer_3>(0x5E, unit, value);
+  ie_T3512_value =
+      std::make_optional<GPRS_Timer_3>(kIeiGprsTimer3T3512, unit, value);
 }
 
 //------------------------------------------------------------------------------
@@ -661,8 +662,9 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x9: {
-        Logger::nas_mm().debug("Decoding IEI (0x9)");
+      case kIeiNetworkSlicingIndication: {
+        Logger::nas_mm().debug(
+            "Decoding IEI 0x%x9", kIeiNetworkSlicingIndication);
         NetworkSlicingIndication ie_network_slicing_indication_tmp = {};
         decoded_size += ie_network_slicing_indication_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
@@ -788,9 +790,9 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
          Logger::nas_mm().debug("Next IEI 0x%x", octet);
        } break;
        */
-      case 0x5E: {
-        Logger::nas_mm().debug("Decoding IEI (0x5E)");
-        GPRS_Timer_3 ie_T3512_value_tmp = {};
+      case kIeiGprsTimer3T3512: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiGprsTimer3T3512);
+        GPRS_Timer_3 ie_T3512_value_tmp(kIeiGprsTimer3T3512);
         decoded_size += ie_T3512_value_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_T3512_value = std::optional<GPRS_Timer_3>(ie_T3512_value_tmp);
@@ -865,27 +867,27 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x6C: {
-        Logger::nas_mm().debug("Decoding IEI (0x6C)");
-        GPRS_Timer_3 ie_T3447_value_tmp = {};
+      case kIeiGprsTimer3T3447: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiGprsTimer3T3447);
+        GPRS_Timer_3 ie_T3447_value_tmp(kIeiGprsTimer3T3447);
         decoded_size += ie_T3447_value_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_T3447_value = std::optional<GPRS_Timer_3>(ie_T3447_value_tmp);
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x6B: {
-        Logger::nas_mm().debug("Decoding IEI (0x6B)");
-        GPRS_Timer_3 ie_T3448_value_tmp = {};
+      case kIeiGprsTimer3T3348: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiGprsTimer3T3348);
+        GPRS_Timer_3 ie_T3448_value_tmp(kIeiGprsTimer3T3348);
         decoded_size += ie_T3448_value_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_T3448_value = std::optional<GPRS_Timer_3>(ie_T3448_value_tmp);
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x6A: {
-        Logger::nas_mm().debug("Decoding IEI (0x6A)");
-        GPRS_Timer_3 ie_T3324_value_tmp = {};
+      case kIeiGprsTimer3T3324: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiGprsTimer3T3324);
+        GPRS_Timer_3 ie_T3324_value_tmp(kIeiGprsTimer3T3324);
         decoded_size += ie_T3324_value_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_T3324_value = std::optional<GPRS_Timer_3>(ie_T3324_value_tmp);

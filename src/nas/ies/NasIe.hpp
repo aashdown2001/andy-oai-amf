@@ -22,6 +22,11 @@
 #ifndef _NAS_IE_H_
 #define _NAS_IE_H_
 
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
+#include "Ie_Const.hpp"
+#include "logger.hpp"
+
 #include <optional>
 
 namespace nas {

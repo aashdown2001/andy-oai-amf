@@ -219,7 +219,7 @@ int DLNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
       } break;
       case 0x37: {
         Logger::nas_mm().debug("Decoding IEI (0x37)");
-        ie_back_off_timer_value = new GPRS_Timer_3();
+        ie_back_off_timer_value = new GPRS_Timer_3(kIeiGprsTimer3BackOffTimer);
         decoded_size += ie_back_off_timer_value->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

@@ -119,6 +119,11 @@ constexpr uint8_t kT3346Value          = 0x5f;
 
 constexpr uint8_t kIeiEpsBearerContextStatus = 0x60;
 constexpr uint8_t kIeiRejectedNssaiRr        = 0x69;
+constexpr uint8_t kIeiGprsTimer3T3324        = 0x6A;
+constexpr uint8_t kIeiGprsTimer3T3348        = 0x6B;
+constexpr uint8_t kIeiGprsTimer3T3447        = 0x6C;
+constexpr uint8_t kIeiGprsTimer3T3512        = 0x5E;
+constexpr uint8_t kIeiGprsTimer3BackOffTimer = 0x37;
 
 constexpr uint8_t kIeiEpsNasMessageContainer                 = 0x70;
 constexpr uint8_t kIeiNasMessageContainer                    = 0x71;

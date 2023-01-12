@@ -19,98 +19,94 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "GPRS_Timer_3.hpp"
 
-#include "logger.hpp"
 using namespace nas;
 
 //------------------------------------------------------------------------------
-GPRS_Timer_3::GPRS_Timer_3(uint8_t iei) {
-  _iei   = iei;
-  UNIT   = 0;
-  _value = 0;
+GPRS_Timer_3::GPRS_Timer_3(uint8_t iei) : Type4NasIe(iei), unit_(), value_() {
+  SetLengthIndicator(1);
+  SetIeName(kGprsTimer3IeName);
 }
 
 //------------------------------------------------------------------------------
-GPRS_Timer_3::GPRS_Timer_3(const uint8_t iei, uint8_t unit, uint8_t value) {
-  _iei   = iei;
-  UNIT   = unit;
-  _value = value;
+GPRS_Timer_3::GPRS_Timer_3(const uint8_t iei, uint8_t unit, uint8_t value)
+    : Type4NasIe(iei) {
+  unit_  = unit;
+  value_ = value;
+  SetLengthIndicator(1);
+  SetIeName(kGprsTimer3IeName);
 }
-
-//------------------------------------------------------------------------------
-GPRS_Timer_3::GPRS_Timer_3() : _iei(), UNIT(), _value() {}
 
 //------------------------------------------------------------------------------
 GPRS_Timer_3::~GPRS_Timer_3() {}
 
 //------------------------------------------------------------------------------
 void GPRS_Timer_3::setValue(uint8_t unit, uint8_t value) {
-  UNIT   = unit;
-  _value = value;
+  unit_  = unit;
+  value_ = value;
 }
 
 //------------------------------------------------------------------------------
-uint8_t GPRS_Timer_3::getUnit() {
-  return UNIT;
+uint8_t GPRS_Timer_3::getUnit() const {
+  return unit_;
 }
 
 //------------------------------------------------------------------------------
-uint8_t GPRS_Timer_3::getValue() {
-  return _value;
+uint8_t GPRS_Timer_3::getValue() const {
+  return value_;
 }
 
 //------------------------------------------------------------------------------
 int GPRS_Timer_3::Encode(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding GPRS_Timer_3 IEI (0x%x)", _iei);
-  if (len < 3) {
-    Logger::nas_mm().error("len is less than 3");
-    return 0;
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
+  int ie_len = GetIeLength();
+
+  if (len < ie_len) {
+    Logger::nas_mm().error("Len is less than %d", ie_len);
+    return KEncodeDecodeError;
   }
-  uint8_t octet    = 0;
+
   int encoded_size = 0;
-  octet            = (UNIT << 5) | (_value & 0x1f);
-  if (_iei) {
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = 1;
-    encoded_size++;
-    *(buf + encoded_size) = octet;
-    encoded_size++;
-    Logger::nas_mm().debug("Encoded GPRS_Timer_3 content (0x%x)", octet);
-  } else {
-    *(buf + encoded_size) = 1;
-    encoded_size++;
-    *(buf + encoded_size) = octet;
-    encoded_size++;
-  }
-  Logger::nas_mm().debug("Encoded GPRS_Timer_3 len (%d)", encoded_size);
+  // IEI and Length
+  int encoded_header_size = Type4NasIe::Encode(buf + encoded_size, len);
+  if (encoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  encoded_size += encoded_header_size;
+
+  // Octet 3
+  uint8_t octet = (unit_ << 5) | (value_ & 0x1f);
+  ENCODE_U8(buf + encoded_size, octet, encoded_size);
+
+  Logger::nas_mm().debug(
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int GPRS_Timer_3::Decode(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("Decoding GPRS_Timer_3 IEI (0x%x)", *buf);
-  int decoded_size = 0;
-  if (is_option) {
-    _iei = *buf;
-    decoded_size++;
+int GPRS_Timer_3::Decode(uint8_t* buf, int len, bool is_iei) {
+  if (len < kGprsTimer3Length) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kGprsTimer3Length);
+    return KEncodeDecodeError;
   }
-  uint8_t octet = 0;
-  //	length = *(buf + decoded_size);
-  decoded_size++;
-  octet = *(buf + decoded_size);
-  decoded_size++;
-  UNIT   = (octet & 0xe0) >> 5;
-  _value = octet & 0x1f;
-  Logger::nas_mm().debug("Decoded GPRS_Timer_3 content (0x%x)", octet);
-  Logger::nas_mm().debug("Decoded GPRS_Timer_3 len (%d)", decoded_size);
+
+  uint8_t decoded_size = 0;
+  uint8_t octet        = 0;
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+
+  // IEI and Length
+  int decoded_header_size = Type4NasIe::Decode(buf + decoded_size, len, is_iei);
+  if (decoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  decoded_size += decoded_header_size;
+
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+  unit_  = (octet & 0xe0) >> 5;
+  value_ = octet & 0x1f;
+
+  Logger::nas_mm().debug(
+      "Decoded %s, Unit 0x%x, Value 0x%x", GetIeName().c_str(), unit_, value_);
+  Logger::nas_mm().debug(
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
 }
