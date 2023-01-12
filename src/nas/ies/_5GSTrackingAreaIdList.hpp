@@ -22,30 +22,30 @@
 #ifndef _5GS_TRACKING_AREA_ID_LIST_H_
 #define _5GS_TRACKING_AREA_ID_LIST_H_
 
+#include "Type4NasIe.hpp"
 #include <vector>
 
 #include "struct.hpp"
 
 constexpr uint8_t k5gsTrackingAreaIdListMinimumLength = 9;
 constexpr uint8_t k5gsTrackingAreaIdListMaximumLength = 114;
+constexpr auto k5gsTrackingAreaIdListIeName = "5GS Tracking Area Identity List";
 
 namespace nas {
 
-class _5GSTrackingAreaIdList {
+class _5GSTrackingAreaIdList : public Type4NasIe {
  public:
-  _5GSTrackingAreaIdList(uint8_t iei, std::vector<p_tai_t> tai_list);
+  _5GSTrackingAreaIdList();
+  _5GSTrackingAreaIdList(const std::vector<p_tai_t>& tai_list);
   int Encode(uint8_t* buf, int len);
 
  private:
-  uint8_t m_iei;
-  uint8_t length;
   std::vector<p_tai_t> m_tai_list;
 
  private:
   int encode_00_type(p_tai_t item, uint8_t* buf, int len);
   int encode_01_type(p_tai_t item, uint8_t* buf, int len);
   int encode_10_type(p_tai_t item, uint8_t* buf, int len);
-  int encode_mcc_mnc(nas_plmn_t plmn, uint8_t* buf, int len);
 };
 
 }  // namespace nas

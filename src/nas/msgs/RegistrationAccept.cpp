@@ -63,7 +63,7 @@ RegistrationAccept::RegistrationAccept()
   ie_T3324_value                                 = nullptr;
   ie_ue_radio_capability_id                      = nullptr;
   ie_pending_nssai                               = nullptr;
-  ie_tai_list                                    = nullptr;
+  ie_tai_list                                    = std::nullopt;
 }
 
 //------------------------------------------------------------------------------
@@ -279,7 +279,7 @@ void RegistrationAccept::setPending_NSSAI(std::vector<struct SNSSAI_s> nssai) {
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setTaiList(std::vector<p_tai_t> tai_list) {
-  ie_tai_list = new _5GSTrackingAreaIdList(0x54, tai_list);
+  ie_tai_list = std::make_optional<_5GSTrackingAreaIdList>(tai_list);
 }
 
 //------------------------------------------------------------------------------
@@ -315,10 +315,11 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_tai_list) {
+  if (!ie_tai_list.has_value()) {
     Logger::nas_mm().warn("IE ie_tai_list is not available");
   } else {
-    int size = ie_tai_list->Encode(buf + encoded_size, len - encoded_size);
+    int size =
+        ie_tai_list.value().Encode(buf + encoded_size, len - encoded_size);
     if (size != -1) {
       encoded_size += size;
     } else {
@@ -606,19 +607,6 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
-#if 0
-        if(!ie_tai_list){
-          Logger::nas_mm().warn("IE ie_tai_list is not available");
-        }else{
-          int size = ie_tai_list->Encode(buf+encoded_size, len-encoded_size);
-          if(size != -1){
-            encoded_size += size;
-          }else{
-	    Logger::nas_mm().error("Encoding ie_tai_list error");
-	    return 0;
-          }
-        }
-#endif
   Logger::nas_mm().debug(
       "Encoded RegistrationAccept message len (%d)", encoded_size);
   return encoded_size;
@@ -850,6 +838,20 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
         octet               = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+      case kIei5gsTrackingAreaIdentityList: {
+        Logger::nas_mm().debug(
+            "Decoding IEI 0x%x", kIei5gsTrackingAreaIdentityList);
+        _5GSTrackingAreaIdList ie_tai_list_tmp = {};
+        decoded_size += ie_tai_list_tmp.Decode(
+            buf + decoded_size, len - decoded_size, true);
+        ie_tai_list = std::optional<_5GSTrackingAreaIdList>(ie_tai_list_tmp);
+        octet       = *(buf + decoded_size);
+        Logger::nas_mm().debug("Next IEI (0x%x)", octet);
+      } break;
+
+      default: {
+        break;
+      }
     }
   }
   Logger::nas_mm().debug(

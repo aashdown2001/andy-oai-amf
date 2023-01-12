@@ -150,7 +150,7 @@ class RegistrationAccept : public NasMmPlainHeader {
 
   std::optional<_5GSMobileIdentity> ie_5g_guti;                  // Optional
   std::optional<PlmnList> ie_equivalent_plmns;                   // Optional
-  _5GSTrackingAreaIdList* ie_tai_list;                           // Optional
+  std::optional<_5GSTrackingAreaIdList> ie_tai_list;             // Optional
   NSSAI* ie_allowed_nssai;                                       // Optional
   Rejected_NSSAI* ie_rejected_nssai;                             // Optional
   NSSAI* ie_configured_nssai;                                    // Optional
