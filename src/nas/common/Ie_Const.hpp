@@ -96,6 +96,7 @@ constexpr uint8_t kIei5gmmCapability              = 0x10;
 constexpr uint8_t kIeiUeUsageSetting              = 0x18;
 constexpr uint8_t kIeiAuthenticationParameterAutn = 0x20;
 constexpr uint8_t kIeiAuthenticationParameterRand = 0x21;
+constexpr uint8_t kIei5gsNetworkFeatureSupport    = 0x21;
 
 constexpr uint8_t kIeiAllowedPduSessionStatus = 0x25;
 constexpr uint8_t kIeiUeStatus                = 0x2b;
@@ -121,6 +122,7 @@ constexpr uint8_t kIeiRejectedNssaiRr        = 0x69;
 constexpr uint8_t kIeiEpsNasMessageContainer = 0x70;
 constexpr uint8_t kIeiNasMessageContainer    = 0x71;
 constexpr uint8_t kIeiLadnIndication         = 0x74;
+constexpr uint8_t kIeiLadnInformation        = 0x79;
 constexpr uint8_t kIei5gGuti                 = 0x77;
 constexpr uint8_t kIeiImeisv                 = 0x77;
 constexpr uint8_t kIeiNonImeisvPei           = 0x78;

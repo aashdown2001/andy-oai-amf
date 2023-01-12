@@ -148,42 +148,51 @@ class RegistrationAccept : public NasMmPlainHeader {
  public:
   _5GS_Registration_Result ie_5gs_registration_result;  // Mandatory
 
-  std::optional<_5GSMobileIdentity> ie_5g_guti;                  // Optional
-  std::optional<PlmnList> ie_equivalent_plmns;                   // Optional
-  std::optional<_5GSTrackingAreaIdList> ie_tai_list;             // Optional
-  NSSAI* ie_allowed_nssai;                                       // Optional
-  Rejected_NSSAI* ie_rejected_nssai;                             // Optional
-  NSSAI* ie_configured_nssai;                                    // Optional
-  _5GS_Network_Feature_Support* ie_5gs_network_feature_support;  // Optional
+  std::optional<_5GSMobileIdentity> ie_5g_guti;       // Optional
+  std::optional<PlmnList> ie_equivalent_plmns;        // Optional
+  std::optional<_5GSTrackingAreaIdList> ie_tai_list;  // Optional
+  std::optional<NSSAI> ie_allowed_nssai;              // Optional
+  std::optional<Rejected_NSSAI> ie_rejected_nssai;    // Optional
+  std::optional<NSSAI> ie_configured_nssai;           // Optional
+  std::optional<_5GS_Network_Feature_Support>
+      ie_5gs_network_feature_support;  // Optional
 
-  PDUSessionStatus* ie_PDU_session_status;  // Optional
-  PDU_Session_Reactivation_Result*
+  std::optional<PDUSessionStatus> ie_PDU_session_status;  // Optional
+  std::optional<PDU_Session_Reactivation_Result>
       ie_pdu_session_reactivation_result;  // Optional
-  PDU_Session_Reactivation_Result_Error_Cause*
+  std::optional<PDU_Session_Reactivation_Result_Error_Cause>
       ie_pdu_session_reactivation_result_error_cause;  // Optional
-  // TODO: LADN information
-  MicoIndication* ie_MICO_indication;                       // Optional
-  NetworkSlicingIndication* ie_network_slicing_indication;  // Optional
+  // TODO: std::optional<LadnInformation> ie_ladn_information;               //
+  // Optional
+  std::optional<MicoIndication> ie_MICO_indication;  // Optional
+  std::optional<NetworkSlicingIndication>
+      ie_network_slicing_indication;  // Optional
   // TODO: Service Area List
-  GPRS_Timer_3* ie_T3512_value;  // Optional
+  std::optional<GPRS_Timer_3> ie_T3512_value;  // Optional
 
-  GPRS_Timer_2* ie_Non_3GPP_de_registration_timer_value;  // Optional
-  GPRS_Timer_2* ie_T3502_value;                           // Optional
+  std::optional<GPRS_Timer_2>
+      ie_Non_3GPP_de_registration_timer_value;  // Optional
+  std::optional<GPRS_Timer_2> ie_T3502_value;   // Optional
   // TODO: Emergency number list
   // TODO: Extended emergency number list
-  SOR_Transparent_Container* ie_sor_transparent_container;  // Optional
-  EAP_Message* ie_eap_message;                              // Optional
-  NSSAI_Inclusion_Mode* ie_nssai_inclusion_mode;            // Optional
+  std::optional<SOR_Transparent_Container>
+      ie_sor_transparent_container;                             // Optional
+  std::optional<EAP_Message> ie_eap_message;                    // Optional
+  std::optional<NSSAI_Inclusion_Mode> ie_nssai_inclusion_mode;  // Optional
   // TODO: Operator-defined access category definitions
-  _5GS_DRX_Parameters* ie_negotiated_drx_parameters;       // Optional
-  Non_3GPP_NW_Provided_Policies* ie_non_3gpp_nw_policies;  // Optional
-  EpsBearerContextStatus* ie_eps_bearer_context_status;    // Optional
-  Extended_DRX_Parameters* ie_extended_drx_parameters;     // Optional
-  GPRS_Timer_3* ie_T3447_value;                            // Optional
-  GPRS_Timer_3* ie_T3448_value;                            // Optional
-  GPRS_Timer_3* ie_T3324_value;                            // Optional
-  UE_Radio_Capability_ID* ie_ue_radio_capability_id;  // Which Release 16.x.x?
-  NSSAI* ie_pending_nssai;                            // Which Release 16.x.x?
+  std::optional<_5GS_DRX_Parameters> ie_negotiated_drx_parameters;  // Optional
+  std::optional<Non_3GPP_NW_Provided_Policies>
+      ie_non_3gpp_nw_policies;  // Optional
+  std::optional<EpsBearerContextStatus>
+      ie_eps_bearer_context_status;  // Optional
+  std::optional<Extended_DRX_Parameters>
+      ie_extended_drx_parameters;              // Optional
+  std::optional<GPRS_Timer_3> ie_T3447_value;  // Optional
+  std::optional<GPRS_Timer_3> ie_T3448_value;  // Optional
+  std::optional<GPRS_Timer_3> ie_T3324_value;  // Optional
+  std::optional<UE_Radio_Capability_ID>
+      ie_ue_radio_capability_id;          // Which Release 16.x.x?
+  std::optional<NSSAI> ie_pending_nssai;  // Which Release 16.x.x?
 };
 
 }  // namespace nas
