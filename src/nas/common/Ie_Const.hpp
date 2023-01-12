@@ -120,6 +120,7 @@ constexpr uint8_t kIei5gsUpdateType    = 0x53;
 constexpr uint8_t kT3346Value          = 0x5f;
 
 constexpr uint8_t kIeiEpsBearerContextStatus = 0x60;
+constexpr uint8_t kIeiUeRadioCapabilityId    = 0x67;
 constexpr uint8_t kIeiRejectedNssaiRr        = 0x69;
 constexpr uint8_t kIeiGprsTimer3T3324        = 0x6A;
 constexpr uint8_t kIeiGprsTimer3T3348        = 0x6B;

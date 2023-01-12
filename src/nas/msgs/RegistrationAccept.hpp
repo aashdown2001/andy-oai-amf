@@ -139,7 +139,7 @@ class RegistrationAccept : public NasMmPlainHeader {
   void setT3324_Value(uint8_t unit, uint8_t value);
   // TODO: Get
 
-  void setUE_Radio_Capability_ID(uint8_t value);
+  void setUE_Radio_Capability_ID(bstring value);
   // TODO: Get
 
   void setPending_NSSAI(std::vector<struct SNSSAI_s> nssai);
@@ -189,8 +189,13 @@ class RegistrationAccept : public NasMmPlainHeader {
   std::optional<GprsTimer3> ie_T3448_value;  // Optional
   std::optional<GprsTimer3> ie_T3324_value;  // Optional
   std::optional<UE_Radio_Capability_ID>
-      ie_ue_radio_capability_id;          // Which Release 16.x.x?
-  std::optional<NSSAI> ie_pending_nssai;  // Which Release 16.x.x?
+      ie_ue_radio_capability_id;  // Release 16.4.1
+  // TODO: UE radio capability ID deletion indication
+  std::optional<NSSAI> ie_pending_nssai;  // Release 16.4.1
+  // TODO: Ciphering key data (Release 16.4.1)
+  // TODO: CAG information list (Release 16.4.1)
+  // TODO: Truncated 5G-S-TMSI configuration (Release 16.4.1)
+  // TODO: Negotiated WUS assistance information (Release 16.4.1)
 };
 
 }  // namespace nas

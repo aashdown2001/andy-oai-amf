@@ -249,7 +249,7 @@ void RegistrationAccept::set_5GS_DRX_arameters(uint8_t value) {
 //------------------------------------------------------------------------------
 void RegistrationAccept::setNon_3GPP_NW_Provided_Policies(uint8_t value) {
   ie_non_3gpp_nw_policies =
-      std::make_optional<Non_3GPP_NW_Provided_Policies>(0x0D, value);
+      std::make_optional<Non_3GPP_NW_Provided_Policies>(value);
 }
 
 //------------------------------------------------------------------------------
@@ -262,7 +262,7 @@ void RegistrationAccept::setEPS_Bearer_Context_Status(uint16_t value) {
 void RegistrationAccept::setExtended_DRX_Parameters(
     uint8_t paging_time, uint8_t value) {
   ie_extended_drx_parameters =
-      std::make_optional<Extended_DRX_Parameters>(0x6E, paging_time, value);
+      std::make_optional<Extended_DRX_Parameters>(paging_time, value);
 }
 
 //------------------------------------------------------------------------------
@@ -281,9 +281,8 @@ void RegistrationAccept::setT3324_Value(uint8_t unit, uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationAccept::setUE_Radio_Capability_ID(uint8_t value) {
-  ie_ue_radio_capability_id =
-      std::make_optional<UE_Radio_Capability_ID>(0x67, value);
+void RegistrationAccept::setUE_Radio_Capability_ID(bstring value) {
+  ie_ue_radio_capability_id = std::make_optional<UE_Radio_Capability_ID>(value);
 }
 
 //------------------------------------------------------------------------------

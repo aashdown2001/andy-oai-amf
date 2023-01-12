@@ -19,90 +19,100 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "UE_Radio_Capability_ID.hpp"
 
+#include "3gpp_24.501.hpp"
+#include "common_defs.h"
+#include "Ie_Const.hpp"
 #include "logger.hpp"
 using namespace nas;
 
 //------------------------------------------------------------------------------
-UE_Radio_Capability_ID::UE_Radio_Capability_ID(uint8_t iei) {
-  _iei   = iei;
-  _value = 0;
+UE_Radio_Capability_ID::UE_Radio_Capability_ID()
+    : Type4NasIe(kIeiUeRadioCapabilityId), value_() {
+  SetLengthIndicator(0);
+  SetIeName(kUeRadioCapabilityIdIeName);
 }
 
 //------------------------------------------------------------------------------
-UE_Radio_Capability_ID::UE_Radio_Capability_ID(
-    const uint8_t iei, uint8_t value) {
-  _iei   = iei;
-  _value = value;
-}
-
-//------------------------------------------------------------------------------
-UE_Radio_Capability_ID::UE_Radio_Capability_ID() {
-  _iei   = 0;
-  _value = 0;
+UE_Radio_Capability_ID::UE_Radio_Capability_ID(bstring value)
+    : Type4NasIe(kIeiUeRadioCapabilityId) {
+  value_ = bstrcpy(value);
+  SetLengthIndicator(blength(value_));
+  SetIeName(kUeRadioCapabilityIdIeName);
 }
 
 //------------------------------------------------------------------------------
 UE_Radio_Capability_ID::~UE_Radio_Capability_ID() {}
 
 //------------------------------------------------------------------------------
-void UE_Radio_Capability_ID::setValue(uint8_t value) {
-  _value = value;
+void UE_Radio_Capability_ID::setValue(bstring value) {
+  value_ = bstrcpy(value);
 }
 
 //------------------------------------------------------------------------------
-uint8_t UE_Radio_Capability_ID::getValue() {
-  return _value;
+void UE_Radio_Capability_ID::getValue(bstring& value) const {
+  value = bstrcpy(value_);
 }
 
 //------------------------------------------------------------------------------
 int UE_Radio_Capability_ID::Encode(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("encoding UE_Radio_Capability_ID iei(0x%x)", _iei);
-  if (len < 3) {
-    Logger::nas_mm().error("len is less than 3");
-    return 0;
-  }
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   int encoded_size = 0;
-  if (_iei) {
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = 1;
-    encoded_size++;
-    *(buf + encoded_size) = _value;
-    encoded_size++;
-  } else {
-    //	*(buf + encoded_size) = length - 1; encoded_size++;
-    //	*(buf + encoded_size) = _value; encoded_size++; encoded_size++;
+  int ie_len       = GetIeLength();
+  if (len < ie_len) {  // Length of the content + IEI/Len
+    Logger::nas_mm().error(
+        "Size of the buffer is not enough to store this IE (IE len %d)",
+        ie_len);
+    return KEncodeDecodeError;
   }
+
+  // IEI and Length (later)
+  int len_pos = 0;
+  int encoded_header_size =
+      Type4NasIe::Encode(buf + encoded_size, len, len_pos);
+  if (encoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  encoded_size += encoded_header_size;
+
+  // Value
+  int size = encode_bstring(value_, (buf + encoded_size), len - encoded_size);
+  encoded_size += size;
+
+  // Encode length
+  int encoded_len_ie = 0;
+  ENCODE_U16(buf + len_pos, encoded_size - GetHeaderLength(), encoded_len_ie);
+
   Logger::nas_mm().debug(
-      "encoded UE_Radio_Capability_ID len(%d)", encoded_size);
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int UE_Radio_Capability_ID::Decode(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("decoding UE_Radio_Capability_ID iei(0x%x)", *buf);
+int UE_Radio_Capability_ID::Decode(uint8_t* buf, int len, bool is_iei) {
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
   int decoded_size = 0;
-  if (is_option) {
-    _iei = *buf;
-    decoded_size++;
+
+  // IEI and Length
+  int decoded_header_size = Type4NasIe::Decode(buf + decoded_size, len, is_iei);
+  if (decoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  decoded_size += decoded_header_size;
+  uint16_t ie_len = 0;
+  ie_len          = GetLengthIndicator();
+
+  if (len < GetIeLength()) {
+    Logger::nas_mm().error("Len is less than %d", GetIeLength());
+    return KEncodeDecodeError;
   }
-  _value = 0x00;
-  //	length = *(buf + decoded_size);
-  decoded_size++;
-  _value = *(buf + decoded_size);
-  decoded_size++;
+
+  // Value
+  decode_bstring(&value_, ie_len, (buf + decoded_size), len - decoded_size);
+  decoded_size += ie_len;
+  for (int i = 0; i < ie_len; i++) {
+    Logger::nas_mm().debug(
+        "Decoded NasMessageContainer value 0x%x", (uint8_t) value_->data[i]);
+  }
+
   Logger::nas_mm().debug(
-      "decoded UE_Radio_Capability_ID _value(0x%x),iei(0x%x)", _value, _iei);
-  Logger::nas_mm().debug(
-      "decoded UE_Radio_Capability_ID len(%d)", decoded_size);
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
 }

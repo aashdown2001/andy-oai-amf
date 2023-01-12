@@ -19,34 +19,35 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _UE_RADIO_CAPABILITY_ID_H_
+#define _UE_RADIO_CAPABILITY_ID_H_
 
-#ifndef __UE_Radio_Capability_ID_H_
-#define __UE_Radio_Capability_ID_H_
-
+#include "Type4NasIe.hpp"
 #include <stdint.h>
+
+extern "C" {
+#include "TLVDecoder.h"
+#include "TLVEncoder.h"
+#include "bstrlib.h"
+}
+
+constexpr auto kUeRadioCapabilityIdIeName = "UE Radio Capability ID";
 
 namespace nas {
 
-class UE_Radio_Capability_ID {
+class UE_Radio_Capability_ID : public Type4NasIe {
  public:
   UE_Radio_Capability_ID();
-  UE_Radio_Capability_ID(uint8_t iei);
-  UE_Radio_Capability_ID(const uint8_t iei, uint8_t value);
+  UE_Radio_Capability_ID(bstring value);
   ~UE_Radio_Capability_ID();
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void setValue(uint8_t value);
-  uint8_t getValue();
+  int Decode(uint8_t* buf, int len, bool is_iei);
+  void setValue(bstring value);
+  void getValue(bstring& value) const;
 
  private:
-  uint8_t _iei;
-  uint8_t _value;
+  bstring value_;
 };
 }  // namespace nas
 
