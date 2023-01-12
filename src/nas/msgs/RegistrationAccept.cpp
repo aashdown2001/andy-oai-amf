@@ -233,7 +233,7 @@ void RegistrationAccept::setSOR_Transparent_Container(
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setEAP_Message(bstring eap) {
-  ie_eap_message = std::make_optional<EAP_Message>(0x78, eap);
+  ie_eap_message = std::make_optional<EapMessage>(0x78, eap);
 }
 
 //------------------------------------------------------------------------------
@@ -832,10 +832,10 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
       } break;
       case 0x78: {
         Logger::nas_mm().debug("Decoding IEI (0x78)");
-        EAP_Message ie_eap_message_tmp = {};
+        EapMessage ie_eap_message_tmp = {};
         decoded_size += ie_eap_message_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
-        ie_eap_message = std::optional<EAP_Message>(ie_eap_message_tmp);
+        ie_eap_message = std::optional<EapMessage>(ie_eap_message_tmp);
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

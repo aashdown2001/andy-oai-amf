@@ -175,7 +175,7 @@ class RegistrationAccept : public NasMmPlainHeader {
   // TODO: Extended emergency number list
   std::optional<SOR_Transparent_Container>
       ie_sor_transparent_container;                             // Optional
-  std::optional<EAP_Message> ie_eap_message;                    // Optional
+  std::optional<EapMessage> ie_eap_message;                     // Optional
   std::optional<NSSAI_Inclusion_Mode> ie_nssai_inclusion_mode;  // Optional
   // TODO: Operator-defined access category definitions
   std::optional<_5GS_DRX_Parameters> ie_negotiated_drx_parameters;  // Optional

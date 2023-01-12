@@ -69,7 +69,7 @@ bool AuthenticationResponse::getAuthenticationResponseParameter(bstring& para) {
 
 //------------------------------------------------------------------------------
 void AuthenticationResponse::setEAP_Message(bstring eap) {
-  ie_eap_message = new EAP_Message(0x78, eap);
+  ie_eap_message = new EapMessage(0x78, eap);
 }
 
 //------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ int AuthenticationResponse::Decode(
       } break;
       case 0x78: {
         Logger::nas_mm().debug("Decoding IEI (0x78)");
-        ie_eap_message = new EAP_Message();
+        ie_eap_message = new EapMessage();
         decoded_size += ie_eap_message->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

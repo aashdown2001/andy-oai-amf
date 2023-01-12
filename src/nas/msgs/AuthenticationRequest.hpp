@@ -50,8 +50,8 @@ class AuthenticationRequest : public NasMmPlainHeader {
   std::optional<Authentication_Parameter_RAND>
       ie_authentication_parameter_rand;  // Optional
   std::optional<Authentication_Parameter_AUTN>
-      ie_authentication_parameter_autn;       // Optional
-  std::optional<EAP_Message> ie_eap_message;  // Optional
+      ie_authentication_parameter_autn;      // Optional
+  std::optional<EapMessage> ie_eap_message;  // Optional
 };
 
 }  // namespace nas

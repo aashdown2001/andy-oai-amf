@@ -47,7 +47,7 @@ class AuthenticationResult {
  public:
   NasMmPlainHeader* plain_header;
   NasKeySetIdentifier* ie_ngKSI;
-  EAP_Message* ie_eap_message;
+  EapMessage* ie_eap_message;
   ABBA* ie_abba;
 };
 

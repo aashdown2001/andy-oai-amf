@@ -19,36 +19,40 @@
  *      contact@openairinterface.org
  */
 
-#ifndef _EAP_Message_H_
-#define _EAP_Message_H_
+#ifndef _EAP_MESSAGE_H_
+#define _EAP_MESSAGE_H_
 
+#include "Type6NasIe.hpp"
 #include <stdint.h>
-
-constexpr uint8_t kEapMessageMinimumLength  = 7;
-constexpr uint16_t kEapMessageMaximumLength = 1503;
 
 extern "C" {
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"
 #include "bstrlib.h"
 }
+
+constexpr uint8_t kEapMessageMinimumLength  = 7;
+constexpr uint16_t kEapMessageMaximumLength = 1503;
+constexpr auto kEapMessageIeName            = "EAP Message";
+
 namespace nas {
 
-class EAP_Message {
+class EapMessage : Type6NasIe {
  public:
-  EAP_Message();
-  EAP_Message(uint8_t iei);
-  EAP_Message(const uint8_t iei, bstring eap);
-  ~EAP_Message();
-  // void setValue(uint8_t iei, uint8_t value);
+  EapMessage();
+  EapMessage(uint8_t iei);
+  EapMessage(bstring eap);
+  EapMessage(uint8_t iei, bstring eap);
+  ~EapMessage();
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
+  int Decode(uint8_t* buf, int len, bool is_iei);
+
+  // void setValue(uint8_t iei, uint8_t value);
   void getValue(bstring& eap);
 
  private:
-  uint8_t _iei;
-  uint16_t length;
-  bstring EAP;
+  bstring eap_;
 };
 
 }  // namespace nas

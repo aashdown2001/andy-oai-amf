@@ -44,7 +44,7 @@ class AuthenticationReject {
 
  public:
   NasMmPlainHeader* plain_header;
-  EAP_Message* ie_eap_message;
+  EapMessage* ie_eap_message;
 };
 
 }  // namespace nas

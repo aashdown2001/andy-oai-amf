@@ -72,7 +72,7 @@ void AuthenticationRequest::setAuthentication_Parameter_AUTN(
 
 //------------------------------------------------------------------------------
 void AuthenticationRequest::setEAP_Message(bstring eap) {
-  ie_eap_message = std::make_optional<EAP_Message>(kIeiEapMessage, eap);
+  ie_eap_message = std::make_optional<EapMessage>(kIeiEapMessage, eap);
 }
 
 //------------------------------------------------------------------------------
@@ -205,13 +205,13 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
       } break;
       case kIeiEapMessage: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiEapMessage);
-        EAP_Message ie_eap_message_tmp = {};
+        EapMessage ie_eap_message_tmp = {};
         if ((decoded_result = ie_eap_message_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
-        ie_eap_message = std::optional<EAP_Message>(ie_eap_message_tmp);
+        ie_eap_message = std::optional<EapMessage>(ie_eap_message_tmp);
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;

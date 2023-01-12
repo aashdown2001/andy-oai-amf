@@ -63,7 +63,7 @@ void AuthenticationResult::setABBA(uint8_t length, uint8_t* value) {
 
 //------------------------------------------------------------------------------
 void AuthenticationResult::setEAP_Message(bstring eap) {
-  ie_eap_message = new EAP_Message(0x00, eap);
+  ie_eap_message = new EapMessage(0x00, eap);
 }
 
 //------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ int AuthenticationResult::Decode(
       buf + decoded_size, len - decoded_size, false,
       false);      // length 1/2, low position
   decoded_size++;  // 1/2 octet from ie_ngKSI, 1/2 from Spare half octet
-  ie_eap_message = new EAP_Message();
+  ie_eap_message = new EapMessage();
   decoded_size +=
       ie_eap_message->Decode(buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);

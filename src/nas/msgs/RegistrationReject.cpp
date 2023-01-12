@@ -61,7 +61,7 @@ void RegistrationReject::setGPRS_Timer_2_3502(uint8_t value) {
 
 //------------------------------------------------------------------------------
 void RegistrationReject::setEAP_Message(bstring eap) {
-  ie_eap_message = std::make_optional<EAP_Message>(kIeiEapMessage, eap);
+  ie_eap_message = std::make_optional<EapMessage>(kIeiEapMessage, eap);
 }
 
 //------------------------------------------------------------------------------
@@ -172,10 +172,10 @@ int RegistrationReject::Decode(
       } break;
       case kIeiEapMessage: {
         Logger::nas_mm().debug("Decoding IEI 0x78: EAP Message");
-        EAP_Message ie_eap_message_tmp = {};
+        EapMessage ie_eap_message_tmp = {};
         decoded_size += ie_eap_message_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
-        ie_eap_message = std::optional<EAP_Message>(ie_eap_message_tmp);
+        ie_eap_message = std::optional<EapMessage>(ie_eap_message_tmp);
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

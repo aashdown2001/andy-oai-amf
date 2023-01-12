@@ -48,7 +48,7 @@ class AuthenticationResponse {
  public:
   NasMmPlainHeader* plain_header;
   Authentication_Response_Parameter* ie_authentication_response_parameter;
-  EAP_Message* ie_eap_message;
+  EapMessage* ie_eap_message;
 };
 
 }  // namespace nas

@@ -55,7 +55,7 @@ class RegistrationReject : public NasMmPlainHeader {
   _5GMM_Cause ie_5gmm_cause;                        // Mandatory
   std::optional<GprsTimer2> ie_T3346_value;         // Optional
   std::optional<GprsTimer2> ie_T3502_value;         // Optional
-  std::optional<EAP_Message> ie_eap_message;        // Optional
+  std::optional<EapMessage> ie_eap_message;         // Optional
   std::optional<Rejected_NSSAI> ie_rejected_nssai;  // Release 16.4.1
 };
 

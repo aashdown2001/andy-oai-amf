@@ -60,7 +60,7 @@ class SecurityModeCommand {
   IMEISV_Request* ie_imeisv_request;
   EPS_NAS_Security_Algorithms* ie_eps_nas_security_algorithms;
   Additional_5G_Security_Information* ie_additional_5G_security_information;
-  EAP_Message* ie_eap_message;
+  EapMessage* ie_eap_message;
   ABBA* ie_abba;
   S1_UE_Security_Capability* ie_s1_ue_security_capability;
 };
