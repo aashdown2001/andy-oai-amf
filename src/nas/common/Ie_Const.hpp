@@ -89,6 +89,7 @@ constexpr uint8_t kIeiShortNameForNetwork                   = 0x45;
 constexpr uint8_t kIeiPayloadContainerType     = 0x08;  // Should be verified
 constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
 
+constexpr uint8_t kIeiNssaiInclusionMode  = 0x0A;  // B-(4 higher bits)
 constexpr uint8_t kIeiMicoIndication      = 0x0B;  // B-(4 higher bits)
 constexpr uint8_t kIeiNasKeySetIdentifier = 0x0C;  // C-(4 higher bits)
 

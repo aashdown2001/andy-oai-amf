@@ -238,8 +238,7 @@ void RegistrationAccept::setEAP_Message(bstring eap) {
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setNSSAI_Inclusion_Mode(uint8_t value) {
-  ie_nssai_inclusion_mode =
-      std::make_optional<NSSAI_Inclusion_Mode>(0x0A, value);
+  ie_nssai_inclusion_mode = std::make_optional<NssaiInclusionMode>(value);
 }
 
 //------------------------------------------------------------------------------
@@ -675,11 +674,11 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
       } break;
       case 0xA: {
         Logger::nas_mm().debug("Decoding IEI (0xA)");
-        NSSAI_Inclusion_Mode ie_nssai_inclusion_mode_tmp = {};
+        NssaiInclusionMode ie_nssai_inclusion_mode_tmp = {};
         decoded_size += ie_nssai_inclusion_mode_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_nssai_inclusion_mode =
-            std::optional<NSSAI_Inclusion_Mode>(ie_nssai_inclusion_mode_tmp);
+            std::optional<NssaiInclusionMode>(ie_nssai_inclusion_mode_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

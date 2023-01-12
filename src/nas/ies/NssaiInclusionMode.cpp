@@ -26,28 +26,33 @@
  \email: contact@openairinterface.org
  */
 
-#ifndef _NSSAI_Inclusion_Mode_H
-#define _NSSAI_Inclusion_Mode_H
+#include "NssaiInclusionMode.hpp"
 
-#include <stdint.h>
+#include "logger.hpp"
+using namespace nas;
 
-namespace nas {
+//------------------------------------------------------------------------------
+NssaiInclusionMode::NssaiInclusionMode()
+    : Type1NasIeFormatTv(kIeiNssaiInclusionMode) {
+  SetIeName(kNssaiInclusionModeIeName);
+}
 
-class NSSAI_Inclusion_Mode {
- public:
-  NSSAI_Inclusion_Mode();
-  NSSAI_Inclusion_Mode(const uint8_t iei, uint8_t value);
-  ~NSSAI_Inclusion_Mode();
-  int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void setValue(const uint8_t value);
-  uint8_t getValue();
+//------------------------------------------------------------------------------
+NssaiInclusionMode::NssaiInclusionMode(uint8_t value)
+    : Type1NasIeFormatTv(kIeiNssaiInclusionMode) {
+  SetValue(value);
+  SetIeName(kNssaiInclusionModeIeName);
+}
 
- private:
-  uint8_t _iei;
-  uint8_t _value;
-};
+//------------------------------------------------------------------------------
+NssaiInclusionMode::~NssaiInclusionMode(){};
 
-}  // namespace nas
+//------------------------------------------------------------------------------
+void NssaiInclusionMode::setValue(const uint8_t value) {
+  SetValue(value);
+}
 
-#endif
+//------------------------------------------------------------------------------
+uint8_t NssaiInclusionMode::getValue() const {
+  return GetValue();
+}

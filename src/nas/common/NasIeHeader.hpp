@@ -49,7 +49,7 @@
 #include "NasMessageContainer.hpp"
 #include "NAS_Security_Algorithms.hpp"
 #include "NSSAI.hpp"
-#include "NSSAI_Inclusion_Mode.hpp"
+#include "NssaiInclusionMode.hpp"
 #include "NasKeySetIdentifier.hpp"
 #include "Non_3GPP_NW_Provided_Policies.hpp"
 #include "PDU_Session_Identity_2.hpp"
