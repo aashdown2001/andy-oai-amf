@@ -154,7 +154,7 @@ int RegistrationReject::Decode(
     switch (octet) {
       case kT3346Value: {
         Logger::nas_mm().debug("Decoding IEI 0x5F: T3346 Value");
-        GPRS_Timer_2 ie_T3346_value_tmp = {};
+        GPRS_Timer_2 ie_T3346_value_tmp(kT3346Value);
         decoded_size += ie_T3346_value_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_T3346_value = std::optional<GPRS_Timer_2>(ie_T3346_value_tmp);
@@ -163,7 +163,7 @@ int RegistrationReject::Decode(
       } break;
       case kT3502Value: {
         Logger::nas_mm().debug("Decoding IEI 0x16: T3502 Value");
-        GPRS_Timer_2 ie_T3502_value_tmp = {};
+        GPRS_Timer_2 ie_T3502_value_tmp(kT3502Value);
         decoded_size += ie_T3502_value_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_T3502_value = std::optional<GPRS_Timer_2>(ie_T3502_value_tmp);

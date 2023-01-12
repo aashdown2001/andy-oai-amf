@@ -168,7 +168,6 @@ class RegistrationAccept : public NasMmPlainHeader {
       ie_network_slicing_indication;  // Optional
   // TODO: Service Area List
   std::optional<GPRS_Timer_3> ie_T3512_value;  // Optional
-
   std::optional<GPRS_Timer_2>
       ie_Non_3GPP_de_registration_timer_value;  // Optional
   std::optional<GPRS_Timer_2> ie_T3502_value;   // Optional

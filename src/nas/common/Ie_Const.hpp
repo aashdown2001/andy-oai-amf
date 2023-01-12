@@ -125,6 +125,10 @@ constexpr uint8_t kIeiGprsTimer3T3447        = 0x6C;
 constexpr uint8_t kIeiGprsTimer3T3512        = 0x5E;
 constexpr uint8_t kIeiGprsTimer3BackOffTimer = 0x37;
 
+constexpr uint8_t kIeiGprsTimer2Non3gppDeregistration = 0x5D;
+constexpr uint8_t kIeiGprsTimer2T3502                 = 0x16;
+constexpr uint8_t kIeiGprsTimer2T3546                 = 0x5F;
+
 constexpr uint8_t kIeiEpsNasMessageContainer                 = 0x70;
 constexpr uint8_t kIeiNasMessageContainer                    = 0x71;
 constexpr uint8_t kIeiPduSessionReactivationResultErrorCause = 0x72;

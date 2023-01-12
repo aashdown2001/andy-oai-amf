@@ -215,13 +215,13 @@ void RegistrationAccept::setT3512_Value(uint8_t unit, uint8_t value) {
 //------------------------------------------------------------------------------
 void RegistrationAccept::setNon_3GPP_de_registration_timer_value(
     uint8_t value) {
-  ie_Non_3GPP_de_registration_timer_value =
-      std::make_optional<GPRS_Timer_2>(0x5D, value);
+  ie_Non_3GPP_de_registration_timer_value = std::make_optional<GPRS_Timer_2>(
+      kIeiGprsTimer2Non3gppDeregistration, value);
 }
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setT3502_value(uint8_t value) {
-  ie_T3502_value = std::make_optional<GPRS_Timer_2>(0x16, value);
+  ie_T3502_value = std::make_optional<GPRS_Timer_2>(kIeiGprsTimer2T3502, value);
 }
 
 //------------------------------------------------------------------------------
@@ -799,9 +799,11 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x5D: {
-        Logger::nas_mm().debug("Decoding IEI (0x5D)");
-        GPRS_Timer_2 ie_Non_3GPP_de_registration_timer_value_tmp = {};
+      case kIeiGprsTimer2Non3gppDeregistration: {
+        Logger::nas_mm().debug(
+            "Decoding IEI 0x%x", kIeiGprsTimer2Non3gppDeregistration);
+        GPRS_Timer_2 ie_Non_3GPP_de_registration_timer_value_tmp(
+            kIeiGprsTimer2Non3gppDeregistration);
         decoded_size += ie_Non_3GPP_de_registration_timer_value_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_Non_3GPP_de_registration_timer_value = std::optional<GPRS_Timer_2>(
@@ -809,9 +811,9 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x16: {
-        Logger::nas_mm().debug("Decoding IEI (0x16)");
-        GPRS_Timer_2 ie_T3502_value_tmp = {};
+      case kIeiGprsTimer2T3502: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiGprsTimer2T3502);
+        GPRS_Timer_2 ie_T3502_value_tmp(kIeiGprsTimer2T3502);
         decoded_size += ie_T3502_value_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_T3502_value = std::optional<GPRS_Timer_2>(ie_T3502_value_tmp);

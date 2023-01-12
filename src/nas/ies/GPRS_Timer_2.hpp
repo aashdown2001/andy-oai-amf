@@ -19,30 +19,32 @@
  *      contact@openairinterface.org
  */
 
-#ifndef __GPRS_Timer_2_H_
-#define __GPRS_Timer_2_H_
+#ifndef _GPRS_TIMER_2_H_
+#define _GPRS_TIMER_2_H_
+
+#include "Type4NasIe.hpp"
 
 #include <stdint.h>
 
 constexpr uint8_t kGprsTimer2Length = 3;
+constexpr auto kGprsTimer2IeName    = "GPRS Timer 2";
+
 namespace nas {
 
-class GPRS_Timer_2 {
+class GPRS_Timer_2 : public Type4NasIe {
  public:
-  GPRS_Timer_2();
   GPRS_Timer_2(uint8_t iei);
   GPRS_Timer_2(const uint8_t iei, uint8_t value);
   ~GPRS_Timer_2();
-  void setIEI(uint8_t iei);
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
+  int Decode(uint8_t* buf, int len, bool is_iei);
+
   void setValue(uint8_t value);
-  uint8_t getValue();
+  uint8_t getValue() const;
 
  private:
-  uint8_t _iei;
-  uint8_t length;
-  uint8_t _value;
+  uint8_t value_;
 };
 }  // namespace nas
 
