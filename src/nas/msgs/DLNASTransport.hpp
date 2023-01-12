@@ -55,7 +55,7 @@ class DLNASTransport {
   PDU_Session_Identity_2* ie_pdu_session_identity_2;
   Additional_Information* ie_additional_information;
   _5GMM_Cause* ie_5gmm_cause;
-  GPRS_Timer_3* ie_back_off_timer_value;
+  GprsTimer3* ie_back_off_timer_value;
 };
 
 }  // namespace nas

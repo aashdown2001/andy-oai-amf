@@ -132,6 +132,7 @@ constexpr uint8_t kIeiGprsTimer2T3546                 = 0x5F;
 constexpr uint8_t kIeiEpsNasMessageContainer                 = 0x70;
 constexpr uint8_t kIeiNasMessageContainer                    = 0x71;
 constexpr uint8_t kIeiPduSessionReactivationResultErrorCause = 0x72;
+constexpr uint8_t kIeiSorTransparentContainer                = 0x73;
 constexpr uint8_t kIeiLadnIndication                         = 0x74;
 constexpr uint8_t kIeiLadnInformation                        = 0x79;
 constexpr uint8_t kIei5gGuti                                 = 0x77;

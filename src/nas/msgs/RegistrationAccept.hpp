@@ -107,7 +107,7 @@ class RegistrationAccept : public NasMmPlainHeader {
   // TODO: Emergency number list
   // TODO: Extended emergency number list
 
-  void setSOR_Transparent_Container(uint8_t header, uint8_t* value);
+  void setSOR_Transparent_Container(uint8_t header, const uint8_t (&value)[16]);
   // TODO: Get
 
   void setEAP_Message(bstring eap);
@@ -167,10 +167,10 @@ class RegistrationAccept : public NasMmPlainHeader {
   std::optional<NetworkSlicingIndication>
       ie_network_slicing_indication;  // Optional
   // TODO: Service Area List
-  std::optional<GPRS_Timer_3> ie_T3512_value;  // Optional
-  std::optional<GPRS_Timer_2>
+  std::optional<GprsTimer3> ie_T3512_value;  // Optional
+  std::optional<GprsTimer2>
       ie_Non_3GPP_de_registration_timer_value;  // Optional
-  std::optional<GPRS_Timer_2> ie_T3502_value;   // Optional
+  std::optional<GprsTimer2> ie_T3502_value;     // Optional
   // TODO: Emergency number list
   // TODO: Extended emergency number list
   std::optional<SOR_Transparent_Container>
@@ -184,10 +184,10 @@ class RegistrationAccept : public NasMmPlainHeader {
   std::optional<EpsBearerContextStatus>
       ie_eps_bearer_context_status;  // Optional
   std::optional<Extended_DRX_Parameters>
-      ie_extended_drx_parameters;              // Optional
-  std::optional<GPRS_Timer_3> ie_T3447_value;  // Optional
-  std::optional<GPRS_Timer_3> ie_T3448_value;  // Optional
-  std::optional<GPRS_Timer_3> ie_T3324_value;  // Optional
+      ie_extended_drx_parameters;            // Optional
+  std::optional<GprsTimer3> ie_T3447_value;  // Optional
+  std::optional<GprsTimer3> ie_T3448_value;  // Optional
+  std::optional<GprsTimer3> ie_T3324_value;  // Optional
   std::optional<UE_Radio_Capability_ID>
       ie_ue_radio_capability_id;          // Which Release 16.x.x?
   std::optional<NSSAI> ie_pending_nssai;  // Which Release 16.x.x?

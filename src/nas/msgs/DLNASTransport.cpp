@@ -89,7 +89,7 @@ void DLNASTransport::set_5GMM_Cause(uint8_t value) {
 
 //------------------------------------------------------------------------------
 void DLNASTransport::setBack_off_timer_value(uint8_t unit, uint8_t value) {
-  ie_back_off_timer_value = new GPRS_Timer_3(0x37, unit, value);
+  ie_back_off_timer_value = new GprsTimer3(0x37, unit, value);
 }
 
 //------------------------------------------------------------------------------
@@ -219,7 +219,7 @@ int DLNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
       } break;
       case 0x37: {
         Logger::nas_mm().debug("Decoding IEI (0x37)");
-        ie_back_off_timer_value = new GPRS_Timer_3(kIeiGprsTimer3BackOffTimer);
+        ie_back_off_timer_value = new GprsTimer3(kIeiGprsTimer3BackOffTimer);
         decoded_size += ie_back_off_timer_value->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

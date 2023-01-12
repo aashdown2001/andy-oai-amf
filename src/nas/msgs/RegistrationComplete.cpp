@@ -52,9 +52,8 @@ void RegistrationComplete::setHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void RegistrationComplete::setSOR_Transparent_Container(
-    uint8_t header, uint8_t* value) {
-  ie_sor_transparent_container =
-      new SOR_Transparent_Container(0x73, header, value);
+    uint8_t header, const uint8_t (&value)[16]) {
+  ie_sor_transparent_container = new SOR_Transparent_Container(header, value);
 }
 
 //------------------------------------------------------------------------------

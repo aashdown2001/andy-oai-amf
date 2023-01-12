@@ -18,36 +18,34 @@
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
+#ifndef _SOR_TRANSPARENT_CONTAINER_H_
+#define _SOR_TRANSPARENT_CONTAINER_H_
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef __SOR_Transparent_Container_H_
-#define __SOR_Transparent_Container_H_
-
+#include "Type6NasIe.hpp"
 #include <stdint.h>
+
+constexpr uint8_t kSorTransparentContainerMinimumLength   = 20;
+constexpr uint8_t kSorTransparentContainerIeMinimumLength = 17;
+constexpr auto kSorTransparentContainerIeName = "SOR Transparent Container";
 
 namespace nas {
 
-class SOR_Transparent_Container {
+class SOR_Transparent_Container : Type6NasIe {
  public:
   SOR_Transparent_Container();
-  SOR_Transparent_Container(uint8_t iei);
-  SOR_Transparent_Container(const uint8_t iei, uint8_t header, uint8_t* value);
+  SOR_Transparent_Container(uint8_t header, const uint8_t (&value)[16]);
   ~SOR_Transparent_Container();
-  // void setValue(uint8_t iei, uint8_t value);
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  uint8_t getValue();
+  int Decode(uint8_t* buf, int len, bool is_iei);
+
+  void getValue(uint8_t (&value)[16]) const;
 
  private:
-  uint8_t _iei;
-  uint8_t HEADER;
-  uint8_t _value[16];
+  uint8_t header_;
+  uint8_t sor_mac_i_[16];
+  std::optional<uint8_t> counter_;
+  // Other IEs
 };
 
 }  // namespace nas

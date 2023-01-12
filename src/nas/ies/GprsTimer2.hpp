@@ -31,11 +31,11 @@ constexpr auto kGprsTimer2IeName    = "GPRS Timer 2";
 
 namespace nas {
 
-class GPRS_Timer_2 : public Type4NasIe {
+class GprsTimer2 : public Type4NasIe {
  public:
-  GPRS_Timer_2(uint8_t iei);
-  GPRS_Timer_2(const uint8_t iei, uint8_t value);
-  ~GPRS_Timer_2();
+  GprsTimer2(uint8_t iei);
+  GprsTimer2(const uint8_t iei, uint8_t value);
+  ~GprsTimer2();
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);

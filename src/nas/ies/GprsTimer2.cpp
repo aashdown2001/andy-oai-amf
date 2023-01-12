@@ -19,38 +19,38 @@
  *      contact@openairinterface.org
  */
 
-#include "GPRS_Timer_2.hpp"
+#include "GprsTimer2.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
-GPRS_Timer_2::GPRS_Timer_2(uint8_t iei) : Type4NasIe(iei), value_() {
+GprsTimer2::GprsTimer2(uint8_t iei) : Type4NasIe(iei), value_() {
   SetLengthIndicator(1);
   SetIeName(kGprsTimer2IeName);
 }
 
 //------------------------------------------------------------------------------
-GPRS_Timer_2::GPRS_Timer_2(const uint8_t iei, uint8_t value) : Type4NasIe(iei) {
+GprsTimer2::GprsTimer2(const uint8_t iei, uint8_t value) : Type4NasIe(iei) {
   value_ = value;
   SetLengthIndicator(1);
   SetIeName(kGprsTimer2IeName);
 }
 
 //------------------------------------------------------------------------------
-GPRS_Timer_2::~GPRS_Timer_2() {}
+GprsTimer2::~GprsTimer2() {}
 
 //------------------------------------------------------------------------------
-void GPRS_Timer_2::setValue(uint8_t value) {
+void GprsTimer2::setValue(uint8_t value) {
   value_ = value;
 }
 
 //------------------------------------------------------------------------------
-uint8_t GPRS_Timer_2::getValue() const {
+uint8_t GprsTimer2::getValue() const {
   return value_;
 }
 
 //------------------------------------------------------------------------------
-int GPRS_Timer_2::Encode(uint8_t* buf, int len) {
+int GprsTimer2::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   int ie_len = GetIeLength();
 
@@ -74,7 +74,7 @@ int GPRS_Timer_2::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int GPRS_Timer_2::Decode(uint8_t* buf, int len, bool is_iei) {
+int GprsTimer2::Decode(uint8_t* buf, int len, bool is_iei) {
   if (len < kGprsTimer2Length) {
     Logger::nas_mm().error(
         "Buffer length is less than the minimum length of this IE (%d octet)",

@@ -19,18 +19,18 @@
  *      contact@openairinterface.org
  */
 
-#include "GPRS_Timer_3.hpp"
+#include "GprsTimer3.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
-GPRS_Timer_3::GPRS_Timer_3(uint8_t iei) : Type4NasIe(iei), unit_(), value_() {
+GprsTimer3::GprsTimer3(uint8_t iei) : Type4NasIe(iei), unit_(), value_() {
   SetLengthIndicator(1);
   SetIeName(kGprsTimer3IeName);
 }
 
 //------------------------------------------------------------------------------
-GPRS_Timer_3::GPRS_Timer_3(const uint8_t iei, uint8_t unit, uint8_t value)
+GprsTimer3::GprsTimer3(const uint8_t iei, uint8_t unit, uint8_t value)
     : Type4NasIe(iei) {
   unit_  = unit;
   value_ = value;
@@ -39,26 +39,26 @@ GPRS_Timer_3::GPRS_Timer_3(const uint8_t iei, uint8_t unit, uint8_t value)
 }
 
 //------------------------------------------------------------------------------
-GPRS_Timer_3::~GPRS_Timer_3() {}
+GprsTimer3::~GprsTimer3() {}
 
 //------------------------------------------------------------------------------
-void GPRS_Timer_3::setValue(uint8_t unit, uint8_t value) {
+void GprsTimer3::setValue(uint8_t unit, uint8_t value) {
   unit_  = unit;
   value_ = value;
 }
 
 //------------------------------------------------------------------------------
-uint8_t GPRS_Timer_3::getUnit() const {
+uint8_t GprsTimer3::getUnit() const {
   return unit_;
 }
 
 //------------------------------------------------------------------------------
-uint8_t GPRS_Timer_3::getValue() const {
+uint8_t GprsTimer3::getValue() const {
   return value_;
 }
 
 //------------------------------------------------------------------------------
-int GPRS_Timer_3::Encode(uint8_t* buf, int len) {
+int GprsTimer3::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   int ie_len = GetIeLength();
 
@@ -83,7 +83,7 @@ int GPRS_Timer_3::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int GPRS_Timer_3::Decode(uint8_t* buf, int len, bool is_iei) {
+int GprsTimer3::Decode(uint8_t* buf, int len, bool is_iei) {
   if (len < kGprsTimer3Length) {
     Logger::nas_mm().error(
         "Buffer length is less than the minimum length of this IE (%d octet)",
