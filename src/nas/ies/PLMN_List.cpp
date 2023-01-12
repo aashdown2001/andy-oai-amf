@@ -29,22 +29,22 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-PLMN_List::PLMN_List(uint8_t iei) : Type4NasIe(iei) {
+PlmnList::PlmnList(uint8_t iei) : Type4NasIe(iei) {
   SetLengthIndicator(0);
   SetIeName(kPlmnListIeName);
 }
 
 //------------------------------------------------------------------------------
-PLMN_List::PLMN_List() : Type4NasIe() {
+PlmnList::PlmnList() : Type4NasIe() {
   SetLengthIndicator(0);
   SetIeName(kPlmnListIeName);
 }
 
 //------------------------------------------------------------------------------
-PLMN_List::~PLMN_List() {}
+PlmnList::~PlmnList() {}
 
 //------------------------------------------------------------------------------
-void PLMN_List::set(uint8_t iei, const std::vector<nas_plmn_t>& list) {
+void PlmnList::Set(uint8_t iei, const std::vector<nas_plmn_t>& list) {
   plmn_list  = list;
   int length = 0;
   if (list.size() > 0)
@@ -58,12 +58,12 @@ void PLMN_List::set(uint8_t iei, const std::vector<nas_plmn_t>& list) {
 }
 
 //------------------------------------------------------------------------------
-void PLMN_List::getPLMNList(std::vector<nas_plmn_t>& list) {
+void PlmnList::GetPLMNList(std::vector<nas_plmn_t>& list) const {
   list = plmn_list;
 }
 
 //------------------------------------------------------------------------------
-int PLMN_List::Encode(uint8_t* buf, int len) {
+int PlmnList::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
 
   int ie_len = GetIeLength();
@@ -89,7 +89,7 @@ int PLMN_List::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int PLMN_List::Decode(uint8_t* buf, int len, bool is_iei) {
+int PlmnList::Decode(uint8_t* buf, int len, bool is_iei) {
   Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
 
   if (len < kPlmnListMinimumLength) {

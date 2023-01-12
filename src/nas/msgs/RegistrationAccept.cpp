@@ -131,9 +131,9 @@ void RegistrationAccept::Set5gSTmsi() {}
 //------------------------------------------------------------------------------
 void RegistrationAccept::setEquivalent_PLMNs(
     const std::vector<nas_plmn_t>& list) {
-  PLMN_List ie_equivalent_plmns_tmp = {};
-  ie_equivalent_plmns_tmp.set(kEquivalentPlmns, list);
-  ie_equivalent_plmns = std::optional<PLMN_List>(ie_equivalent_plmns_tmp);
+  PlmnList ie_equivalent_plmns_tmp = {};
+  ie_equivalent_plmns_tmp.Set(kEquivalentPlmns, list);
+  ie_equivalent_plmns = std::optional<PlmnList>(ie_equivalent_plmns_tmp);
 }
 
 //------------------------------------------------------------------------------
@@ -843,10 +843,10 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
       } break;
       case 0x4A: {
         Logger::nas_mm().debug("Decoding IEI (0x4A)");
-        PLMN_List ie_equivalent_plmns_tmp = {};
+        PlmnList ie_equivalent_plmns_tmp = {};
         decoded_size += ie_equivalent_plmns_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
-        ie_equivalent_plmns = std::optional<PLMN_List>(ie_equivalent_plmns_tmp);
+        ie_equivalent_plmns = std::optional<PlmnList>(ie_equivalent_plmns_tmp);
         octet               = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

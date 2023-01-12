@@ -34,17 +34,17 @@ constexpr auto kPlmnListIeName           = "PLMN List";
 
 namespace nas {
 
-class PLMN_List : public Type4NasIe {
+class PlmnList : public Type4NasIe {
  public:
-  PLMN_List();
-  PLMN_List(uint8_t iei);
-  ~PLMN_List();
+  PlmnList();
+  PlmnList(uint8_t iei);
+  ~PlmnList();
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
 
-  void set(uint8_t iei, const std::vector<nas_plmn_t>& list);
-  void getPLMNList(std::vector<nas_plmn_t>& list);
+  void Set(uint8_t iei, const std::vector<nas_plmn_t>& list);
+  void GetPLMNList(std::vector<nas_plmn_t>& list) const;
 
  private:
   std::vector<nas_plmn_t> plmn_list;
