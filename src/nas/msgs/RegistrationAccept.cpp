@@ -185,7 +185,7 @@ void RegistrationAccept::setPDU_session_reactivation_result_error_cause(
     uint8_t session_id, uint8_t value) {
   ie_pdu_session_reactivation_result_error_cause =
       std::make_optional<PDU_Session_Reactivation_Result_Error_Cause>(
-          0x72, session_id, value);
+          session_id, value);
 }
 
 //------------------------------------------------------------------------------

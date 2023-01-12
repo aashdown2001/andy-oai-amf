@@ -120,13 +120,14 @@ constexpr uint8_t kT3346Value          = 0x5f;
 constexpr uint8_t kIeiEpsBearerContextStatus = 0x60;
 constexpr uint8_t kIeiRejectedNssaiRr        = 0x69;
 
-constexpr uint8_t kIeiEpsNasMessageContainer = 0x70;
-constexpr uint8_t kIeiNasMessageContainer    = 0x71;
-constexpr uint8_t kIeiLadnIndication         = 0x74;
-constexpr uint8_t kIeiLadnInformation        = 0x79;
-constexpr uint8_t kIei5gGuti                 = 0x77;
-constexpr uint8_t kIeiImeisv                 = 0x77;
-constexpr uint8_t kIeiNonImeisvPei           = 0x78;
+constexpr uint8_t kIeiEpsNasMessageContainer                 = 0x70;
+constexpr uint8_t kIeiNasMessageContainer                    = 0x71;
+constexpr uint8_t kIeiPduSessionReactivationResultErrorCause = 0x72;
+constexpr uint8_t kIeiLadnIndication                         = 0x74;
+constexpr uint8_t kIeiLadnInformation                        = 0x79;
+constexpr uint8_t kIei5gGuti                                 = 0x77;
+constexpr uint8_t kIeiImeisv                                 = 0x77;
+constexpr uint8_t kIeiNonImeisvPei                           = 0x78;
 
 constexpr uint8_t kIeiEapMessage       = 0x78;
 constexpr uint8_t kIeiPayloadContainer = 0x7b;
