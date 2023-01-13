@@ -94,7 +94,7 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
     encoded_size += size;
   } else {
     Logger::nas_mm().error("Encoding ie_ngKSI error");
-    return 0;
+    return KEncodeDecodeError;
   }
   // Spare half octet
   encoded_size++;  // 1/2 octet + 1/2 octet from ie_ngKSI
@@ -105,7 +105,7 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
     encoded_size += size;
   } else {
     Logger::nas_mm().error("Encoding ie_abba error");
-    return 0;
+    return KEncodeDecodeError;
   }
 
   // Authentication parameter RAND
@@ -115,11 +115,11 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
   } else {
     int size = ie_authentication_parameter_rand.value().Encode(
         buf + encoded_size, len - encoded_size);
-    if (size != 0) {
+    if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_authentication_parameter_rand error");
-      return 0;
+      return KEncodeDecodeError;
     }
   }
   // Authentication parameter AUTN
@@ -129,11 +129,11 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
   } else {
     int size = ie_authentication_parameter_autn.value().Encode(
         buf + encoded_size, len - encoded_size);
-    if (size != 0) {
+    if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_authentication_parameter_autn error");
-      return 0;
+      return KEncodeDecodeError;
     }
   }
   // EAP message
@@ -142,11 +142,11 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
   } else {
     int size =
         ie_eap_message.value().Encode(buf + encoded_size, len - encoded_size);
-    if (size != 0) {
+    if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_eap_message error");
-      return 0;
+      return KEncodeDecodeError;
     }
   }
 

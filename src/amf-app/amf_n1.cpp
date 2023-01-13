@@ -2476,8 +2476,7 @@ void amf_n1::security_mode_complete_handle(
   }
   // Decode Security Mode Complete
   auto security_mode_complete = std::make_unique<SecurityModeComplete>();
-  security_mode_complete->Decode(
-      nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
+  security_mode_complete->Decode((uint8_t*) bdata(nas_msg), blength(nas_msg));
 
   comUt::print_buffer(
       "amf_n1", "Security Mode Complete message buffer",
