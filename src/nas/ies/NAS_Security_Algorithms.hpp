@@ -19,35 +19,41 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _NAS_SECURITY_ALGORITHS_H
+#define _NAS_SECURITY_ALGORITHS_H
 
-#ifndef __NAS_Security_Algorithms_H
-#define __NAS_Security_Algorithms_H
-
+#include "Type3NasIe.hpp"
 #include <stdint.h>
+
+constexpr uint8_t kNasSecurityAlgorithmsLength = 2;
+constexpr auto kNasSecurityAlgorithmsIeName    = "NAS Security Algorithms";
 
 namespace nas {
 
-class NAS_Security_Algorithms {
+class NAS_Security_Algorithms : public Type3NasIe {
  public:
   NAS_Security_Algorithms();
-  ~NAS_Security_Algorithms();
+  NAS_Security_Algorithms(uint8_t iei);
   NAS_Security_Algorithms(uint8_t ciphering, uint8_t integrity_protection);
-  void setCIPHERING(uint8_t value);
-  void setINTEGRITY_PROTECTION(uint8_t value);
-  uint8_t getCIPHERING();
-  uint8_t getINTEGRITY_PROTECTION();
+  NAS_Security_Algorithms(
+      uint8_t iei, uint8_t ciphering, uint8_t integrity_protection);
+  ~NAS_Security_Algorithms();
+
+  void SetTypeOfCipheringAlgorithm(uint8_t value);
+  uint8_t GetTypeOfCipheringAlgorithm() const;
+
+  void SetTypeOfIntegrityProtectionAlgorithm(uint8_t value);
+  uint8_t GetTypeOfIntegrityProtectionAlgorithm() const;
+
+  void Set(uint8_t ciphering, uint8_t integrity_protection);
+  void Get(uint8_t& ciphering, uint8_t& integrity_protection) const;
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
+  int Decode(uint8_t* buf, int len, bool is_iei);
 
  private:
-  uint8_t CIPHERING;
-  uint8_t INTEGRITY_PROTECTION;
+  uint8_t type_of_ciphering_algorithm_;
+  uint8_t type_of_integrity_protection_algorithm_;
 };
 
 }  // namespace nas

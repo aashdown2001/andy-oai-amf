@@ -56,6 +56,9 @@ class UESecurityCapability : public Type4NasIe {
   void SetEia(uint8_t value);
   bool GetEia(uint8_t& value) const;
 
+  void Set(uint8_t _5g_ea, uint8_t _5g_ia);
+  void Set(uint8_t _5g_ea, uint8_t _5g_ia, uint8_t eea, uint8_t eia);
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);
 

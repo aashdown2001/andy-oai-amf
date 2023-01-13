@@ -39,10 +39,10 @@ class EPS_NAS_Security_Algorithms {
   ~EPS_NAS_Security_Algorithms();
   EPS_NAS_Security_Algorithms(
       uint8_t iei, uint8_t ciphering, uint8_t integrity_protection);
-  void setCIPHERING(uint8_t value);
-  void setINTEGRITY_PROTECTION(uint8_t value);
-  uint8_t getCIPHERING();
-  uint8_t getINTEGRITY_PROTECTION();
+  void SetTypeOfCipheringAlgorithm(uint8_t value);
+  void SetTypeOfIntegrityProtectionAlgorithm(uint8_t value);
+  uint8_t GetTypeOfCipheringAlgorithm();
+  uint8_t GetTypeOfIntegrityProtectionAlgorithm();
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
 

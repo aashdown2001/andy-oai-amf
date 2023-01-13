@@ -2405,11 +2405,8 @@ bool amf_n1::start_security_mode_control_procedure(
     smc->setUE_Security_Capability(nc->ueSecurityCapEnc, nc->ueSecurityCapInt);
   }
 
-  if (smc->ie_ue_security_capability != NULL) {
-    smc->ie_ue_security_capability->SetLengthIndicator(nc->ueSecurityCaplen);
-  } else {
-    Logger::amf_n1().error("UE Security Capability is missing");
-  }
+  // TODO: remove
+  // smc->ie_ue_security_capability->SetLengthIndicator(nc->ueSecurityCaplen);
 
   smc->setIMEISV_Request(0xe1);  // TODO: remove hardcoded value
   smc->setAdditional_5G_Security_Information(true, false);

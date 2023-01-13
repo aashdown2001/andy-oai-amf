@@ -48,22 +48,23 @@ EPS_NAS_Security_Algorithms::EPS_NAS_Security_Algorithms(
 }
 
 //------------------------------------------------------------------------------
-void EPS_NAS_Security_Algorithms::setCIPHERING(uint8_t value) {
+void EPS_NAS_Security_Algorithms::SetTypeOfCipheringAlgorithm(uint8_t value) {
   CIPHERING = value;
 }
 
 //------------------------------------------------------------------------------
-void EPS_NAS_Security_Algorithms::setINTEGRITY_PROTECTION(uint8_t value) {
+void EPS_NAS_Security_Algorithms::SetTypeOfIntegrityProtectionAlgorithm(
+    uint8_t value) {
   INTEGRITY_PROTECTION = value;
 }
 
 //------------------------------------------------------------------------------
-uint8_t EPS_NAS_Security_Algorithms::getCIPHERING() {
+uint8_t EPS_NAS_Security_Algorithms::GetTypeOfCipheringAlgorithm() {
   return CIPHERING;
 }
 
 //------------------------------------------------------------------------------
-uint8_t EPS_NAS_Security_Algorithms::getINTEGRITY_PROTECTION() {
+uint8_t EPS_NAS_Security_Algorithms::GetTypeOfIntegrityProtectionAlgorithm() {
   return INTEGRITY_PROTECTION;
 }
 

@@ -35,64 +35,116 @@ using namespace nas;
 using namespace std;
 
 //------------------------------------------------------------------------------
-NAS_Security_Algorithms::NAS_Security_Algorithms() {}
+NAS_Security_Algorithms::NAS_Security_Algorithms()
+    : Type3NasIe(),
+      type_of_ciphering_algorithm_(),
+      type_of_integrity_protection_algorithm_() {
+  SetIeName(kNasSecurityAlgorithmsIeName);
+}
+
+//------------------------------------------------------------------------------
+NAS_Security_Algorithms::NAS_Security_Algorithms(uint8_t iei)
+    : Type3NasIe(iei),
+      type_of_ciphering_algorithm_(),
+      type_of_integrity_protection_algorithm_() {
+  SetIeName(kNasSecurityAlgorithmsIeName);
+}
 
 //------------------------------------------------------------------------------
 NAS_Security_Algorithms::~NAS_Security_Algorithms() {}
 
 //------------------------------------------------------------------------------
 NAS_Security_Algorithms::NAS_Security_Algorithms(
+    uint8_t ciphering, uint8_t integrity_protection)
+    : Type3NasIe() {
+  type_of_ciphering_algorithm_            = ciphering & 0x0f;
+  type_of_integrity_protection_algorithm_ = integrity_protection & 0x0f;
+  SetIeName(kNasSecurityAlgorithmsIeName);
+}
+
+//------------------------------------------------------------------------------
+void NAS_Security_Algorithms::SetTypeOfCipheringAlgorithm(uint8_t value) {
+  type_of_ciphering_algorithm_ = value & 0x0f;
+}
+
+//------------------------------------------------------------------------------
+void NAS_Security_Algorithms::SetTypeOfIntegrityProtectionAlgorithm(
+    uint8_t value) {
+  type_of_integrity_protection_algorithm_ = value & 0x0f;
+}
+
+//------------------------------------------------------------------------------
+uint8_t NAS_Security_Algorithms::GetTypeOfCipheringAlgorithm() const {
+  return type_of_ciphering_algorithm_;
+}
+
+//------------------------------------------------------------------------------
+uint8_t NAS_Security_Algorithms::GetTypeOfIntegrityProtectionAlgorithm() const {
+  return type_of_integrity_protection_algorithm_;
+}
+
+//------------------------------------------------------------------------------
+void NAS_Security_Algorithms::Set(
     uint8_t ciphering, uint8_t integrity_protection) {
-  CIPHERING            = ciphering;
-  INTEGRITY_PROTECTION = integrity_protection;
+  type_of_ciphering_algorithm_            = ciphering & 0x0f;
+  type_of_integrity_protection_algorithm_ = integrity_protection & 0x0f;
 }
-
 //------------------------------------------------------------------------------
-void NAS_Security_Algorithms::setCIPHERING(uint8_t value) {
-  CIPHERING = value;
-}
-
-//------------------------------------------------------------------------------
-void NAS_Security_Algorithms::setINTEGRITY_PROTECTION(uint8_t value) {
-  INTEGRITY_PROTECTION = value;
-}
-
-//------------------------------------------------------------------------------
-uint8_t NAS_Security_Algorithms::getCIPHERING() {
-  return CIPHERING;
-}
-
-//------------------------------------------------------------------------------
-uint8_t NAS_Security_Algorithms::getINTEGRITY_PROTECTION() {
-  return INTEGRITY_PROTECTION;
+void NAS_Security_Algorithms::Get(
+    uint8_t& ciphering, uint8_t& integrity_protection) const {
+  ciphering            = type_of_ciphering_algorithm_;
+  integrity_protection = type_of_integrity_protection_algorithm_;
 }
 
 //------------------------------------------------------------------------------
 int NAS_Security_Algorithms::Encode(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("encoding NAS_Security_Algorithms ");
-  if (len < 1) {
-    Logger::nas_mm().error("len is less than one");
-    return -1;
-  } else {
-    *buf = ((CIPHERING & 0x0f) << 4) | (INTEGRITY_PROTECTION & 0x0f);
-    Logger::nas_mm().debug("encoded NAS_Security_Algorithms IE 0x%x", *buf);
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
+
+  if (len < kNasSecurityAlgorithmsLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kNasSecurityAlgorithmsLength);
+    return KEncodeDecodeError;
   }
-  return 1;
+  int encoded_size = 0;
+
+  // IEI
+  encoded_size += Type3NasIe::Encode(buf + encoded_size, len);
+
+  uint8_t octet = 0;
+  octet         = ((type_of_ciphering_algorithm_ & 0x0f) << 4) |
+          (type_of_integrity_protection_algorithm_ & 0x0f);
+
+  ENCODE_U8(buf + encoded_size, octet, encoded_size);
+
+  Logger::nas_mm().debug(
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
+  return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int NAS_Security_Algorithms::Decode(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("decoding NAS_Security_Algorithms IE");
-  if (len < 1) {
-    Logger::nas_mm().error("len is less than one");
-    return 0;
-  } else {
-    CIPHERING            = (*buf & 0xf0) >> 4;
-    INTEGRITY_PROTECTION = *buf & 0x0f;
-    Logger::nas_mm().debug(
-        "decoded NAS_Security_Algorithms len 1 "
-        "octet,CIPHERING=0x%x,INTEGRITY_PROTECTION=0x%x",
-        CIPHERING, INTEGRITY_PROTECTION);
-    return 1;
+int NAS_Security_Algorithms::Decode(uint8_t* buf, int len, bool is_iei) {
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+
+  if (len < kNasSecurityAlgorithmsLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kNasSecurityAlgorithmsLength);
+    return KEncodeDecodeError;
   }
+
+  int decoded_size = 0;
+
+  // IEI and Length
+  decoded_size += Type3NasIe::Decode(buf + decoded_size, len, is_iei);
+
+  uint8_t octet = 0;
+  DECODE_U8(buf + decoded_size, octet, decoded_size);
+
+  type_of_ciphering_algorithm_            = (octet & 0xf0) >> 4;
+  type_of_integrity_protection_algorithm_ = octet & 0x0f;
+
+  Logger::nas_mm().debug(
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
+  return decoded_size;
 }

@@ -146,6 +146,22 @@ bool UESecurityCapability::GetEia(uint8_t& value) const {
 }
 
 //------------------------------------------------------------------------------
+void UESecurityCapability::Set(uint8_t _5g_ea, uint8_t _5g_ia) {
+  _5g_ea_ = _5g_ea;
+  _5g_ia_ = _5g_ia;
+}
+
+//------------------------------------------------------------------------------
+void UESecurityCapability::Set(
+    uint8_t _5g_ea, uint8_t _5g_ia, uint8_t eea, uint8_t eia) {
+  _5g_ea_ = _5g_ea;
+  _5g_ia_ = _5g_ia;
+  eea_    = std::optional<uint8_t>(eea);
+  eia_    = std::optional<uint8_t>(eia);
+  SetLengthIndicator(4);
+}
+
+//------------------------------------------------------------------------------
 int UESecurityCapability::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   int ie_len = GetIeLength();
