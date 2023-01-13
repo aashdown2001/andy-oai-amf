@@ -129,23 +129,23 @@ int NasKeySetIdentifier::Decode(
 */
 
 //------------------------------------------------------------------------------
-void NasKeySetIdentifier::setTypeOfSecurityContext(const bool& type) {
+void NasKeySetIdentifier::SetTypeOfSecurityContext(const bool& type) {
   tsc_ = type;
   SetValue();  // Update value
 }
 
 //------------------------------------------------------------------------------
-void NasKeySetIdentifier::setNasKeyIdentifier(const uint8_t& id) {
+void NasKeySetIdentifier::SetNasKeyIdentifier(const uint8_t& id) {
   key_id_ = 0x07 & id;
   SetValue();  // Update value
 }
 
 //------------------------------------------------------------------------------
-bool NasKeySetIdentifier::getTypeOfSecurityContext() const {
+bool NasKeySetIdentifier::GetTypeOfSecurityContext() const {
   return tsc_;
 }
 
 //------------------------------------------------------------------------------
-uint8_t NasKeySetIdentifier::getNasKeyIdentifier() const {
+uint8_t NasKeySetIdentifier::GetNasKeyIdentifier() const {
   return key_id_;
 }

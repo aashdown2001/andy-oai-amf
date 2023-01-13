@@ -45,8 +45,8 @@ void AuthenticationRequest::setHeader(uint8_t security_header_type) {
 //------------------------------------------------------------------------------
 void AuthenticationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
   ie_ngKSI.Set(false);  // 4 lower bits
-  ie_ngKSI.setNasKeyIdentifier(key_set_id);
-  ie_ngKSI.setTypeOfSecurityContext(tsc);
+  ie_ngKSI.SetNasKeyIdentifier(key_set_id);
+  ie_ngKSI.SetTypeOfSecurityContext(tsc);
 }
 
 //------------------------------------------------------------------------------

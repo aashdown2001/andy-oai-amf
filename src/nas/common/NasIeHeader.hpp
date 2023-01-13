@@ -47,7 +47,7 @@
 #include "LADN_Indication.hpp"
 #include "MA_PDU_Session_Information.hpp"
 #include "NasMessageContainer.hpp"
-#include "NAS_Security_Algorithms.hpp"
+#include "NasSecurityAlgorithms.hpp"
 #include "NSSAI.hpp"
 #include "NssaiInclusionMode.hpp"
 #include "NasKeySetIdentifier.hpp"

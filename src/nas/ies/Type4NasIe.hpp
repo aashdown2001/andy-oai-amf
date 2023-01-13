@@ -21,6 +21,7 @@
 
 #ifndef _TYPE4_NAS_IE_H_
 #define _TYPE4_NAS_IE_H_
+
 #include "NasIe.hpp"
 
 namespace nas {

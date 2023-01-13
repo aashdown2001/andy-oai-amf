@@ -19,23 +19,14 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#include "NAS_Security_Algorithms.hpp"
-
-#include <iostream>
+#include "NasSecurityAlgorithms.hpp"
 
 #include "logger.hpp"
+
 using namespace nas;
-using namespace std;
 
 //------------------------------------------------------------------------------
-NAS_Security_Algorithms::NAS_Security_Algorithms()
+NasSecurityAlgorithms::NasSecurityAlgorithms()
     : Type3NasIe(),
       type_of_ciphering_algorithm_(),
       type_of_integrity_protection_algorithm_() {
@@ -43,7 +34,7 @@ NAS_Security_Algorithms::NAS_Security_Algorithms()
 }
 
 //------------------------------------------------------------------------------
-NAS_Security_Algorithms::NAS_Security_Algorithms(uint8_t iei)
+NasSecurityAlgorithms::NasSecurityAlgorithms(uint8_t iei)
     : Type3NasIe(iei),
       type_of_ciphering_algorithm_(),
       type_of_integrity_protection_algorithm_() {
@@ -51,10 +42,10 @@ NAS_Security_Algorithms::NAS_Security_Algorithms(uint8_t iei)
 }
 
 //------------------------------------------------------------------------------
-NAS_Security_Algorithms::~NAS_Security_Algorithms() {}
+NasSecurityAlgorithms::~NasSecurityAlgorithms() {}
 
 //------------------------------------------------------------------------------
-NAS_Security_Algorithms::NAS_Security_Algorithms(
+NasSecurityAlgorithms::NasSecurityAlgorithms(
     uint8_t ciphering, uint8_t integrity_protection)
     : Type3NasIe() {
   type_of_ciphering_algorithm_            = ciphering & 0x0f;
@@ -63,41 +54,41 @@ NAS_Security_Algorithms::NAS_Security_Algorithms(
 }
 
 //------------------------------------------------------------------------------
-void NAS_Security_Algorithms::SetTypeOfCipheringAlgorithm(uint8_t value) {
+void NasSecurityAlgorithms::SetTypeOfCipheringAlgorithm(uint8_t value) {
   type_of_ciphering_algorithm_ = value & 0x0f;
 }
 
 //------------------------------------------------------------------------------
-void NAS_Security_Algorithms::SetTypeOfIntegrityProtectionAlgorithm(
+void NasSecurityAlgorithms::SetTypeOfIntegrityProtectionAlgorithm(
     uint8_t value) {
   type_of_integrity_protection_algorithm_ = value & 0x0f;
 }
 
 //------------------------------------------------------------------------------
-uint8_t NAS_Security_Algorithms::GetTypeOfCipheringAlgorithm() const {
+uint8_t NasSecurityAlgorithms::GetTypeOfCipheringAlgorithm() const {
   return type_of_ciphering_algorithm_;
 }
 
 //------------------------------------------------------------------------------
-uint8_t NAS_Security_Algorithms::GetTypeOfIntegrityProtectionAlgorithm() const {
+uint8_t NasSecurityAlgorithms::GetTypeOfIntegrityProtectionAlgorithm() const {
   return type_of_integrity_protection_algorithm_;
 }
 
 //------------------------------------------------------------------------------
-void NAS_Security_Algorithms::Set(
+void NasSecurityAlgorithms::Set(
     uint8_t ciphering, uint8_t integrity_protection) {
   type_of_ciphering_algorithm_            = ciphering & 0x0f;
   type_of_integrity_protection_algorithm_ = integrity_protection & 0x0f;
 }
 //------------------------------------------------------------------------------
-void NAS_Security_Algorithms::Get(
+void NasSecurityAlgorithms::Get(
     uint8_t& ciphering, uint8_t& integrity_protection) const {
   ciphering            = type_of_ciphering_algorithm_;
   integrity_protection = type_of_integrity_protection_algorithm_;
 }
 
 //------------------------------------------------------------------------------
-int NAS_Security_Algorithms::Encode(uint8_t* buf, int len) {
+int NasSecurityAlgorithms::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
 
   if (len < kNasSecurityAlgorithmsLength) {
@@ -123,7 +114,7 @@ int NAS_Security_Algorithms::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int NAS_Security_Algorithms::Decode(uint8_t* buf, int len, bool is_iei) {
+int NasSecurityAlgorithms::Decode(uint8_t* buf, int len, bool is_iei) {
   Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
 
   if (len < kNasSecurityAlgorithmsLength) {

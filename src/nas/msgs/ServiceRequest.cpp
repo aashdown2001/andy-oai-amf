@@ -249,8 +249,8 @@ int ServiceRequest::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
 //------------------------------------------------------------------------------
 bool ServiceRequest::getngKSI(uint8_t& ng_ksi) {
   if (ie_ngKSI) {
-    ng_ksi = (ie_ngKSI->getTypeOfSecurityContext()) |
-             ie_ngKSI->getNasKeyIdentifier();
+    ng_ksi = (ie_ngKSI->GetTypeOfSecurityContext()) |
+             ie_ngKSI->GetNasKeyIdentifier();
     return true;
   } else {
     return false;

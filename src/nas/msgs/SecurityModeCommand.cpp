@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "SecurityModeCommand.hpp"
 
 #include "3gpp_24.501.hpp"
@@ -60,8 +53,8 @@ void SecurityModeCommand::setNAS_Security_Algorithms(
 
 //------------------------------------------------------------------------------
 void SecurityModeCommand::setngKSI(uint8_t tsc, uint8_t key_set_id) {
-  ie_ngKSI.setTypeOfSecurityContext(tsc);
-  ie_ngKSI.setNasKeyIdentifier(key_set_id);
+  ie_ngKSI.SetTypeOfSecurityContext(tsc);
+  ie_ngKSI.SetNasKeyIdentifier(key_set_id);
 }
 
 //------------------------------------------------------------------------------
@@ -238,8 +231,7 @@ int SecurityModeCommand::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int SecurityModeCommand::Decode(
-    NasMmPlainHeader* header, uint8_t* buf, int len) {
+int SecurityModeCommand::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding SecurityModeCommand message");
   int decoded_size   = 0;
   int decoded_result = 0;
@@ -360,5 +352,5 @@ int SecurityModeCommand::Decode(
   }
   Logger::nas_mm().debug(
       "Decoded SecurityModeCommand message len (%d)", decoded_size);
-  return 1;
+  return decoded_size;
 }

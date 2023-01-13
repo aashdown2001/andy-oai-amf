@@ -78,14 +78,14 @@ bool RegistrationRequest::get5gsRegistrationType(
 //------------------------------------------------------------------------------
 void RegistrationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
   ie_ngKSI.Set(true);  // high pos
-  ie_ngKSI.setNasKeyIdentifier(key_set_id);
-  ie_ngKSI.setTypeOfSecurityContext(tsc);
+  ie_ngKSI.SetNasKeyIdentifier(key_set_id);
+  ie_ngKSI.SetTypeOfSecurityContext(tsc);
 }
 
 //------------------------------------------------------------------------------
 bool RegistrationRequest::getngKSI(uint8_t& ng_ksi) {
   ng_ksi =
-      (ie_ngKSI.getTypeOfSecurityContext()) | ie_ngKSI.getNasKeyIdentifier();
+      (ie_ngKSI.GetTypeOfSecurityContext()) | ie_ngKSI.GetNasKeyIdentifier();
   return true;
 }
 
@@ -181,8 +181,8 @@ void RegistrationRequest::setNonCurrentNativeNasKSI(
 bool RegistrationRequest::getNonCurrentNativeNasKSI(uint8_t& value) const {
   if (ie_non_current_native_nas_ksi.has_value()) {
     value |=
-        (ie_non_current_native_nas_ksi.value().getTypeOfSecurityContext()) |
-        (ie_non_current_native_nas_ksi.value().getNasKeyIdentifier());
+        (ie_non_current_native_nas_ksi.value().GetTypeOfSecurityContext()) |
+        (ie_non_current_native_nas_ksi.value().GetNasKeyIdentifier());
     return true;
   } else {
     return false;

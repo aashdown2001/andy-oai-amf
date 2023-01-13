@@ -24,8 +24,6 @@
 
 #include "Type4NasIe.hpp"
 
-#include <stdint.h>
-
 constexpr uint8_t kUeSecurityCapabilityMinimumLength = 4;
 constexpr uint8_t kUeSecurityCapabilityMaximumLength = 10;
 constexpr auto kUeSecurityCapabilityIeName           = "UE Security Capability";

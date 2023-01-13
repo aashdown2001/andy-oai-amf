@@ -34,33 +34,42 @@ class SecurityModeCommand : public NasMmPlainHeader {
   void setHeader(uint8_t security_header_type);
 
   int Encode(uint8_t* buf, int len);
-  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
 
   void setNAS_Security_Algorithms(uint8_t ciphering, uint8_t integrity);
+  // TODO: Get
 
   void setngKSI(uint8_t tsc, uint8_t key_set_id);
+  // TODO: Get
 
   void setUE_Security_Capability(uint8_t g_EASel, uint8_t g_IASel);
-
+  // TODO: Get
   void setUE_Security_Capability(
       uint8_t g_EASel, uint8_t g_IASel, uint8_t eea, uint8_t eia);
+  // TODO: Get
 
   void setIMEISV_Request(uint8_t value);
+  // TODO: Get
 
   void setEPS_NAS_Security_Algorithms(uint8_t ciphering, uint8_t integrity);
+  // TODO: Get
 
   void setAdditional_5G_Security_Information(bool rinmr, bool hdp);
+  // TODO: Get
 
   void SetEapMessage(bstring eap);
+  // TODO: Get
 
   void setABBA(uint8_t length, uint8_t* value);
+  // TODO: Get
 
   void setS1_UE_Security_Capability(uint8_t g_EEASel, uint8_t g_EIASel);
+  // TODO: Get
 
  public:
-  NAS_Security_Algorithms ie_selected_nas_security_algorithms;  // Mandatory
-  NasKeySetIdentifier ie_ngKSI;                                 // Mandatory
-  UESecurityCapability ie_ue_security_capability;               // Mandatory
+  NasSecurityAlgorithms ie_selected_nas_security_algorithms;  // Mandatory
+  NasKeySetIdentifier ie_ngKSI;                               // Mandatory
+  UESecurityCapability ie_ue_security_capability;             // Mandatory
 
   std::optional<IMEISV_Request> ie_imeisv_request;  // Optional
   std::optional<EPS_NAS_Security_Algorithms>

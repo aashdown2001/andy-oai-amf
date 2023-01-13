@@ -23,21 +23,20 @@
 #define _NAS_SECURITY_ALGORITHS_H
 
 #include "Type3NasIe.hpp"
-#include <stdint.h>
 
 constexpr uint8_t kNasSecurityAlgorithmsLength = 2;
 constexpr auto kNasSecurityAlgorithmsIeName    = "NAS Security Algorithms";
 
 namespace nas {
 
-class NAS_Security_Algorithms : public Type3NasIe {
+class NasSecurityAlgorithms : public Type3NasIe {
  public:
-  NAS_Security_Algorithms();
-  NAS_Security_Algorithms(uint8_t iei);
-  NAS_Security_Algorithms(uint8_t ciphering, uint8_t integrity_protection);
-  NAS_Security_Algorithms(
+  NasSecurityAlgorithms();
+  NasSecurityAlgorithms(uint8_t iei);
+  NasSecurityAlgorithms(uint8_t ciphering, uint8_t integrity_protection);
+  NasSecurityAlgorithms(
       uint8_t iei, uint8_t ciphering, uint8_t integrity_protection);
-  ~NAS_Security_Algorithms();
+  ~NasSecurityAlgorithms();
 
   void SetTypeOfCipheringAlgorithm(uint8_t value);
   uint8_t GetTypeOfCipheringAlgorithm() const;

@@ -23,7 +23,6 @@
 #define _NAS_KEY_SET_IDENTIFIER_H
 
 #include "Type1NasIe.hpp"
-#include <stdint.h>
 
 constexpr auto kNasKeySetIdentifierName = "NAS Key Set Identifier";
 namespace nas {
@@ -43,17 +42,16 @@ class NasKeySetIdentifier : public Type1NasIe {
   // void Set(const bool& tsc, const uint8_t& key_id, const uint8_t& iei);
   void Get(bool& tsc, uint8_t& key_id);
 
-  void setTypeOfSecurityContext(const bool& type);
-  bool getTypeOfSecurityContext() const;
+  void SetTypeOfSecurityContext(const bool& type);
+  bool GetTypeOfSecurityContext() const;
 
-  void setNasKeyIdentifier(const uint8_t& id);
-  uint8_t getNasKeyIdentifier() const;
+  void SetNasKeyIdentifier(const uint8_t& id);
+  uint8_t GetNasKeyIdentifier() const;
 
  private:
   void SetValue() override;
   void GetValue() override;
 
-  // uint8_t iei_;
   bool tsc_;
   uint8_t key_id_;
 };
