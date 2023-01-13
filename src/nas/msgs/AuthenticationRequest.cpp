@@ -43,14 +43,14 @@ void AuthenticationRequest::setHeader(uint8_t security_header_type) {
 }
 
 //------------------------------------------------------------------------------
-void AuthenticationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
+void AuthenticationRequest::SetNgKsi(uint8_t tsc, uint8_t key_set_id) {
   ie_ngKSI.Set(false);  // 4 lower bits
   ie_ngKSI.SetNasKeyIdentifier(key_set_id);
   ie_ngKSI.SetTypeOfSecurityContext(tsc);
 }
 
 //------------------------------------------------------------------------------
-void AuthenticationRequest::setABBA(uint8_t length, uint8_t* value) {
+void AuthenticationRequest::SetAbba(uint8_t length, uint8_t* value) {
   ie_abba.Set(length, value);
 }
 

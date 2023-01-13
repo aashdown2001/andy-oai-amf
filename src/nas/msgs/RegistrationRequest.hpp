@@ -47,7 +47,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   void set5gsRegistrationType(bool is_for, uint8_t type);
   bool get5gsRegistrationType(bool& is_for, uint8_t& reg_type /*3bits*/);
 
-  void setngKSI(uint8_t tsc, uint8_t key_set_id);
+  void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
   bool getngKSI(uint8_t& ng_ksi);
 
   uint8_t getMobileIdentityType();

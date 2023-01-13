@@ -68,7 +68,7 @@ void DeregistrationRequest::setDeregistrationType(
 }
 
 //------------------------------------------------------------------------------
-void DeregistrationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
+void DeregistrationRequest::SetNgKsi(uint8_t tsc, uint8_t key_set_id) {
   ie_ngKSI = new NasKeySetIdentifier(tsc, key_set_id);
   ie_ngKSI->Set(true);  // high position
 }

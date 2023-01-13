@@ -19,37 +19,35 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _ADDITIONAL_5G_SECURITY_INFORMATION_H_
+#define _ADDITIONAL_5G_SECURITY_INFORMATION_H_
 
-#ifndef __Additional_5G_Security_Information_H_
-#define __Additional_5G_Security_Information_H_
+#include "Type4NasIe.hpp"
 
-#include <stdint.h>
+constexpr uint8_t kAdditional5gSecurityInformationLength = 3;
+constexpr auto kAdditional5gSecurityInformationIeName =
+    "Additional 5G Security Information";
 
 namespace nas {
 
-class Additional_5G_Security_Information {
+class Additional5gSecurityInformation : public Type4NasIe {
  public:
-  Additional_5G_Security_Information();
-  Additional_5G_Security_Information(uint8_t iei);
-  Additional_5G_Security_Information(const uint8_t iei, bool RINMR, bool HDP);
-  ~Additional_5G_Security_Information();
+  Additional5gSecurityInformation();
+  Additional5gSecurityInformation(bool RINMR, bool HDP);
+  ~Additional5gSecurityInformation();
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void setRINMR(bool value);
-  void setHDP(bool value);
-  bool getRINMR();
-  bool getHDP();
+  int Decode(uint8_t* buf, int len, bool is_iei);
+
+  void SetRinmr(bool value);
+  bool GetRinmr() const;
+
+  void SetHdp(bool value);
+  bool GetHdp() const;
 
  private:
-  uint8_t _iei;
-  bool RINMR;
-  bool HDP;
+  bool rinmr_;
+  bool hdp_;
 };
 }  // namespace nas
 

@@ -36,34 +36,34 @@ class SecurityModeCommand : public NasMmPlainHeader {
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len);
 
-  void setNAS_Security_Algorithms(uint8_t ciphering, uint8_t integrity);
+  void SetNasSecurityAlgorithms(uint8_t ciphering, uint8_t integrity);
   // TODO: Get
 
-  void setngKSI(uint8_t tsc, uint8_t key_set_id);
+  void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
   // TODO: Get
 
-  void setUE_Security_Capability(uint8_t g_EASel, uint8_t g_IASel);
+  void SetUeSecurityCapability(uint8_t g_EASel, uint8_t g_IASel);
   // TODO: Get
-  void setUE_Security_Capability(
+  void SetUeSecurityCapability(
       uint8_t g_EASel, uint8_t g_IASel, uint8_t eea, uint8_t eia);
   // TODO: Get
 
-  void setIMEISV_Request(uint8_t value);
+  void SetImeisvRequest(uint8_t value);
   // TODO: Get
 
-  void setEPS_NAS_Security_Algorithms(uint8_t ciphering, uint8_t integrity);
+  void SetEpsNasSecurityAlgorithms(uint8_t ciphering, uint8_t integrity);
   // TODO: Get
 
-  void setAdditional_5G_Security_Information(bool rinmr, bool hdp);
+  void SetAdditional5gSecurityInformation(bool rinmr, bool hdp);
   // TODO: Get
 
   void SetEapMessage(bstring eap);
   // TODO: Get
 
-  void setABBA(uint8_t length, uint8_t* value);
+  void SetAbba(uint8_t length, uint8_t* value);
   // TODO: Get
 
-  void setS1_UE_Security_Capability(uint8_t g_EEASel, uint8_t g_EIASel);
+  void SetS1UeSecurityCapability(uint8_t g_EEASel, uint8_t g_EIASel);
   // TODO: Get
 
  public:
@@ -74,11 +74,11 @@ class SecurityModeCommand : public NasMmPlainHeader {
   std::optional<ImeisvRequest> ie_imeisv_request;  // Optional
   std::optional<EpsNasSecurityAlgorithms>
       ie_eps_nas_security_algorithms;  // Optional
-  std::optional<Additional_5G_Security_Information>
+  std::optional<Additional5gSecurityInformation>
       ie_additional_5G_security_information;  // Optional
   std::optional<EapMessage> ie_eap_message;   // Optional
   std::optional<ABBA> ie_abba;                // Optional
-  std::optional<S1_UE_Security_Capability>
+  std::optional<S1UeSecurityCapability>
       ie_s1_ue_security_capability;  // Optional
 };
 

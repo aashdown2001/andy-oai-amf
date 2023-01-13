@@ -52,12 +52,12 @@ void AuthenticationResult::setHeader(uint8_t security_header_type) {
 }
 
 //------------------------------------------------------------------------------
-void AuthenticationResult::setngKSI(uint8_t tsc, uint8_t key_set_id) {
+void AuthenticationResult::SetNgKsi(uint8_t tsc, uint8_t key_set_id) {
   ie_ngKSI = new NasKeySetIdentifier(tsc, key_set_id);
 }
 
 //------------------------------------------------------------------------------
-void AuthenticationResult::setABBA(uint8_t length, uint8_t* value) {
+void AuthenticationResult::SetAbba(uint8_t length, uint8_t* value) {
   ie_abba = new ABBA(0x38, length, value);
 }
 

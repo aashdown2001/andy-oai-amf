@@ -24,9 +24,6 @@
 
 #include "Type4NasIe.hpp"
 
-#include <optional>
-#include <stdint.h>
-
 constexpr uint8_t k5gmmCapabilityMinimumLength = 3;
 constexpr uint8_t k5gmmCapabilityMaximumLength = 15;
 constexpr auto k5gmmCapabilityIeName           = "5GMM Capability";

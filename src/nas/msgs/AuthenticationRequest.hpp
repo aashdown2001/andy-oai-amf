@@ -36,9 +36,9 @@ class AuthenticationRequest : public NasMmPlainHeader {
 
   void setHeader(uint8_t security_header_type);
 
-  void setngKSI(uint8_t tsc, uint8_t key_set_id);
+  void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
   void SetEapMessage(bstring eap);
-  void setABBA(uint8_t length, uint8_t* value);
+  void SetAbba(uint8_t length, uint8_t* value);
   void setAuthentication_Parameter_RAND(
       uint8_t value[kAuthenticationParameterRandValueLength]);
   void setAuthentication_Parameter_AUTN(

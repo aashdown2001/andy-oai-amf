@@ -46,46 +46,46 @@ void SecurityModeCommand::setHeader(uint8_t security_header_type) {
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeCommand::setNAS_Security_Algorithms(
+void SecurityModeCommand::SetNasSecurityAlgorithms(
     uint8_t ciphering, uint8_t integrity) {
   ie_selected_nas_security_algorithms.Set(ciphering, integrity);
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeCommand::setngKSI(uint8_t tsc, uint8_t key_set_id) {
+void SecurityModeCommand::SetNgKsi(uint8_t tsc, uint8_t key_set_id) {
   ie_ngKSI.SetTypeOfSecurityContext(tsc);
   ie_ngKSI.SetNasKeyIdentifier(key_set_id);
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeCommand::setUE_Security_Capability(
+void SecurityModeCommand::SetUeSecurityCapability(
     uint8_t g_EASel, uint8_t g_IASel) {
   ie_ue_security_capability.Set(g_EASel, g_IASel);
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeCommand::setUE_Security_Capability(
+void SecurityModeCommand::SetUeSecurityCapability(
     uint8_t g_EASel, uint8_t g_IASel, uint8_t eea, uint8_t eia) {
   ie_ue_security_capability.Set(g_EASel, g_IASel, eea, eia);
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeCommand::setIMEISV_Request(uint8_t value) {
+void SecurityModeCommand::SetImeisvRequest(uint8_t value) {
   ie_imeisv_request = std::make_optional<ImeisvRequest>(value);
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeCommand::setEPS_NAS_Security_Algorithms(
+void SecurityModeCommand::SetEpsNasSecurityAlgorithms(
     uint8_t ciphering, uint8_t integrity) {
   ie_eps_nas_security_algorithms =
       std::make_optional<EpsNasSecurityAlgorithms>(ciphering, integrity);
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeCommand::setAdditional_5G_Security_Information(
+void SecurityModeCommand::SetAdditional5gSecurityInformation(
     bool rinmr, bool hdp) {
   ie_additional_5G_security_information =
-      std::make_optional<Additional_5G_Security_Information>(0x36, rinmr, hdp);
+      std::make_optional<Additional5gSecurityInformation>(rinmr, hdp);
 }
 
 //------------------------------------------------------------------------------
@@ -94,15 +94,15 @@ void SecurityModeCommand::SetEapMessage(bstring eap) {
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeCommand::setABBA(uint8_t length, uint8_t* value) {
+void SecurityModeCommand::SetAbba(uint8_t length, uint8_t* value) {
   ie_abba = std::make_optional<ABBA>(0x38, length, value);
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeCommand::setS1_UE_Security_Capability(
+void SecurityModeCommand::SetS1UeSecurityCapability(
     uint8_t g_EEASel, uint8_t g_EIASel) {
   ie_s1_ue_security_capability =
-      std::make_optional<S1_UE_Security_Capability>(0x19, g_EEASel, g_EIASel);
+      std::make_optional<S1UeSecurityCapability>(0x19, g_EEASel, g_EIASel);
 }
 
 //------------------------------------------------------------------------------
@@ -295,9 +295,10 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x36: {
-        Logger::nas_mm().debug("decoding IEI (0x36)");
-        Additional_5G_Security_Information
+      case kIeiAdditional5gSecurityInformation: {
+        Logger::nas_mm().debug(
+            "decoding IEI 0x%x", kIeiAdditional5gSecurityInformation);
+        Additional5gSecurityInformation
             ie_additional_5G_security_information_tmp = {};
         if ((decoded_result = ie_additional_5G_security_information_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
@@ -305,12 +306,12 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
           return decoded_result;
         decoded_size += decoded_result;
         ie_additional_5G_security_information =
-            std::optional<Additional_5G_Security_Information>(
+            std::optional<Additional5gSecurityInformation>(
                 ie_additional_5G_security_information_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x78: {
+      case kIeiEapMessage: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiEapMessage);
         EapMessage ie_eap_message_tmp = {};
         if ((decoded_result = ie_eap_message_tmp.Decode(
@@ -322,7 +323,7 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x38: {
+      case kIeiAbba: {
         Logger::nas_mm().debug("decoding IEI (0x38)");
         ABBA ie_abba_tmp = {};
         if ((decoded_result = ie_abba_tmp.Decode(
@@ -336,13 +337,13 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
       } break;
       case 0x19: {
         Logger::nas_mm().debug("decoding IEI (0x19)");
-        S1_UE_Security_Capability ie_s1_ue_security_capability_tmp = {};
+        S1UeSecurityCapability ie_s1_ue_security_capability_tmp = {};
         if ((decoded_result = ie_s1_ue_security_capability_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
-        ie_s1_ue_security_capability = std::optional<S1_UE_Security_Capability>(
+        ie_s1_ue_security_capability = std::optional<S1UeSecurityCapability>(
             ie_s1_ue_security_capability_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

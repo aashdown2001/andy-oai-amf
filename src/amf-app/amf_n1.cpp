@@ -2111,11 +2111,11 @@ bool amf_n1::start_authentication_procedure(
   std::unique_ptr<AuthenticationRequest> auth_request =
       std::make_unique<AuthenticationRequest>();
   auth_request->setHeader(PLAIN_5GS_MSG);
-  auth_request->setngKSI(NAS_KEY_SET_IDENTIFIER_NATIVE, ngksi);
+  auth_request->SetNgKsi(NAS_KEY_SET_IDENTIFIER_NATIVE, ngksi);
   uint8_t abba[2];
   abba[0] = 0x00;
   abba[1] = 0x00;
-  auth_request->setABBA(2, abba);
+  auth_request->SetAbba(2, abba);
   // uint8_t* rand = nc->_5g_av[vindex].rand;
   auth_request->setAuthentication_Parameter_RAND(nc->_5g_av[vindex].rand);
   Logger::amf_n1().debug("Sending Authentication Request with RAND");
@@ -2394,22 +2394,22 @@ bool amf_n1::start_security_mode_control_procedure(
   std::unique_ptr<SecurityModeCommand> smc =
       std::make_unique<SecurityModeCommand>();
   smc->setHeader(PLAIN_5GS_MSG);
-  smc->setNAS_Security_Algorithms(amf_nea, amf_nia);
+  smc->SetNasSecurityAlgorithms(amf_nea, amf_nia);
   Logger::amf_n1().debug("Encoded ngKSI 0x%x", nc->ngKsi);
-  smc->setngKSI(NAS_KEY_SET_IDENTIFIER_NATIVE, nc->ngKsi & 0x07);
+  smc->SetNgKsi(NAS_KEY_SET_IDENTIFIER_NATIVE, nc->ngKsi & 0x07);
   if (nc->ueSecurityCaplen >= 4) {
-    smc->setUE_Security_Capability(
+    smc->SetUeSecurityCapability(
         nc->ueSecurityCapEnc, nc->ueSecurityCapInt, nc->ueSecurityCapEEA,
         nc->ueSecurityCapEIA);
   } else {
-    smc->setUE_Security_Capability(nc->ueSecurityCapEnc, nc->ueSecurityCapInt);
+    smc->SetUeSecurityCapability(nc->ueSecurityCapEnc, nc->ueSecurityCapInt);
   }
 
   // TODO: remove
   // smc->ie_ue_security_capability->SetLengthIndicator(nc->ueSecurityCaplen);
 
-  smc->setIMEISV_Request(0xe1);  // TODO: remove hardcoded value
-  smc->setAdditional_5G_Security_Information(true, false);
+  smc->SetImeisvRequest(0xe1);  // TODO: remove hardcoded value
+  smc->SetAdditional5gSecurityInformation(true, false);
   uint8_t buffer[BUFFER_SIZE_1024];
   int encoded_size = smc->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(

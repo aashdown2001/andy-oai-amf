@@ -43,7 +43,7 @@ class DeregistrationRequest {
   void setHeader(uint8_t security_header_type);
   void setDeregistrationType(uint8_t dereg_type);
   void setDeregistrationType(_5gs_deregistration_type_t type);
-  void setngKSI(uint8_t tsc, uint8_t key_set_id);
+  void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
 
   void setMobilityIdentityType(uint8_t type);
   void setSUCI_SUPI_format_IMSI(

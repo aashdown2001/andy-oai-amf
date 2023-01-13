@@ -45,7 +45,7 @@ class ServiceRequest {
 
  public:
   void setHeader(uint8_t security_header_type);
-  void setngKSI(uint8_t tsc, uint8_t key_set_id);
+  void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
   void setServiceType(uint8_t stp);
   void Set5gSTmsi(uint16_t amfSetId, uint8_t amfPointer, string tmsi);
   void setUplink_data_status(uint16_t value);

@@ -19,39 +19,48 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _S1_UE_SECURITY_CAPABILITY_H
+#define _S1_UE_SECURITY_CAPABILITY_H
 
-#ifndef _S1_UE_Security_Capability_H
-#define _S1_UE_Security_Capability_H
+#include "Type4NasIe.hpp"
 
-#include <stdint.h>
+constexpr uint8_t kS1UeSecurityCapabilityMinimumLength = 4;
+constexpr uint8_t kS1UeSecurityCapabilityMaximumLength = 7;
+constexpr auto kS1UeSecurityCapabilityIeName = "S1 UE Security Capability";
 
 namespace nas {
 
-class S1_UE_Security_Capability {
+class S1UeSecurityCapability : public Type4NasIe {
  public:
-  S1_UE_Security_Capability();
-  S1_UE_Security_Capability(uint8_t iei);
-  ~S1_UE_Security_Capability();
-  S1_UE_Security_Capability(
-      const uint8_t iei, uint8_t _5gg_EEASel, uint8_t _5gg_EIASel);
+  S1UeSecurityCapability();
+  S1UeSecurityCapability(uint8_t iei);
+  S1UeSecurityCapability(const uint8_t iei, uint8_t eea, uint8_t eia);
+  S1UeSecurityCapability(
+      const uint8_t iei, uint8_t eea, uint8_t eia, uint8_t uea, uint8_t uia);
+
+  ~S1UeSecurityCapability();
+
   void SetEea(uint8_t sel);
+  uint8_t GetEea() const;
+
   void SetEia(uint8_t sel);
-  uint8_t GetEea();
-  uint8_t GetEia();
+  uint8_t GetEia() const;
+
+  void Set(uint8_t eea, uint8_t eia);
+  void Get(uint8_t& eea, uint8_t& eia) const;
+
+  void Set(uint8_t eea, uint8_t eia, uint8_t uea, uint8_t uia);
+  void Get(uint8_t& eea, uint8_t& eia, uint8_t& uea, uint8_t& uia) const;
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
+  int Decode(uint8_t* buf, int len, bool is_iei);
 
  private:
-  uint8_t _iei;
-  uint8_t length;
-  uint8_t _5g_EEASel;
-  uint8_t _5g_EIASel;
+  uint8_t eea_;
+  uint8_t eia_;
+  std::optional<uint8_t> uea_;  // 5th octet, Optional
+  std::optional<uint8_t> uia_;  // 6th octet, Optional
+  std::optional<uint8_t> gea_;  // 7th octet, Optional
 };
 
 }  // namespace nas

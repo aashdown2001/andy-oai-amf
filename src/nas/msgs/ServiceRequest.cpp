@@ -56,7 +56,7 @@ void ServiceRequest::setHeader(uint8_t security_header_type) {
 }
 
 //------------------------------------------------------------------------------
-void ServiceRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
+void ServiceRequest::SetNgKsi(uint8_t tsc, uint8_t key_set_id) {
   ie_ngKSI = new NasKeySetIdentifier(tsc, key_set_id);
 }
 

@@ -76,7 +76,7 @@ bool RegistrationRequest::get5gsRegistrationType(
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setngKSI(uint8_t tsc, uint8_t key_set_id) {
+void RegistrationRequest::SetNgKsi(uint8_t tsc, uint8_t key_set_id) {
   ie_ngKSI.Set(true);  // high pos
   ie_ngKSI.SetNasKeyIdentifier(key_set_id);
   ie_ngKSI.SetTypeOfSecurityContext(tsc);
