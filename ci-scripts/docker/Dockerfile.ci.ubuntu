@@ -64,6 +64,8 @@ RUN apt-get update && \
       openssl \
       libbrotli1 \
       netbase \
+      python3\
+      python3-jinja2\
 # Ubuntu 18 --> libasan4
 # Ubuntu 20 --> libasan5
 # Ubuntu 22 --> libasan6
@@ -94,7 +96,7 @@ RUN apt-get update && \
 WORKDIR /openair-amf/bin
 COPY --from=oai-amf-builder \
     /openair-amf/build/amf/build/oai_amf \
-    /openair-amf/scripts/entrypoint.sh \
+    /openair-amf/scripts/entrypoint.py \
     /openair-amf/scripts/healthcheck.sh \
     ./
 
@@ -127,5 +129,5 @@ HEALTHCHECK --interval=10s \
             --retries=6 \
     CMD /openair-amf/bin/healthcheck.sh
 
-ENTRYPOINT ["/bin/bash","/openair-amf/bin/entrypoint.sh"]
+ENTRYPOINT ["python3", "/openair-amf/bin/entrypoint.py"]
 CMD ["/openair-amf/bin/oai_amf", "-c", "/openair-amf/etc/amf.conf", "-o"]
