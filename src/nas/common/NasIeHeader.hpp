@@ -68,7 +68,7 @@
 #include "UENetworkCapability.hpp"
 #include "UEUsageSetting.hpp"
 #include "UESecurityCapability.hpp"
-#include "UE_Radio_Capability_ID.hpp"
+#include "UeRadioCapabilityId.hpp"
 #include "UplinkDataStatus.hpp"
 #include "_5GMM_Cause.hpp"
 #include "_5GSDeregistrationType.hpp"

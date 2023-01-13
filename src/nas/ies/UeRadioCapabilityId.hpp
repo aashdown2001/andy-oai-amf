@@ -23,26 +23,20 @@
 #define _UE_RADIO_CAPABILITY_ID_H_
 
 #include "Type4NasIe.hpp"
-#include <stdint.h>
-
-extern "C" {
-#include "TLVDecoder.h"
-#include "TLVEncoder.h"
-#include "bstrlib.h"
-}
 
 constexpr auto kUeRadioCapabilityIdIeName = "UE Radio Capability ID";
 
 namespace nas {
 
-class UE_Radio_Capability_ID : public Type4NasIe {
+class UeRadioCapabilityId : public Type4NasIe {
  public:
-  UE_Radio_Capability_ID();
-  UE_Radio_Capability_ID(bstring value);
-  ~UE_Radio_Capability_ID();
+  UeRadioCapabilityId();
+  UeRadioCapabilityId(bstring value);
+  ~UeRadioCapabilityId();
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);
+
   void setValue(bstring value);
   void getValue(bstring& value) const;
 

@@ -25,9 +25,6 @@
 #include "NasIeHeader.hpp"
 #include "Type4NasIe.hpp"
 
-#include <stdint.h>
-#include <vector>
-
 constexpr uint8_t kNssaiMinimumLength = 4;
 constexpr uint8_t kNssaiMaximumLength = 146;
 constexpr auto kNssaiIeName           = "NSSAI";

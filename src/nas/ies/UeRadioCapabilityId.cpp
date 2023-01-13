@@ -19,7 +19,7 @@
  *      contact@openairinterface.org
  */
 
-#include "UE_Radio_Capability_ID.hpp"
+#include "UeRadioCapabilityId.hpp"
 
 #include "3gpp_24.501.hpp"
 #include "common_defs.h"
@@ -28,14 +28,14 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-UE_Radio_Capability_ID::UE_Radio_Capability_ID()
+UeRadioCapabilityId::UeRadioCapabilityId()
     : Type4NasIe(kIeiUeRadioCapabilityId), value_() {
   SetLengthIndicator(0);
   SetIeName(kUeRadioCapabilityIdIeName);
 }
 
 //------------------------------------------------------------------------------
-UE_Radio_Capability_ID::UE_Radio_Capability_ID(bstring value)
+UeRadioCapabilityId::UeRadioCapabilityId(bstring value)
     : Type4NasIe(kIeiUeRadioCapabilityId) {
   value_ = bstrcpy(value);
   SetLengthIndicator(blength(value_));
@@ -43,20 +43,20 @@ UE_Radio_Capability_ID::UE_Radio_Capability_ID(bstring value)
 }
 
 //------------------------------------------------------------------------------
-UE_Radio_Capability_ID::~UE_Radio_Capability_ID() {}
+UeRadioCapabilityId::~UeRadioCapabilityId() {}
 
 //------------------------------------------------------------------------------
-void UE_Radio_Capability_ID::setValue(bstring value) {
+void UeRadioCapabilityId::setValue(bstring value) {
   value_ = bstrcpy(value);
 }
 
 //------------------------------------------------------------------------------
-void UE_Radio_Capability_ID::getValue(bstring& value) const {
+void UeRadioCapabilityId::getValue(bstring& value) const {
   value = bstrcpy(value_);
 }
 
 //------------------------------------------------------------------------------
-int UE_Radio_Capability_ID::Encode(uint8_t* buf, int len) {
+int UeRadioCapabilityId::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   int encoded_size = 0;
   int ie_len       = GetIeLength();
@@ -88,7 +88,7 @@ int UE_Radio_Capability_ID::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int UE_Radio_Capability_ID::Decode(uint8_t* buf, int len, bool is_iei) {
+int UeRadioCapabilityId::Decode(uint8_t* buf, int len, bool is_iei) {
   Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
   int decoded_size = 0;
 

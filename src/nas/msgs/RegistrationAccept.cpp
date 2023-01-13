@@ -282,7 +282,7 @@ void RegistrationAccept::setT3324_Value(uint8_t unit, uint8_t value) {
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::setUE_Radio_Capability_ID(bstring value) {
-  ie_ue_radio_capability_id = std::make_optional<UE_Radio_Capability_ID>(value);
+  ie_ue_radio_capability_id = std::make_optional<UeRadioCapabilityId>(value);
 }
 
 //------------------------------------------------------------------------------
@@ -896,11 +896,11 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
       } break;
       case 0x67: {
         Logger::nas_mm().debug("Decoding IEI (0x67)");
-        UE_Radio_Capability_ID ie_ue_radio_capability_id_tmp = {};
+        UeRadioCapabilityId ie_ue_radio_capability_id_tmp = {};
         decoded_size += ie_ue_radio_capability_id_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
-        ie_ue_radio_capability_id = std::optional<UE_Radio_Capability_ID>(
-            ie_ue_radio_capability_id_tmp);
+        ie_ue_radio_capability_id =
+            std::optional<UeRadioCapabilityId>(ie_ue_radio_capability_id_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

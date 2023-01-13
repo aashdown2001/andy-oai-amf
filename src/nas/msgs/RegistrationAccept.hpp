@@ -188,7 +188,7 @@ class RegistrationAccept : public NasMmPlainHeader {
   std::optional<GprsTimer3> ie_T3447_value;  // Optional
   std::optional<GprsTimer3> ie_T3448_value;  // Optional
   std::optional<GprsTimer3> ie_T3324_value;  // Optional
-  std::optional<UE_Radio_Capability_ID>
+  std::optional<UeRadioCapabilityId>
       ie_ue_radio_capability_id;  // Release 16.4.1
   // TODO: UE radio capability ID deletion indication
   std::optional<NSSAI> ie_pending_nssai;  // Release 16.4.1

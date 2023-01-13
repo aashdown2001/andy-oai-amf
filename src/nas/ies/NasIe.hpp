@@ -28,6 +28,14 @@
 #include "logger.hpp"
 
 #include <optional>
+#include <stdint.h>
+#include <vector>
+
+extern "C" {
+#include "TLVDecoder.h"
+#include "TLVEncoder.h"
+#include "bstrlib.h"
+}
 
 namespace nas {
 
