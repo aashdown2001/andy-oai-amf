@@ -89,10 +89,11 @@ constexpr uint8_t kIeiShortNameForNetwork                   = 0x45;
 constexpr uint8_t kIeiPayloadContainerType     = 0x08;  // Should be verified
 constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
 
-constexpr uint8_t kIeiNssaiInclusionMode        = 0x0A;  // B-(4 higher bits)
+constexpr uint8_t kIeiNssaiInclusionMode        = 0x0A;  // A-(4 higher bits)
 constexpr uint8_t kIeiMicoIndication            = 0x0B;  // B-(4 higher bits)
 constexpr uint8_t kIeiNasKeySetIdentifier       = 0x0C;  // C-(4 higher bits)
-constexpr uint8_t kIeiNon3gppNwProvidedPolicies = 0x0D;  // C-(4 higher bits)
+constexpr uint8_t kIeiNon3gppNwProvidedPolicies = 0x0D;  // D-(4 higher bits)
+constexpr uint8_t kIeiImeisvRequest             = 0x0E;  // E-(4 higher bits)
 
 constexpr uint8_t kIei5gmmCapability              = 0x10;
 constexpr uint8_t kIeiUeUsageSetting              = 0x18;
@@ -108,7 +109,8 @@ constexpr uint8_t kIeiAuthenticationResponseParameter = 0x2D;
 constexpr uint8_t kIeiUeSecurityCapability = 0x2e;
 constexpr uint8_t kIeiUeNetworkCapability  = 0x17;
 
-constexpr uint8_t kIeiAbba = 0x38;
+constexpr uint8_t kIeiAdditional5gSecurityInformation = 0x36;
+constexpr uint8_t kIeiAbba                            = 0x38;
 
 constexpr uint8_t kIeiUplinkDataStatus = 0x40;
 
@@ -116,9 +118,10 @@ constexpr uint8_t kT3502Value = 0x16;
 
 constexpr uint8_t kEquivalentPlmns = 0x4A;
 
-constexpr uint8_t kIeiPduSessionStatus = 0x50;
-constexpr uint8_t kIei5gsUpdateType    = 0x53;
-constexpr uint8_t kT3346Value          = 0x5f;
+constexpr uint8_t kIeiPduSessionStatus         = 0x50;
+constexpr uint8_t kIei5gsUpdateType            = 0x53;
+constexpr uint8_t kIeiEpsNasSecurityAlgorithms = 0x57;
+constexpr uint8_t kT3346Value                  = 0x5f;
 
 constexpr uint8_t kIeiEpsBearerContextStatus = 0x60;
 constexpr uint8_t kIeiUeRadioCapabilityId    = 0x67;

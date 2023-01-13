@@ -19,39 +19,26 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _IMEISV_REQUEST_H_
+#define _IMEISV_REQUEST_H_
 
-#ifndef __EPS_NAS_Security_Algorithms_H
-#define __EPS_NAS_Security_Algorithms_H
+#include "Type1NasIeFormatTv.hpp"
 
-#include <stdint.h>
+constexpr auto kImeisvRequestIeName = "IMEISV Request";
 
 namespace nas {
 
-class EPS_NAS_Security_Algorithms {
+class ImeisvRequest : public Type1NasIeFormatTv {
  public:
-  EPS_NAS_Security_Algorithms();
-  ~EPS_NAS_Security_Algorithms();
-  EPS_NAS_Security_Algorithms(
-      uint8_t iei, uint8_t ciphering, uint8_t integrity_protection);
-  void SetTypeOfCipheringAlgorithm(uint8_t value);
-  void SetTypeOfIntegrityProtectionAlgorithm(uint8_t value);
-  uint8_t GetTypeOfCipheringAlgorithm();
-  uint8_t GetTypeOfIntegrityProtectionAlgorithm();
-  int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
+  ImeisvRequest();
+  ImeisvRequest(uint8_t value);
+  ~ImeisvRequest();
+
+  void Set(uint8_t value);
+  uint8_t Get() const;
 
  private:
-  uint8_t _iei;
-  uint8_t CIPHERING;
-  uint8_t INTEGRITY_PROTECTION;
 };
-
 }  // namespace nas
 
 #endif

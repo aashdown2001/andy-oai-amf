@@ -71,15 +71,14 @@ void SecurityModeCommand::setUE_Security_Capability(
 
 //------------------------------------------------------------------------------
 void SecurityModeCommand::setIMEISV_Request(uint8_t value) {
-  ie_imeisv_request = std::make_optional<IMEISV_Request>(0x0E, value);
+  ie_imeisv_request = std::make_optional<ImeisvRequest>(value);
 }
 
 //------------------------------------------------------------------------------
 void SecurityModeCommand::setEPS_NAS_Security_Algorithms(
     uint8_t ciphering, uint8_t integrity) {
   ie_eps_nas_security_algorithms =
-      std::make_optional<EPS_NAS_Security_Algorithms>(
-          0x57, ciphering, integrity);
+      std::make_optional<EpsNasSecurityAlgorithms>(ciphering, integrity);
 }
 
 //------------------------------------------------------------------------------
@@ -267,31 +266,31 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
   while ((octet != 0x0)) {
     switch ((octet & 0xf0) >> 4) {
-      case 0xE: {
-        Logger::nas_mm().debug("Decoding IEI (0xE)");
-        IMEISV_Request ie_imeisv_request_tmp = {};
+      case kIeiImeisvRequest: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiImeisvRequest);
+        ImeisvRequest ie_imeisv_request_tmp = {};
         if ((decoded_result = ie_imeisv_request_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
-        ie_imeisv_request =
-            std::optional<IMEISV_Request>(ie_imeisv_request_tmp);
-        octet = *(buf + decoded_size);
+        ie_imeisv_request = std::optional<ImeisvRequest>(ie_imeisv_request_tmp);
+        octet             = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
     }
     switch (octet) {
-      case 0x57: {
-        Logger::nas_mm().debug("decoding IEI (0x57)");
-        EPS_NAS_Security_Algorithms ie_eps_nas_security_algorithms_tmp = {};
+      case kIeiEpsNasSecurityAlgorithms: {
+        Logger::nas_mm().debug(
+            "decoding IEI 0x%x", kIeiEpsNasSecurityAlgorithms);
+        EpsNasSecurityAlgorithms ie_eps_nas_security_algorithms_tmp = {};
         if ((decoded_result = ie_eps_nas_security_algorithms_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
         ie_eps_nas_security_algorithms =
-            std::optional<EPS_NAS_Security_Algorithms>(
+            std::optional<EpsNasSecurityAlgorithms>(
                 ie_eps_nas_security_algorithms_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

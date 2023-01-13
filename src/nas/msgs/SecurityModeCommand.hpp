@@ -71,8 +71,8 @@ class SecurityModeCommand : public NasMmPlainHeader {
   NasKeySetIdentifier ie_ngKSI;                               // Mandatory
   UESecurityCapability ie_ue_security_capability;             // Mandatory
 
-  std::optional<IMEISV_Request> ie_imeisv_request;  // Optional
-  std::optional<EPS_NAS_Security_Algorithms>
+  std::optional<ImeisvRequest> ie_imeisv_request;  // Optional
+  std::optional<EpsNasSecurityAlgorithms>
       ie_eps_nas_security_algorithms;  // Optional
   std::optional<Additional_5G_Security_Information>
       ie_additional_5G_security_information;  // Optional

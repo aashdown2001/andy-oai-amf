@@ -19,35 +19,39 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _EPS_NAS_SECURITY_ALGORITHS_H
+#define _EPS_NAS_SECURITY_ALGORITHS_H
 
-#ifndef __IMEISV_Request_H_
-#define __IMEISV_Request_H_
+#include "Type3NasIe.hpp"
 
-#include <stdint.h>
+constexpr uint8_t kEpsNasSecurityAlgorithmsLength = 2;
+constexpr auto kEpsNasSecurityAlgorithmsIeName = "EPS NAS Security Algorithms";
 
 namespace nas {
 
-class IMEISV_Request {
+class EpsNasSecurityAlgorithms : public Type3NasIe {
  public:
-  IMEISV_Request();
-  IMEISV_Request(uint8_t iei);
-  IMEISV_Request(const uint8_t iei, uint8_t value);
-  ~IMEISV_Request();
+  EpsNasSecurityAlgorithms();
+  EpsNasSecurityAlgorithms(uint8_t ciphering, uint8_t integrity_protection);
+  ~EpsNasSecurityAlgorithms();
+
+  void SetTypeOfCipheringAlgorithm(uint8_t value);
+  uint8_t GetTypeOfCipheringAlgorithm() const;
+
+  void SetTypeOfIntegrityProtectionAlgorithm(uint8_t value);
+  uint8_t GetTypeOfIntegrityProtectionAlgorithm() const;
+
+  void Set(uint8_t ciphering, uint8_t integrity_protection);
+  void Get(uint8_t& ciphering, uint8_t& integrity_protection) const;
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void setValue(uint8_t value);
-  uint8_t getValue();
+  int Decode(uint8_t* buf, int len, bool is_iei);
 
  private:
-  uint8_t _iei;
-  uint8_t _value;
+  uint8_t type_of_ciphering_algorithm_;
+  uint8_t type_of_integrity_protection_algorithm_;
 };
+
 }  // namespace nas
 
 #endif
