@@ -41,7 +41,7 @@ class AuthenticationResult {
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
   void setHeader(uint8_t security_header_type);
   void setngKSI(uint8_t tsc, uint8_t key_set_id);
-  void setEAP_Message(bstring eap);
+  void SetEapMessage(bstring eap);
   void setABBA(uint8_t length, uint8_t* value);
 
  public:

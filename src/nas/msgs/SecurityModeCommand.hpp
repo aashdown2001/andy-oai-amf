@@ -48,7 +48,7 @@ class SecurityModeCommand {
   void setIMEISV_Request(uint8_t value);
   void setEPS_NAS_Security_Algorithms(uint8_t ciphering, uint8_t integrity);
   void setAdditional_5G_Security_Information(bool rinmr, bool hdp);
-  void setEAP_Message(bstring eap);
+  void SetEapMessage(bstring eap);
   void setABBA(uint8_t length, uint8_t* value);
   void setS1_UE_Security_Capability(uint8_t g_EEASel, uint8_t g_EIASel);
 

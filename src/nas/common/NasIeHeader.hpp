@@ -34,7 +34,7 @@
 #include "Authentication_Failure_Parameter.hpp"
 #include "Authentication_Parameter_AUTN.hpp"
 #include "Authentication_Parameter_RAND.hpp"
-#include "Authentication_Response_Parameter.hpp"
+#include "AuthenticationResponseParameter.hpp"
 #include "DNN.hpp"
 #include "EapMessage.hpp"
 #include "EpsBearerContextStatus.hpp"

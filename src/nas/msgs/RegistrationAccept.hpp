@@ -110,7 +110,7 @@ class RegistrationAccept : public NasMmPlainHeader {
   void setSOR_Transparent_Container(uint8_t header, const uint8_t (&value)[16]);
   // TODO: Get
 
-  void setEAP_Message(bstring eap);
+  void SetEapMessage(bstring eap);
   // TODO: Get
 
   void setNSSAI_Inclusion_Mode(uint8_t value);

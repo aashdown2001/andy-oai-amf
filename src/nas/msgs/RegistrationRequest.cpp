@@ -832,9 +832,16 @@ int RegistrationRequest::Decode(uint8_t* buf, int len) {
   int decoded_size    = 0;
   int decoded_size_ie = 0;
   int decoded_result  = 0;
-  // plain_header           = header;
-  decoded_size = NasMmPlainHeader::Decode(buf, len);
-  // ie_5gs_registration_type = new _5GSRegistrationType();
+
+  // Header
+  decoded_result = NasMmPlainHeader::Decode(buf, len);
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error("Decoding NAS Header error");
+    return KEncodeDecodeError;
+  }
+  decoded_size += decoded_result;
+
+  // Registration Type
   decoded_size += ie_5gs_registration_type.Decode(
       buf + decoded_size, len - decoded_size, false);
   decoded_size += ie_ngKSI.Decode(

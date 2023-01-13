@@ -47,7 +47,7 @@ class RegistrationReject : public NasMmPlainHeader {
   void setGPRS_Timer_2_3502(uint8_t value);
   // TOGO: Get
 
-  void setEAP_Message(bstring eap);
+  void SetEapMessage(bstring eap);
   void setRejected_NSSAI(const std::vector<Rejected_SNSSAI>& nssai);
   // TODO: Get
 

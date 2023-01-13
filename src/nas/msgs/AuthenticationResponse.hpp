@@ -19,36 +19,33 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _AuthenticationResponse_H_
-#define _AuthenticationResponse_H_
+#ifndef _AUTHENTICATION_RESPONSE_H_
+#define _AUTHENTICATION_RESPONSE_H_
 
 #include "NasIeHeader.hpp"
 
 namespace nas {
 
-class AuthenticationResponse {
+class AuthenticationResponse : public NasMmPlainHeader {
  public:
   AuthenticationResponse();
   ~AuthenticationResponse();
+
   int Encode(uint8_t* buf, int len);
-  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
+
   void setHeader(uint8_t security_header_type);
-  void setAuthentication_Response_Parameter(bstring para);
-  void setEAP_Message(bstring eap);
-  bool getAuthenticationResponseParameter(bstring& para);
-  bool getEapMessage(bstring& eap);
+
+  void SetAuthenticationResponseParameter(const bstring& para);
+  bool GetAuthenticationResponseParameter(bstring& para);
+
+  void SetEapMessage(const bstring& eap);
+  bool GetEapMessage(bstring& eap);
 
  public:
-  NasMmPlainHeader* plain_header;
-  Authentication_Response_Parameter* ie_authentication_response_parameter;
-  EapMessage* ie_eap_message;
+  std::optional<AuthenticationResponseParameter>
+      ie_authentication_response_parameter;  // Optional
+  std::optional<EapMessage> ie_eap_message;  // Optional
 };
 
 }  // namespace nas

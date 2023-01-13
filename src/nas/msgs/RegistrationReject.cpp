@@ -60,7 +60,7 @@ void RegistrationReject::setGPRS_Timer_2_3502(uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationReject::setEAP_Message(bstring eap) {
+void RegistrationReject::SetEapMessage(bstring eap) {
   ie_eap_message = std::make_optional<EapMessage>(kIeiEapMessage, eap);
 }
 
@@ -143,8 +143,18 @@ int RegistrationReject::Encode(uint8_t* buf, int len) {
 int RegistrationReject::Decode(
     NasMmPlainHeader* header, uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding RegistrationReject message");
-  int decoded_size = 0;
-  decoded_size     = NasMmPlainHeader::Decode(buf, len);
+  int decoded_size   = 0;
+  int decoded_result = 0;
+
+  // Header
+  decoded_result = NasMmPlainHeader::Decode(buf, len);
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error("Decoding NAS Header error");
+    return KEncodeDecodeError;
+  }
+  decoded_size += decoded_result;
+
+  // 5GMM Cause
   decoded_size +=
       ie_5gmm_cause.Decode(buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);

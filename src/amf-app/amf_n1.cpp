@@ -2190,12 +2190,11 @@ void amf_n1::authentication_response_handle(
   // Decode AUTHENTICATION RESPONSE message
   auto auth_response = std::make_unique<AuthenticationResponse>();
 
-  auth_response->Decode(
-      nullptr, (uint8_t*) bdata(plain_msg), blength(plain_msg));
+  auth_response->Decode((uint8_t*) bdata(plain_msg), blength(plain_msg));
   bstring resStar = nullptr;
   bool isAuthOk   = true;
   // Get response RES*
-  if (!auth_response->getAuthenticationResponseParameter(resStar)) {
+  if (!auth_response->GetAuthenticationResponseParameter(resStar)) {
     Logger::amf_n1().warn(
         "Cannot receive AuthenticationResponseParameter (RES*)");
   } else {

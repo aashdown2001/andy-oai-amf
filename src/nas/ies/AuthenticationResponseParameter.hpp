@@ -19,40 +19,32 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _AUTHENTICATION_RESPONSE_PARAMETER_H_
+#define _AUTHENTICATION_RESPONSE_PARAMETER_H_
 
-#ifndef __Authentication_Response_Parameter_H_
-#define __Authentication_Response_Parameter_H_
-#include <stdint.h>
+#include "Type4NasIe.hpp"
 
-#include <iostream>
-extern "C" {
-#include "TLVDecoder.h"
-#include "TLVEncoder.h"
-#include "bstrlib.h"
-}
+constexpr uint8_t kAuthenticationResponseParameterMinimumLength = 6;
+constexpr uint8_t kAuthenticationResponseParameterMaximumLength = 18;
+constexpr auto kAuthenticationResponseParameterIeName =
+    "Authentication Response Parameter";
 
 namespace nas {
 
-class Authentication_Response_Parameter {
+class AuthenticationResponseParameter : public Type4NasIe {
  public:
-  Authentication_Response_Parameter();
-  Authentication_Response_Parameter(uint8_t iei);
-  Authentication_Response_Parameter(const uint8_t iei, bstring para);
-  ~Authentication_Response_Parameter();
-  // void setValue(uint8_t iei, uint8_t value);
+  AuthenticationResponseParameter();
+  AuthenticationResponseParameter(bstring para);
+  ~AuthenticationResponseParameter();
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void getValue(bstring& para);
+  int Decode(uint8_t* buf, int len, bool is_iei);
+
+  void SetValue(const bstring& para);
+  void GetValue(bstring& para) const;
 
  private:
-  uint8_t _iei;
-  bstring PARA;
+  bstring res_or_res_star_;
 };
 
 }  // namespace nas

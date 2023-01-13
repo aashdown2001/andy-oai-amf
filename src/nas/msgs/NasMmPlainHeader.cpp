@@ -125,34 +125,36 @@ int NasMmPlainHeader::Encode(uint8_t* buf, int len) {
 //------------------------------------------------------------------------------
 int NasMmPlainHeader::Decode(const uint8_t* const buf, int len) {
   Logger::nas_mm().debug("Decoding NasMmPlainHeader");
-  uint32_t decoded_size = 0;
+
+  int decoded_size = 0;
   if (len < kNasMmPlainHeaderLength) {
     Logger::nas_mm().error("Buffer length is less than 3 octets");
     return KEncodeDecodeError;
-  } else {
-    uint32_t size = 0;
-    if ((size = epd_.Decode(buf + decoded_size, len - decoded_size)) ==
-        KEncodeDecodeError) {
-      Logger::nas_mm().error("Decode NAS MM Header IE error");
-      return KEncodeDecodeError;
-    }
-    decoded_size += size;
-
-    if ((size = secu_header_type_.Decode(
-             buf + decoded_size, len - decoded_size)) == KEncodeDecodeError) {
-      Logger::nas_mm().error("Decode NAS MM Header IE error");
-      return KEncodeDecodeError;
-    }
-    decoded_size += size;
-
-    if ((size = msg_type_.Decode(buf + decoded_size, len - decoded_size)) ==
-        KEncodeDecodeError) {
-      Logger::nas_mm().error("Decode NAS MM Header IE error");
-      return KEncodeDecodeError;
-    }
-    decoded_size += size;
   }
+
+  int size = 0;
+  if ((size = epd_.Decode(buf + decoded_size, len - decoded_size)) ==
+      KEncodeDecodeError) {
+    Logger::nas_mm().error("Decode NAS MM Header IE error");
+    return KEncodeDecodeError;
+  }
+  decoded_size += size;
+
+  if ((size = secu_header_type_.Decode(
+           buf + decoded_size, len - decoded_size)) == KEncodeDecodeError) {
+    Logger::nas_mm().error("Decode NAS MM Header IE error");
+    return KEncodeDecodeError;
+  }
+  decoded_size += size;
+
+  if ((size = msg_type_.Decode(buf + decoded_size, len - decoded_size)) ==
+      KEncodeDecodeError) {
+    Logger::nas_mm().error("Decode NAS MM Header IE error");
+    return KEncodeDecodeError;
+  }
+  decoded_size += size;
+
   Logger::nas_mm().debug(
-      "decoded NasMmPlainHeader len (%d octets)", decoded_size);
+      "Decoded NasMmPlainHeader len (%d octets)", decoded_size);
   return decoded_size;
 }

@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "AuthenticationResponse.hpp"
 
 #include "3gpp_24.501.hpp"
@@ -34,10 +27,10 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-AuthenticationResponse::AuthenticationResponse() {
-  plain_header                         = NULL;
-  ie_authentication_response_parameter = NULL;
-  ie_eap_message                       = NULL;
+AuthenticationResponse::AuthenticationResponse()
+    : NasMmPlainHeader(EPD_5GS_MM_MSG, AUTHENTICATION_RESPONSE) {
+  ie_authentication_response_parameter = std::nullopt;
+  ie_eap_message                       = std::nullopt;
 }
 
 //------------------------------------------------------------------------------
@@ -45,22 +38,20 @@ AuthenticationResponse::~AuthenticationResponse() {}
 
 //------------------------------------------------------------------------------
 void AuthenticationResponse::setHeader(uint8_t security_header_type) {
-  plain_header = new NasMmPlainHeader();
-  plain_header->setHeader(
-      EPD_5GS_MM_MSG, security_header_type, AUTHENTICATION_RESPONSE);
+  NasMmPlainHeader::SetSecurityHeaderType(security_header_type);
 }
 
 //------------------------------------------------------------------------------
-void AuthenticationResponse::setAuthentication_Response_Parameter(
-    bstring para) {
+void AuthenticationResponse::SetAuthenticationResponseParameter(
+    const bstring& para) {
   ie_authentication_response_parameter =
-      new Authentication_Response_Parameter(0x2D, para);
+      std::make_optional<AuthenticationResponseParameter>(para);
 }
 
 //------------------------------------------------------------------------------
-bool AuthenticationResponse::getAuthenticationResponseParameter(bstring& para) {
-  if (ie_authentication_response_parameter) {
-    ie_authentication_response_parameter->getValue(para);
+bool AuthenticationResponse::GetAuthenticationResponseParameter(bstring& para) {
+  if (ie_authentication_response_parameter.has_value()) {
+    ie_authentication_response_parameter.value().GetValue(para);
     return true;
   } else {
     return false;
@@ -68,35 +59,40 @@ bool AuthenticationResponse::getAuthenticationResponseParameter(bstring& para) {
 }
 
 //------------------------------------------------------------------------------
-void AuthenticationResponse::setEAP_Message(bstring eap) {
-  ie_eap_message = new EapMessage(0x78, eap);
+void AuthenticationResponse::SetEapMessage(const bstring& eap) {
+  ie_eap_message = std::make_optional<EapMessage>(kIeiEapMessage, eap);
 }
 
 //------------------------------------------------------------------------------
-bool AuthenticationResponse::getEapMessage(bstring& eap) {
-  if (ie_eap_message) {
-    ie_eap_message->getValue(eap);
-    return 0;
+bool AuthenticationResponse::GetEapMessage(bstring& eap) {
+  if (ie_eap_message.has_value()) {
+    ie_eap_message.value().getValue(eap);
+    return true;
   } else {
-    return -1;
+    return false;
   }
 }
 
 //------------------------------------------------------------------------------
 int AuthenticationResponse::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding AuthenticationResponse message");
-  int encoded_size = 0;
-  if (!plain_header) {
-    Logger::nas_mm().error("Mandatory IE missing Header");
-    return 0;
+
+  int encoded_size    = 0;
+  int encoded_ie_size = 0;
+
+  // Header
+  if ((encoded_ie_size = NasMmPlainHeader::Encode(buf, len)) ==
+      KEncodeDecodeError) {
+    Logger::nas_mm().error("Encoding NAS Header error");
+    return KEncodeDecodeError;
   }
-  if (!(plain_header->Encode(buf, len))) return 0;
-  encoded_size += 3;
-  if (!ie_authentication_response_parameter) {
+  encoded_size += encoded_ie_size;
+
+  if (!ie_authentication_response_parameter.has_value()) {
     Logger::nas_mm().warn(
         "IE ie_authentication_response_parameter is not available");
   } else {
-    if (int size = ie_authentication_response_parameter->Encode(
+    if (int size = ie_authentication_response_parameter.value().Encode(
             buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
@@ -105,11 +101,11 @@ int AuthenticationResponse::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
-  if (!ie_eap_message) {
+  if (!ie_eap_message.has_value()) {
     Logger::nas_mm().warn("IE ie_eap_message is not available");
   } else {
-    if (int size =
-            ie_eap_message->Encode(buf + encoded_size, len - encoded_size)) {
+    if (int size = ie_eap_message.value().Encode(
+            buf + encoded_size, len - encoded_size)) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_eap_message error");
@@ -118,40 +114,52 @@ int AuthenticationResponse::Encode(uint8_t* buf, int len) {
   }
   Logger::nas_mm().debug(
       "Encoded AuthenticationResponse message len (%d)", encoded_size);
-  return 1;
+  return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int AuthenticationResponse::Decode(
-    NasMmPlainHeader* header, uint8_t* buf, int len) {
+int AuthenticationResponse::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding AuthenticationResponse message");
-  int decoded_size = 3;
-  plain_header     = header;
-  Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
+  int decoded_size   = 0;
+  int decoded_result = 0;
+  // Header
+  decoded_result = NasMmPlainHeader::Decode(buf, len);
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error("Decoding NAS Header error");
+    return KEncodeDecodeError;
+  }
+  decoded_size += decoded_result;
+
+  // IEIs
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
   while ((octet != 0x0)) {
     switch (octet) {
-      case 0x2D: {
-        Logger::nas_mm().debug("Decoding IEI (0x2D)");
-        ie_authentication_response_parameter =
-            new Authentication_Response_Parameter();
-        decoded_size += ie_authentication_response_parameter->Decode(
+      case kIeiAuthenticationResponseParameter: {
+        Logger::nas_mm().debug(
+            "Decoding IEI 0x%x", kIeiAuthenticationResponseParameter);
+        AuthenticationResponseParameter
+            ie_authentication_response_parameter_tmp = {};
+        decoded_size += ie_authentication_response_parameter_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
+        ie_authentication_response_parameter =
+            std::optional<AuthenticationResponseParameter>(
+                ie_authentication_response_parameter_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x78: {
-        Logger::nas_mm().debug("Decoding IEI (0x78)");
-        ie_eap_message = new EapMessage();
-        decoded_size += ie_eap_message->Decode(
+      case kIeiEapMessage: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiEapMessage);
+        EapMessage ie_eap_message_tmp = {};
+        decoded_size += ie_eap_message_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
-        octet = *(buf + decoded_size);
+        ie_eap_message = std::optional<EapMessage>(ie_eap_message_tmp);
+        octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
     }
   }
   Logger::nas_mm().debug(
       "Decoded AuthenticationResponse message len (%d)", decoded_size);
-  return 1;
+  return decoded_size;
 }

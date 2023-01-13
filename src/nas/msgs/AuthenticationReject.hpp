@@ -19,32 +19,27 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _AuthenticationReject_H_
-#define _AuthenticationReject_H_
+#ifndef _AUTHENTICATION_REJECT_H_
+#define _AUTHENTICATION_REJECT_H_
 
 #include "NasIeHeader.hpp"
 
 namespace nas {
 
-class AuthenticationReject {
+class AuthenticationReject : public NasMmPlainHeader {
  public:
   AuthenticationReject();
   ~AuthenticationReject();
-  int Encode(uint8_t* buf, int len);
-  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
+
   void setHeader(uint8_t security_header_type);
-  void setEAP_Message(bstring eap);
+
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
+
+  void SetEapMessage(const bstring& eap);
 
  public:
-  NasMmPlainHeader* plain_header;
-  EapMessage* ie_eap_message;
+  std::optional<EapMessage> ie_eap_message;
 };
 
 }  // namespace nas

@@ -71,7 +71,7 @@ void AuthenticationRequest::setAuthentication_Parameter_AUTN(
 }
 
 //------------------------------------------------------------------------------
-void AuthenticationRequest::setEAP_Message(bstring eap) {
+void AuthenticationRequest::SetEapMessage(bstring eap) {
   ie_eap_message = std::make_optional<EapMessage>(kIeiEapMessage, eap);
 }
 
@@ -160,8 +160,16 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding RegistrationReject message");
   int decoded_size   = 0;
   int decoded_result = 0;
-  decoded_size       = NasMmPlainHeader::Decode(buf, len);
 
+  // Header
+  decoded_result = NasMmPlainHeader::Decode(buf, len);
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error("Decoding NAS Header error");
+    return KEncodeDecodeError;
+  }
+  decoded_size += decoded_result;
+
+  // NgKSI
   decoded_size += ie_ngKSI.Decode(
       buf + decoded_size, len - decoded_size, false,
       false);      // length 1/2, low position

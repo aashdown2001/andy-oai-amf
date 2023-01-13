@@ -102,7 +102,7 @@ void SecurityModeCommand::setAdditional_5G_Security_Information(
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeCommand::setEAP_Message(bstring eap) {
+void SecurityModeCommand::SetEapMessage(bstring eap) {
   ie_eap_message = new EapMessage(0x78, eap);
 }
 

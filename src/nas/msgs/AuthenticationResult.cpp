@@ -62,7 +62,7 @@ void AuthenticationResult::setABBA(uint8_t length, uint8_t* value) {
 }
 
 //------------------------------------------------------------------------------
-void AuthenticationResult::setEAP_Message(bstring eap) {
+void AuthenticationResult::SetEapMessage(bstring eap) {
   ie_eap_message = new EapMessage(0x00, eap);
 }
 

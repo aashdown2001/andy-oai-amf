@@ -232,7 +232,7 @@ void RegistrationAccept::setSOR_Transparent_Container(
 }
 
 //------------------------------------------------------------------------------
-void RegistrationAccept::setEAP_Message(bstring eap) {
+void RegistrationAccept::SetEapMessage(bstring eap) {
   ie_eap_message = std::make_optional<EapMessage>(0x78, eap);
 }
 
