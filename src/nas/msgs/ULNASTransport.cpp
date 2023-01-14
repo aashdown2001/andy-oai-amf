@@ -138,13 +138,13 @@ bool ULNASTransport::GetSNssai(SNSSAI_s& snssai) {
 
 //------------------------------------------------------------------------------
 void ULNASTransport::setDNN(bstring dnn) {
-  ie_dnn = std::make_optional<DNN>(0x25, dnn);
+  ie_dnn = std::make_optional<DNN>(dnn);
 }
 
 //------------------------------------------------------------------------------
 bool ULNASTransport::getDnn(bstring& dnn) {
   if (ie_dnn.has_value()) {
-    ie_dnn.value().getValue(dnn);
+    ie_dnn.value().GetValue(dnn);
     return true;
   } else {
     return false;

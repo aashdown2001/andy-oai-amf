@@ -98,7 +98,7 @@ int AuthenticationResponseParameter::Decode(
   decoded_size += decoded_header_size;
 
   // RES or RES*
-  uint16_t ie_len = GetLengthIndicator();
+  uint8_t ie_len = GetLengthIndicator();
   decode_bstring(
       &res_or_res_star_, ie_len, (buf + decoded_size), len - decoded_size);
   decoded_size += ie_len;
