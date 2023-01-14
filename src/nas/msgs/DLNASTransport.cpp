@@ -74,7 +74,7 @@ void DLNASTransport::SetPayloadContainer(uint8_t* buf, int len) {
 
 //------------------------------------------------------------------------------
 void DLNASTransport::SetPduSessionId(uint8_t value) {
-  ie_pdu_session_identity_2 = new PDU_Session_Identity_2(0x12, value);
+  ie_pdu_session_identity_2 = new PduSessionIdentity2(0x12, value);
 }
 
 //------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ int DLNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
     switch (octet) {
       case 0x12: {
         Logger::nas_mm().debug("Decoding IEI (0x12)");
-        ie_pdu_session_identity_2 = new PDU_Session_Identity_2();
+        ie_pdu_session_identity_2 = new PduSessionIdentity2();
         decoded_size += ie_pdu_session_identity_2->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

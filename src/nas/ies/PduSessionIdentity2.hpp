@@ -19,33 +19,28 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _PDU_SESSION_IDENTITY_2_H_
+#define _PDU_SESSION_IDENTITY_2_H_
 
-#ifndef ___PDU_Session_Identity_2_H_
-#define ___PDU_Session_Identity_2_H_
+#include "Type3NasIe.hpp"
 
-#include <stdint.h>
+constexpr uint8_t kPduSessionIdentity2Length = 2;
+constexpr auto kPduSessionIdentity2IeName    = "PDU Session Identity 2";
 
 namespace nas {
 
-class PDU_Session_Identity_2 {
+class PduSessionIdentity2 : public Type3NasIe {
  public:
-  PDU_Session_Identity_2();
-  PDU_Session_Identity_2(uint8_t iei);
-  PDU_Session_Identity_2(const uint8_t iei, uint8_t value);
-  ~PDU_Session_Identity_2();
+  PduSessionIdentity2();
+  PduSessionIdentity2(uint8_t iei);
+  PduSessionIdentity2(const uint8_t iei, uint8_t value);
+  ~PduSessionIdentity2();
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
   void SetValue(uint8_t value);
   uint8_t GetValue();
 
  private:
-  uint8_t _iei;
   uint8_t _value;
 };
 }  // namespace nas

@@ -50,7 +50,7 @@ class DLNASTransport {
   NasMmPlainHeader* plain_header;
   PayloadContainerType* ie_payload_container_type;
   Payload_Container* ie_payload_container;
-  PDU_Session_Identity_2* ie_pdu_session_identity_2;
+  PduSessionIdentity2* ie_pdu_session_identity_2;
   Additional_Information* ie_additional_information;
   _5GMM_Cause* ie_5gmm_cause;
   GprsTimer3* ie_back_off_timer_value;

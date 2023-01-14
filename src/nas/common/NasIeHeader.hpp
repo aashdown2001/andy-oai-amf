@@ -52,7 +52,7 @@
 #include "NssaiInclusionMode.hpp"
 #include "NasKeySetIdentifier.hpp"
 #include "Non_3GPP_NW_Provided_Policies.hpp"
-#include "PDU_Session_Identity_2.hpp"
+#include "PduSessionIdentity2.hpp"
 #include "PDU_Session_Reactivation_Result.hpp"
 #include "PDU_Session_Reactivation_Result_Error_Cause.hpp"
 #include "PLMN_List.hpp"

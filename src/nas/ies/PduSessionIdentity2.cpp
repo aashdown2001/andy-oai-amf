@@ -19,84 +19,84 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#include "PDU_Session_Identity_2.hpp"
+#include "PduSessionIdentity2.hpp"
 
 #include "logger.hpp"
 using namespace nas;
 
 //------------------------------------------------------------------------------
-PDU_Session_Identity_2::PDU_Session_Identity_2(uint8_t iei) {
-  _iei   = iei;
+PduSessionIdentity2::PduSessionIdentity2(uint8_t iei) : Type3NasIe(iei) {
   _value = 0;
+  SetIeName(kPduSessionIdentity2IeName);
 }
 
 //------------------------------------------------------------------------------
-PDU_Session_Identity_2::PDU_Session_Identity_2(
-    const uint8_t iei, uint8_t value) {
-  _iei   = iei;
+PduSessionIdentity2::PduSessionIdentity2(const uint8_t iei, uint8_t value)
+    : Type3NasIe(iei) {
+  _value = value;
+  SetIeName(kPduSessionIdentity2IeName);
+}
+
+//------------------------------------------------------------------------------
+PduSessionIdentity2::PduSessionIdentity2() : Type3NasIe() {
+  _value = 0;
+  SetIeName(kPduSessionIdentity2IeName);
+}
+
+//------------------------------------------------------------------------------
+PduSessionIdentity2::~PduSessionIdentity2() {}
+
+//------------------------------------------------------------------------------
+void PduSessionIdentity2::SetValue(uint8_t value) {
   _value = value;
 }
 
 //------------------------------------------------------------------------------
-PDU_Session_Identity_2::PDU_Session_Identity_2() {
-  _iei   = 0;
-  _value = 0;
-}
-
-//------------------------------------------------------------------------------
-PDU_Session_Identity_2::~PDU_Session_Identity_2() {}
-
-//------------------------------------------------------------------------------
-void PDU_Session_Identity_2::SetValue(uint8_t value) {
-  _value = value;
-}
-
-//------------------------------------------------------------------------------
-uint8_t PDU_Session_Identity_2::GetValue() {
+uint8_t PduSessionIdentity2::GetValue() {
   return _value;
 }
 
 //------------------------------------------------------------------------------
-int PDU_Session_Identity_2::Encode(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("encoding PDU_Session_Identity_2 iei(0x%x)", _iei);
-  if (len < 2) {
-    Logger::nas_mm().error("len is less than 2");
-    return 0;
+int PduSessionIdentity2::Encode(uint8_t* buf, int len) {
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
+
+  if (len < kPduSessionIdentity2Length) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kPduSessionIdentity2Length);
+    return KEncodeDecodeError;
   }
   int encoded_size = 0;
-  if (_iei) {
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = _value;
-    encoded_size++;
-  } else {
-    //	*(buf + encoded_size) = length - 1; encoded_size++;
-    //	*(buf + encoded_size) = _value; encoded_size++; encoded_size++;
-  }
+
+  // IEI
+  encoded_size += Type3NasIe::Encode(buf + encoded_size, len);
+  // Value
+  ENCODE_U8(buf + encoded_size, _value, encoded_size);
+
   Logger::nas_mm().debug(
-      "encoded PDU_Session_Identity_2 len(%d)", encoded_size);
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int PDU_Session_Identity_2::Decode(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("decoding PDU_Session_Identity_2 iei(0x%x)", *buf);
-  int decoded_size = 0;
-  if (is_option) {
-    decoded_size++;
+int PduSessionIdentity2::Decode(uint8_t* buf, int len, bool is_iei) {
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+
+  if (len < kPduSessionIdentity2Length) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        kPduSessionIdentity2Length);
+    return KEncodeDecodeError;
   }
-  _value = 0x00;
-  _value = *(buf + decoded_size);
-  decoded_size++;
-  Logger::nas_mm().debug("decoded PDU_Session_Identity_2 value(0x%x)", _value);
+
+  int decoded_size = 0;
+  // IEI and Length
+  decoded_size += Type3NasIe::Decode(buf + decoded_size, len, true);
+
+  DECODE_U8(buf + decoded_size, _value, decoded_size);
+
+  Logger::nas_mm().debug("Decoded value 0x%x", _value);
   Logger::nas_mm().debug(
-      "decoded PDU_Session_Identity_2 len(%d)", decoded_size);
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
 }

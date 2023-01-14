@@ -77,7 +77,7 @@ void ULNASTransport::GetPayloadContainer(
 //------------------------------------------------------------------------------
 void ULNASTransport::SetPduSessionIdentity2(uint8_t value) {
   ie_pdu_session_identity_2 =
-      std::make_optional<PDU_Session_Identity_2>(0x12, value);
+      std::make_optional<PduSessionIdentity2>(0x12, value);
 }
 
 //------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ uint8_t ULNASTransport::GetPduSessionId() {
 //------------------------------------------------------------------------------
 void ULNASTransport::SetOldPduSessionIdentity2(uint8_t value) {
   ie_old_pdu_session_identity_2 =
-      std::make_optional<PDU_Session_Identity_2>(0x59, value);
+      std::make_optional<PduSessionIdentity2>(0x59, value);
 }
 
 //------------------------------------------------------------------------------
@@ -398,26 +398,26 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
     switch (octet) {
       case 0x12: {
         Logger::nas_mm().debug("Decoding IEI (0x12)");
-        PDU_Session_Identity_2 ie_pdu_session_identity_2_tmp = {};
+        PduSessionIdentity2 ie_pdu_session_identity_2_tmp = {};
         if ((decoded_result = ie_pdu_session_identity_2_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
-        ie_pdu_session_identity_2 = std::optional<PDU_Session_Identity_2>(
-            ie_pdu_session_identity_2_tmp);
+        ie_pdu_session_identity_2 =
+            std::optional<PduSessionIdentity2>(ie_pdu_session_identity_2_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
       case 0x59: {
         Logger::nas_mm().debug("Decoding IEI (0x59)");
-        PDU_Session_Identity_2 ie_old_pdu_session_identity_2_tmp = {};
+        PduSessionIdentity2 ie_old_pdu_session_identity_2_tmp = {};
         if ((decoded_result = ie_old_pdu_session_identity_2_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
-        ie_old_pdu_session_identity_2 = std::optional<PDU_Session_Identity_2>(
+        ie_old_pdu_session_identity_2 = std::optional<PduSessionIdentity2>(
             ie_old_pdu_session_identity_2_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

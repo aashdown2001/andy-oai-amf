@@ -68,13 +68,12 @@ class ULNASTransport : public NasMmPlainHeader {
   PayloadContainerType ie_payload_container_type;  // Mandatory
   Payload_Container ie_payload_container;          // Mandatory
 
-  std::optional<PDU_Session_Identity_2> ie_pdu_session_identity_2;  // Optional
-  std::optional<PDU_Session_Identity_2>
-      ie_old_pdu_session_identity_2;                                // Optional
-  std::optional<Request_Type> ie_request_type;                      // Optional
-  std::optional<S_NSSAI> ie_s_nssai;                                // Optional
-  std::optional<DNN> ie_dnn;                                        // Optional
-  std::optional<Additional_Information> ie_additional_information;  // Optional
+  std::optional<PduSessionIdentity2> ie_pdu_session_identity_2;      // Optional
+  std::optional<PduSessionIdentity2> ie_old_pdu_session_identity_2;  // Optional
+  std::optional<Request_Type> ie_request_type;                       // Optional
+  std::optional<S_NSSAI> ie_s_nssai;                                 // Optional
+  std::optional<DNN> ie_dnn;                                         // Optional
+  std::optional<Additional_Information> ie_additional_information;   // Optional
   std::optional<MA_PDU_Session_Information>
       ie_ma_pdu_session_information;  // Optional
   std::optional<Release_Assistance_Indication>
