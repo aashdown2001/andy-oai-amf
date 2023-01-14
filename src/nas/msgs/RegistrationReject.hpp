@@ -38,7 +38,7 @@ class RegistrationReject : public NasMmPlainHeader {
   int Encode(uint8_t* buf, int len);
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
 
-  void set_5GMM_Cause(uint8_t value);
+  void Set5gmmCause(uint8_t value);
   // TODO: Get
 
   void setGPRS_Timer_2_3346(uint8_t value);

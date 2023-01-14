@@ -45,7 +45,7 @@ void RegistrationReject::SetHeader(uint8_t security_header_type) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationReject::set_5GMM_Cause(uint8_t value) {
+void RegistrationReject::Set5gmmCause(uint8_t value) {
   ie_5gmm_cause.setValue(value);
 }
 

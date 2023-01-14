@@ -440,7 +440,7 @@ uint8_t RegistrationRequest::GetPayloadContainerType() {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::SetPayload_Container(
+void RegistrationRequest::SetPayloadContainer(
     std::vector<PayloadContainerEntry> content) {
   ie_payload_container =
       std::make_optional<Payload_Container>(kIeiPayloadContainer, content);

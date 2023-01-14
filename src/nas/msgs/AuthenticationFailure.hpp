@@ -40,7 +40,7 @@ class AuthenticationFailure {
   int Encode(uint8_t* buf, int len);
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
   void SetHeader(uint8_t security_header_type);
-  void set_5GMM_Cause(uint8_t value);
+  void Set5gmmCause(uint8_t value);
   void setAuthentication_Failure_Parameter(bstring auts);
 
   uint8_t get5GMmCause();

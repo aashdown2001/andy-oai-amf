@@ -124,7 +124,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   void SetPayloadContainerType(uint8_t value);
   uint8_t GetPayloadContainerType();
 
-  void SetPayload_Container(std::vector<PayloadContainerEntry> content);
+  void SetPayloadContainer(std::vector<PayloadContainerEntry> content);
   bool GetPayloadContainer(std::vector<PayloadContainerEntry>& content);
 
   void setNetwork_Slicing_Indication(bool dcni, bool nssci);

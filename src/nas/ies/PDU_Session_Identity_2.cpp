@@ -54,12 +54,12 @@ PDU_Session_Identity_2::PDU_Session_Identity_2() {
 PDU_Session_Identity_2::~PDU_Session_Identity_2() {}
 
 //------------------------------------------------------------------------------
-void PDU_Session_Identity_2::setValue(uint8_t value) {
+void PDU_Session_Identity_2::SetValue(uint8_t value) {
   _value = value;
 }
 
 //------------------------------------------------------------------------------
-uint8_t PDU_Session_Identity_2::getValue() {
+uint8_t PDU_Session_Identity_2::GetValue() {
   return _value;
 }
 

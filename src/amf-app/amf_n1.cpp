@@ -1596,7 +1596,7 @@ void amf_n1::send_registration_reject_msg(
   std::unique_ptr<RegistrationReject> registration_reject =
       std::make_unique<RegistrationReject>();
   registration_reject->SetHeader(PLAIN_5GS_MSG);
-  registration_reject->set_5GMM_Cause(cause_value);
+  registration_reject->Set5gmmCause(cause_value);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = registration_reject->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
@@ -3223,7 +3223,12 @@ void amf_n1::ul_nas_transport_handle(
   ul_nas->Decode(NULL, (uint8_t*) bdata(nas), blength(nas));
   uint8_t payload_type   = ul_nas->GetPayloadContainerType();
   uint8_t pdu_session_id = ul_nas->GetPduSessionId();
-  uint8_t request_type   = ul_nas->GetRequestType();
+
+  uint8_t request_type = 0;
+  if (!ul_nas->GetRequestType(request_type)) {
+    Logger::amf_n1().debug("Request Type is not available");
+    // TODO:
+  }
 
   bstring sm_msg = nullptr;
 
@@ -3280,10 +3285,8 @@ void amf_n1::ul_nas_transport_handle(
 
     switch (payload_type) {
       case N1_SM_INFORMATION: {
-        if (!ul_nas->GetPayloadContainer(sm_msg)) {
-          Logger::amf_n1().error("Cannot decode Payload Container");
-          return;
-        }
+        // Get payload container
+        ul_nas->GetPayloadContainer(sm_msg);
 
         std::shared_ptr<itti_nsmf_pdusession_create_sm_context> itti_msg =
             std::make_shared<itti_nsmf_pdusession_create_sm_context>(
@@ -3315,10 +3318,8 @@ void amf_n1::ul_nas_transport_handle(
   } else {
     switch (payload_type) {
       case N1_SM_INFORMATION: {
-        if (!ul_nas->GetPayloadContainer(sm_msg)) {
-          Logger::amf_n1().error("Cannot decode Payload Container");
-          return;
-        }
+        // Get payload container
+        ul_nas->GetPayloadContainer(sm_msg);
 
         std::shared_ptr<itti_nsmf_pdusession_update_sm_context> itti_msg =
             std::make_shared<itti_nsmf_pdusession_update_sm_context>(

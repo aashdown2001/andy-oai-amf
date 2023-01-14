@@ -61,19 +61,19 @@ void DLNASTransport::SetPayloadContainerType(uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-void DLNASTransport::SetPayload_Container(
+void DLNASTransport::SetPayloadContainer(
     std::vector<PayloadContainerEntry> content) {
   ie_payload_container = new Payload_Container(content);
 }
 
 //------------------------------------------------------------------------------
-void DLNASTransport::SetPayload_Container(uint8_t* buf, int len) {
+void DLNASTransport::SetPayloadContainer(uint8_t* buf, int len) {
   bstring b            = blk2bstr(buf, len);
   ie_payload_container = new Payload_Container(b);
 }
 
 //------------------------------------------------------------------------------
-void DLNASTransport::setPDUSessionId(uint8_t value) {
+void DLNASTransport::SetPduSessionId(uint8_t value) {
   ie_pdu_session_identity_2 = new PDU_Session_Identity_2(0x12, value);
 }
 
@@ -83,12 +83,12 @@ void DLNASTransport::SetAdditionalInformation(uint8_t _length, uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-void DLNASTransport::set_5GMM_Cause(uint8_t value) {
+void DLNASTransport::Set5gmmCause(uint8_t value) {
   ie_5gmm_cause = new _5GMM_Cause(0x58, value);
 }
 
 //------------------------------------------------------------------------------
-void DLNASTransport::setBack_off_timer_value(uint8_t unit, uint8_t value) {
+void DLNASTransport::SetBackOffTimerValue(uint8_t unit, uint8_t value) {
   ie_back_off_timer_value = new GprsTimer3(0x37, unit, value);
 }
 

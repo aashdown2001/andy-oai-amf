@@ -19,15 +19,8 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _DLNASTransport_H_
-#define _DLNASTransport_H_
+#ifndef _DL_NAS_TRANSPORT_H_
+#define _DL_NAS_TRANSPORT_H_
 
 #include "NasIeHeader.hpp"
 
@@ -37,16 +30,21 @@ class DLNASTransport {
  public:
   DLNASTransport();
   ~DLNASTransport();
+
+  void SetHeader(uint8_t security_header_type);
+
   int Encode(uint8_t* buf, int len);
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
-  void SetHeader(uint8_t security_header_type);
+
   void SetPayloadContainerType(uint8_t value);
-  void SetPayload_Container(std::vector<PayloadContainerEntry> content);
-  void SetPayload_Container(uint8_t* buf, int len);
-  void setPDUSessionId(uint8_t value);
+
+  void SetPayloadContainer(std::vector<PayloadContainerEntry> content);
+  void SetPayloadContainer(uint8_t* buf, int len);
+
+  void SetPduSessionId(uint8_t value);
   void SetAdditionalInformation(uint8_t _length, uint8_t value);
-  void set_5GMM_Cause(uint8_t value);
-  void setBack_off_timer_value(uint8_t unit, uint8_t value);
+  void Set5gmmCause(uint8_t value);
+  void SetBackOffTimerValue(uint8_t unit, uint8_t value);
 
  public:
   NasMmPlainHeader* plain_header;

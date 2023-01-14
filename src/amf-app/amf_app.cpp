@@ -351,9 +351,9 @@ void amf_app::handle_itti_message(
     auto dl = std::make_unique<DLNASTransport>();
     dl->SetHeader(PLAIN_5GS_MSG);
     dl->SetPayloadContainerType(N1_SM_INFORMATION);
-    dl->SetPayload_Container(
+    dl->SetPayloadContainer(
         (uint8_t*) bdata(bstrcpy(itti_msg.n1sm)), blength(itti_msg.n1sm));
-    dl->setPDUSessionId(itti_msg.pdu_session_id);
+    dl->SetPduSessionId(itti_msg.pdu_session_id);
 
     uint8_t nas[BUFFER_SIZE_1024];
     int encoded_size = dl->Encode(nas, BUFFER_SIZE_1024);

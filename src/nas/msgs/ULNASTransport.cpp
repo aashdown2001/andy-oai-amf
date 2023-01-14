@@ -54,11 +54,11 @@ void ULNASTransport::SetPayloadContainerType(uint8_t value) {
 
 //------------------------------------------------------------------------------
 uint8_t ULNASTransport::GetPayloadContainerType() {
-  return ie_payload_container_type->GetValue();
+  return ie_payload_container_type.GetValue();
 }
 
 //------------------------------------------------------------------------------
-void ULNASTransport::SetPayload_Container(
+void ULNASTransport::SetPayloadContainer(
     std::vector<PayloadContainerEntry> content) {
   ie_payload_container.SetValue(content);
 }
@@ -83,7 +83,7 @@ void ULNASTransport::SetPduSessionIdentity2(uint8_t value) {
 //------------------------------------------------------------------------------
 uint8_t ULNASTransport::GetPduSessionId() {
   if (ie_pdu_session_identity_2.has_value()) {
-    return ie_pdu_session_identity_2.value().getValue();
+    return ie_pdu_session_identity_2.value().GetValue();
   } else {
     return -1;
   }
@@ -96,9 +96,9 @@ void ULNASTransport::SetOldPduSessionIdentity2(uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-bool ULNASTransport::GetOldPduSessionId(uint8_t& value) const {
+bool ULNASTransport::GetOldPduSessionId(uint8_t& value) {
   if (ie_old_pdu_session_identity_2.has_value()) {
-    value = ie_old_pdu_session_identity_2.value().getValue();
+    value = ie_old_pdu_session_identity_2.value().GetValue();
     return true;
   } else {
     return false;
@@ -332,16 +332,16 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
   decoded_size += decoded_result;
 
   // Payload Container Type
-  decoded_result = ie_payload_container_type->Decode(
+  decoded_result = ie_payload_container_type.Decode(
       buf + decoded_size, len - decoded_size, false);
   if (decoded_result == KEncodeDecodeError) return KEncodeDecodeError;
   decoded_size += decoded_result;
   decoded_size++;  // 1/2 octet for PayloadContainerType, 1/2 octet for spare
 
   // Payload Container
-  decoded_result += ie_payload_container->Decode(
+  decoded_result += ie_payload_container.Decode(
       buf + decoded_size, len - decoded_size, false,
-      ie_payload_container_type->GetValue());
+      ie_payload_container_type.GetValue());
   if (decoded_result == KEncodeDecodeError) return KEncodeDecodeError;
   decoded_size += decoded_result;
 
@@ -411,7 +411,7 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
       } break;
       case 0x59: {
         Logger::nas_mm().debug("Decoding IEI (0x59)");
-        PDU_Session_Identity_2 PDU_Session_Identity_2 = {};
+        PDU_Session_Identity_2 ie_old_pdu_session_identity_2_tmp = {};
         if ((decoded_result = ie_old_pdu_session_identity_2_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
@@ -436,7 +436,7 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
       } break;
       case 0x25: {
         Logger::nas_mm().debug("Decoding IEI (0x25)");
-        DNN ie_dnn = {};
+        DNN ie_dnn_tmp = {};
         if ((decoded_result = ie_dnn_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)

@@ -41,8 +41,8 @@ class PDU_Session_Identity_2 {
   ~PDU_Session_Identity_2();
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
-  void setValue(uint8_t value);
-  uint8_t getValue();
+  void SetValue(uint8_t value);
+  uint8_t GetValue();
 
  private:
   uint8_t _iei;

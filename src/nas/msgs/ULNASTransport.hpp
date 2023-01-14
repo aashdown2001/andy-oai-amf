@@ -39,7 +39,7 @@ class ULNASTransport : public NasMmPlainHeader {
   void SetPayloadContainerType(uint8_t value);
   uint8_t GetPayloadContainerType();
 
-  void SetPayload_Container(std::vector<PayloadContainerEntry> content);
+  void SetPayloadContainer(std::vector<PayloadContainerEntry> content);
   void GetPayloadContainer(std::vector<PayloadContainerEntry>& content);
   void GetPayloadContainer(bstring& content);
 
@@ -47,7 +47,7 @@ class ULNASTransport : public NasMmPlainHeader {
   uint8_t GetPduSessionId();
 
   void SetOldPduSessionIdentity2(uint8_t value);
-  bool GetOldPduSessionId(uint8_t& value) const;
+  bool GetOldPduSessionId(uint8_t& value);
 
   void SetRequestType(uint8_t value);
   bool GetRequestType(uint8_t& value);

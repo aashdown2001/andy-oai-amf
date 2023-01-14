@@ -51,7 +51,7 @@ void SecurityModeReject::SetHeader(uint8_t security_header_type) {
 }
 
 //------------------------------------------------------------------------------
-void SecurityModeReject::set_5GMM_Cause(uint8_t value) {
+void SecurityModeReject::Set5gmmCause(uint8_t value) {
   ie_5gmm_cause = new _5GMM_Cause(0x00, value);
 }
 
