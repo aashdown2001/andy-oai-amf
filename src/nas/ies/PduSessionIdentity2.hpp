@@ -35,13 +35,15 @@ class PduSessionIdentity2 : public Type3NasIe {
   PduSessionIdentity2(uint8_t iei);
   PduSessionIdentity2(const uint8_t iei, uint8_t value);
   ~PduSessionIdentity2();
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
+
   void SetValue(uint8_t value);
-  uint8_t GetValue();
+  uint8_t GetValue() const;
 
  private:
-  uint8_t _value;
+  uint8_t value_;
 };
 }  // namespace nas
 

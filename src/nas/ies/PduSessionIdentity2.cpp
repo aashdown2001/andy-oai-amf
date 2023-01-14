@@ -26,20 +26,20 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 PduSessionIdentity2::PduSessionIdentity2(uint8_t iei) : Type3NasIe(iei) {
-  _value = 0;
+  value_ = 0;
   SetIeName(kPduSessionIdentity2IeName);
 }
 
 //------------------------------------------------------------------------------
 PduSessionIdentity2::PduSessionIdentity2(const uint8_t iei, uint8_t value)
     : Type3NasIe(iei) {
-  _value = value;
+  value_ = value;
   SetIeName(kPduSessionIdentity2IeName);
 }
 
 //------------------------------------------------------------------------------
 PduSessionIdentity2::PduSessionIdentity2() : Type3NasIe() {
-  _value = 0;
+  value_ = 0;
   SetIeName(kPduSessionIdentity2IeName);
 }
 
@@ -48,12 +48,12 @@ PduSessionIdentity2::~PduSessionIdentity2() {}
 
 //------------------------------------------------------------------------------
 void PduSessionIdentity2::SetValue(uint8_t value) {
-  _value = value;
+  value_ = value;
 }
 
 //------------------------------------------------------------------------------
-uint8_t PduSessionIdentity2::GetValue() {
-  return _value;
+uint8_t PduSessionIdentity2::GetValue() const {
+  return value_;
 }
 
 //------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ int PduSessionIdentity2::Encode(uint8_t* buf, int len) {
   // IEI
   encoded_size += Type3NasIe::Encode(buf + encoded_size, len);
   // Value
-  ENCODE_U8(buf + encoded_size, _value, encoded_size);
+  ENCODE_U8(buf + encoded_size, value_, encoded_size);
 
   Logger::nas_mm().debug(
       "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
@@ -93,9 +93,9 @@ int PduSessionIdentity2::Decode(uint8_t* buf, int len, bool is_iei) {
   // IEI and Length
   decoded_size += Type3NasIe::Decode(buf + decoded_size, len, true);
 
-  DECODE_U8(buf + decoded_size, _value, decoded_size);
+  DECODE_U8(buf + decoded_size, value_, decoded_size);
 
-  Logger::nas_mm().debug("Decoded value 0x%x", _value);
+  Logger::nas_mm().debug("Decoded value 0x%x", value_);
   Logger::nas_mm().debug(
       "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;

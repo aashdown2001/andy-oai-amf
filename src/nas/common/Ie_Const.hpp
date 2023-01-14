@@ -72,7 +72,6 @@ constexpr uint8_t kIeiRejectedNssaiCuc                      = 0x11;
 constexpr uint8_t kIeiReleaseAssistanceIndication           = 0xf0;
 constexpr uint8_t kIeiRequestedQosFlowDescriptions          = 0x79;
 constexpr uint8_t kIeiRequestedQosRules                     = 0x7a;
-constexpr uint8_t kIeiRequestType                           = 0x80;
 constexpr uint8_t kIeiRqTimerValue                          = 0x56;
 constexpr uint8_t kIeiServingPlmnRateControlPsea            = 0x18;
 constexpr uint8_t kIeiServingPlmnRateControlPsmc            = 0x1e;
@@ -87,6 +86,7 @@ constexpr uint8_t kIeiShortNameForNetwork                   = 0x45;
 
 // OK
 constexpr uint8_t kIeiPayloadContainerType     = 0x08;  // Should be verified
+constexpr uint8_t kIeiRequestType              = 0x08;  // 8-(4 higher bits)
 constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
 
 constexpr uint8_t kIeiNssaiInclusionMode        = 0x0A;  // A-(4 higher bits)

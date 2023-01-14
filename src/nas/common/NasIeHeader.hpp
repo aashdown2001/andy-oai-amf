@@ -60,7 +60,7 @@
 #include "PayloadContainerType.hpp"
 #include "Rejected_NSSAI.hpp"
 #include "Release_Assistance_Indication.hpp"
-#include "Request_Type.hpp"
+#include "RequestType.hpp"
 #include "S1UeSecurityCapability.hpp"
 #include "SOR_Transparent_Container.hpp"
 #include "S_NSSAI.hpp"

@@ -19,34 +19,27 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _REQUEST_TYPE_H_
+#define _REQUEST_TYPE_H_
 
-#ifndef __Request_Type_H_
-#define __Request_Type_H_
+#include "Type1NasIeFormatTv.hpp"
+#include "NasIe.hpp"
 
-#include <stdint.h>
+constexpr auto kRequestTypeIeName = "Request Type";
 
 namespace nas {
 
-class Request_Type {
+class RequestType : public Type1NasIeFormatTv {
  public:
-  Request_Type();
-  Request_Type(uint8_t iei);
-  Request_Type(const uint8_t iei, uint8_t value);
-  ~Request_Type();
-  int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void setValue(uint8_t value);
-  uint8_t getValue();
+  RequestType();
+  RequestType(uint8_t value);
+  ~RequestType();
+
+  void SetValue(uint8_t value);
+  uint8_t GetValue() const;
 
  private:
-  uint8_t _iei;
-  uint8_t _value;
+  uint8_t value_;
 };
 }  // namespace nas
 

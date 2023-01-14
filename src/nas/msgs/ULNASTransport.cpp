@@ -77,7 +77,7 @@ void ULNASTransport::GetPayloadContainer(
 //------------------------------------------------------------------------------
 void ULNASTransport::SetPduSessionIdentity2(uint8_t value) {
   ie_pdu_session_identity_2 =
-      std::make_optional<PduSessionIdentity2>(0x12, value);
+      std::make_optional<PduSessionIdentity2>(kIeiPduSessionId, value);
 }
 
 //------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ uint8_t ULNASTransport::GetPduSessionId() {
 //------------------------------------------------------------------------------
 void ULNASTransport::SetOldPduSessionIdentity2(uint8_t value) {
   ie_old_pdu_session_identity_2 =
-      std::make_optional<PduSessionIdentity2>(0x59, value);
+      std::make_optional<PduSessionIdentity2>(kIeiOldPduSessionId, value);
 }
 
 //------------------------------------------------------------------------------
@@ -107,13 +107,13 @@ bool ULNASTransport::GetOldPduSessionId(uint8_t& value) {
 
 //------------------------------------------------------------------------------
 void ULNASTransport::SetRequestType(uint8_t value) {
-  ie_request_type = std::make_optional<Request_Type>(0x08, value);
+  ie_request_type = std::make_optional<RequestType>(value);
 }
 
 //------------------------------------------------------------------------------
 bool ULNASTransport::GetRequestType(uint8_t& value) {
   if (ie_request_type.has_value()) {
-    value = ie_request_type.value().getValue();
+    value = ie_request_type.value().GetValue();
     return true;
   } else {
     return false;
@@ -351,15 +351,15 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
   bool flag = false;
   while ((octet != 0x0)) {
     switch ((octet & 0xf0) >> 4) {
-      case 0x8: {
-        Logger::nas_mm().debug("Decoding IEI (0x8)");
-        Request_Type ie_request_type_tmp = {};
+      case kIeiRequestType: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiRequestType);
+        RequestType ie_request_type_tmp = {};
         if ((decoded_result = ie_request_type_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
-        ie_request_type = std::optional<Request_Type>(ie_request_type_tmp);
+        ie_request_type = std::optional<RequestType>(ie_request_type_tmp);
         octet           = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -396,8 +396,8 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
       }
     }
     switch (octet) {
-      case 0x12: {
-        Logger::nas_mm().debug("Decoding IEI (0x12)");
+      case kIeiPduSessionId: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiPduSessionId);
         PduSessionIdentity2 ie_pdu_session_identity_2_tmp = {};
         if ((decoded_result = ie_pdu_session_identity_2_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
@@ -409,8 +409,8 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x59: {
-        Logger::nas_mm().debug("Decoding IEI (0x59)");
+      case kIeiOldPduSessionId: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiOldPduSessionId);
         PduSessionIdentity2 ie_old_pdu_session_identity_2_tmp = {};
         if ((decoded_result = ie_old_pdu_session_identity_2_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
