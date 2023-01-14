@@ -31,7 +31,7 @@ class SecurityModeComplete : public NasMmPlainHeader {
   SecurityModeComplete();
   ~SecurityModeComplete();
 
-  void setHeader(uint8_t security_header_type);
+  void SetHeader(uint8_t security_header_type);
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len);
@@ -39,11 +39,11 @@ class SecurityModeComplete : public NasMmPlainHeader {
   void SetImeisv(IMEISV_t imeisv);
   bool GetImeisv(IMEISV_t& imeisv) const;
 
-  void setNAS_Message_Container(bstring value);
-  bool getNasMessageContainer(bstring& nas) const;
+  void SetNasMessageContainer(bstring value);
+  bool GetNasMessageContainer(bstring& nas) const;
 
-  void setNON_IMEISV(IMEISV_t imeisv);
-  bool getNON_IMEISV(IMEISV_t& imeisv) const;
+  void SetNonImeisv(IMEISV_t imeisv);
+  bool GetNonImeisv(IMEISV_t& imeisv) const;
 
  public:
   std::optional<_5GSMobileIdentity> ie_imeisv;                  // Optional

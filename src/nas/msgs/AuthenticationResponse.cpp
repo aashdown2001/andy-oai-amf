@@ -37,7 +37,7 @@ AuthenticationResponse::AuthenticationResponse()
 AuthenticationResponse::~AuthenticationResponse() {}
 
 //------------------------------------------------------------------------------
-void AuthenticationResponse::setHeader(uint8_t security_header_type) {
+void AuthenticationResponse::SetHeader(uint8_t security_header_type) {
   NasMmPlainHeader::SetSecurityHeaderType(security_header_type);
 }
 

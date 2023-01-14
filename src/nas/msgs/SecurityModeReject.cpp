@@ -44,9 +44,9 @@ SecurityModeReject::SecurityModeReject() {
 SecurityModeReject::~SecurityModeReject() {}
 
 //------------------------------------------------------------------------------
-void SecurityModeReject::setHeader(uint8_t security_header_type) {
+void SecurityModeReject::SetHeader(uint8_t security_header_type) {
   plain_header = new NasMmPlainHeader();
-  plain_header->setHeader(
+  plain_header->SetHeader(
       EPD_5GS_MM_MSG, security_header_type, SECURITY_MODE_REJECT);
 }
 

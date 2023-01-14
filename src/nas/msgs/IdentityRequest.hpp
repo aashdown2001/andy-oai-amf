@@ -39,7 +39,7 @@ class IdentityRequest {
   ~IdentityRequest();
   int Encode(uint8_t* buf, int len);
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
-  void setHeader(uint8_t security_header_type);
+  void SetHeader(uint8_t security_header_type);
   void set_5GS_Identity_Type(uint8_t value);
 
  public:

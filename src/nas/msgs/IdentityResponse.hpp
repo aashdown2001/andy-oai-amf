@@ -39,7 +39,7 @@ class IdentityResponse {
   ~IdentityResponse();
   int Encode(uint8_t* buf, int len);
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
-  void setHeader(uint8_t security_header_type);
+  void SetHeader(uint8_t security_header_type);
   void setSUCI_SUPI_format_IMSI(
       const string mcc, const string mnc, const string routingInd,
       uint8_t protection_sch_id, const string msin);

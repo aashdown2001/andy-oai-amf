@@ -58,7 +58,7 @@ RegistrationRequest::RegistrationRequest()
 RegistrationRequest::~RegistrationRequest() {}
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setHeader(uint8_t security_header_type) {
+void RegistrationRequest::SetHeader(uint8_t security_header_type) {
   NasMmPlainHeader::SetSecurityHeaderType(security_header_type);
 }
 
@@ -425,13 +425,13 @@ bool RegistrationRequest::getLadnIndication(std::vector<bstring>& ladnValue) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setPayload_Container_Type(uint8_t value) {
+void RegistrationRequest::SetPayloadContainerType(uint8_t value) {
   ie_payload_container_type =
       std::make_optional<PayloadContainerType>(kIeiPayloadContainerType, value);
 }
 
 //------------------------------------------------------------------------------
-uint8_t RegistrationRequest::getPayloadContainerType() {
+uint8_t RegistrationRequest::GetPayloadContainerType() {
   if (ie_payload_container_type.has_value()) {
     return ie_payload_container_type.value().GetValue();
   } else {
@@ -440,14 +440,14 @@ uint8_t RegistrationRequest::getPayloadContainerType() {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setPayload_Container(
+void RegistrationRequest::SetPayload_Container(
     std::vector<PayloadContainerEntry> content) {
   ie_payload_container =
       std::make_optional<Payload_Container>(kIeiPayloadContainer, content);
 }
 
 //------------------------------------------------------------------------------
-bool RegistrationRequest::getPayloadContainer(
+bool RegistrationRequest::GetPayloadContainer(
     std::vector<PayloadContainerEntry>& content) {
   if (ie_payload_container.has_value()) {
     return ie_payload_container.value().GetValue(content);
@@ -497,12 +497,12 @@ bool RegistrationRequest::get5GSUpdateType(
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setNAS_Message_Container(bstring value) {
+void RegistrationRequest::SetNasMessageContainer(bstring value) {
   ie_nas_message_container = std::make_optional<NasMessageContainer>(value);
 }
 
 //------------------------------------------------------------------------------
-bool RegistrationRequest::getNasMessageContainer(bstring& nas) {
+bool RegistrationRequest::GetNasMessageContainer(bstring& nas) {
   if (ie_nas_message_container.has_value()) {
     ie_nas_message_container.value().GetValue(nas);
     return true;

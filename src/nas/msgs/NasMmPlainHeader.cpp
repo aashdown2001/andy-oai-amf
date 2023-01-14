@@ -64,7 +64,7 @@ uint8_t NasMmPlainHeader::GetMessageType() {
 }
 
 //------------------------------------------------------------------------------
-void NasMmPlainHeader::setHeader(
+void NasMmPlainHeader::SetHeader(
     const uint8_t& epd, const uint8_t& security_header_type,
     const uint8_t& msg_type) {
   epd_.Set(epd);

@@ -31,7 +31,7 @@ class RegistrationAccept : public NasMmPlainHeader {
   RegistrationAccept();
   ~RegistrationAccept();
 
-  void setHeader(uint8_t security_header_type);
+  void SetHeader(uint8_t security_header_type);
   void getSecurityHeaderType(uint8_t security_header_type);  // TODO
   bool verifyHeader();                                       // TODO
 

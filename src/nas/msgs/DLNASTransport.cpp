@@ -49,25 +49,25 @@ DLNASTransport::DLNASTransport() {
 DLNASTransport::~DLNASTransport() {}
 
 //------------------------------------------------------------------------------
-void DLNASTransport::setHeader(uint8_t security_header_type) {
+void DLNASTransport::SetHeader(uint8_t security_header_type) {
   plain_header = new NasMmPlainHeader();
-  plain_header->setHeader(
+  plain_header->SetHeader(
       EPD_5GS_MM_MSG, security_header_type, DL_NAS_TRANSPORT);
 }
 
 //------------------------------------------------------------------------------
-void DLNASTransport::setPayload_Container_Type(uint8_t value) {
+void DLNASTransport::SetPayloadContainerType(uint8_t value) {
   ie_payload_container_type = new PayloadContainerType(value);
 }
 
 //------------------------------------------------------------------------------
-void DLNASTransport::setPayload_Container(
+void DLNASTransport::SetPayload_Container(
     std::vector<PayloadContainerEntry> content) {
   ie_payload_container = new Payload_Container(content);
 }
 
 //------------------------------------------------------------------------------
-void DLNASTransport::setPayload_Container(uint8_t* buf, int len) {
+void DLNASTransport::SetPayload_Container(uint8_t* buf, int len) {
   bstring b            = blk2bstr(buf, len);
   ie_payload_container = new Payload_Container(b);
 }
@@ -78,7 +78,7 @@ void DLNASTransport::setPDUSessionId(uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-void DLNASTransport::setAdditional_Information(uint8_t _length, uint8_t value) {
+void DLNASTransport::SetAdditionalInformation(uint8_t _length, uint8_t value) {
   ie_additional_information = new Additional_Information(0x24, _length, value);
 }
 

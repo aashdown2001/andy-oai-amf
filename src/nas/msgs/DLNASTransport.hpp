@@ -39,12 +39,12 @@ class DLNASTransport {
   ~DLNASTransport();
   int Encode(uint8_t* buf, int len);
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
-  void setHeader(uint8_t security_header_type);
-  void setPayload_Container_Type(uint8_t value);
-  void setPayload_Container(std::vector<PayloadContainerEntry> content);
-  void setPayload_Container(uint8_t* buf, int len);
+  void SetHeader(uint8_t security_header_type);
+  void SetPayloadContainerType(uint8_t value);
+  void SetPayload_Container(std::vector<PayloadContainerEntry> content);
+  void SetPayload_Container(uint8_t* buf, int len);
   void setPDUSessionId(uint8_t value);
-  void setAdditional_Information(uint8_t _length, uint8_t value);
+  void SetAdditionalInformation(uint8_t _length, uint8_t value);
   void set_5GMM_Cause(uint8_t value);
   void setBack_off_timer_value(uint8_t unit, uint8_t value);
 

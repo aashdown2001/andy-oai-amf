@@ -104,6 +104,19 @@ void Payload_Container::setValue(uint8_t iei, uint8_t value) {
 */
 
 //------------------------------------------------------------------------------
+void Payload_Container::SetValue(
+    const std::vector<PayloadContainerEntry>& content) {
+  int length = 1;  // for number of entries
+  // CONTENT.assign(content.begin(), content.end());
+  CONTENT = std::optional<std::vector<PayloadContainerEntry>>(content);
+  for (int i = 0; i < content.size(); i++) {
+    length = length + 2 +
+             content.at(i).length;  // 2 for Length of Payload container entry
+  }
+  SetLengthIndicator(length);
+}
+
+//------------------------------------------------------------------------------
 bool Payload_Container::GetValue(
     std::vector<PayloadContainerEntry>& content) const {
   if (CONTENT.has_value()) {

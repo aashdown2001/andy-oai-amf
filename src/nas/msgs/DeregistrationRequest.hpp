@@ -40,7 +40,7 @@ class DeregistrationRequest {
   ~DeregistrationRequest();
   int Encode(uint8_t* buf, int len);
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
-  void setHeader(uint8_t security_header_type);
+  void SetHeader(uint8_t security_header_type);
   void setDeregistrationType(uint8_t dereg_type);
   void setDeregistrationType(_5gs_deregistration_type_t type);
   void SetNgKsi(uint8_t tsc, uint8_t key_set_id);

@@ -34,7 +34,7 @@ class AuthenticationResponse : public NasMmPlainHeader {
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len);
 
-  void setHeader(uint8_t security_header_type);
+  void SetHeader(uint8_t security_header_type);
 
   void SetAuthenticationResponseParameter(const bstring& para);
   bool GetAuthenticationResponseParameter(bstring& para);

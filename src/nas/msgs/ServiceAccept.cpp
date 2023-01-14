@@ -45,9 +45,9 @@ ServiceAccept::~ServiceAccept() {
   if (ie_session_reactivation_result) delete ie_session_reactivation_result;
 }
 //------------------------------------------------------------------------------
-void ServiceAccept::setHeader(uint8_t security_header_type) {
+void ServiceAccept::SetHeader(uint8_t security_header_type) {
   plain_header = new NasMmPlainHeader();
-  plain_header->setHeader(EPD_5GS_MM_MSG, security_header_type, SERVICE_ACCEPT);
+  plain_header->SetHeader(EPD_5GS_MM_MSG, security_header_type, SERVICE_ACCEPT);
 }
 
 //------------------------------------------------------------------------------

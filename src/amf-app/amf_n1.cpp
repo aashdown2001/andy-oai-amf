@@ -846,7 +846,7 @@ void amf_n1::service_request_handle(
   // bdestroy_wrapper(&nas);
   std::unique_ptr<ServiceAccept> service_accept =
       std::make_unique<ServiceAccept>();
-  service_accept->setHeader(PLAIN_5GS_MSG);
+  service_accept->SetHeader(PLAIN_5GS_MSG);
   string supi = "imsi-" + nc->imsi;
   uc->supi    = supi;
   set_supi_2_amf_id(supi, amf_ue_ngap_id);
@@ -885,7 +885,7 @@ void amf_n1::service_request_handle(
   if (pdu_session_status == 0) {
     // Get PDU Session Status from NAS Message Container if available
     bstring plain_msg = nullptr;
-    if (service_request->getNasMessageContainer(plain_msg)) {
+    if (service_request->GetNasMessageContainer(plain_msg)) {
       if (blength(plain_msg) < NAS_MESSAGE_MIN_LENGTH) {
         Logger::amf_n1().debug("NAS message is too short!");
         bdestroy_wrapper(&plain_msg);
@@ -1335,7 +1335,7 @@ void amf_n1::registration_request_handle(
 
   bstring nas_msg = nullptr;
   bool is_messagecontainer =
-      registration_request->getNasMessageContainer(nas_msg);
+      registration_request->GetNasMessageContainer(nas_msg);
 
   if (is_messagecontainer) {
     std::unique_ptr<RegistrationRequest> registration_request_msg_container =
@@ -1595,7 +1595,7 @@ void amf_n1::send_registration_reject_msg(
   Logger::amf_n1().debug("Create Registration Reject and send to UE");
   std::unique_ptr<RegistrationReject> registration_reject =
       std::make_unique<RegistrationReject>();
-  registration_reject->setHeader(PLAIN_5GS_MSG);
+  registration_reject->SetHeader(PLAIN_5GS_MSG);
   registration_reject->set_5GMM_Cause(cause_value);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = registration_reject->Encode(buffer, BUFFER_SIZE_1024);
@@ -1677,7 +1677,7 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context>& nc) {
     nc->is_auth_vectors_present = false;
     std::unique_ptr<IdentityRequest> identity_request =
         std::make_unique<IdentityRequest>();
-    identity_request->setHeader(PLAIN_5GS_MSG);
+    identity_request->SetHeader(PLAIN_5GS_MSG);
     identity_request->set_5GS_Identity_Type(SUCI);
     uint8_t buffer[BUFFER_SIZE_256];
     int encoded_size = identity_request->Encode(buffer, BUFFER_SIZE_256);
@@ -2110,7 +2110,7 @@ bool amf_n1::start_authentication_procedure(
   nc->is_common_procedure_for_authentication_running = true;
   std::unique_ptr<AuthenticationRequest> auth_request =
       std::make_unique<AuthenticationRequest>();
-  auth_request->setHeader(PLAIN_5GS_MSG);
+  auth_request->SetHeader(PLAIN_5GS_MSG);
   auth_request->SetNgKsi(NAS_KEY_SET_IDENTIFIER_NATIVE, ngksi);
   uint8_t abba[2];
   abba[0] = 0x00;
@@ -2393,7 +2393,7 @@ bool amf_n1::start_security_mode_control_procedure(
 
   std::unique_ptr<SecurityModeCommand> smc =
       std::make_unique<SecurityModeCommand>();
-  smc->setHeader(PLAIN_5GS_MSG);
+  smc->SetHeader(PLAIN_5GS_MSG);
   smc->SetNasSecurityAlgorithms(amf_nea, amf_nia);
   Logger::amf_n1().debug("Encoded ngKSI 0x%x", nc->ngKsi);
   smc->SetNgKsi(NAS_KEY_SET_IDENTIFIER_NATIVE, nc->ngKsi & 0x07);
@@ -2483,7 +2483,7 @@ void amf_n1::security_mode_complete_handle(
       (uint8_t*) bdata(nas_msg), blength(nas_msg));
 
   bstring nas_msg_container = nullptr;
-  if (security_mode_complete->getNasMessageContainer(nas_msg_container)) {
+  if (security_mode_complete->GetNasMessageContainer(nas_msg_container)) {
     comUt::print_buffer(
         "amf_n1", "NAS Message Container", (uint8_t*) bdata(nas_msg_container),
         blength(nas_msg_container));
@@ -2764,7 +2764,7 @@ void amf_n1::registration_complete_handle(
   auto configuration_update_command =
       std::make_unique<ConfigurationUpdateCommand>();
 
-  configuration_update_command->setHeader(PLAIN_5GS_MSG);
+  configuration_update_command->SetHeader(PLAIN_5GS_MSG);
   configuration_update_command->setFullNameForNetwork("Testing");   // TODO:
   configuration_update_command->setShortNameForNetwork("Testing");  // TODO:
 
@@ -3103,7 +3103,7 @@ void amf_n1::ue_initiate_de_registration_handle(
   if ((deregType & DEREGISTRATION_TYPE_MASK) == 0) {
     // Prepare DeregistrationAccept
     auto dereg_accept = std::make_unique<DeregistrationAccept>();
-    dereg_accept->setHeader(PLAIN_5GS_MSG);
+    dereg_accept->SetHeader(PLAIN_5GS_MSG);
 
     uint8_t buffer[BUFFER_SIZE_512] = {0};
     int encoded_size = dereg_accept->Encode(buffer, BUFFER_SIZE_512);
@@ -3221,9 +3221,9 @@ void amf_n1::ul_nas_transport_handle(
   Logger::amf_n1().debug("Handling UL NAS Transport");
   auto ul_nas = std::make_unique<ULNASTransport>();
   ul_nas->Decode(NULL, (uint8_t*) bdata(nas), blength(nas));
-  uint8_t payload_type   = ul_nas->getPayloadContainerType();
-  uint8_t pdu_session_id = ul_nas->getPduSessionId();
-  uint8_t request_type   = ul_nas->getRequestType();
+  uint8_t payload_type   = ul_nas->GetPayloadContainerType();
+  uint8_t pdu_session_id = ul_nas->GetPduSessionId();
+  uint8_t request_type   = ul_nas->GetRequestType();
 
   bstring sm_msg = nullptr;
 
@@ -3231,7 +3231,7 @@ void amf_n1::ul_nas_transport_handle(
       ((request_type & 0x07) == EXISTING_PDU_SESSION)) {
     // SNSSAI
     SNSSAI_t snssai = {};
-    if (!ul_nas->getSnssai(snssai)) {  // If no SNSSAI in this message, use the
+    if (!ul_nas->GetSNssai(snssai)) {  // If no SNSSAI in this message, use the
                                        // one in Registration Request
       Logger::amf_n1().debug(
           "No Requested NSSAI available in ULNASTransport, use NSSAI from "
@@ -3280,7 +3280,7 @@ void amf_n1::ul_nas_transport_handle(
 
     switch (payload_type) {
       case N1_SM_INFORMATION: {
-        if (!ul_nas->getPayloadContainer(sm_msg)) {
+        if (!ul_nas->GetPayloadContainer(sm_msg)) {
           Logger::amf_n1().error("Cannot decode Payload Container");
           return;
         }
@@ -3315,7 +3315,7 @@ void amf_n1::ul_nas_transport_handle(
   } else {
     switch (payload_type) {
       case N1_SM_INFORMATION: {
-        if (!ul_nas->getPayloadContainer(sm_msg)) {
+        if (!ul_nas->GetPayloadContainer(sm_msg)) {
           Logger::amf_n1().error("Cannot decode Payload Container");
           return;
         }
@@ -4034,7 +4034,7 @@ void amf_n1::get_pdu_session_to_be_activated(
 void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept) {
   // TODO: to be updated with the function below
-  registration_accept->setHeader(PLAIN_5GS_MSG);
+  registration_accept->SetHeader(PLAIN_5GS_MSG);
   registration_accept->set5GSRegistrationResult(
       false, false, false,
       0x01);  // 3GPP Access
@@ -4076,7 +4076,7 @@ void amf_n1::initialize_registration_accept(
 void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept,
     const std::shared_ptr<nas_context>& nc) {
-  registration_accept->setHeader(PLAIN_5GS_MSG);
+  registration_accept->SetHeader(PLAIN_5GS_MSG);
   registration_accept->set5GSRegistrationResult(
       false, false, false,
       0x01);  // 3GPP Access

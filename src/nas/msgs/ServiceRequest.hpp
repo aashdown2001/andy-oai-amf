@@ -44,14 +44,14 @@ class ServiceRequest {
   ~ServiceRequest();
 
  public:
-  void setHeader(uint8_t security_header_type);
+  void SetHeader(uint8_t security_header_type);
   void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
   void setServiceType(uint8_t stp);
   void Set5gSTmsi(uint16_t amfSetId, uint8_t amfPointer, string tmsi);
   void setUplink_data_status(uint16_t value);
   void setPDU_session_status(uint16_t value);
   void setAllowed_PDU_Session_Status(uint16_t value);
-  void setNAS_Message_Container(bstring value);
+  void SetNasMessageContainer(bstring value);
   int Encode(uint8_t* buf, int len);
 
  public:
@@ -62,7 +62,7 @@ class ServiceRequest {
   uint16_t getUplinkDataStatus();
   uint16_t getPduSessionStatus();
   uint16_t getAllowedPduSessionStatus();
-  bool getNasMessageContainer(bstring& nas);
+  bool GetNasMessageContainer(bstring& nas);
 
  private:
   NasMmPlainHeader* plain_header;

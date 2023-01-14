@@ -39,7 +39,7 @@ class RegistrationComplete {
   ~RegistrationComplete();
   int Encode(uint8_t* buf, int len);
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
-  void setHeader(uint8_t security_header_type);
+  void SetHeader(uint8_t security_header_type);
   void setSOR_Transparent_Container(uint8_t header, const uint8_t (&value)[16]);
 
  public:

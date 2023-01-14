@@ -40,7 +40,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len);
 
-  void setHeader(uint8_t security_header_type);
+  void SetHeader(uint8_t security_header_type);
   void getSecurityHeaderType(uint8_t security_header_type);
   bool verifyHeader();
 
@@ -121,11 +121,11 @@ class RegistrationRequest : public NasMmPlainHeader {
   void setLADN_Indication(std::vector<bstring> ladnValue);
   bool getLadnIndication(std::vector<bstring>& ladnValue);
 
-  void setPayload_Container_Type(uint8_t value);
-  uint8_t getPayloadContainerType();
+  void SetPayloadContainerType(uint8_t value);
+  uint8_t GetPayloadContainerType();
 
-  void setPayload_Container(std::vector<PayloadContainerEntry> content);
-  bool getPayloadContainer(std::vector<PayloadContainerEntry>& content);
+  void SetPayload_Container(std::vector<PayloadContainerEntry> content);
+  bool GetPayloadContainer(std::vector<PayloadContainerEntry>& content);
 
   void setNetwork_Slicing_Indication(bool dcni, bool nssci);
   bool getNetworkSlicingIndication(uint8_t& dcni, uint8_t& nssci);
@@ -136,8 +136,8 @@ class RegistrationRequest : public NasMmPlainHeader {
       uint8_t& eps_pnb_ciot, uint8_t& _5gs_pnb_ciot, bool& ng_ran_rcu,
       bool& sms_requested);
 
-  void setNAS_Message_Container(bstring value);
-  bool getNasMessageContainer(bstring& nas);
+  void SetNasMessageContainer(bstring value);
+  bool GetNasMessageContainer(bstring& nas);
 
   bool getEpsNasMessageContainer(bstring& epsNas);
   // bool getEpsNasMessageContainer(bstring& epsNas);

@@ -49,9 +49,9 @@ ServiceRequest::ServiceRequest() {
 ServiceRequest::~ServiceRequest() {}
 
 //------------------------------------------------------------------------------
-void ServiceRequest::setHeader(uint8_t security_header_type) {
+void ServiceRequest::SetHeader(uint8_t security_header_type) {
   plain_header = new NasMmPlainHeader();
-  plain_header->setHeader(
+  plain_header->SetHeader(
       EPD_5GS_MM_MSG, security_header_type, SERVICE_REQUEST);
 }
 
@@ -88,7 +88,7 @@ void ServiceRequest::setAllowed_PDU_Session_Status(uint16_t value) {
 }
 
 //------------------------------------------------------------------------------
-void ServiceRequest::setNAS_Message_Container(bstring value) {
+void ServiceRequest::SetNasMessageContainer(bstring value) {
   ie_nas_message_container = new NasMessageContainer(value);
 }
 
@@ -285,7 +285,7 @@ uint16_t ServiceRequest::getAllowedPduSessionStatus() {
 }
 
 //------------------------------------------------------------------------------
-bool ServiceRequest::getNasMessageContainer(bstring& nas) {
+bool ServiceRequest::GetNasMessageContainer(bstring& nas) {
   if (ie_nas_message_container) {
     ie_nas_message_container->GetValue(nas);
     return true;

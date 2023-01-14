@@ -31,7 +31,7 @@ class SecurityModeCommand : public NasMmPlainHeader {
   SecurityModeCommand();
   ~SecurityModeCommand();
 
-  void setHeader(uint8_t security_header_type);
+  void SetHeader(uint8_t security_header_type);
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len);

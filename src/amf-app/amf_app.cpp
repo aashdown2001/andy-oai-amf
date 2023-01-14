@@ -349,9 +349,9 @@ void amf_app::handle_itti_message(
     Logger::amf_app().info("Handle ITTI N1N2 Message Transfer Request");
     // Encode DL NAS TRANSPORT message(NAS message)
     auto dl = std::make_unique<DLNASTransport>();
-    dl->setHeader(PLAIN_5GS_MSG);
-    dl->setPayload_Container_Type(N1_SM_INFORMATION);
-    dl->setPayload_Container(
+    dl->SetHeader(PLAIN_5GS_MSG);
+    dl->SetPayloadContainerType(N1_SM_INFORMATION);
+    dl->SetPayload_Container(
         (uint8_t*) bdata(bstrcpy(itti_msg.n1sm)), blength(itti_msg.n1sm));
     dl->setPDUSessionId(itti_msg.pdu_session_id);
 

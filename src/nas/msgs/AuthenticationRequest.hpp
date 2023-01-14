@@ -34,7 +34,7 @@ class AuthenticationRequest : public NasMmPlainHeader {
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len);
 
-  void setHeader(uint8_t security_header_type);
+  void SetHeader(uint8_t security_header_type);
 
   void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
   void SetEapMessage(bstring eap);

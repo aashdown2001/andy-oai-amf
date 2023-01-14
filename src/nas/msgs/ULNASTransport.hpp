@@ -19,59 +19,66 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _ULNASTransport_H_
-#define _ULNASTransport_H_
+#ifndef _UL_NAS_TRANSPORT_H_
+#define _UL_NAS_TRANSPORT_H_
 
 #include "NasIeHeader.hpp"
 
 namespace nas {
 
-class ULNASTransport {
+class ULNASTransport : public NasMmPlainHeader {
  public:
   ULNASTransport();
   ~ULNASTransport();
+
+  void SetHeader(uint8_t security_header_type);
+
   int Encode(uint8_t* buf, int len);
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
-  void setHeader(uint8_t security_header_type);
-  void setPayload_Container_Type(uint8_t value);
-  void setPayload_Container(std::vector<PayloadContainerEntry> content);
-  void setPDU_Session_Identity_2(uint8_t value);
-  void setOLD_PDU_Session_Identity_2(uint8_t value);
-  void setRequest_Type(uint8_t value);
-  void setS_NSSAI(SNSSAI_s snssai);
-  void setDNN(bstring dnn);
-  void setAdditional_Information(uint8_t _length, uint8_t value);
-  void setMA_PDU_Session_Information(uint8_t value);
-  void setRelease_Assistance_Indication(uint8_t value);
 
-  uint8_t getPayloadContainerType();
-  bool getPayloadContainer(std::vector<PayloadContainerEntry>& content);
-  bool getPayloadContainer(bstring& content);
-  uint8_t getPduSessionId();
-  uint8_t getOldPduSessionId();
-  uint8_t getRequestType();
-  bool getSnssai(SNSSAI_s& snssai);
+  void SetPayloadContainerType(uint8_t value);
+  uint8_t GetPayloadContainerType();
+
+  void SetPayload_Container(std::vector<PayloadContainerEntry> content);
+  void GetPayloadContainer(std::vector<PayloadContainerEntry>& content);
+  void GetPayloadContainer(bstring& content);
+
+  void SetPduSessionIdentity2(uint8_t value);
+  uint8_t GetPduSessionId();
+
+  void SetOldPduSessionIdentity2(uint8_t value);
+  bool GetOldPduSessionId(uint8_t& value) const;
+
+  void SetRequestType(uint8_t value);
+  bool GetRequestType(uint8_t& value);
+
+  void SetSNssai(SNSSAI_s snssai);
+  bool GetSNssai(SNSSAI_s& snssai);
+
+  void setDNN(bstring dnn);
   bool getDnn(bstring& dnn);
 
+  void SetAdditionalInformation(uint8_t _length, uint8_t value);
+
+  void SetMaPduSessionInformation(uint8_t value);
+
+  void SetReleaseAssistanceIndication(uint8_t value);
+
  public:
-  NasMmPlainHeader* plain_header;
-  PayloadContainerType* ie_payload_container_type;
-  Payload_Container* ie_payload_container;
-  PDU_Session_Identity_2* ie_pdu_session_identity_2;
-  PDU_Session_Identity_2* ie_old_pdu_session_identity_2;
-  Request_Type* ie_request_type;
-  S_NSSAI* ie_s_nssai;
-  DNN* ie_dnn;
-  Additional_Information* ie_additional_information;
-  MA_PDU_Session_Information* ie_ma_pdu_session_information;
-  Release_Assistance_Indication* ie_release_assistance_indication;
+  PayloadContainerType ie_payload_container_type;  // Mandatory
+  Payload_Container ie_payload_container;          // Mandatory
+
+  std::optional<PDU_Session_Identity_2> ie_pdu_session_identity_2;  // Optional
+  std::optional<PDU_Session_Identity_2>
+      ie_old_pdu_session_identity_2;                                // Optional
+  std::optional<Request_Type> ie_request_type;                      // Optional
+  std::optional<S_NSSAI> ie_s_nssai;                                // Optional
+  std::optional<DNN> ie_dnn;                                        // Optional
+  std::optional<Additional_Information> ie_additional_information;  // Optional
+  std::optional<MA_PDU_Session_Information>
+      ie_ma_pdu_session_information;  // Optional
+  std::optional<Release_Assistance_Indication>
+      ie_release_assistance_indication;  // Optional
 };
 
 }  // namespace nas

@@ -40,7 +40,7 @@ RegistrationReject::RegistrationReject()
 RegistrationReject::~RegistrationReject() {}
 
 //------------------------------------------------------------------------------
-void RegistrationReject::setHeader(uint8_t security_header_type) {
+void RegistrationReject::SetHeader(uint8_t security_header_type) {
   NasMmPlainHeader::SetSecurityHeaderType(security_header_type);
 }
 

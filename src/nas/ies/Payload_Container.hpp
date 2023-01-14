@@ -55,6 +55,7 @@ class Payload_Container : Type6NasIe {
   int Encode(uint8_t* buf, int len, uint8_t type);
   int Decode(uint8_t* buf, int len, bool is_iei, uint8_t type);
 
+  void SetValue(const std::vector<PayloadContainerEntry>& content);
   bool GetValue(std::vector<PayloadContainerEntry>& content) const;
   bool GetValue(bstring& cnt) const;
 
