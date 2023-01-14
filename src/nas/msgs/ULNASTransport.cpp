@@ -424,7 +424,8 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
       } break;
       case 0x22: {
         Logger::nas_mm().debug("Decoding IEI (0x22)");
-        S_NSSAI ie_s_nssai_tmp = {};
+        auto s_nssai_ie = std::optional<uint8_t>(kIeiSNssai);
+        S_NSSAI ie_s_nssai_tmp(s_nssai_ie);
         if ((decoded_result = ie_s_nssai_tmp.Decode(
                  buf + decoded_size, len - decoded_size, kIeIsOptional)) ==
             KEncodeDecodeError)
