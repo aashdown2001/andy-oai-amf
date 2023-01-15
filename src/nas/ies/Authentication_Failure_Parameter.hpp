@@ -36,6 +36,7 @@ extern "C" {
 #include "TLVEncoder.h"
 #include "bstrlib.h"
 }
+
 namespace nas {
 
 class Authentication_Failure_Parameter {
