@@ -82,7 +82,7 @@ void RegistrationAccept::set5GSRegistrationResult(
 }
 
 //------------------------------------------------------------------------------
-void RegistrationAccept::setSUCI_SUPI_format_IMSI(
+void RegistrationAccept::SetSuciSupiFormatImsi(
     const std::string& mcc, const std::string& mnc,
     const std::string& routingInd, const uint8_t& protection_sch_id,
     const std::string& msin) {
@@ -101,7 +101,7 @@ void RegistrationAccept::setSUCI_SUPI_format_IMSI(
 }
 
 //------------------------------------------------------------------------------
-void RegistrationAccept::setSUCI_SUPI_format_IMSI(
+void RegistrationAccept::SetSuciSupiFormatImsi(
     const std::string& mcc, const std::string& mnc,
     const std::string& routingInd, const uint8_t& protection_sch_id,
     const uint8_t& hnpki, const std::string& msin) {
@@ -109,7 +109,7 @@ void RegistrationAccept::setSUCI_SUPI_format_IMSI(
 }
 
 //------------------------------------------------------------------------------
-void RegistrationAccept::set5G_GUTI(
+void RegistrationAccept::Set5gGuti(
     const std::string& mcc, const std::string& mnc,
     const std::string& amfRegionId, const std::string& amfSetId,
     const std::string& amfPointer, const uint32_t& tmsi) {
@@ -124,7 +124,7 @@ void RegistrationAccept::set5G_GUTI(
 }
 
 //------------------------------------------------------------------------------
-void RegistrationAccept::setIMEI_IMEISV() {}
+void RegistrationAccept::SetImeiImeisv() {}
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::Set5gSTmsi() {}

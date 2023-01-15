@@ -90,7 +90,7 @@ bool RegistrationRequest::getngKSI(uint8_t& ng_ksi) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setSUCI_SUPI_format_IMSI(
+void RegistrationRequest::SetSuciSupiFormatImsi(
     const string mcc, const string mnc, const string routingInd,
     uint8_t protection_sch_id, const string msin) {
   if (protection_sch_id != NULL_SCHEME) {
@@ -157,15 +157,15 @@ bool RegistrationRequest::getAdditionalGuti(nas::_5G_GUTI_t& guti) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setSUCI_SUPI_format_IMSI(
+void RegistrationRequest::SetSuciSupiFormatImsi(
     const string mcc, const string mnc, const string routingInd,
     uint8_t protection_sch_id, uint8_t hnpki, const string msin) {}
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::set5G_GUTI() {}
+void RegistrationRequest::Set5gGuti() {}
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setIMEI_IMEISV() {}
+void RegistrationRequest::SetImeiImeisv() {}
 
 //------------------------------------------------------------------------------
 void RegistrationRequest::Set5gSTmsi() {}

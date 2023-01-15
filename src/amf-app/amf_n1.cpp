@@ -705,17 +705,17 @@ void amf_n1::identity_response_handle(
     bstring plain_msg) {
   auto identity_response = std::make_unique<IdentityResponse>();
   if (!identity_response->Decode(
-          NULL, (uint8_t*) bdata(plain_msg), blength(plain_msg))) {
+          (uint8_t*) bdata(plain_msg), blength(plain_msg))) {
     Logger::amf_n1().error("Decode Identity Response error");
     return;
   }
   string supi = {};
-  if (identity_response->ie_mobility_id) {
-    nas::SUCI_imsi_t imsi;
-    identity_response->ie_mobility_id->GetSuciWithSupiImsi(imsi);
-    supi = imsi.mcc + imsi.mnc + imsi.msin;
-    Logger::amf_n1().debug("Identity Response: SUCI (%s)", supi.c_str());
-  }
+  //_5GSMobileIdentity mobile_identity  = {};
+  // TODO: avoid accessing member function directly
+  nas::SUCI_imsi_t imsi = {};
+  identity_response->ie_mobile_identity.GetSuciWithSupiImsi(imsi);
+  supi = imsi.mcc + imsi.mnc + imsi.msin;
+  Logger::amf_n1().debug("Identity Response: SUCI (%s)", supi.c_str());
 
   string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
                           ":amfid_" + to_string(amf_ue_ngap_id);
@@ -2540,7 +2540,7 @@ void amf_n1::security_mode_complete_handle(
     // TODO:
     return;
   }
-  registration_accept->set5G_GUTI(
+  registration_accept->Set5gGuti(
       mcc, mnc, amf_cfg.guami.regionID, amf_cfg.guami.AmfSetID,
       amf_cfg.guami.AmfPointer, tmsi);
 
@@ -3373,7 +3373,7 @@ void amf_n1::run_mobility_registration_update_procedure(
     return;
   }
 
-  reg_accept->set5G_GUTI(
+  reg_accept->Set5gGuti(
       amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
       amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
 
@@ -3457,7 +3457,7 @@ void amf_n1::run_periodic_registration_update_procedure(
     return;
   }
 
-  reg_accept->set5G_GUTI(
+  reg_accept->Set5gGuti(
       amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
       amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
 
@@ -3525,7 +3525,7 @@ void amf_n1::run_periodic_registration_update_procedure(
     return;
   }
 
-  reg_accept->set5G_GUTI(
+  reg_accept->Set5gGuti(
       amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
       amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
 

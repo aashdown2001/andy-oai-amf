@@ -46,14 +46,14 @@ class DeregistrationRequest {
   void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
 
   void setMobilityIdentityType(uint8_t type);
-  void setSUCI_SUPI_format_IMSI(
+  void SetSuciSupiFormatImsi(
       const string mcc, const string mnc, const string routingInd,
       uint8_t protection_sch_id, const string msin);
-  void setSUCI_SUPI_format_IMSI(
+  void SetSuciSupiFormatImsi(
       const string mcc, const string mnc, const string routingInd,
       uint8_t protection_sch_id, uint8_t hnpki, const string msin);
-  void set5G_GUTI();
-  void setIMEI_IMEISV();
+  void Set5gGuti();
+  void SetImeiImeisv();
   void Set5gSTmsi();
 
   void getDeregistrationType(uint8_t& dereg_type);

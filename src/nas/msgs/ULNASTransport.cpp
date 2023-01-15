@@ -338,7 +338,7 @@ int ULNASTransport::Decode(uint8_t* buf, int len) {
   decoded_size++;  // 1/2 octet for PayloadContainerType, 1/2 octet for spare
 
   // Payload Container
-  decoded_result += ie_payload_container.Decode(
+  decoded_result = ie_payload_container.Decode(
       buf + decoded_size, len - decoded_size, false,
       ie_payload_container_type.GetValue());
   if (decoded_result == KEncodeDecodeError) return KEncodeDecodeError;

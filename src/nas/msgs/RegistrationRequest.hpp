@@ -53,18 +53,18 @@ class RegistrationRequest : public NasMmPlainHeader {
   uint8_t getMobileIdentityType();
   // TODO: SetMobileIdentityType(uint8_t);
 
-  void setSUCI_SUPI_format_IMSI(
+  void SetSuciSupiFormatImsi(
       const string mcc, const string mnc, const string routingInd,
       uint8_t protection_sch_id, const string msin);
-  void setSUCI_SUPI_format_IMSI(
+  void SetSuciSupiFormatImsi(
       const string mcc, const string mnc, const string routingInd,
       uint8_t protection_sch_id, uint8_t hnpki, const string msin);
   bool getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi);
 
-  void set5G_GUTI();
+  void Set5gGuti();
   std::string get_5g_guti();
 
-  void setIMEI_IMEISV();
+  void SetImeiImeisv();
   void Set5gSTmsi();
   void setAdditional_GUTI_SUCI_SUPI_format_IMSI(
       const string mcc, const string mnc, uint8_t amf_region_id,

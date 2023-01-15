@@ -43,20 +43,20 @@ class RegistrationAccept : public NasMmPlainHeader {
   // TODO: Get
 
   // 5GSMobileIdentity
-  void setSUCI_SUPI_format_IMSI(
+  void SetSuciSupiFormatImsi(
       const std::string& mcc, const std::string& mnc,
       const std::string& routingInd, const uint8_t& protection_sch_id,
       const std::string& msin);
-  void setSUCI_SUPI_format_IMSI(
+  void SetSuciSupiFormatImsi(
       const std::string& mcc, const std::string& mnc,
       const std::string& routingInd, const uint8_t& protection_sch_id,
       const uint8_t& hnpki, const std::string& msin);
-  void set5G_GUTI(
+  void Set5gGuti(
       const std::string& mcc, const std::string& mnc,
       const std::string& amfRegionId, const std::string& amfSetId,
       const std::string& amfPointer, const uint32_t& tmsi);
-  void setIMEI_IMEISV();  // TODO:
-  void Set5gSTmsi();      // TODO:
+  void SetImeiImeisv();  // TODO:
+  void Set5gSTmsi();     // TODO:
   // TODO: Get
 
   // Equivalent PLMNs

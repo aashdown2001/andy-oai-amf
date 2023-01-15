@@ -35,7 +35,9 @@ class IdentityRequest : public NasMmPlainHeader {
   int Decode(uint8_t* buf, int len);
 
   void SetHeader(uint8_t security_header_type);
+
   void Set5gsIdentityType(uint8_t value);
+  // TODO: Get
 
  public:
   _5gsIdentityType _5gs_identity_type_;  // Mandatory

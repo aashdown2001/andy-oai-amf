@@ -97,7 +97,7 @@ bool DeregistrationRequest::getngKSI(uint8_t& ng_ksi) {
 }
 
 //------------------------------------------------------------------------------
-void DeregistrationRequest::setSUCI_SUPI_format_IMSI(
+void DeregistrationRequest::SetSuciSupiFormatImsi(
     const string mcc, const string mnc, const string routingInd,
     uint8_t protection_sch_id, const string msin) {
   if (protection_sch_id != NULL_SCHEME) {
@@ -151,15 +151,15 @@ std::string DeregistrationRequest::get_5g_guti() {
 }
 
 //------------------------------------------------------------------------------
-void DeregistrationRequest::setSUCI_SUPI_format_IMSI(
+void DeregistrationRequest::SetSuciSupiFormatImsi(
     const string mcc, const string mnc, const string routingInd,
     uint8_t protection_sch_id, uint8_t hnpki, const string msin) {}
 
 //------------------------------------------------------------------------------
-void DeregistrationRequest::set5G_GUTI() {}
+void DeregistrationRequest::Set5gGuti() {}
 
 //------------------------------------------------------------------------------
-void DeregistrationRequest::setIMEI_IMEISV() {}
+void DeregistrationRequest::SetImeiImeisv() {}
 
 //------------------------------------------------------------------------------
 void DeregistrationRequest::Set5gSTmsi() {}
