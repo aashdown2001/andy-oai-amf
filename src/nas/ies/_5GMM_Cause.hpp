@@ -22,6 +22,7 @@
 #ifndef __5GMM_Cause_H
 #define __5GMM_Cause_H
 
+#include "Type3NasIe.hpp"
 #include <stdint.h>
 
 enum class _5gmmCauseEnum {
@@ -69,22 +70,26 @@ enum class _5gmmCauseEnum {
 constexpr uint8_t k5gmmCauseMinimumLength = 1;
 constexpr uint8_t k5gmmCauseMaximumLength = 2;
 
+constexpr auto k5gmmCauseIeName = "5GMM Cause";
+
 namespace nas {
 
-class _5GMM_Cause {
+class _5GMM_Cause : public Type3NasIe {
  public:
   _5GMM_Cause();
+  _5GMM_Cause(uint8_t iei);
   _5GMM_Cause(uint8_t _iei, uint8_t value);
   ~_5GMM_Cause();
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void set(uint8_t _iei, uint8_t value);
-  void setValue(uint8_t value);
-  uint8_t getValue();
+  int Decode(uint8_t* buf, int len, bool is_iei);
+
+  void Set(uint8_t _iei, uint8_t value);
+  void SetValue(uint8_t value);
+  uint8_t GetValue() const;
 
  private:
-  uint8_t _iei;
-  uint8_t _value;
+  uint8_t value_;
 };
 
 }  // namespace nas

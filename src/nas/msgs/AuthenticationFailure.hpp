@@ -19,37 +19,33 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _AuthenticationFailure_H_
-#define _AuthenticationFailure_H_
+#ifndef _AUTHENTICATION_FAILURE_H_
+#define _AUTHENTICATION_FAILURE_H_
 
 #include "NasIeHeader.hpp"
 
 namespace nas {
 
-class AuthenticationFailure {
+class AuthenticationFailure : public NasMmPlainHeader {
  public:
   AuthenticationFailure();
   ~AuthenticationFailure();
-  int Encode(uint8_t* buf, int len);
-  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
-  void SetHeader(uint8_t security_header_type);
-  void Set5gmmCause(uint8_t value);
-  void setAuthentication_Failure_Parameter(bstring auts);
 
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
+
+  void SetHeader(uint8_t security_header_type);
+
+  void Set5gmmCause(uint8_t value);
   uint8_t get5GMmCause();
+
+  void setAuthentication_Failure_Parameter(const bstring& auts);
   bool getAutsInAuthFailPara(bstring& auts);
 
  public:
-  NasMmPlainHeader* plain_header;
-  _5GMM_Cause* ie_5gmm_cause;
-  Authentication_Failure_Parameter* ie_authentication_failure_parameter;
+  _5GMM_Cause ie_5gmm_cause;  // Mandatory
+  std::optional<Authentication_Failure_Parameter>
+      ie_authentication_failure_parameter;  // Optional
 };
 
 }  // namespace nas

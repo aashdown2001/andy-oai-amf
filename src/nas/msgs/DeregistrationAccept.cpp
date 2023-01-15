@@ -80,6 +80,6 @@ int DeregistrationAccept::Decode(uint8_t* buf, int len) {
   decoded_size += decoded_result;
 
   Logger::nas_mm().debug(
-      "decoded De-registrationReject message len (%d)", decoded_size);
+      "Decoded De-registrationReject message len (%d)", decoded_size);
   return decoded_size;
 }

@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _DEREGISTRATION_REQUEST_H_
 #define _DEREGISTRATION_REQUEST_H_
 

@@ -2279,7 +2279,7 @@ void amf_n1::authentication_failure_handle(
   // 1. decode AUTHENTICATION FAILURE message
   auto auth_failure = std::make_unique<AuthenticationFailure>();
 
-  auth_failure->Decode(NULL, (uint8_t*) bdata(plain_msg), blength(plain_msg));
+  auth_failure->Decode((uint8_t*) bdata(plain_msg), blength(plain_msg));
   uint8_t mm_cause = auth_failure->get5GMmCause();
   if (mm_cause == -1) {
     Logger::amf_n1().error("Missing mandatory IE 5G_MM_CAUSE");

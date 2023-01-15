@@ -199,7 +199,6 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
       } break;
       case kIeiAuthenticationParameterAutn: {
         Authentication_Parameter_AUTN ie_authentication_parameter_autn_tmp = {};
-
         if ((decoded_result = ie_authentication_parameter_autn_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)

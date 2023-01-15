@@ -26,81 +26,83 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-_5GMM_Cause::_5GMM_Cause(uint8_t iei, uint8_t value) {
-  _iei   = iei;
-  _value = value;
+_5GMM_Cause::_5GMM_Cause(uint8_t iei) : Type3NasIe(iei) {
+  value_ = 0;
+  SetIeName(k5gmmCauseIeName);
 }
 
 //------------------------------------------------------------------------------
-void _5GMM_Cause::setValue(uint8_t value) {
-  _value = value;
+_5GMM_Cause::_5GMM_Cause() : Type3NasIe() {
+  value_ = 0;
+  SetIeName(k5gmmCauseIeName);
 }
 
 //------------------------------------------------------------------------------
-uint8_t _5GMM_Cause::getValue() {
-  return _value;
-}
-
-//------------------------------------------------------------------------------
-_5GMM_Cause::_5GMM_Cause() {
-  _iei   = 0;
-  _value = 0;
+_5GMM_Cause::_5GMM_Cause(uint8_t iei, uint8_t value) : Type3NasIe(iei) {
+  value_ = value;
+  SetIeName(k5gmmCauseIeName);
 }
 
 //------------------------------------------------------------------------------
 _5GMM_Cause::~_5GMM_Cause(){};
 
 //------------------------------------------------------------------------------
-void _5GMM_Cause::set(uint8_t iei, uint8_t value) {
-  _iei   = iei;
-  _value = value;
+void _5GMM_Cause::SetValue(uint8_t value) {
+  value_ = value;
 }
+
+//------------------------------------------------------------------------------
+uint8_t _5GMM_Cause::GetValue() const {
+  return value_;
+}
+
+//------------------------------------------------------------------------------
+void _5GMM_Cause::Set(uint8_t iei, uint8_t value) {
+  SetIei(iei);
+  value_ = value;
+}
+
 //------------------------------------------------------------------------------
 int _5GMM_Cause::Encode(uint8_t* buf, int len) {
-  Logger::nas_mm().debug("Encoding _5GMM_Cause IE ");
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
 
+  if (len < k5gmmCauseMaximumLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        k5gmmCauseMaximumLength);
+    return KEncodeDecodeError;
+  }
   int encoded_size = 0;
 
-  if (_iei) {
-    if (len < k5gmmCauseMaximumLength) {
-      Logger::nas_mm().error(
-          "Buffer length is less than the length of this IE (%d octet)",
-          k5gmmCauseMaximumLength);
-      return KEncodeDecodeError;
-    }
-    ENCODE_U8(buf + encoded_size, _iei, encoded_size);
-  }
-  ENCODE_U8(buf + encoded_size, _value, encoded_size);
+  // IEI
+  encoded_size += Type3NasIe::Encode(buf + encoded_size, len);
+  // Value
+  ENCODE_U8(buf + encoded_size, value_, encoded_size);
 
-  Logger::nas_mm().debug("Encoded _5GMM_Cause IE (len %d)", encoded_size);
+  Logger::nas_mm().debug(
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int _5GMM_Cause::Decode(uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug("decoding _5GMM_Cause IE");
-  int decoded_size = 0;
-  if (is_option) {
-    DECODE_U8(buf + decoded_size, _iei, decoded_size);  // for IE
-    if (len < k5gmmCauseMaximumLength) {
-      Logger::nas_mm().error(
-          "Buffer length is less than the length of this IE (%d octet)",
-          k5gmmCauseMaximumLength);
-      return KEncodeDecodeError;
-    }
-  } else {
-    if (len < k5gmmCauseMinimumLength) {
-      Logger::nas_mm().error(
-          "Buffer length is less than the length of this IE (%d octet)",
-          k5gmmCauseMinimumLength);
-      return KEncodeDecodeError;
-    }
+int _5GMM_Cause::Decode(uint8_t* buf, int len, bool is_iei) {
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+
+  if (len < k5gmmCauseMinimumLength) {
+    Logger::nas_mm().error(
+        "Buffer length is less than the minimum length of this IE (%d octet)",
+        k5gmmCauseMinimumLength);
+    return KEncodeDecodeError;
   }
 
-  DECODE_U8(buf + decoded_size, _value, decoded_size);
+  int decoded_size = 0;
+  // IEI and Length
+  decoded_size += Type3NasIe::Decode(buf + decoded_size, len, true);
 
+  DECODE_U8(buf + decoded_size, value_, decoded_size);
+
+  Logger::nas_mm().debug("Decoded value 0x%x", value_);
   Logger::nas_mm().debug(
-      "Decoded _5GMM_Cause (len %d octet), 5G Cause 0x%x", decoded_size,
-      _value);
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
 }
