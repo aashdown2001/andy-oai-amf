@@ -2280,7 +2280,7 @@ void amf_n1::authentication_failure_handle(
   auto auth_failure = std::make_unique<AuthenticationFailure>();
 
   auth_failure->Decode((uint8_t*) bdata(plain_msg), blength(plain_msg));
-  uint8_t mm_cause = auth_failure->get5GMmCause();
+  uint8_t mm_cause = auth_failure->Get5GMmCause();
   if (mm_cause == -1) {
     Logger::amf_n1().error("Missing mandatory IE 5G_MM_CAUSE");
     send_registration_reject_msg(
@@ -2292,7 +2292,7 @@ void amf_n1::authentication_failure_handle(
     case _5GMM_CAUSE_SYNCH_FAILURE: {
       Logger::amf_n1().debug("Initial new Authentication procedure");
       bstring auts = nullptr;
-      if (!auth_failure->getAutsInAuthFailPara(auts)) {
+      if (!auth_failure->GetAuthenticationFailureParameter(auts)) {
         Logger::amf_n1().warn(
             "IE Authentication Failure Parameter (AUTS) not received");
       }

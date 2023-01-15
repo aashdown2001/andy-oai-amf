@@ -46,18 +46,18 @@ void AuthenticationFailure::Set5gmmCause(uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-uint8_t AuthenticationFailure::get5GMmCause() {
+uint8_t AuthenticationFailure::Get5GMmCause() {
   return ie_5gmm_cause.GetValue();
 }
 
 /*
 //------------------------------------------------------------------------------
-void AuthenticationFailure::setAuthentication_Failure_Parameter(
+void AuthenticationFailure::SetAuthenticationFailureParameter(
     const uint8_t (&value)[kAuthenticationFailureParameterContentLength]) {
   ie_authentication_failure_parameter =
-      std::make_optional<Authentication_Failure_Parameter>(value);
+      std::make_optional<AuthenticationFailureParameter>(value);
 }
-bool AuthenticationFailure::getAutsInAuthFailPara(uint8_t
+bool AuthenticationFailure::GetAuthenticationFailureParameter(uint8_t
 (&value)[kAuthenticationFailureParameterContentLength]) const{ if
 (ie_authentication_failure_parameter.has_value()) {
     ie_authentication_failure_parameter.value().GetValue(value);
@@ -69,13 +69,14 @@ bool AuthenticationFailure::getAutsInAuthFailPara(uint8_t
 */
 
 //------------------------------------------------------------------------------
-void AuthenticationFailure::setAuthentication_Failure_Parameter(
+void AuthenticationFailure::SetAuthenticationFailureParameter(
     const bstring& value) {
   ie_authentication_failure_parameter =
-      std::make_optional<Authentication_Failure_Parameter>(value);
+      std::make_optional<AuthenticationFailureParameter>(value);
 }
 
-bool AuthenticationFailure::getAutsInAuthFailPara(bstring& value) const {
+bool AuthenticationFailure::GetAuthenticationFailureParameter(
+    bstring& value) const {
   if (ie_authentication_failure_parameter.has_value()) {
     ie_authentication_failure_parameter.value().GetValue(value);
     return true;
@@ -156,15 +157,15 @@ int AuthenticationFailure::Decode(uint8_t* buf, int len) {
     switch (octet) {
       case 0x30: {
         Logger::nas_mm().debug("Decoding IEI (0x30)");
-        Authentication_Failure_Parameter
-            ie_authentication_failure_parameter_tmp = {};
+        AuthenticationFailureParameter ie_authentication_failure_parameter_tmp =
+            {};
         if ((decoded_result = ie_authentication_failure_parameter_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
         ie_authentication_failure_parameter =
-            std::optional<Authentication_Failure_Parameter>(
+            std::optional<AuthenticationFailureParameter>(
                 ie_authentication_failure_parameter_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

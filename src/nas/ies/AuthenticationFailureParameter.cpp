@@ -19,20 +19,19 @@
  *      contact@openairinterface.org
  */
 
-#include "Authentication_Failure_Parameter.hpp"
+#include "AuthenticationFailureParameter.hpp"
 
-#include "logger.hpp"
 using namespace nas;
 
 //------------------------------------------------------------------------------
-Authentication_Failure_Parameter::Authentication_Failure_Parameter()
+AuthenticationFailureParameter::AuthenticationFailureParameter()
     : Type4NasIe(kIeiAuthenticationFailureParameter), value_() {
   SetLengthIndicator(kAuthenticationFailureParameterContentLength);
   SetIeName(kAuthenticationFailureParameterIeName);
 }
 
 //------------------------------------------------------------------------------
-Authentication_Failure_Parameter::Authentication_Failure_Parameter(
+AuthenticationFailureParameter::AuthenticationFailureParameter(
     const bstring& value) {
   value_ = bstrcpy(value);
   SetLengthIndicator(kAuthenticationFailureParameterContentLength);
@@ -40,18 +39,18 @@ Authentication_Failure_Parameter::Authentication_Failure_Parameter(
 }
 
 //------------------------------------------------------------------------------
-Authentication_Failure_Parameter::~Authentication_Failure_Parameter() {}
+AuthenticationFailureParameter::~AuthenticationFailureParameter() {}
 
 /*
 //------------------------------------------------------------------------------
-void Authentication_Failure_Parameter::SetValue(const uint8_t
+void AuthenticationFailureParameter::SetValue(const uint8_t
 (&value)[kAuthenticationFailureParameterContentLength]) { for (int i = 0; i <
 kAuthenticationFailureParameterContentLength; i++) { this->value_[i] = value[i];
           }
 }
 
 //------------------------------------------------------------------------------
-void Authentication_Failure_Parameter::GetValue(uint8_t
+void AuthenticationFailureParameter::GetValue(uint8_t
 (&value)[kAuthenticationFailureParameterContentLength]) const{ for (int i = 0; i
 < kAuthenticationFailureParameterContentLength; i++) { value[i] =
 this->value_[i];
@@ -61,18 +60,18 @@ this->value_[i];
 */
 
 //------------------------------------------------------------------------------
-void Authentication_Failure_Parameter::SetValue(const bstring& value) {
+void AuthenticationFailureParameter::SetValue(const bstring& value) {
   value_ = bstrcpy(value);
   SetLengthIndicator(blength(value));
 }
 
 //------------------------------------------------------------------------------
-void Authentication_Failure_Parameter::GetValue(bstring& value) const {
+void AuthenticationFailureParameter::GetValue(bstring& value) const {
   value = bstrcpy(value_);
 }
 
 //------------------------------------------------------------------------------
-int Authentication_Failure_Parameter::Encode(uint8_t* buf, int len) {
+int AuthenticationFailureParameter::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   int ie_len = GetIeLength();
 
@@ -101,8 +100,7 @@ int Authentication_Failure_Parameter::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int Authentication_Failure_Parameter::Decode(
-    uint8_t* buf, int len, bool is_iei) {
+int AuthenticationFailureParameter::Decode(uint8_t* buf, int len, bool is_iei) {
   uint8_t decoded_size = 0;
   uint8_t octet        = 0;
   Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());

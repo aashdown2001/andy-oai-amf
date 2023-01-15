@@ -37,19 +37,19 @@ class AuthenticationFailure : public NasMmPlainHeader {
   void SetHeader(uint8_t security_header_type);
 
   void Set5gmmCause(uint8_t value);
-  uint8_t get5GMmCause();
+  uint8_t Get5GMmCause();
 
-  //  void setAuthentication_Failure_Parameter(const uint8_t
+  //  void SetAuthenticationFailureParameter(const uint8_t
   //  (&value)[kAuthenticationFailureParameterContentLength]); bool
-  //  getAutsInAuthFailPara(uint8_t
+  //  GetAuthenticationFailureParameter(uint8_t
   //  (&value)[kAuthenticationFailureParameterContentLength]) const;
 
-  void setAuthentication_Failure_Parameter(const bstring& value);
-  bool getAutsInAuthFailPara(bstring& value) const;
+  void SetAuthenticationFailureParameter(const bstring& value);
+  bool GetAuthenticationFailureParameter(bstring& value) const;
 
  public:
   _5gmmCause ie_5gmm_cause;  // Mandatory
-  std::optional<Authentication_Failure_Parameter>
+  std::optional<AuthenticationFailureParameter>
       ie_authentication_failure_parameter;  // Optional
 };
 

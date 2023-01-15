@@ -31,7 +31,7 @@
 #include "Additional5gSecurityInformation.hpp"
 #include "AdditionalInformation.hpp"
 #include "AllowedPDUSessionStatus.hpp"
-#include "Authentication_Failure_Parameter.hpp"
+#include "AuthenticationFailureParameter.hpp"
 #include "Authentication_Parameter_AUTN.hpp"
 #include "Authentication_Parameter_RAND.hpp"
 #include "AuthenticationResponseParameter.hpp"

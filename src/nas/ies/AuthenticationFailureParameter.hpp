@@ -24,14 +24,6 @@
 
 #include "Type4NasIe.hpp"
 
-#include <stdint.h>
-
-extern "C" {
-#include "TLVDecoder.h"
-#include "TLVEncoder.h"
-#include "bstrlib.h"
-}
-
 constexpr uint8_t kAuthenticationFailureParameterLength = 16;
 constexpr uint8_t kAuthenticationFailureParameterContentLength =
     kAuthenticationFailureParameterLength - 2;
@@ -39,13 +31,11 @@ constexpr auto kAuthenticationFailureParameterIeName = "5GMM Capability";
 
 namespace nas {
 
-class Authentication_Failure_Parameter : public Type4NasIe {
+class AuthenticationFailureParameter : public Type4NasIe {
  public:
-  Authentication_Failure_Parameter();
-  Authentication_Failure_Parameter(
-      const uint8_t (&value)[kAuthenticationFailureParameterContentLength]);
-  Authentication_Failure_Parameter(const bstring& value);
-  ~Authentication_Failure_Parameter();
+  AuthenticationFailureParameter();
+  AuthenticationFailureParameter(const bstring& value);
+  ~AuthenticationFailureParameter();
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);
