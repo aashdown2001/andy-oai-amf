@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "AuthenticationResult.hpp"
 
 #include "3gpp_24.501.hpp"
@@ -56,7 +49,7 @@ void AuthenticationResult::SetNgKsi(uint8_t tsc, uint8_t key_set_id) {
 
 //------------------------------------------------------------------------------
 void AuthenticationResult::SetAbba(uint8_t length, uint8_t* value) {
-  ie_abba = std::make_optional<ABBA>(0x38, length, value);
+  ie_abba = std::make_optional<ABBA>(kIeiAbba, length, value);
 }
 
 //------------------------------------------------------------------------------
@@ -67,7 +60,6 @@ void AuthenticationResult::SetEapMessage(bstring eap) {
 //------------------------------------------------------------------------------
 int AuthenticationResult::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding AuthenticationResult message");
-
   int encoded_size    = 0;
   int encoded_ie_size = 0;
 

@@ -19,32 +19,28 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _SecurityModeReject_H_
-#define _SecurityModeReject_H_
+#ifndef _SECURITY_MODE_REJECT_H_
+#define _SECURITY_MODE_REJECT_H_
 
 #include "NasIeHeader.hpp"
 
 namespace nas {
 
-class SecurityModeReject {
+class SecurityModeReject : public NasMmPlainHeader {
  public:
   SecurityModeReject();
   ~SecurityModeReject();
-  int Encode(uint8_t* buf, int len);
-  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
+
   void SetHeader(uint8_t security_header_type);
+
+  int Encode(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
+
   void Set5gmmCause(uint8_t value);
+  // Get
 
  public:
-  NasMmPlainHeader* plain_header;
-  _5gmmCause* ie_5gmm_cause;
+  _5gmmCause ie_5gmm_cause;  // Mandatory
 };
 
 }  // namespace nas
