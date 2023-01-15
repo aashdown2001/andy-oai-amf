@@ -52,7 +52,7 @@ class RegistrationReject : public NasMmPlainHeader {
   // TODO: Get
 
  public:
-  _5GMM_Cause ie_5gmm_cause;                        // Mandatory
+  _5gmmCause ie_5gmm_cause;                         // Mandatory
   std::optional<GprsTimer2> ie_T3346_value;         // Optional
   std::optional<GprsTimer2> ie_T3502_value;         // Optional
   std::optional<EapMessage> ie_eap_message;         // Optional

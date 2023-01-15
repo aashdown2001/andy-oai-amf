@@ -110,6 +110,8 @@ constexpr uint8_t kIeiAuthenticationResponseParameter = 0x2D;
 constexpr uint8_t kIeiUeSecurityCapability = 0x2e;
 constexpr uint8_t kIeiUeNetworkCapability  = 0x17;
 
+constexpr uint8_t kIeiAuthenticationFailureParameter = 0x30;
+
 constexpr uint8_t kIeiAdditional5gSecurityInformation = 0x36;
 constexpr uint8_t kIeiAbba                            = 0x38;
 

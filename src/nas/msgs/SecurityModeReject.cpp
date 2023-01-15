@@ -52,7 +52,7 @@ void SecurityModeReject::SetHeader(uint8_t security_header_type) {
 
 //------------------------------------------------------------------------------
 void SecurityModeReject::Set5gmmCause(uint8_t value) {
-  ie_5gmm_cause = new _5GMM_Cause(0x00, value);
+  ie_5gmm_cause = new _5gmmCause(0x00, value);
 }
 
 //------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ int SecurityModeReject::Decode(
   Logger::nas_mm().debug("decoding SecurityModeReject message");
   int decoded_size = 3;
   plain_header     = header;
-  ie_5gmm_cause    = new _5GMM_Cause();
+  ie_5gmm_cause    = new _5gmmCause();
   decoded_size +=
       ie_5gmm_cause->Decode(buf + decoded_size, len - decoded_size, false);
   Logger::nas_mm().debug("decoded_size(%d)", decoded_size);

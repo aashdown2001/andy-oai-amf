@@ -19,93 +19,112 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "Authentication_Failure_Parameter.hpp"
 
 #include "logger.hpp"
 using namespace nas;
 
 //------------------------------------------------------------------------------
-Authentication_Failure_Parameter::Authentication_Failure_Parameter(
-    uint8_t iei) {
-  _iei   = iei;
-  length = 0;
-  value  = 0;
-}
-
-//------------------------------------------------------------------------------
-Authentication_Failure_Parameter::Authentication_Failure_Parameter(
-    const uint8_t iei, bstring auts) {
-  _iei   = iei;
-  value  = bstrcpy(auts);
-  length = blength(auts) + 2;
-}
-
-//------------------------------------------------------------------------------
 Authentication_Failure_Parameter::Authentication_Failure_Parameter()
-    : _iei(), length(), value() {}
+    : Type4NasIe(kIeiAuthenticationFailureParameter), value_() {
+  SetLengthIndicator(kAuthenticationFailureParameterContentLength);
+  SetIeName(kAuthenticationFailureParameterIeName);
+}
+
+//------------------------------------------------------------------------------
+Authentication_Failure_Parameter::Authentication_Failure_Parameter(
+    const bstring& value) {
+  value_ = bstrcpy(value);
+  SetLengthIndicator(kAuthenticationFailureParameterContentLength);
+  SetIeName(kAuthenticationFailureParameterIeName);
+}
 
 //------------------------------------------------------------------------------
 Authentication_Failure_Parameter::~Authentication_Failure_Parameter() {}
 
+/*
 //------------------------------------------------------------------------------
-void Authentication_Failure_Parameter::getValue(bstring& auts) {
-  auts = bstrcpy(value);
+void Authentication_Failure_Parameter::SetValue(const uint8_t
+(&value)[kAuthenticationFailureParameterContentLength]) { for (int i = 0; i <
+kAuthenticationFailureParameterContentLength; i++) { this->value_[i] = value[i];
+          }
+}
+
+//------------------------------------------------------------------------------
+void Authentication_Failure_Parameter::GetValue(uint8_t
+(&value)[kAuthenticationFailureParameterContentLength]) const{ for (int i = 0; i
+< kAuthenticationFailureParameterContentLength; i++) { value[i] =
+this->value_[i];
+          }
+
+}
+*/
+
+//------------------------------------------------------------------------------
+void Authentication_Failure_Parameter::SetValue(const bstring& value) {
+  value_ = bstrcpy(value);
+  SetLengthIndicator(blength(value));
+}
+
+//------------------------------------------------------------------------------
+void Authentication_Failure_Parameter::GetValue(bstring& value) const {
+  value = bstrcpy(value_);
 }
 
 //------------------------------------------------------------------------------
 int Authentication_Failure_Parameter::Encode(uint8_t* buf, int len) {
-  Logger::nas_mm().debug(
-      "encoding Authentication_Failure_Parameter iei(0x%x)", _iei);
-  if (len < length) {
-    Logger::nas_mm().error("len is less than %x", length);
-    return 0;
+  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
+  int ie_len = GetIeLength();
+
+  if (len < ie_len) {
+    Logger::nas_mm().error("Len is less than %d", ie_len);
+    return KEncodeDecodeError;
   }
+
   int encoded_size = 0;
-  if (_iei) {
-    *(buf + encoded_size) = _iei;
-    encoded_size++;
-    *(buf + encoded_size) = length - 2;
-    encoded_size++;
-    int size = encode_bstring(value, (buf + encoded_size), len - encoded_size);
-    encoded_size += size;
-    return encoded_size;
-  } else {
-    //		*(buf + encoded_size) = length - 1; encoded_size++;
-    //		*(buf + encoded_size) = _value; encoded_size++; encoded_size++;
+  // IEI and Length
+  int encoded_header_size = Type4NasIe::Encode(buf + encoded_size, len);
+  if (encoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  encoded_size += encoded_header_size;
+
+  // Value
+  /* for (int i = 0; i < kAuthenticationFailureParameterContentLength; i++) {
+    ENCODE_U8(buf + encoded_size, value_[i], encoded_size);
   }
+  */
+  int size = encode_bstring(value_, (buf + encoded_size), len - encoded_size);
+  encoded_size += size;
+
   Logger::nas_mm().debug(
-      "Encoded Authentication_Failure_Parameter len (%d)", encoded_size);
+      "Encoded %s, len (%d)", GetIeName().c_str(), encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
 int Authentication_Failure_Parameter::Decode(
-    uint8_t* buf, int len, bool is_option) {
-  Logger::nas_mm().debug(
-      "Decoding Authentication_Failure_Parameter iei (0x%x)", *buf);
-  int decoded_size = 0;
-  if (is_option) {
-    decoded_size++;
+    uint8_t* buf, int len, bool is_iei) {
+  uint8_t decoded_size = 0;
+  uint8_t octet        = 0;
+  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+
+  // IEI and Length
+  int decoded_header_size = Type4NasIe::Decode(buf + decoded_size, len, is_iei);
+  if (decoded_header_size == KEncodeDecodeError) return KEncodeDecodeError;
+  decoded_size += decoded_header_size;
+
+  if (GetLengthIndicator() != kAuthenticationFailureParameterContentLength)
+    return KEncodeDecodeError;
+
+  // Value
+  uint8_t ie_len = GetLengthIndicator();
+  decode_bstring(&value_, ie_len, (buf + decoded_size), len - decoded_size);
+  decoded_size += ie_len;
+
+  for (int i = 0; i < ie_len; i++) {
+    Logger::nas_mm().debug("Decoded value 0x%x", (uint8_t) value_->data[i]);
   }
-  length = *(buf + decoded_size);
-  decoded_size++;
+
   Logger::nas_mm().debug(
-      "Decoded IE Authentication_Failure_Parameter length (%d)", length);
-  decode_bstring(&value, length, (buf + decoded_size), len - decoded_size);
-  decoded_size += length;
-  for (int i = 0; i < length; i++) {
-    Logger::nas_mm().debug(
-        "Decoded Authentication_Failure_Parameter value (0x%x)",
-        (uint8_t) value->data[i]);
-  }
-  Logger::nas_mm().debug(
-      "Decoded Authentication_Failure_Parameter len (%d)", decoded_size);
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
 }

@@ -70,7 +70,7 @@
 #include "UESecurityCapability.hpp"
 #include "UeRadioCapabilityId.hpp"
 #include "UplinkDataStatus.hpp"
-#include "_5GMM_Cause.hpp"
+#include "_5gmmCause.hpp"
 #include "_5GSDeregistrationType.hpp"
 #include "_5GSTrackingAreaIdList.hpp"
 #include "_5GS_DRX_Parameters.hpp"

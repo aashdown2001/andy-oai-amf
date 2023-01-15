@@ -19,41 +19,47 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _AUTHENTICATION_FAILURE_PARAMETER_H_
+#define _AUTHENTICATION_FAILURE_PARAMETER_H_
 
-#ifndef __Authentication_Failure_Parameter_H_
-#define __Authentication_Failure_Parameter_H_
+#include "Type4NasIe.hpp"
+
 #include <stdint.h>
 
-#include <iostream>
 extern "C" {
 #include "TLVDecoder.h"
 #include "TLVEncoder.h"
 #include "bstrlib.h"
 }
 
+constexpr uint8_t kAuthenticationFailureParameterLength = 16;
+constexpr uint8_t kAuthenticationFailureParameterContentLength =
+    kAuthenticationFailureParameterLength - 2;
+constexpr auto kAuthenticationFailureParameterIeName = "5GMM Capability";
+
 namespace nas {
 
-class Authentication_Failure_Parameter {
+class Authentication_Failure_Parameter : public Type4NasIe {
  public:
   Authentication_Failure_Parameter();
-  Authentication_Failure_Parameter(uint8_t iei);
-  Authentication_Failure_Parameter(const uint8_t iei, bstring auts);
+  Authentication_Failure_Parameter(
+      const uint8_t (&value)[kAuthenticationFailureParameterContentLength]);
+  Authentication_Failure_Parameter(const bstring& value);
   ~Authentication_Failure_Parameter();
-  // void setValue(uint8_t iei, uint8_t value);
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void getValue(bstring& auts);
+  int Decode(uint8_t* buf, int len, bool is_iei);
+
+  // void SetValue(const uint8_t
+  // (&value)[kAuthenticationFailureParameterContentLength]); void
+  // GetValue(uint8_t (&value)[kAuthenticationFailureParameterContentLength])
+  // const;
+  void SetValue(const bstring& value);
+  void GetValue(bstring& value) const;
 
  private:
-  uint8_t _iei;
-  uint8_t length;
-  bstring value;
+  // uint8_t value_[kAuthenticationFailureParameterContentLength];
+  bstring value_;
 };
 
 }  // namespace nas

@@ -74,7 +74,7 @@ void DLNASTransport::SetAdditionalInformation(const bstring& value) {
 
 //------------------------------------------------------------------------------
 void DLNASTransport::Set5gmmCause(uint8_t value) {
-  ie_5gmm_cause = std::make_optional<_5GMM_Cause>(0x58, value);
+  ie_5gmm_cause = std::make_optional<_5gmmCause>(0x58, value);
 }
 
 //------------------------------------------------------------------------------
@@ -238,13 +238,13 @@ int DLNASTransport::Decode(uint8_t* buf, int len) {
       } break;
       case kIei5gmmCause: {
         Logger::nas_mm().debug("Decoding IEI (0x58)");
-        _5GMM_Cause ie_5gmm_cause_tmp = {};
+        _5gmmCause ie_5gmm_cause_tmp = {};
         if ((decoded_result = ie_5gmm_cause_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
-        ie_5gmm_cause = std::optional<_5GMM_Cause>(ie_5gmm_cause_tmp);
+        ie_5gmm_cause = std::optional<_5gmmCause>(ie_5gmm_cause_tmp);
         octet         = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

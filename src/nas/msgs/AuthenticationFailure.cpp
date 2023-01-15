@@ -50,15 +50,34 @@ uint8_t AuthenticationFailure::get5GMmCause() {
   return ie_5gmm_cause.GetValue();
 }
 
+/*
 //------------------------------------------------------------------------------
 void AuthenticationFailure::setAuthentication_Failure_Parameter(
-    const bstring& auts) {
+    const uint8_t (&value)[kAuthenticationFailureParameterContentLength]) {
   ie_authentication_failure_parameter =
-      std::make_optional<Authentication_Failure_Parameter>(0x30, auts);
+      std::make_optional<Authentication_Failure_Parameter>(value);
 }
-bool AuthenticationFailure::getAutsInAuthFailPara(bstring& auts) {
+bool AuthenticationFailure::getAutsInAuthFailPara(uint8_t
+(&value)[kAuthenticationFailureParameterContentLength]) const{ if
+(ie_authentication_failure_parameter.has_value()) {
+    ie_authentication_failure_parameter.value().GetValue(value);
+    return true;
+  } else {
+    return false;
+  }
+}
+*/
+
+//------------------------------------------------------------------------------
+void AuthenticationFailure::setAuthentication_Failure_Parameter(
+    const bstring& value) {
+  ie_authentication_failure_parameter =
+      std::make_optional<Authentication_Failure_Parameter>(value);
+}
+
+bool AuthenticationFailure::getAutsInAuthFailPara(bstring& value) const {
   if (ie_authentication_failure_parameter.has_value()) {
-    ie_authentication_failure_parameter.value().getValue(auts);
+    ie_authentication_failure_parameter.value().GetValue(value);
     return true;
   } else {
     return false;

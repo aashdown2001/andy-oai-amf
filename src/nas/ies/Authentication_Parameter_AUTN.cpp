@@ -104,6 +104,6 @@ int Authentication_Parameter_AUTN::Decode(uint8_t* buf, int len, bool is_iei) {
         "Decoded Authentication_Parameter_AUTN value (0x%2x)", _value[j]);
   }
   Logger::nas_mm().debug(
-      "Decoded Authentication_Parameter_AUTN len (%d)", decoded_size);
+      "Decoded %s, len (%d)", GetIeName().c_str(), decoded_size);
   return decoded_size;
 }

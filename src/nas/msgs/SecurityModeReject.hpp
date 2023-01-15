@@ -44,7 +44,7 @@ class SecurityModeReject {
 
  public:
   NasMmPlainHeader* plain_header;
-  _5GMM_Cause* ie_5gmm_cause;
+  _5gmmCause* ie_5gmm_cause;
 };
 
 }  // namespace nas

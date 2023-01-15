@@ -74,12 +74,12 @@ constexpr auto k5gmmCauseIeName = "5GMM Cause";
 
 namespace nas {
 
-class _5GMM_Cause : public Type3NasIe {
+class _5gmmCause : public Type3NasIe {
  public:
-  _5GMM_Cause();
-  _5GMM_Cause(uint8_t iei);
-  _5GMM_Cause(uint8_t _iei, uint8_t value);
-  ~_5GMM_Cause();
+  _5gmmCause();
+  _5gmmCause(uint8_t iei);
+  _5gmmCause(uint8_t _iei, uint8_t value);
+  ~_5gmmCause();
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);

@@ -18,7 +18,7 @@
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
-#include "_5GMM_Cause.hpp"
+#include "_5gmmCause.hpp"
 
 #include "3gpp_24.501.hpp"
 #include "common_defs.h"
@@ -26,44 +26,44 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-_5GMM_Cause::_5GMM_Cause(uint8_t iei) : Type3NasIe(iei) {
+_5gmmCause::_5gmmCause(uint8_t iei) : Type3NasIe(iei) {
   value_ = 0;
   SetIeName(k5gmmCauseIeName);
 }
 
 //------------------------------------------------------------------------------
-_5GMM_Cause::_5GMM_Cause() : Type3NasIe() {
+_5gmmCause::_5gmmCause() : Type3NasIe() {
   value_ = 0;
   SetIeName(k5gmmCauseIeName);
 }
 
 //------------------------------------------------------------------------------
-_5GMM_Cause::_5GMM_Cause(uint8_t iei, uint8_t value) : Type3NasIe(iei) {
+_5gmmCause::_5gmmCause(uint8_t iei, uint8_t value) : Type3NasIe(iei) {
   value_ = value;
   SetIeName(k5gmmCauseIeName);
 }
 
 //------------------------------------------------------------------------------
-_5GMM_Cause::~_5GMM_Cause(){};
+_5gmmCause::~_5gmmCause(){};
 
 //------------------------------------------------------------------------------
-void _5GMM_Cause::SetValue(uint8_t value) {
+void _5gmmCause::SetValue(uint8_t value) {
   value_ = value;
 }
 
 //------------------------------------------------------------------------------
-uint8_t _5GMM_Cause::GetValue() const {
+uint8_t _5gmmCause::GetValue() const {
   return value_;
 }
 
 //------------------------------------------------------------------------------
-void _5GMM_Cause::Set(uint8_t iei, uint8_t value) {
+void _5gmmCause::Set(uint8_t iei, uint8_t value) {
   SetIei(iei);
   value_ = value;
 }
 
 //------------------------------------------------------------------------------
-int _5GMM_Cause::Encode(uint8_t* buf, int len) {
+int _5gmmCause::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
 
   if (len < k5gmmCauseMaximumLength) {
@@ -85,7 +85,7 @@ int _5GMM_Cause::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int _5GMM_Cause::Decode(uint8_t* buf, int len, bool is_iei) {
+int _5gmmCause::Decode(uint8_t* buf, int len, bool is_iei) {
   Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
 
   if (len < k5gmmCauseMinimumLength) {
