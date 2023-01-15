@@ -66,7 +66,7 @@ void AuthenticationResponse::SetEapMessage(const bstring& eap) {
 //------------------------------------------------------------------------------
 bool AuthenticationResponse::GetEapMessage(bstring& eap) {
   if (ie_eap_message.has_value()) {
-    ie_eap_message.value().getValue(eap);
+    ie_eap_message.value().GetValue(eap);
     return true;
   } else {
     return false;

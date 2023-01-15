@@ -75,6 +75,7 @@ void AuthenticationFailure::SetAuthenticationFailureParameter(
       std::make_optional<AuthenticationFailureParameter>(value);
 }
 
+//------------------------------------------------------------------------------
 bool AuthenticationFailure::GetAuthenticationFailureParameter(
     bstring& value) const {
   if (ie_authentication_failure_parameter.has_value()) {

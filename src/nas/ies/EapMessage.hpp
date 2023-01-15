@@ -48,8 +48,8 @@ class EapMessage : Type6NasIe {
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);
 
-  // void setValue(uint8_t iei, uint8_t value);
-  void getValue(bstring& eap);
+  void SetValue(const bstring& eap);
+  void GetValue(bstring& eap) const;
 
  private:
   bstring eap_;

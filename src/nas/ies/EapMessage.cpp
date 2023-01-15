@@ -49,7 +49,12 @@ EapMessage::EapMessage(const uint8_t iei, bstring eap) : Type6NasIe(iei) {
 EapMessage::~EapMessage() {}
 
 //------------------------------------------------------------------------------
-void EapMessage::getValue(bstring& eap) {
+void EapMessage::SetValue(const bstring& eap) {
+  eap_ = bstrcpy(eap);
+}
+
+//------------------------------------------------------------------------------
+void EapMessage::GetValue(bstring& eap) const {
   eap = bstrcpy(eap_);
 }
 
