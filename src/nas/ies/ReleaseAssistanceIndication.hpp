@@ -19,34 +19,27 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _RELEASE_ASSISTANCE_INDICATION_H_
+#define _RELEASE_ASSISTANCE_INDICATION_H_
 
-#ifndef __Release_Assistance_Indication_H_
-#define __Release_Assistance_Indication_H_
+#include "Type1NasIeFormatTv.hpp"
 
-#include <stdint.h>
+constexpr auto kReleaseAssistanceIndicationIeName =
+    "Release Assistance Indication";
 
 namespace nas {
 
-class Release_Assistance_Indication {
+class ReleaseAssistanceIndication : public Type1NasIeFormatTv {
  public:
-  Release_Assistance_Indication();
-  Release_Assistance_Indication(uint8_t iei);
-  Release_Assistance_Indication(const uint8_t iei, uint8_t value);
-  ~Release_Assistance_Indication();
-  int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void setValue(uint8_t value);
-  uint8_t getValue();
+  ReleaseAssistanceIndication();
+  ReleaseAssistanceIndication(uint8_t value);
+  ~ReleaseAssistanceIndication();
+
+  void Set(uint8_t value);
+  uint8_t Get() const;
 
  private:
-  uint8_t _iei;
-  uint8_t _value;
+  // uint8_t ddx_;
 };
 }  // namespace nas
 

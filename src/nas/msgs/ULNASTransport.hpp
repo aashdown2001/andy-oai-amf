@@ -76,7 +76,7 @@ class ULNASTransport : public NasMmPlainHeader {
   std::optional<AdditionalInformation> ie_additional_information;    // Optional
   std::optional<MaPduSessionInformation>
       ie_ma_pdu_session_information;  // Optional
-  std::optional<Release_Assistance_Indication>
+  std::optional<ReleaseAssistanceIndication>
       ie_release_assistance_indication;  // Optional
 };
 

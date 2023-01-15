@@ -19,32 +19,32 @@
  *      contact@openairinterface.org
  */
 
-#include "MaPduSessionInformation.hpp"
+#include "ReleaseAssistanceIndication.hpp"
 
 using namespace nas;
 
 //------------------------------------------------------------------------------
-MaPduSessionInformation::MaPduSessionInformation()
-    : Type1NasIeFormatTv(kIeiMaPduSessionInformation) {
-  SetIeName(kMaPduSessionInformationIeName);
+ReleaseAssistanceIndication::ReleaseAssistanceIndication()
+    : Type1NasIeFormatTv(kIeiReleaseAssistanceIndication) {
+  SetIeName(kReleaseAssistanceIndicationIeName);
 }
 
 //------------------------------------------------------------------------------
-MaPduSessionInformation::MaPduSessionInformation(uint8_t value)
-    : Type1NasIeFormatTv(kIeiMaPduSessionInformation) {
-  SetValue(value & 0x0f);
-  SetIeName(kMaPduSessionInformationIeName);
+ReleaseAssistanceIndication::ReleaseAssistanceIndication(uint8_t value)
+    : Type1NasIeFormatTv(kIeiReleaseAssistanceIndication) {
+  SetValue(value & 0x03);
+  SetIeName(kReleaseAssistanceIndicationIeName);
 }
 
 //------------------------------------------------------------------------------
-MaPduSessionInformation::~MaPduSessionInformation() {}
+ReleaseAssistanceIndication::~ReleaseAssistanceIndication() {}
 
 //------------------------------------------------------------------------------
-void MaPduSessionInformation::Set(uint8_t value) {
-  Type1NasIeFormatTv::SetValue(value & 0x0f);
+void ReleaseAssistanceIndication::Set(uint8_t value) {
+  Type1NasIeFormatTv::SetValue(value & 0x03);
 }
 
 //------------------------------------------------------------------------------
-uint8_t MaPduSessionInformation::Get() const {
-  return Type1NasIeFormatTv::GetValue() & 0x0f;
+uint8_t ReleaseAssistanceIndication::Get() const {
+  return (Type1NasIeFormatTv::GetValue() & 0x03);
 }

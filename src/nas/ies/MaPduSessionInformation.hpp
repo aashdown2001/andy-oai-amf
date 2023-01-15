@@ -34,8 +34,8 @@ class MaPduSessionInformation : public Type1NasIeFormatTv {
   MaPduSessionInformation(uint8_t value);
   ~MaPduSessionInformation();
 
-  void SetValue(uint8_t value);
-  uint8_t GetValue() const;
+  void Set(uint8_t value);
+  uint8_t Get() const;
 
  private:
 };

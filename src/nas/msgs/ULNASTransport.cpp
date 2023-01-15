@@ -165,7 +165,7 @@ void ULNASTransport::SetMaPduSessionInformation(uint8_t value) {
 //------------------------------------------------------------------------------
 void ULNASTransport::SetReleaseAssistanceIndication(uint8_t value) {
   ie_release_assistance_indication =
-      std::make_optional<Release_Assistance_Indication>(0x0F, value);
+      std::make_optional<ReleaseAssistanceIndication>(value);
 }
 
 //------------------------------------------------------------------------------
@@ -362,7 +362,7 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
         octet           = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0xA: {
+      case kIeiMaPduSessionInformation: {
         Logger::nas_mm().debug("Decoding IEI (0xA)");
         MaPduSessionInformation ie_ma_pdu_session_information_tmp = {};
         if ((decoded_result = ie_ma_pdu_session_information_tmp.Decode(
@@ -375,16 +375,17 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0xF: {
-        Logger::nas_mm().debug("Decoding IEI (0xF)");
-        Release_Assistance_Indication ie_release_assistance_indication_tmp = {};
+      case kIeiReleaseAssistanceIndication: {
+        Logger::nas_mm().debug(
+            "Decoding IEI 0x%x", kIeiReleaseAssistanceIndication);
+        ReleaseAssistanceIndication ie_release_assistance_indication_tmp = {};
         if ((decoded_result = ie_release_assistance_indication_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
         ie_release_assistance_indication =
-            std::optional<Release_Assistance_Indication>(
+            std::optional<ReleaseAssistanceIndication>(
                 ie_release_assistance_indication_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
@@ -420,7 +421,7 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x22: {
+      case kIeiSNssai: {
         Logger::nas_mm().debug("Decoding IEI (0x22)");
         auto s_nssai_ie = std::optional<uint8_t>(kIeiSNssai);
         S_NSSAI ie_s_nssai_tmp(s_nssai_ie);

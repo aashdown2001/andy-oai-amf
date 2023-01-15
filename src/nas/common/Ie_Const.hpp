@@ -68,32 +68,33 @@ constexpr uint8_t kIeiReAttemptIndicator                    = 0x1d;
 constexpr uint8_t kIeiRejectedNssaiRa                       = 0x11;
 constexpr uint8_t kIeiRejectedNssaiDr                       = 0x6D;
 constexpr uint8_t kIeiRejectedNssaiCuc                      = 0x11;
-constexpr uint8_t kIeiReleaseAssistanceIndication           = 0xf0;
-constexpr uint8_t kIeiRequestedQosFlowDescriptions          = 0x79;
-constexpr uint8_t kIeiRequestedQosRules                     = 0x7a;
-constexpr uint8_t kIeiRqTimerValue                          = 0x56;
-constexpr uint8_t kIeiServingPlmnRateControlPsea            = 0x18;
-constexpr uint8_t kIeiServingPlmnRateControlPsmc            = 0x1e;
-constexpr uint8_t kIeiSessionAmbr                           = 0x2a;
-constexpr uint8_t kIeiSmPduDnRequestContainer               = 0x39;
-constexpr uint8_t kIeiSNssai                                = 0x22;
-constexpr uint8_t kIeiSscMode                               = 0x0a;
-constexpr uint8_t kIeiSuggestedInterfaceIdentifier          = 0x29;
-constexpr uint8_t kIeiUeDsTtResidenceTime                   = 0x6f;
-constexpr uint8_t kIeiFullNameForNetwork                    = 0x43;
-constexpr uint8_t kIeiShortNameForNetwork                   = 0x45;
+
+constexpr uint8_t kIeiRequestedQosFlowDescriptions = 0x79;
+constexpr uint8_t kIeiRequestedQosRules            = 0x7a;
+constexpr uint8_t kIeiRqTimerValue                 = 0x56;
+constexpr uint8_t kIeiServingPlmnRateControlPsea   = 0x18;
+constexpr uint8_t kIeiServingPlmnRateControlPsmc   = 0x1e;
+constexpr uint8_t kIeiSessionAmbr                  = 0x2a;
+constexpr uint8_t kIeiSmPduDnRequestContainer      = 0x39;
+constexpr uint8_t kIeiSNssai                       = 0x22;
+constexpr uint8_t kIeiSscMode                      = 0x0a;
+constexpr uint8_t kIeiSuggestedInterfaceIdentifier = 0x29;
+constexpr uint8_t kIeiUeDsTtResidenceTime          = 0x6f;
+constexpr uint8_t kIeiFullNameForNetwork           = 0x43;
+constexpr uint8_t kIeiShortNameForNetwork          = 0x45;
 
 // OK
 constexpr uint8_t kIeiPayloadContainerType     = 0x08;  // Should be verified
 constexpr uint8_t kIeiRequestType              = 0x08;  // 8-(4 higher bits)
 constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
 
-constexpr uint8_t kIeiNssaiInclusionMode        = 0x0A;  // A-(4 higher bits)
-constexpr uint8_t kIeiMaPduSessionInformation   = 0x0A;  // A-(4 higher bits)
-constexpr uint8_t kIeiMicoIndication            = 0x0B;  // B-(4 higher bits)
-constexpr uint8_t kIeiNasKeySetIdentifier       = 0x0C;  // C-(4 higher bits)
-constexpr uint8_t kIeiNon3gppNwProvidedPolicies = 0x0D;  // D-(4 higher bits)
-constexpr uint8_t kIeiImeisvRequest             = 0x0E;  // E-(4 higher bits)
+constexpr uint8_t kIeiNssaiInclusionMode          = 0x0A;  // A-(4 higher bits)
+constexpr uint8_t kIeiMaPduSessionInformation     = 0x0A;  // A-(4 higher bits)
+constexpr uint8_t kIeiMicoIndication              = 0x0B;  // B-(4 higher bits)
+constexpr uint8_t kIeiNasKeySetIdentifier         = 0x0C;  // C-(4 higher bits)
+constexpr uint8_t kIeiNon3gppNwProvidedPolicies   = 0x0D;  // D-(4 higher bits)
+constexpr uint8_t kIeiImeisvRequest               = 0x0E;  // E-(4 higher bits)
+constexpr uint8_t kIeiReleaseAssistanceIndication = 0x0F;  // F-(4 higher bits)
 
 constexpr uint8_t kIei5gmmCapability              = 0x10;
 constexpr uint8_t kIeiUeUsageSetting              = 0x18;
