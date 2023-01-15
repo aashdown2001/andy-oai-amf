@@ -19,34 +19,26 @@
  *      contact@openairinterface.org
  */
 
-/*! \file ___5GS_Identity_Type.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _5GS_IDENTITY_TYPE_H_
+#define _5GS_IDENTITY_TYPE_H_
 
-#ifndef ___5GS_Identity_Type_H_
-#define ___5GS_Identity_Type_H_
+#include "Type1NasIeFormatTv.hpp"
 
-#include <stdint.h>
+constexpr auto k5gsIdentityTypeIeName = "5GS Identity Type";
 
 namespace nas {
 
-class _5GS_Identity_Type {
+class _5gsIdentityType : public Type1NasIeFormatTv {
  public:
-  _5GS_Identity_Type();
-  _5GS_Identity_Type(uint8_t iei);
-  _5GS_Identity_Type(const uint8_t iei, uint8_t value);
-  ~_5GS_Identity_Type();
-  int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void setValue(uint8_t value);
-  uint8_t getValue();
+  _5gsIdentityType();
+  _5gsIdentityType(uint8_t iei);
+  _5gsIdentityType(uint8_t iei, uint8_t value);
+  ~_5gsIdentityType();
+
+  void SetValue(uint8_t value);
+  uint8_t GetValue() const;
 
  private:
-  uint8_t _iei;
-  uint8_t _value;
 };
 }  // namespace nas
 

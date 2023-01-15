@@ -19,32 +19,26 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
-#ifndef _IdentityRequest_H_
-#define _IdentityRequest_H_
+#ifndef _IDENTITY_REQUEST_H_
+#define _IDENTITY_REQUEST_H_
 
 #include "NasIeHeader.hpp"
 
 namespace nas {
 
-class IdentityRequest {
+class IdentityRequest : public NasMmPlainHeader {
  public:
   IdentityRequest();
   ~IdentityRequest();
+
   int Encode(uint8_t* buf, int len);
-  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
+
   void SetHeader(uint8_t security_header_type);
-  void set_5GS_Identity_Type(uint8_t value);
+  void Set5gsIdentityType(uint8_t value);
 
  public:
-  NasMmPlainHeader* plain_header;
-  _5GS_Identity_Type* _5gs_identity_type;
+  _5gsIdentityType _5gs_identity_type_;  // Mandatory
 };
 
 }  // namespace nas

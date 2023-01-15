@@ -71,6 +71,11 @@ class ConfigurationUpdateCommand : public NasMmPlainHeader {
   // TODO: Operator-defined access category definitions
   // TODO: SMS indication
   // TODO: T3447 value
+  // TODO: CAG information list (Rel 16.4.1)
+  // TODO: UE radio capability ID (Rel 16.4.1)
+  // TODO: UE radio capability ID deletion indication (Rel 16.4.1)
+  // TODO: 5GS registration result (Rel 16.4.1)
+  // TODO: Truncated 5G-S-TMSI configuration (Rel 16.4.1)
 };
 
 }  // namespace nas

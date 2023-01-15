@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "IdentityRequest.hpp"
 
 #include "3gpp_24.501.hpp"
@@ -34,63 +27,75 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-IdentityRequest::IdentityRequest() {
-  Logger::nas_mm().debug("initiating class IdentityRequest");
-  plain_header       = NULL;
-  _5gs_identity_type = NULL;
-}
+IdentityRequest::IdentityRequest()
+    : NasMmPlainHeader(EPD_5GS_MM_MSG, IDENTITY_REQUEST) {}
 
 //------------------------------------------------------------------------------
 IdentityRequest::~IdentityRequest() {}
 
 //------------------------------------------------------------------------------
 void IdentityRequest::SetHeader(uint8_t security_header_type) {
-  plain_header = new NasMmPlainHeader();
-  plain_header->SetHeader(
-      EPD_5GS_MM_MSG, security_header_type, IDENTITY_REQUEST);
+  NasMmPlainHeader::SetSecurityHeaderType(security_header_type);
 }
 
 //------------------------------------------------------------------------------
-void IdentityRequest::set_5GS_Identity_Type(uint8_t value) {
-  _5gs_identity_type = new _5GS_Identity_Type(0x00, value);
+void IdentityRequest::Set5gsIdentityType(uint8_t value) {
+  _5gs_identity_type_.SetValue(value);
 }
 
 //------------------------------------------------------------------------------
 int IdentityRequest::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("encoding IdentityRequest message");
-  int encoded_size = 0;
-  if (!plain_header) {
-    Logger::nas_mm().error("Mandatory IE missing Header");
-    return 0;
+  int encoded_size    = 0;
+  int encoded_ie_size = 0;
+
+  // Header
+  if ((encoded_ie_size = NasMmPlainHeader::Encode(buf, len)) ==
+      KEncodeDecodeError) {
+    Logger::nas_mm().error("Encoding NAS Header error");
+    return KEncodeDecodeError;
   }
-  if (!(plain_header->Encode(buf, len))) return 0;
-  encoded_size += 3;
-  if (!_5gs_identity_type) {
-    Logger::nas_mm().warn("IE _5gs_identity_type is not available");
+  encoded_size += encoded_ie_size;
+
+  int size = _5gs_identity_type_.Encode(buf + encoded_size, len - encoded_size);
+
+  if (size != KEncodeDecodeError) {
+    encoded_size += size;
   } else {
-    if (int size = _5gs_identity_type->Encode(
-            buf + encoded_size, len - encoded_size)) {
-      encoded_size += size;
-    } else {
-      Logger::nas_mm().error("encoding _5gs_identity_type  error");
-      return 0;
-    }
+    Logger::nas_mm().error("Encoding _5gs_identity_type  error");
+    return KEncodeDecodeError;
   }
+
   Logger::nas_mm().debug(
-      "encoded IdentityRequest message len(%d)", encoded_size);
+      "Encoded IdentityRequest message len (%d)", encoded_size);
   return encoded_size;
 }
 
 //------------------------------------------------------------------------------
-int IdentityRequest::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
-  Logger::nas_mm().debug("decoding IdentityRequest message");
-  int decoded_size   = 3;
-  plain_header       = header;
-  _5gs_identity_type = new _5GS_Identity_Type();
-  decoded_size +=
-      _5gs_identity_type->Decode(buf + decoded_size, len - decoded_size, false);
-  Logger::nas_mm().debug("decoded_size(%d)", decoded_size);
+int IdentityRequest::Decode(uint8_t* buf, int len) {
+  Logger::nas_mm().debug("Decoding IdentityRequest message");
+
+  int decoded_size   = 0;
+  int decoded_result = 0;
+
+  // Header
+  decoded_result = NasMmPlainHeader::Decode(buf, len);
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error("Decoding NAS Header error");
+    return KEncodeDecodeError;
+  }
+  decoded_size += decoded_result;
+
+  decoded_result =
+      _5gs_identity_type_.Decode(buf + decoded_size, len - decoded_size, false);
+
+  if (decoded_result == KEncodeDecodeError) return KEncodeDecodeError;
+  if (decoded_result == 0) {
+    decoded_result = 1;  // including 1/2 octet for Spare
+  }
+  decoded_size += decoded_result;
+
   Logger::nas_mm().debug(
-      "decoded IdentityRequest message len(%d)", decoded_size);
-  return 1;
+      "Decoded IdentityRequest message len (%d)", decoded_size);
+  return decoded_size;
 }

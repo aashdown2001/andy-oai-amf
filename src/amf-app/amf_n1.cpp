@@ -1678,7 +1678,7 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context>& nc) {
     std::unique_ptr<IdentityRequest> identity_request =
         std::make_unique<IdentityRequest>();
     identity_request->SetHeader(PLAIN_5GS_MSG);
-    identity_request->set_5GS_Identity_Type(SUCI);
+    identity_request->Set5gsIdentityType(SUCI);
     uint8_t buffer[BUFFER_SIZE_256];
     int encoded_size = identity_request->Encode(buffer, BUFFER_SIZE_256);
 
