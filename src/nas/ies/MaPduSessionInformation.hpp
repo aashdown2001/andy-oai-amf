@@ -19,31 +19,26 @@
  *      contact@openairinterface.org
  */
 
-#include "ImeisvRequest.hpp"
+#ifndef _MA_PDU_SESSION_INFORMATION_H_
+#define _MA_PDU_SESSION_INFORMATION_H_
 
-using namespace nas;
+#include "Type1NasIeFormatTv.hpp"
 
-//------------------------------------------------------------------------------
-ImeisvRequest::ImeisvRequest() : Type1NasIeFormatTv(kIeiImeisvRequest) {
-  SetIeName(kImeisvRequestIeName);
-}
+constexpr auto kMaPduSessionInformationIeName = "MA PDU Session Information";
 
-//------------------------------------------------------------------------------
-ImeisvRequest::ImeisvRequest(uint8_t value)
-    : Type1NasIeFormatTv(kIeiImeisvRequest) {
-  SetValue(value & 0x07);
-  SetIeName(kImeisvRequestIeName);
-}
+namespace nas {
 
-//------------------------------------------------------------------------------
-ImeisvRequest::~ImeisvRequest() {}
+class MaPduSessionInformation : public Type1NasIeFormatTv {
+ public:
+  MaPduSessionInformation();
+  MaPduSessionInformation(uint8_t value);
+  ~MaPduSessionInformation();
 
-//------------------------------------------------------------------------------
-void ImeisvRequest::Set(uint8_t value) {
-  SetValue(value & 0x07);
-}
+  void SetValue(uint8_t value);
+  uint8_t GetValue() const;
 
-//------------------------------------------------------------------------------
-uint8_t ImeisvRequest::Get() const {
-  return GetValue() & 0x07;
-}
+ private:
+};
+}  // namespace nas
+
+#endif

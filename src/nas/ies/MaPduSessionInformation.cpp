@@ -19,35 +19,32 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#include "MaPduSessionInformation.hpp"
 
-#ifndef __MA_PDU_Session_Information_H_
-#define __MA_PDU_Session_Information_H_
+using namespace nas;
 
-#include <stdint.h>
+//------------------------------------------------------------------------------
+MaPduSessionInformation::MaPduSessionInformation()
+    : Type1NasIeFormatTv(kIeiMaPduSessionInformation) {
+  SetIeName(kMaPduSessionInformationIeName);
+}
 
-namespace nas {
+//------------------------------------------------------------------------------
+MaPduSessionInformation::MaPduSessionInformation(uint8_t value)
+    : Type1NasIeFormatTv(kIeiMaPduSessionInformation) {
+  SetValue(value & 0x0f);
+  SetIeName(kMaPduSessionInformationIeName);
+}
 
-class MA_PDU_Session_Information {
- public:
-  MA_PDU_Session_Information();
-  MA_PDU_Session_Information(uint8_t iei);
-  MA_PDU_Session_Information(const uint8_t iei, uint8_t value);
-  ~MA_PDU_Session_Information();
-  int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  void setValue(uint8_t value);
-  uint8_t getValue();
+//------------------------------------------------------------------------------
+MaPduSessionInformation::~MaPduSessionInformation() {}
 
- private:
-  uint8_t _iei;
-  uint8_t _value;
-};
-}  // namespace nas
+//------------------------------------------------------------------------------
+void MaPduSessionInformation::SetValue(uint8_t value) {
+  SetValue(value & 0x0f);
+}
 
-#endif
+//------------------------------------------------------------------------------
+uint8_t MaPduSessionInformation::GetValue() const {
+  return GetValue() & 0x0f;
+}

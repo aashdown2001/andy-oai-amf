@@ -159,7 +159,7 @@ void ULNASTransport::SetAdditionalInformation(const bstring& value) {
 //------------------------------------------------------------------------------
 void ULNASTransport::SetMaPduSessionInformation(uint8_t value) {
   ie_ma_pdu_session_information =
-      std::make_optional<MA_PDU_Session_Information>(0x0A, value);
+      std::make_optional<MaPduSessionInformation>(value);
 }
 
 //------------------------------------------------------------------------------
@@ -364,15 +364,14 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
       } break;
       case 0xA: {
         Logger::nas_mm().debug("Decoding IEI (0xA)");
-        MA_PDU_Session_Information ie_ma_pdu_session_information_tmp = {};
+        MaPduSessionInformation ie_ma_pdu_session_information_tmp = {};
         if ((decoded_result = ie_ma_pdu_session_information_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
-        ie_ma_pdu_session_information =
-            std::optional<MA_PDU_Session_Information>(
-                ie_ma_pdu_session_information_tmp);
+        ie_ma_pdu_session_information = std::optional<MaPduSessionInformation>(
+            ie_ma_pdu_session_information_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

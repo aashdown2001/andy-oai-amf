@@ -52,7 +52,6 @@ constexpr uint8_t kIeiExtendedProtocolConfigurationOptions =
     0x7b;  // To be verified
 constexpr uint8_t kIeiIntegrityProtectionMaximumDataRate    = 0x13;
 constexpr uint8_t kIeiIpHeaderCompressionConfiguration      = 0x66;
-constexpr uint8_t kIeiMaPduSessionInformation               = 0xa0;
 constexpr uint8_t kIeiMappedEpsBearerContexts               = 0x75;
 constexpr uint8_t kIeiMaximumNumberOfSupportedPacketFilters = 0x55;
 constexpr uint8_t kIeiNbN1ModeDrxParameters                 = 0x29;
@@ -90,6 +89,7 @@ constexpr uint8_t kIeiRequestType              = 0x08;  // 8-(4 higher bits)
 constexpr uint8_t kIeiNetworkSlicingIndication = 0x09;  // 9-(4 higher bits)
 
 constexpr uint8_t kIeiNssaiInclusionMode        = 0x0A;  // A-(4 higher bits)
+constexpr uint8_t kIeiMaPduSessionInformation   = 0x0A;  // A-(4 higher bits)
 constexpr uint8_t kIeiMicoIndication            = 0x0B;  // B-(4 higher bits)
 constexpr uint8_t kIeiNasKeySetIdentifier       = 0x0C;  // C-(4 higher bits)
 constexpr uint8_t kIeiNon3gppNwProvidedPolicies = 0x0D;  // D-(4 higher bits)
