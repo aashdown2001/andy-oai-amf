@@ -29,7 +29,7 @@
 #include "NasIeHeader.hpp"
 namespace nas {
 
-class ConfigurationUpdateCommand {
+class ConfigurationUpdateCommand : public NasMmPlainHeader {
  public:
   ConfigurationUpdateCommand();
   ~ConfigurationUpdateCommand();
@@ -50,8 +50,6 @@ class ConfigurationUpdateCommand {
   int Decode(uint8_t* buf, int len);
 
  public:
-  NasMmPlainHeader*
-      plain_header;  // TODO: Should be removed in the new NAS version
   // Optional
   // TODO: Configuration update indication
   // TODO: 5G-GUTI

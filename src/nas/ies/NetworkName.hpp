@@ -47,7 +47,7 @@ class NetworkName {
   void setTextString(const std::string& str);
   void setTextString(const bstring& str);
 
-  int encode2buffer(uint8_t* buf, int len);
+  int Encode(uint8_t* buf, int len);
   int decodefrombuffer(uint8_t* buf, int len, bool is_option = true);
 
  private:

@@ -107,7 +107,7 @@ void Rejected_SNSSAI::getCause(uint8_t& cause) {
 }
 
 //------------------------------------------------------------------------------
-int Rejected_SNSSAI::encode2buffer(uint8_t* buf, int len) {
+int Rejected_SNSSAI::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding Rejected_SNSSAI");
   if (len < length_ + 1) {
     Logger::nas_mm().error("len is less than %d", length_);

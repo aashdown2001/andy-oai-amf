@@ -28,8 +28,8 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-ConfigurationUpdateCommand::ConfigurationUpdateCommand() {
-  plain_header           = nullptr;
+ConfigurationUpdateCommand::ConfigurationUpdateCommand()
+    : NasMmPlainHeader(EPD_5GS_MM_MSG, CONFIGURATION_UPDATE_COMMAND) {
   full_name_for_network  = nullopt;
   short_name_for_network = nullopt;
 }
@@ -39,9 +39,7 @@ ConfigurationUpdateCommand::~ConfigurationUpdateCommand() {}
 
 //------------------------------------------------------------------------------
 void ConfigurationUpdateCommand::SetHeader(uint8_t security_header_type) {
-  plain_header = new NasMmPlainHeader();
-  plain_header->SetHeader(
-      EPD_5GS_MM_MSG, security_header_type, CONFIGURATION_UPDATE_COMMAND);
+  NasMmPlainHeader::SetSecurityHeaderType(security_header_type);
 }
 
 //------------------------------------------------------------------------------
@@ -94,36 +92,41 @@ void ConfigurationUpdateCommand::getShortNameForNetwork(
 //------------------------------------------------------------------------------
 int ConfigurationUpdateCommand::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding ConfigurationUpdateCommand message");
-  int encoded_size = 0;
-  if (!plain_header) {
-    Logger::nas_mm().error("Mandatory IE missing Header");
-    return -1;
+
+  int encoded_size    = 0;
+  int encoded_ie_size = 0;
+
+  // Header
+  if ((encoded_ie_size = NasMmPlainHeader::Encode(buf, len)) ==
+      KEncodeDecodeError) {
+    Logger::nas_mm().error("Encoding NAS Header error");
+    return KEncodeDecodeError;
   }
-  uint8_t encoded_size_ie = 0;
-  if (!(encoded_size_ie = plain_header->Encode(buf, len))) return 0;
-  encoded_size += encoded_size_ie;
+  encoded_size += encoded_ie_size;
 
   if (!full_name_for_network.has_value()) {
     Logger::nas_mm().debug("IE Full Name For Network is not available");
   } else {
-    if (int size = full_name_for_network.value().encode2buffer(
-            buf + encoded_size, len - encoded_size)) {
-      encoded_size += size;
+    encoded_ie_size = full_name_for_network.value().Encode(
+        buf + encoded_size, len - encoded_size);
+    if (encoded_ie_size != KEncodeDecodeError) {
+      encoded_size += encoded_ie_size;
     } else {
       Logger::nas_mm().error("Encoding Full Name For Network error");
-      return 0;
+      return KEncodeDecodeError;
     }
   }
 
   if (!short_name_for_network.has_value()) {
     Logger::nas_mm().debug("IE Short Name For Network is not available");
   } else {
-    if (int size = short_name_for_network.value().encode2buffer(
-            buf + encoded_size, len - encoded_size)) {
-      encoded_size += size;
+    encoded_ie_size = short_name_for_network.value().Encode(
+        buf + encoded_size, len - encoded_size);
+    if (encoded_ie_size != KEncodeDecodeError) {
+      encoded_size += encoded_ie_size;
     } else {
       Logger::nas_mm().error("Encoding Short Name For Network error");
-      return 0;
+      return KEncodeDecodeError;
     }
   }
 
@@ -135,10 +138,17 @@ int ConfigurationUpdateCommand::Encode(uint8_t* buf, int len) {
 //------------------------------------------------------------------------------
 int ConfigurationUpdateCommand::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding ConfigurationUpdateCommand message");
-  int decoded_size        = 0;
-  uint8_t decoded_size_ie = 0;
-  if (!(decoded_size_ie = plain_header->Decode(buf, len))) return 0;
-  decoded_size += decoded_size_ie;
+
+  int decoded_size   = 0;
+  int decoded_result = 0;
+
+  // Header
+  decoded_result = NasMmPlainHeader::Decode(buf, len);
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error("Decoding NAS Header error");
+    return KEncodeDecodeError;
+  }
+  decoded_size += decoded_result;
 
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
@@ -146,9 +156,12 @@ int ConfigurationUpdateCommand::Decode(uint8_t* buf, int len) {
     switch (octet) {
       case kIeiFullNameForNetwork: {
         Logger::nas_mm().debug("Decoding IEI 0x43: Full Name for Network");
-        NetworkName full_name_for_network_tmp;
-        decoded_size += full_name_for_network_tmp.decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+        NetworkName full_name_for_network_tmp = {};
+        if ((decoded_result = full_name_for_network_tmp.decodefrombuffer(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return decoded_result;
+        decoded_size += decoded_result;
         full_name_for_network =
             std::optional<NetworkName>(full_name_for_network_tmp);
         octet = *(buf + decoded_size);
@@ -156,9 +169,12 @@ int ConfigurationUpdateCommand::Decode(uint8_t* buf, int len) {
       } break;
       case kIeiShortNameForNetwork: {
         Logger::nas_mm().debug("Decoding IEI 0x45: Short Name for Network");
-        NetworkName short_name_for_network_tmp;
-        decoded_size += short_name_for_network_tmp.decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+        NetworkName short_name_for_network_tmp = {};
+        if ((decoded_result = short_name_for_network_tmp.decodefrombuffer(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return decoded_result;
+        decoded_size += decoded_result;
         short_name_for_network =
             std::optional<NetworkName>(short_name_for_network_tmp);
         octet = *(buf + decoded_size);

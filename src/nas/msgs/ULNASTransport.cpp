@@ -317,7 +317,7 @@ int ULNASTransport::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
+int ULNASTransport::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoding ULNASTransport message");
   int decoded_size   = 0;
   int decoded_result = 0;

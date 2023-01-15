@@ -34,7 +34,7 @@ class ULNASTransport : public NasMmPlainHeader {
   void SetHeader(uint8_t security_header_type);
 
   int Encode(uint8_t* buf, int len);
-  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
 
   void SetPayloadContainerType(uint8_t value);
   uint8_t GetPayloadContainerType();

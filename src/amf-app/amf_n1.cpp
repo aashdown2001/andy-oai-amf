@@ -3220,7 +3220,7 @@ void amf_n1::ul_nas_transport_handle(
   // Decode UL_NAS_TRANSPORT message
   Logger::amf_n1().debug("Handling UL NAS Transport");
   auto ul_nas = std::make_unique<ULNASTransport>();
-  ul_nas->Decode(NULL, (uint8_t*) bdata(nas), blength(nas));
+  ul_nas->Decode((uint8_t*) bdata(nas), blength(nas));
   uint8_t payload_type   = ul_nas->GetPayloadContainerType();
   uint8_t pdu_session_id = ul_nas->GetPduSessionId();
 

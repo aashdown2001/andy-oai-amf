@@ -233,13 +233,11 @@ int DLNASTransport::Decode(uint8_t* buf, int len) {
         decoded_size += decoded_result;
         ie_additional_information =
             std::optional<AdditionalInformation>(ie_additional_information_tmp);
-
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
       case kIei5gmmCause: {
         Logger::nas_mm().debug("Decoding IEI (0x58)");
-
         _5GMM_Cause ie_5gmm_cause_tmp = {};
         if ((decoded_result = ie_5gmm_cause_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
@@ -247,13 +245,11 @@ int DLNASTransport::Decode(uint8_t* buf, int len) {
           return decoded_result;
         decoded_size += decoded_result;
         ie_5gmm_cause = std::optional<_5GMM_Cause>(ie_5gmm_cause_tmp);
-
-        octet = *(buf + decoded_size);
+        octet         = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
       case kIeiGprsTimer3BackOffTimer: {
         Logger::nas_mm().debug("Decoding IEI (0x37)");
-
         GprsTimer3 ie_back_off_timer_value_tmp(kIeiGprsTimer3BackOffTimer);
         if ((decoded_result = ie_back_off_timer_value_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
@@ -262,7 +258,6 @@ int DLNASTransport::Decode(uint8_t* buf, int len) {
         decoded_size += decoded_result;
         ie_back_off_timer_value =
             std::optional<GprsTimer3>(ie_back_off_timer_value_tmp);
-
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
@@ -270,5 +265,5 @@ int DLNASTransport::Decode(uint8_t* buf, int len) {
   }
   Logger::nas_mm().debug(
       "Decoded DLNASTransport message len (%d)", decoded_size);
-  return 1;
+  return decoded_size;
 }

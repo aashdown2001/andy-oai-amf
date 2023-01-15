@@ -80,7 +80,7 @@ int Rejected_NSSAI::Encode(uint8_t* buf, int len) {
   uint8_t payload_len = 0;
 
   for (auto n : rejected_nssais) {
-    int size = n.encode2buffer(buf + encoded_size, len - encoded_size);
+    int size = n.Encode(buf + encoded_size, len - encoded_size);
     if (size != KEncodeDecodeError) {
       encoded_size += size;
       payload_len += size;
