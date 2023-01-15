@@ -37,7 +37,7 @@ class DNN : public Type4NasIe {
   ~DNN();
 
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
+  int Decode(uint8_t* buf, int len, bool is_iei);
 
   void SetValue(const bstring& dnn);
   void GetValue(bstring& dnn) const;

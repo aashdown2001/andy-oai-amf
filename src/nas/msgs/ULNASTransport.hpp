@@ -58,7 +58,7 @@ class ULNASTransport : public NasMmPlainHeader {
   void setDNN(bstring dnn);
   bool getDnn(bstring& dnn);
 
-  void SetAdditionalInformation(uint8_t _length, uint8_t value);
+  void SetAdditionalInformation(const bstring& value);
 
   void SetMaPduSessionInformation(uint8_t value);
 
@@ -73,7 +73,7 @@ class ULNASTransport : public NasMmPlainHeader {
   std::optional<RequestType> ie_request_type;                        // Optional
   std::optional<S_NSSAI> ie_s_nssai;                                 // Optional
   std::optional<DNN> ie_dnn;                                         // Optional
-  std::optional<Additional_Information> ie_additional_information;   // Optional
+  std::optional<AdditionalInformation> ie_additional_information;    // Optional
   std::optional<MA_PDU_Session_Information>
       ie_ma_pdu_session_information;  // Optional
   std::optional<Release_Assistance_Indication>

@@ -71,8 +71,8 @@ void DLNASTransport::SetPduSessionId(uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-void DLNASTransport::SetAdditionalInformation(uint8_t _length, uint8_t value) {
-  ie_additional_information = new Additional_Information(0x24, _length, value);
+void DLNASTransport::SetAdditionalInformation(const bstring& value) {
+  ie_additional_information = new AdditionalInformation(value);
 }
 
 //------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ int DLNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
       } break;
       case 0x24: {
         Logger::nas_mm().debug("Decoding IEI (0x24)");
-        ie_additional_information = new Additional_Information();
+        ie_additional_information = new AdditionalInformation();
         decoded_size += ie_additional_information->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);

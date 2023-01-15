@@ -19,35 +19,31 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
+#ifndef _ADDITIONAL_INFORMATION_H_
+#define _ADDITIONAL_INFORMATION_H_
 
-#ifndef __Additional_Information_H_
-#define __Additional_Information_H_
+#include "Type4NasIe.hpp"
 
-#include <stdint.h>
+constexpr uint8_t kAdditionalInformationMinimumLength  = 3;
+constexpr uint16_t kAdditionalInformationMaximumLength = 257;
+constexpr auto kAdditionalInformationIeName = "Additional Information";
 
 namespace nas {
 
-class Additional_Information {
+class AdditionalInformation : public Type4NasIe {
  public:
-  Additional_Information();
-  Additional_Information(uint8_t iei);
-  Additional_Information(const uint8_t iei, uint8_t _length, uint8_t value);
-  ~Additional_Information();
-  void setValue(uint8_t iei, uint8_t value);
+  AdditionalInformation();
+  AdditionalInformation(const bstring& value);
+  ~AdditionalInformation();
+
   int Encode(uint8_t* buf, int len);
-  int Decode(uint8_t* buf, int len, bool is_option);
-  uint8_t getValue();
+  int Decode(uint8_t* buf, int len, bool is_iei);
+
+  void SetValue(const bstring& dnn);
+  void GetValue(bstring& dnn) const;
 
  private:
-  uint8_t _iei;
-  uint8_t length;
-  uint8_t _value;
+  bstring value_;
 };
 
 }  // namespace nas

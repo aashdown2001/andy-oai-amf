@@ -42,7 +42,7 @@ class DLNASTransport {
   void SetPayloadContainer(uint8_t* buf, int len);
 
   void SetPduSessionId(uint8_t value);
-  void SetAdditionalInformation(uint8_t _length, uint8_t value);
+  void SetAdditionalInformation(const bstring& value);
   void Set5gmmCause(uint8_t value);
   void SetBackOffTimerValue(uint8_t unit, uint8_t value);
 
@@ -51,7 +51,7 @@ class DLNASTransport {
   PayloadContainerType* ie_payload_container_type;
   Payload_Container* ie_payload_container;
   PduSessionIdentity2* ie_pdu_session_identity_2;
-  Additional_Information* ie_additional_information;
+  AdditionalInformation* ie_additional_information;
   _5GMM_Cause* ie_5gmm_cause;
   GprsTimer3* ie_back_off_timer_value;
 };

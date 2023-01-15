@@ -29,7 +29,7 @@
 #include "5GSRegistrationType.hpp"
 #include "ABBA.hpp"
 #include "Additional5gSecurityInformation.hpp"
-#include "Additional_Information.hpp"
+#include "AdditionalInformation.hpp"
 #include "AllowedPDUSessionStatus.hpp"
 #include "Authentication_Failure_Parameter.hpp"
 #include "Authentication_Parameter_AUTN.hpp"

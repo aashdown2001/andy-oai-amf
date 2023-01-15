@@ -152,9 +152,8 @@ bool ULNASTransport::getDnn(bstring& dnn) {
 }
 
 //------------------------------------------------------------------------------
-void ULNASTransport::SetAdditionalInformation(uint8_t _length, uint8_t value) {
-  ie_additional_information =
-      std::make_optional<Additional_Information>(0x24, _length, value);
+void ULNASTransport::SetAdditionalInformation(const bstring& value) {
+  ie_additional_information = std::make_optional<AdditionalInformation>(value);
 }
 
 //------------------------------------------------------------------------------
@@ -435,7 +434,7 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
         octet      = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x25: {
+      case kIeiDnn: {
         Logger::nas_mm().debug("Decoding IEI (0x25)");
         DNN ie_dnn_tmp = {};
         if ((decoded_result = ie_dnn_tmp.Decode(
@@ -448,16 +447,16 @@ int ULNASTransport::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-      case 0x24: {
-        Logger::nas_mm().debug("Decoding IEI (0x24)");
-        Additional_Information ie_additional_information_tmp = {};
+      case kIeiAdditionalInformation: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiAdditionalInformation);
+        AdditionalInformation ie_additional_information_tmp = {};
         if ((decoded_result = ie_additional_information_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
           return decoded_result;
         decoded_size += decoded_result;
-        ie_additional_information = std::optional<Additional_Information>(
-            ie_additional_information_tmp);
+        ie_additional_information =
+            std::optional<AdditionalInformation>(ie_additional_information_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
