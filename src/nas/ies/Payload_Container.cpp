@@ -96,12 +96,11 @@ Payload_Container::Payload_Container(
 //------------------------------------------------------------------------------
 Payload_Container::~Payload_Container() {}
 
-/*
 //------------------------------------------------------------------------------
-void Payload_Container::setValue(uint8_t iei, uint8_t value) {
-  _iei = iei;
+void Payload_Container::SetValue(const bstring& cnt) {
+  content = std::optional<bstring>(cnt);
+  SetLengthIndicator(blength(cnt));
 }
-*/
 
 //------------------------------------------------------------------------------
 void Payload_Container::SetValue(

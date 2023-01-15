@@ -26,7 +26,7 @@
 
 namespace nas {
 
-class DLNASTransport {
+class DLNASTransport : public NasMmPlainHeader {
  public:
   DLNASTransport();
   ~DLNASTransport();
@@ -34,7 +34,7 @@ class DLNASTransport {
   void SetHeader(uint8_t security_header_type);
 
   int Encode(uint8_t* buf, int len);
-  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
 
   void SetPayloadContainerType(uint8_t value);
 
@@ -42,18 +42,24 @@ class DLNASTransport {
   void SetPayloadContainer(uint8_t* buf, int len);
 
   void SetPduSessionId(uint8_t value);
+  // TODO: Get
+
   void SetAdditionalInformation(const bstring& value);
+  // TODO: Get
+
   void Set5gmmCause(uint8_t value);
+  // TODO: Get
+
   void SetBackOffTimerValue(uint8_t unit, uint8_t value);
+  // TODO: Get
 
  public:
-  NasMmPlainHeader* plain_header;
-  PayloadContainerType* ie_payload_container_type;
-  Payload_Container* ie_payload_container;
-  PduSessionIdentity2* ie_pdu_session_identity_2;
-  AdditionalInformation* ie_additional_information;
-  _5GMM_Cause* ie_5gmm_cause;
-  GprsTimer3* ie_back_off_timer_value;
+  PayloadContainerType ie_payload_container_type;                  // Mandatory
+  Payload_Container ie_payload_container;                          // Mandatory
+  std::optional<PduSessionIdentity2> ie_pdu_session_identity_2;    // Optional
+  std::optional<AdditionalInformation> ie_additional_information;  // Optional
+  std::optional<_5GMM_Cause> ie_5gmm_cause;                        // Optional
+  std::optional<GprsTimer3> ie_back_off_timer_value;               // Optional
 };
 
 }  // namespace nas
