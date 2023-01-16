@@ -463,14 +463,18 @@ int ULNASTransport::Decode(uint8_t* buf, int len) {
       default: {
         // TODO:
         if (flag) {
-          Logger::nas_mm().debug("Unknown IEI (0x%x)", octet);
-          decoded_size++;
-          return decoded_size;
+          // Logger::nas_mm().debug("Unknown IEI (0x%x)", octet);
+          // decoded_size++;
+          // return decoded_size;
           //*(buf + decoded_size) = 0x00;
           // octet                 = *(buf + decoded_size);
           // Logger::nas_mm().debug("Next IEI (0x%x)", octet);
+
+          Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
+          // Stop decoding
+          octet = 0x00;
         }
-      }
+      } break;
     }
     flag = false;
   }

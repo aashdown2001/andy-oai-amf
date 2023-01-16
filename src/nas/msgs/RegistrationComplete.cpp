@@ -102,11 +102,10 @@ int RegistrationComplete::Decode(
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
       default: {
-        Logger::nas_mm().debug("Unknown IEI");
-        // Stop the decoding process
+        Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
+        // Stop decoding
         octet = 0x00;
-        break;
-      }
+      } break;
     }
   }
   Logger::nas_mm().debug(
