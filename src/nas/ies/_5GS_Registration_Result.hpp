@@ -25,8 +25,9 @@
 #include "Type4NasIe.hpp"
 #include <stdint.h>
 
-constexpr uint8_t k5gsRegistrationResultLength = 3;
-constexpr auto k5gsRegistrationResultIeName    = "5GS Registration Result";
+constexpr uint8_t k5gsRegistrationResultLength        = 3;
+constexpr uint8_t k5gsRegistrationResultContentLength = 1;
+constexpr auto k5gsRegistrationResultIeName = "5GS Registration Result";
 
 namespace nas {
 

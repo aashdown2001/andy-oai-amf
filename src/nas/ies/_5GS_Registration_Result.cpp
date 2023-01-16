@@ -32,7 +32,7 @@ _5GS_Registration_Result::_5GS_Registration_Result() : Type4NasIe() {
   nssaa_performed_      = false;
   sms_allowed_          = false;
   value_                = 0;
-  SetLengthIndicator(k5gsRegistrationResultLength);
+  SetLengthIndicator(k5gsRegistrationResultContentLength);
   SetIeName(k5gsRegistrationResultIeName);
 }
 
@@ -43,7 +43,7 @@ _5GS_Registration_Result::_5GS_Registration_Result(uint8_t iei)
   nssaa_performed_      = false;
   sms_allowed_          = false;
   value_                = 0;
-  SetLengthIndicator(k5gsRegistrationResultLength);
+  SetLengthIndicator(k5gsRegistrationResultContentLength);
   SetIeName(k5gsRegistrationResultIeName);
 }
 
@@ -55,7 +55,7 @@ _5GS_Registration_Result::_5GS_Registration_Result(
   nssaa_performed_      = nssaa;
   sms_allowed_          = sms;
   value_                = value & 0x07;
-  SetLengthIndicator(k5gsRegistrationResultLength);
+  SetLengthIndicator(k5gsRegistrationResultContentLength);
   SetIeName(k5gsRegistrationResultIeName);
 }
 
@@ -67,7 +67,7 @@ _5GS_Registration_Result::_5GS_Registration_Result(
   nssaa_performed_      = nssaa;
   sms_allowed_          = sms;
   value_                = value & 0x07;
-  SetLengthIndicator(k5gsRegistrationResultLength);
+  SetLengthIndicator(k5gsRegistrationResultContentLength);
   SetIeName(k5gsRegistrationResultIeName);
 }
 
