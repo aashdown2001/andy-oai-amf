@@ -23,13 +23,6 @@
 #define _EAP_MESSAGE_H_
 
 #include "Type6NasIe.hpp"
-#include <stdint.h>
-
-extern "C" {
-#include "TLVDecoder.h"
-#include "TLVEncoder.h"
-#include "bstrlib.h"
-}
 
 constexpr uint8_t kEapMessageMinimumLength  = 7;
 constexpr uint16_t kEapMessageMaximumLength = 1503;

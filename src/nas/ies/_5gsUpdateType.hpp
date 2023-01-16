@@ -23,7 +23,6 @@
 #define _5GS_UPDATE_TYPE_H
 
 #include "Type4NasIe.hpp"
-#include <stdint.h>
 
 constexpr uint8_t k5gsUpdateTypeLength = 3;
 constexpr auto k5gsUpdateTypeIeName    = "5GS Update Type";

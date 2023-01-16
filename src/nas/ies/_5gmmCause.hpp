@@ -19,11 +19,10 @@
  *      contact@openairinterface.org
  */
 
-#ifndef __5GMM_Cause_H
-#define __5GMM_Cause_H
+#ifndef __5GMM_CAUSE_H
+#define __5GMM_CAUSE_H
 
 #include "Type3NasIe.hpp"
-#include <stdint.h>
 
 enum class _5gmmCauseEnum {
   kIllegalUE                                       = 0b00000011,

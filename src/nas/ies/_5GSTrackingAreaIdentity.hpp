@@ -24,9 +24,6 @@
 
 #include "Type3NasIe.hpp"
 
-#include <stdint.h>
-#include <string>
-
 constexpr uint8_t k5gsTrackingAreaIdentityLength = 7;
 constexpr auto k5gsTrackingAreaIdentityIeName    = "5GS Tracking Area Identity";
 

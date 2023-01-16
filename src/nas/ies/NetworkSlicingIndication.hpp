@@ -24,8 +24,6 @@
 
 #include "Type1NasIeFormatTv.hpp"
 
-#include <stdint.h>
-
 constexpr uint8_t kNetworkSlicingIndicationLength = 1;
 constexpr auto kNetworkSlicingIndicationIeName = "Network Slicing Indication";
 

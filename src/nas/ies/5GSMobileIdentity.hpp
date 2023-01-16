@@ -24,14 +24,6 @@
 
 #include "Type6NasIe.hpp"
 #include "struct.hpp"
-#include <stdint.h>
-#include <optional>
-
-extern "C" {
-#include "TLVDecoder.h"
-#include "TLVEncoder.h"
-#include "bstrlib.h"
-}
 
 constexpr uint8_t k5gsMobileIdentityIe5gGutiLength  = 11;
 constexpr uint8_t k5gsMobileIdentityIe5gSTmsiLength = 7;

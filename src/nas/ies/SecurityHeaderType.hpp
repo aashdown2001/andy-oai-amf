@@ -23,7 +23,6 @@
 #define _SECURITY_HEADER_TYPE_H_
 
 #include "NasIe.hpp"
-#include <stdint.h>
 
 constexpr uint8_t kSecurityHeaderTypeLength = 1;
 

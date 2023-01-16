@@ -19,21 +19,11 @@
  *      contact@openairinterface.org
  */
 
-#ifndef __Payload_Container_H_
-#define __Payload_Container_H_
-#include <stdint.h>
-
-#include <iostream>
-#include <vector>
+#ifndef _PAYLOAD_CONTAINER_H_
+#define _PAYLOAD_CONTAINER_H_
 
 #include "NasIeHeader.hpp"
 #include "Type6NasIe.hpp"
-
-extern "C" {
-#include "TLVDecoder.h"
-#include "TLVEncoder.h"
-#include "bstrlib.h"
-}
 
 constexpr uint8_t kPayloadContainerMinimumLength  = 4;
 constexpr uint32_t kPayloadContainerMaximumLength = 65538;

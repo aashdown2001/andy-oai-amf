@@ -24,8 +24,6 @@
 
 #include "Type3NasIe.hpp"
 
-#include <stdint.h>
-
 constexpr uint8_t kAuthenticationParameterRandLength = 17;
 constexpr uint8_t kAuthenticationParameterRandValueLength =
     kAuthenticationParameterRandLength - 1;

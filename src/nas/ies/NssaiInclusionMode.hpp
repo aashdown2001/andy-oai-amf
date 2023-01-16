@@ -23,7 +23,6 @@
 #define _NSSAI_INCLUSION_MODE_H
 
 #include "Type1NasIeFormatTv.hpp"
-#include <stdint.h>
 
 constexpr uint8_t kNssaiInclusionModeLength = 1;
 constexpr auto kNssaiInclusionModeIeName    = "NSSAI Inclusion Mode";

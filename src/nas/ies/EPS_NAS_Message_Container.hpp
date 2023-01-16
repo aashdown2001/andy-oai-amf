@@ -23,13 +23,6 @@
 #define _EPS_NAS_MESSAGE_CONTAINER_H_
 
 #include "Type6NasIe.hpp"
-#include <stdint.h>
-
-extern "C" {
-#include "TLVDecoder.h"
-#include "TLVEncoder.h"
-#include "bstrlib.h"
-}
 
 constexpr auto kEpsNasMessageContainerIeName = "EPS NAS Message Container";
 

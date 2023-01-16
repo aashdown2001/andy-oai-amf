@@ -24,8 +24,6 @@
 
 #include "Type4NasIe.hpp"
 
-#include <stdint.h>
-
 constexpr uint8_t k5gsDrxParametersLength = 3;
 constexpr auto k5gsDrxParametersIeName    = "5GS DRX Parameters";
 

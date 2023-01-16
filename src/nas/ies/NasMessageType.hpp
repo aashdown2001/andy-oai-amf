@@ -23,7 +23,6 @@
 #define _MESSAGE_TYPE_H_
 
 #include "NasIe.hpp"
-#include <stdint.h>
 
 constexpr uint8_t kNasMessageTypeIeSize = 1;
 

@@ -23,7 +23,6 @@
 #define _5GS_NETWORK_FEATURE_SUPPORT_H
 
 #include "Type4NasIe.hpp"
-#include <stdint.h>
 
 constexpr uint8_t k5gsNetworkFeatureSupportMinimumLength = 3;
 constexpr uint8_t k5gsNetworkFeatureSupportMaximumLength = 5;

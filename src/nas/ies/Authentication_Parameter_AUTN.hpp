@@ -23,8 +23,6 @@
 
 #include "Type4NasIe.hpp"
 
-#include <stdint.h>
-
 constexpr uint8_t kAuthenticationParameterAutnLength = 18;
 constexpr uint8_t kAuthenticationParameterAutnValueLength =
     kAuthenticationParameterAutnLength - 2;

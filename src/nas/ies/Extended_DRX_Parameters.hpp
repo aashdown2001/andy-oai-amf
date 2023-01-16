@@ -23,7 +23,6 @@
 #define _EXTENDED_DRX_PARAMETERS_H_
 
 #include "Type4NasIe.hpp"
-#include <stdint.h>
 
 constexpr uint8_t kExtendedDrxParametersLength = 3;
 constexpr auto kExtendedDrxParametersIeName    = "Extended DRX Parameters";

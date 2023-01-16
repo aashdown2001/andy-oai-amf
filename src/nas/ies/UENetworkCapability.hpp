@@ -24,8 +24,6 @@
 
 #include "Type4NasIe.hpp"
 
-#include <stdint.h>
-
 constexpr uint8_t kUeNetworkCapabilityMinimumLength = 4;
 constexpr uint8_t kUeNetworkCapabilityMaximumLength = 15;
 constexpr auto kUeNetworkCapabilityIeName = "S1 UE Network Capability";

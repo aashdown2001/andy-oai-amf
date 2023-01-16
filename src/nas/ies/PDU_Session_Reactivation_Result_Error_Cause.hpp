@@ -23,8 +23,6 @@
 #define _PDU_SESSION_REACTIVATION_RESULT_ERROR_CAUSE_H_
 
 #include "Type6NasIe.hpp"
-#include <stdint.h>
-#include <vector>
 
 constexpr uint8_t kPduSessionReactivationResultErrorCauseMinimumLength  = 5;
 constexpr uint32_t kPduSessionReactivationResultErrorCauseMaximumLength = 515;

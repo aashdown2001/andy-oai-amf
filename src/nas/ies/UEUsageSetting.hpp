@@ -24,8 +24,6 @@
 
 #include "Type4NasIe.hpp"
 
-#include <stdint.h>
-
 constexpr uint8_t kUeUsageSettingLength = 3;
 constexpr auto kUeUsageSettingIeName    = "UE's Usage Setting";
 

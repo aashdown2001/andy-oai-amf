@@ -24,8 +24,6 @@
 
 #include "Type4NasIe.hpp"
 
-#include <stdint.h>
-
 constexpr uint8_t kGprsTimer2Length = 3;
 constexpr auto kGprsTimer2IeName    = "GPRS Timer 2";
 

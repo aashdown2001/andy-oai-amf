@@ -23,7 +23,6 @@
 #define _5GS_REGISTRATION_RESULT_H_
 
 #include "Type4NasIe.hpp"
-#include <stdint.h>
 
 constexpr uint8_t k5gsRegistrationResultLength        = 3;
 constexpr uint8_t k5gsRegistrationResultContentLength = 1;

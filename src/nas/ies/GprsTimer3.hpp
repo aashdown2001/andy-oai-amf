@@ -23,7 +23,6 @@
 #define _GPRS_TIMER_3_H_
 
 #include "Type4NasIe.hpp"
-#include <stdint.h>
 
 constexpr uint8_t kGprsTimer3Length = 3;
 constexpr auto kGprsTimer3IeName    = "GPRS Timer 3";

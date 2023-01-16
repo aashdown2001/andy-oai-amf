@@ -23,7 +23,6 @@
 #define _NON_3GPP_NW_PROVIDED_POLICIES_H
 
 #include "Type1NasIeFormatTv.hpp"
-#include <stdint.h>
 
 constexpr uint8_t kNon3gppNwProvidedPoliciesLength = 1;
 constexpr auto kNon3gppNwProvidedPoliciesIeName =

@@ -24,8 +24,6 @@
 
 #include "Type1NasIeFormatTv.hpp"
 
-#include <stdint.h>
-
 constexpr uint8_t kPayloadContainerTypeLength = 1;
 constexpr auto kPayloadContainerTypeIeName    = "Payload Container Type";
 

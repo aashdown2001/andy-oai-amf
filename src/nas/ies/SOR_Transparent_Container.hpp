@@ -22,7 +22,6 @@
 #define _SOR_TRANSPARENT_CONTAINER_H_
 
 #include "Type6NasIe.hpp"
-#include <stdint.h>
 
 constexpr uint8_t kSorTransparentContainerMinimumLength   = 20;
 constexpr uint8_t kSorTransparentContainerIeMinimumLength = 17;

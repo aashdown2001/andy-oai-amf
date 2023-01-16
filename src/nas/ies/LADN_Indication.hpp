@@ -24,15 +24,6 @@
 
 #include "Type6NasIe.hpp"
 
-#include <stdint.h>
-#include <iostream>
-#include <vector>
-
-extern "C" {
-#include "TLVDecoder.h"
-#include "TLVEncoder.h"
-#include "bstrlib.h"
-}
 using namespace std;
 
 constexpr uint8_t kLadnIndicationMinimumLength  = 3;

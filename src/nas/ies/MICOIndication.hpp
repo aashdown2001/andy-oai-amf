@@ -23,7 +23,6 @@
 #define _MICO_INDICATION_H
 
 #include "Type1NasIeFormatTv.hpp"
-#include <stdint.h>
 
 constexpr uint8_t kMicoIndicationIELength = 1;
 constexpr auto kMicoIndicationIeName      = "MICO Indication";

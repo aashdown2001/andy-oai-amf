@@ -23,7 +23,6 @@
 #define _UE_STATUS_H_
 
 #include "Type4NasIe.hpp"
-#include <stdint.h>
 
 constexpr uint8_t kUeStatusIeLength = 3;
 constexpr auto kUeStatusIeName      = "UE Status";
