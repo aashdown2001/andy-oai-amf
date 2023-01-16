@@ -148,6 +148,7 @@ int AuthenticationResponse::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiEapMessage: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiEapMessage);
         EapMessage ie_eap_message_tmp = {};
@@ -156,6 +157,11 @@ int AuthenticationResponse::Decode(uint8_t* buf, int len) {
         ie_eap_message = std::optional<EapMessage>(ie_eap_message_tmp);
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
+      } break;
+      default: {
+        Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
+        // Stop decoding
+        octet = 0x00;
       } break;
     }
   }

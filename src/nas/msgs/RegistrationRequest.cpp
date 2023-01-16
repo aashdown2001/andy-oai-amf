@@ -895,9 +895,9 @@ int RegistrationRequest::Decode(uint8_t* buf, int len) {
             ie_network_slicing_indication_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
-
       } break;
     }
+
     switch (octet) {
       case kIei5gmmCapability: {
         Logger::nas_mm().debug("Decoding 5GMMCapability (IEI 0x10)");
@@ -1091,6 +1091,7 @@ int RegistrationRequest::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
+        // TODO: Default
     }
   }
   Logger::nas_mm().debug(

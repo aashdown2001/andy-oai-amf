@@ -279,6 +279,7 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
     }
+
     switch (octet) {
       case kIeiEpsNasSecurityAlgorithms: {
         Logger::nas_mm().debug(
@@ -295,6 +296,7 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiAdditional5gSecurityInformation: {
         Logger::nas_mm().debug(
             "decoding IEI 0x%x", kIeiAdditional5gSecurityInformation);
@@ -311,6 +313,7 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiEapMessage: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiEapMessage);
         EapMessage ie_eap_message_tmp = {};
@@ -323,6 +326,7 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiAbba: {
         Logger::nas_mm().debug("decoding IEI (0x38)");
         ABBA ie_abba_tmp = {};
@@ -335,6 +339,7 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
         octet   = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case 0x19: {
         Logger::nas_mm().debug("decoding IEI (0x19)");
         S1UeSecurityCapability ie_s1_ue_security_capability_tmp = {};
@@ -348,6 +353,7 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+        // TODO: Default
     }
   }
   Logger::nas_mm().debug(

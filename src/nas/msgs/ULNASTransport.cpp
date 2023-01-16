@@ -348,6 +348,7 @@ int ULNASTransport::Decode(uint8_t* buf, int len) {
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
   bool flag = false;
+
   while ((octet != 0x0)) {
     switch ((octet & 0xf0) >> 4) {
       case kIeiRequestType: {
@@ -362,6 +363,7 @@ int ULNASTransport::Decode(uint8_t* buf, int len) {
         octet           = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiMaPduSessionInformation: {
         Logger::nas_mm().debug("Decoding IEI (0xA)");
         MaPduSessionInformation ie_ma_pdu_session_information_tmp = {};
@@ -375,6 +377,7 @@ int ULNASTransport::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiReleaseAssistanceIndication: {
         Logger::nas_mm().debug(
             "Decoding IEI 0x%x", kIeiReleaseAssistanceIndication);
@@ -390,10 +393,12 @@ int ULNASTransport::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       default: {
         flag = true;
       }
     }
+
     switch (octet) {
       case kIeiPduSessionId: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiPduSessionId);
@@ -408,6 +413,7 @@ int ULNASTransport::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiOldPduSessionId: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiOldPduSessionId);
         PduSessionIdentity2 ie_old_pdu_session_identity_2_tmp = {};
@@ -421,6 +427,7 @@ int ULNASTransport::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiSNssai: {
         Logger::nas_mm().debug("Decoding IEI (0x22)");
         auto s_nssai_ie = std::optional<uint8_t>(kIeiSNssai);
@@ -434,6 +441,7 @@ int ULNASTransport::Decode(uint8_t* buf, int len) {
         octet      = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiDnn: {
         Logger::nas_mm().debug("Decoding IEI (0x25)");
         DNN ie_dnn_tmp = {};
@@ -447,6 +455,7 @@ int ULNASTransport::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiAdditionalInformation: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiAdditionalInformation);
         AdditionalInformation ie_additional_information_tmp = {};
@@ -460,16 +469,10 @@ int ULNASTransport::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       default: {
         // TODO:
         if (flag) {
-          // Logger::nas_mm().debug("Unknown IEI (0x%x)", octet);
-          // decoded_size++;
-          // return decoded_size;
-          //*(buf + decoded_size) = 0x00;
-          // octet                 = *(buf + decoded_size);
-          // Logger::nas_mm().debug("Next IEI (0x%x)", octet);
-
           Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
           // Stop decoding
           octet = 0x00;

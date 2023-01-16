@@ -321,6 +321,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_tai_list.has_value()) {
     Logger::nas_mm().warn("IE ie_tai_list is not available");
   } else {
@@ -333,6 +334,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_equivalent_plmns.has_value()) {
     Logger::nas_mm().warn("IE ie_equivalent_plmns is not available");
   } else {
@@ -344,6 +346,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_allowed_nssai.has_value()) {
     Logger::nas_mm().warn("IE ie_allowed_nssai is not available");
   } else {
@@ -355,6 +358,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_rejected_nssai.has_value()) {
     Logger::nas_mm().warn("IE ie_rejected_nssai is not available");
   } else {
@@ -365,6 +369,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       Logger::nas_mm().error("Encoding ie_rejected_nssai error");
     }
   }
+
   if (!ie_configured_nssai.has_value()) {
     Logger::nas_mm().warn("IE ie_configured_nssai is not available");
   } else {
@@ -376,6 +381,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_5gs_network_feature_support.has_value()) {
     Logger::nas_mm().warn("IE ie_5gs_network_feature_support is not available");
   } else {
@@ -387,6 +393,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_PDU_session_status.has_value()) {
     Logger::nas_mm().warn("IE ie_PDU_session_status is not available");
   } else {
@@ -398,6 +405,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_pdu_session_reactivation_result.has_value()) {
     Logger::nas_mm().warn(
         "IE ie_pdu_session_reactivation_result is not available");
@@ -411,6 +419,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_pdu_session_reactivation_result_error_cause.has_value()) {
     Logger::nas_mm().warn(
         "IE ie_pdu_session_reactivation_result_error_cause is not available");
@@ -437,6 +446,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }*/
+
   if (!ie_MICO_indication.has_value()) {
     Logger::nas_mm().warn("IE ie_MICO_indication is not available");
   } else {
@@ -448,6 +458,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_network_slicing_indication.has_value()) {
     Logger::nas_mm().warn("IE ie_network_slicing_indication is not available");
   } else {
@@ -459,6 +470,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_T3512_value.has_value()) {
     Logger::nas_mm().warn("IE ie_T3512_value is not available");
   } else {
@@ -470,6 +482,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_Non_3GPP_de_registration_timer_value.has_value()) {
     Logger::nas_mm().warn(
         "IE ie_Non_3GPP_de_registration_timer_value is not available");
@@ -483,6 +496,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_T3502_value.has_value()) {
     Logger::nas_mm().warn("IE ie_T3502_value is not available");
   } else {
@@ -494,6 +508,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_sor_transparent_container.has_value()) {
     Logger::nas_mm().warn("IE ie_sor_transparent_container is not available");
   } else {
@@ -505,6 +520,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_eap_message.has_value()) {
     Logger::nas_mm().warn("IE ie_eap_message is not available");
   } else {
@@ -516,6 +532,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_nssai_inclusion_mode.has_value()) {
     Logger::nas_mm().warn("IE ie_nssai_inclusion_mode is not available");
   } else {
@@ -527,6 +544,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_negotiated_drx_parameters.has_value()) {
     Logger::nas_mm().warn("IE ie_negotiated_drx_parameters is not available");
   } else {
@@ -538,6 +556,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_non_3gpp_nw_policies.has_value()) {
     Logger::nas_mm().warn("IE ie_non_3gpp_nw_policies is not available");
   } else {
@@ -549,6 +568,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_eps_bearer_context_status.has_value()) {
     Logger::nas_mm().warn("IE ie_eps_bearer_context_status is not available");
   } else {
@@ -560,6 +580,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_extended_drx_parameters.has_value()) {
     Logger::nas_mm().warn("IE ie_extended_drx_parameters is not available");
   } else {
@@ -571,6 +592,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_T3447_value.has_value()) {
     Logger::nas_mm().warn("IE ie_T3447_value is not available");
   } else {
@@ -582,6 +604,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_T3448_value.has_value()) {
     Logger::nas_mm().warn("IE ie_T3448_value is not available");
   } else {
@@ -593,6 +616,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_T3324_value.has_value()) {
     Logger::nas_mm().warn("IE ie_T3324_value is not available");
   } else {
@@ -604,6 +628,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_ue_radio_capability_id.has_value()) {
     Logger::nas_mm().warn("IE ie_ue_radio_capability_id is not available");
   } else {
@@ -615,6 +640,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   if (!ie_pending_nssai.has_value()) {
     Logger::nas_mm().warn("IE ie_pending_nssai is not available");
   } else {
@@ -626,6 +652,7 @@ int RegistrationAccept::Encode(uint8_t* buf, int len) {
       return 0;
     }
   }
+
   Logger::nas_mm().debug(
       "Encoded RegistrationAccept message len (%d)", encoded_size);
   return encoded_size;
@@ -653,6 +680,7 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiNetworkSlicingIndication: {
         Logger::nas_mm().debug(
             "Decoding IEI 0x%x9", kIeiNetworkSlicingIndication);
@@ -664,6 +692,7 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case 0xA: {
         Logger::nas_mm().debug("Decoding IEI (0xA)");
         NssaiInclusionMode ie_nssai_inclusion_mode_tmp = {};
@@ -674,6 +703,7 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case 0xD: {
         Logger::nas_mm().debug("Decoding IEI (0xD)");
         Non_3GPP_NW_Provided_Policies ie_non_3gpp_nw_policies_tmp = {};
@@ -685,6 +715,7 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
     }
+
     switch (octet) {
       case 0x77: {
         Logger::nas_mm().debug("Decoding IEI (0x77)");

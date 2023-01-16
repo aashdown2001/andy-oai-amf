@@ -171,6 +171,7 @@ int RegistrationReject::Decode(
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kT3502Value: {
         Logger::nas_mm().debug("Decoding IEI 0x16: T3502 Value");
         GprsTimer2 ie_T3502_value_tmp(kT3502Value);
@@ -180,6 +181,7 @@ int RegistrationReject::Decode(
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiEapMessage: {
         Logger::nas_mm().debug("Decoding IEI 0x78: EAP Message");
         EapMessage ie_eap_message_tmp = {};
@@ -189,6 +191,7 @@ int RegistrationReject::Decode(
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiRejectedNssaiRr: {
         Logger::nas_mm().debug("Decoding IEI 0x69: Rejected NSSAI");
         Rejected_NSSAI ie_rejected_nssai_tmp = {};
@@ -198,6 +201,11 @@ int RegistrationReject::Decode(
             std::optional<Rejected_NSSAI>(ie_rejected_nssai_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
+      } break;
+      default: {
+        Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
+        // Stop decoding
+        octet = 0x00;
       } break;
     }
   }

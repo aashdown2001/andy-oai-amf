@@ -231,6 +231,7 @@ int ServiceRequest::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiPduSessionStatus: {
         Logger::nas_mm().debug(
             "Decoding ie_PDU_session_status (IEI 0x%x)", kIeiPduSessionStatus);
@@ -245,6 +246,7 @@ int ServiceRequest::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiAllowedPduSessionStatus: {
         Logger::nas_mm().debug(
             "Decoding ie_allowed_PDU_session_status, IEI 0x%x",
@@ -260,6 +262,7 @@ int ServiceRequest::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiNasMessageContainer: {
         Logger::nas_mm().debug("Decoding ie_nas_message_container(IEI: 0x71)");
         NasMessageContainer ie_nas_message_container_tmp = {};
@@ -273,6 +276,7 @@ int ServiceRequest::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       default: {
         Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
         // Stop decoding

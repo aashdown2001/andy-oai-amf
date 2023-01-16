@@ -19,11 +19,11 @@
  *      contact@openairinterface.org
  */
 
-#include "../ies/5GSMobileIdentity.hpp"
-#include "../ies/MICOIndication.hpp"
-#include "../ies/NetworkSlicingIndication.hpp"
-#include "../ies/PDUSessionStatus.hpp"
-#include "../ies/UEStatus.hpp"
+#include "5GSMobileIdentity.hpp"
+#include "MICOIndication.hpp"
+#include "NetworkSlicingIndication.hpp"
+#include "PDUSessionStatus.hpp"
+#include "UEStatus.hpp"
 #include "NasMmPlainHeader.hpp"
 #include "5GMMCapability.hpp"
 #include "5GSRegistrationType.hpp"

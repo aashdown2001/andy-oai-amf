@@ -197,6 +197,7 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
+
       case kIeiAuthenticationParameterAutn: {
         Authentication_Parameter_AUTN ie_authentication_parameter_autn_tmp = {};
         if ((decoded_result = ie_authentication_parameter_autn_tmp.Decode(
@@ -210,6 +211,7 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
+
       case kIeiEapMessage: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiEapMessage);
         EapMessage ie_eap_message_tmp = {};

@@ -146,8 +146,6 @@ constexpr uint8_t kIeiSorTransparentContainer                = 0x73;
 constexpr uint8_t kIeiLadnIndication                         = 0x74;
 constexpr uint8_t kIeiLadnInformation                        = 0x79;
 constexpr uint8_t kIei5gGuti                                 = 0x77;
-// constexpr uint8_t kIeiImeisv                                 = 0x77;
-// constexpr uint8_t kIeiNonImeisvPei                           = 0x78;
 
 constexpr uint8_t kIeiEapMessage       = 0x78;
 constexpr uint8_t kIeiPayloadContainer = 0x7b;

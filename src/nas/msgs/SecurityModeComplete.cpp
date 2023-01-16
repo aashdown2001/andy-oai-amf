@@ -182,6 +182,7 @@ int SecurityModeComplete::Decode(uint8_t* buf, int len) {
         decoded_size += decoded_result;
         ie_imeisv = std::optional<_5GSMobileIdentity>(ie_imeisv_tmp);
       } break;
+
       case kIeiNasMessageContainer: {
         Logger::nas_mm().debug("Decoding IEI (0x71)");
         NasMessageContainer ie_nas_message_container_tmp = {};
@@ -193,6 +194,7 @@ int SecurityModeComplete::Decode(uint8_t* buf, int len) {
         ie_nas_message_container =
             std::optional<NasMessageContainer>(ie_nas_message_container_tmp);
       } break;
+
       case kIei5gsMobileIdentityNonImeiSvPei: {
         Logger::nas_mm().debug("Decoding IEI (0x78)");
         _5GSMobileIdentity ie_non_imeisvpei_tmp = {};
@@ -204,9 +206,10 @@ int SecurityModeComplete::Decode(uint8_t* buf, int len) {
         ie_non_imeisvpei =
             std::optional<_5GSMobileIdentity>(ie_non_imeisvpei_tmp);
       } break;
+
       default: {
-        Logger::nas_mm().debug("Unexpected IEI (0x%x)", octet);
-        return TLV_UNEXPECTED_IEI;
+        Logger::nas_mm().warn("Unexpected IEI (0x%x)", octet);
+        return decoded_size;
       }
     }
   }

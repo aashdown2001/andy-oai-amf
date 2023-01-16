@@ -152,6 +152,11 @@ int AuthenticationResult::Decode(uint8_t* buf, int len) {
         octet   = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+      default: {
+        Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
+        // Stop decoding
+        octet = 0x00;
+      } break;
     }
   }
   Logger::nas_mm().debug(

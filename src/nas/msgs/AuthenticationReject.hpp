@@ -37,6 +37,7 @@ class AuthenticationReject : public NasMmPlainHeader {
   int Decode(uint8_t* buf, int len);
 
   void SetEapMessage(const bstring& eap);
+  // TODO: Get
 
  public:
   std::optional<EapMessage> ie_eap_message;

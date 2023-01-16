@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "ServiceAccept.hpp"
 
 #include "3gpp_24.501.hpp"
@@ -187,7 +180,7 @@ int ServiceAccept::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
   while ((octet != 0x0)) {
     Logger::nas_mm().debug("Decoding IEI 0x%x", octet);
-    switch ((octet & 0xf0) >> 4) {
+    switch (octet) {
       case kIeiPduSessionStatus: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiPduSessionStatus);
         PDUSessionStatus ie_PDU_session_status_tmp = {};
@@ -201,6 +194,7 @@ int ServiceAccept::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiPduSessionReactivationResult: {
         Logger::nas_mm().debug(
             "Decoding IEI 0x%x", kIeiPduSessionReactivationResult);
@@ -217,6 +211,7 @@ int ServiceAccept::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiPduSessionReactivationResultErrorCause: {
         Logger::nas_mm().debug("Decoding IEI (0x72)");
         PDU_Session_Reactivation_Result_Error_Cause
@@ -233,6 +228,7 @@ int ServiceAccept::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiEapMessage: {
         Logger::nas_mm().debug("Decoding IEI (0x78)");
         EapMessage ie_eap_message_tmp = {};
@@ -245,6 +241,7 @@ int ServiceAccept::Decode(uint8_t* buf, int len) {
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiGprsTimer3T3348: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiGprsTimer3T3348);
         GprsTimer3 ie_T3448_value_tmp(kIeiGprsTimer3T3348);
@@ -257,6 +254,7 @@ int ServiceAccept::Decode(uint8_t* buf, int len) {
         octet          = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       default: {
         Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
         // Stop decoding

@@ -167,6 +167,7 @@ int ConfigurationUpdateCommand::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       case kIeiShortNameForNetwork: {
         Logger::nas_mm().debug("Decoding IEI 0x45: Short Name for Network");
         NetworkName short_name_for_network_tmp = {};
@@ -179,6 +180,12 @@ int ConfigurationUpdateCommand::Decode(uint8_t* buf, int len) {
             std::optional<NetworkName>(short_name_for_network_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
+      } break;
+
+      default: {
+        Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
+        // Stop decoding
+        octet = 0x00;
       } break;
     }
   }
