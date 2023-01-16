@@ -2558,7 +2558,8 @@ void amf_n1::security_mode_complete_handle(
   Logger::amf_n1().debug("Allocated GUTI %s", guti.c_str());
 
   // TODO: remove hardcoded values
-  registration_accept->set_5GS_Network_Feature_Support(0x01, 0x00);
+  registration_accept->set_5GS_Network_Feature_Support(
+      0x00, 0x00);  // disable/enable IMS here
   // registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size =
@@ -3477,7 +3478,8 @@ void amf_n1::run_periodic_registration_update_procedure(
         "PDU Session Status 0x%02x", htonl(pdu_session_status));
   }
 
-  reg_accept->set_5GS_Network_Feature_Support(0x01, 0x00);
+  reg_accept->set_5GS_Network_Feature_Support(
+      0x00, 0x00);  // Disable/enable IMS here
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = reg_accept->encode2buffer(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
@@ -3548,7 +3550,8 @@ void amf_n1::run_periodic_registration_update_procedure(
         "PDU Session Status 0x%02x", htonl(pdu_session_status));
   }
 
-  reg_accept->set_5GS_Network_Feature_Support(0x01, 0x00);
+  reg_accept->set_5GS_Network_Feature_Support(
+      0x00, 0x00);  // Disable/enable IMS here
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = reg_accept->encode2buffer(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
