@@ -37,7 +37,7 @@ class SecurityModeReject : public NasMmPlainHeader {
   int Decode(uint8_t* buf, int len);
 
   void Set5gmmCause(uint8_t value);
-  // Get
+  // TODO: Get
 
  public:
   _5gmmCause ie_5gmm_cause;  // Mandatory

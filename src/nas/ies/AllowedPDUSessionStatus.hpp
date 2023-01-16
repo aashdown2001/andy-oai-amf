@@ -24,8 +24,6 @@
 
 #include "Type4NasIe.hpp"
 
-#include <stdint.h>
-
 constexpr uint8_t kAllowedPDUSessionStatusMinimumLength = 4;
 constexpr uint8_t kAllowedPDUSessionStatusMaximumLength = 34;
 constexpr auto kAllowedPDUSessionStatusIeName = "Allowed PDU Session Status";

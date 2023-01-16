@@ -23,7 +23,6 @@
 #define _PDU_SESSION_STATUS_H_
 
 #include "Type4NasIe.hpp"
-#include <stdint.h>
 
 constexpr uint8_t kPduSessionStatusMinimumLength = 4;
 constexpr uint8_t kPduSessionStatusMaximumLength = 34;

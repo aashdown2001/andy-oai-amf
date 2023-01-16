@@ -23,13 +23,6 @@
 #define _NAS_MESSAGE_CONTAINER_H_
 
 #include "Type6NasIe.hpp"
-#include <stdint.h>
-
-extern "C" {
-#include "TLVDecoder.h"
-#include "TLVEncoder.h"
-#include "bstrlib.h"
-}
 
 constexpr uint8_t kNasMessageContainerMinimumLength  = 3;
 constexpr uint32_t kNasMessageContainerMaximumLength = 65535;

@@ -24,8 +24,6 @@
 
 #include "Type4NasIe.hpp"
 
-#include <stdint.h>
-
 constexpr uint8_t kUplinkDataStatusMinimumLength = 4;
 constexpr uint8_t kUplinkDataStatusMaximumLength = 34;
 constexpr auto kUplinkDataStatusIeName           = "Uplink Data Status";
