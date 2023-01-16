@@ -27,13 +27,16 @@
 using namespace std;
 namespace nas {
 
-class DeregistrationRequest {
+class DeregistrationRequest : public NasMmPlainHeader {
  public:
-  DeregistrationRequest();
+  DeregistrationRequest(bool is_ue_originating);
   ~DeregistrationRequest();
+
   int Encode(uint8_t* buf, int len);
-  int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
+
   void SetHeader(uint8_t security_header_type);
+
   void setDeregistrationType(uint8_t dereg_type);
   void setDeregistrationType(_5gs_deregistration_type_t type);
   void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
@@ -57,10 +60,9 @@ class DeregistrationRequest {
   bool getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi);
 
  public:
-  NasMmPlainHeader* plain_header;
-  _5GSDeregistrationType* ie_deregistrationtype;
-  NasKeySetIdentifier* ie_ngKSI;
-  _5GSMobileIdentity* ie_5gs_mobility_id;
+  _5GSDeregistrationType ie_deregistrationtype;  // Mandatory
+  NasKeySetIdentifier ie_ngKSI;                  // Mandatory
+  _5GSMobileIdentity ie_5gs_mobility_id;         // Mandatory
 };
 
 }  // namespace nas

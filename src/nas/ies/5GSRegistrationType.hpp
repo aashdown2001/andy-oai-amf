@@ -24,7 +24,6 @@
 
 #include "Type1NasIeFormatTv.hpp"
 
-#include <stdint.h>
 constexpr auto k5gsRegistrationTypeName = "5GS Registration Type";
 
 namespace nas {

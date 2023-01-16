@@ -3011,8 +3011,9 @@ void amf_n1::ue_initiate_de_registration_handle(
   }
 
   // Decode NAS message
-  auto dereg_request = std::make_unique<DeregistrationRequest>();
-  dereg_request->Decode(NULL, (uint8_t*) bdata(nas), blength(nas));
+  auto dereg_request = std::make_unique<DeregistrationRequest>(
+      true);  // UE originating de-registration
+  dereg_request->Decode((uint8_t*) bdata(nas), blength(nas));
 
   // TODO: validate 5G Mobile Identity
   uint8_t mobile_id_type = 0;

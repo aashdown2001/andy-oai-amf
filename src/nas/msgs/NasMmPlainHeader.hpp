@@ -33,6 +33,7 @@ namespace nas {
 class NasMmPlainHeader {
  public:
   NasMmPlainHeader(){};
+  NasMmPlainHeader(const uint8_t& epd);
   NasMmPlainHeader(const uint8_t& epd, const uint8_t& msg_type);
   virtual ~NasMmPlainHeader();
 

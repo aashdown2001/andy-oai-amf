@@ -27,6 +27,9 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
+NasMmPlainHeader::NasMmPlainHeader(const uint8_t& epd) : epd_(epd) {}
+
+//------------------------------------------------------------------------------
 NasMmPlainHeader::NasMmPlainHeader(const uint8_t& epd, const uint8_t& msg_type)
     : epd_(epd), msg_type_(msg_type) {}
 
