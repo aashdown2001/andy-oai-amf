@@ -264,6 +264,7 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
   uint8_t octet = *(buf + decoded_size);
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
+  bool flag = false;
   while ((octet != 0x0)) {
     switch ((octet & 0xf0) >> 4) {
       case kIeiImeisvRequest: {
@@ -278,6 +279,9 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
         octet             = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+      default: {
+        flag = true;
+      }
     }
 
     switch (octet) {
@@ -353,7 +357,15 @@ int SecurityModeCommand::Decode(uint8_t* buf, int len) {
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
-        // TODO: Default
+
+      default: {
+        // TODO:
+        if (flag) {
+          Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
+          // Stop decoding
+          octet = 0x00;
+        }
+      } break;
     }
   }
   Logger::nas_mm().debug(
