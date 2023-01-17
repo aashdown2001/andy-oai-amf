@@ -126,6 +126,12 @@ int Rejected_SNSSAI::encode2buffer(uint8_t* buf, int len) {
   Logger::nas_mm().debug("SST %d", sst_);
   if (sd_.has_value()) {
     ENCODE_U24(buf + encoded_size, sd_.value(), encoded_size);
+    /*ENCODE_U8(
+        buf + encoded_size, (sd_.value() & 0x00ff0000) >> 16, encoded_size);
+    ENCODE_U8(
+        buf + encoded_size, (sd_.value() & 0x0000ff00) >> 8, encoded_size);
+    ENCODE_U8(buf + encoded_size, (sd_.value() & 0x000000ff), encoded_size);
+    */
     Logger::nas_mm().debug("SD 0x%x", sd_.value());
   }
   Logger::nas_mm().debug("Encoded Rejected_SNSSAI (len %d)", encoded_size);
@@ -147,10 +153,10 @@ int Rejected_SNSSAI::decodefrombuffer(uint8_t* buf, int len) {
         cause_, sst_);
   } else if (length_ == 4) {
     uint32_t sd = 0;
-    DECODE_U8(buf + decoded_size, sd, decoded_size);
+    DECODE_U24(buf + decoded_size, sd, decoded_size);
     sd_ = std::optional<uint32_t>(sd);
     Logger::nas_mm().debug(
-        "Decoded Rejected_SNSSAI length 0x%x,cause 0x%x, SST 0x%x, SD 0x%x",
+        "Decoded Rejected_SNSSAI length 0x%x, cause 0x%x, SST 0x%x, SD 0x%x",
         length_, cause_, sst_, sd);
   } else {
     return -1;  // invalid value
