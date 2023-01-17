@@ -4128,6 +4128,16 @@ void amf_n1::initialize_registration_accept(
       requested_nssai.push_back(ss.second);
   }
 
+  // Allowed NSSAI
+  for (auto s : common_nssais) {
+    SNSSAI_t snssai = {};
+    snssai.sst      = s.sst;
+    snssai.sd       = s.sd;
+    Logger::amf_n1().debug("Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
+    allowed_nssais.push_back(snssai);
+  }
+
+  // Rejected NSSAIs
   for (auto rn : requested_nssai) {
     bool found = false;
 
@@ -4142,9 +4152,9 @@ void amf_n1::initialize_registration_accept(
         } else {
           snssai.length = SST_LENGTH + SD_LENGTH;
         }
-        Logger::amf_n1().debug(
-            "Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
-        allowed_nssais.push_back(snssai);
+        //        Logger::amf_n1().debug(
+        //            "Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
+        //        allowed_nssais.push_back(snssai);
         found = true;
         break;
       } else {
