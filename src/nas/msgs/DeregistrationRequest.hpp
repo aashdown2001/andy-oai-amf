@@ -38,26 +38,33 @@ class DeregistrationRequest : public NasMmPlainHeader {
   void SetHeader(uint8_t security_header_type);
 
   void setDeregistrationType(uint8_t dereg_type);
+  void getDeregistrationType(uint8_t& dereg_type);
+
   void setDeregistrationType(_5gs_deregistration_type_t type);
+  void getDeregistrationType(_5gs_deregistration_type_t& type);
+
   void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
+  bool getngKSI(uint8_t& ng_ksi);
 
   void setMobilityIdentityType(uint8_t type);
+  void getMobilityIdentityType(uint8_t& type);
+
   void SetSuciSupiFormatImsi(
       const string mcc, const string mnc, const string routingInd,
       uint8_t protection_sch_id, const string msin);
   void SetSuciSupiFormatImsi(
       const string mcc, const string mnc, const string routingInd,
       uint8_t protection_sch_id, uint8_t hnpki, const string msin);
-  void Set5gGuti();
-  void SetImeiImeisv();
-  void Set5gSTmsi();
-
-  void getDeregistrationType(uint8_t& dereg_type);
-  void getDeregistrationType(_5gs_deregistration_type_t& type);
-  bool getngKSI(uint8_t& ng_ksi);
-  void getMobilityIdentityType(uint8_t& type);
-  std::string get_5g_guti();
   bool getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi);
+
+  void Set5gGuti();
+  std::string Get5gGuti();
+
+  void SetImeiImeisv();
+  // TODO: Get
+
+  void Set5gSTmsi();
+  // TODO: Get
 
  public:
   _5GSDeregistrationType ie_deregistrationtype;  // Mandatory

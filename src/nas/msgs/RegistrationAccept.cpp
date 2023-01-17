@@ -218,10 +218,10 @@ void RegistrationAccept::setT3502_value(uint8_t value) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationAccept::setSOR_Transparent_Container(
+void RegistrationAccept::SetSorTransparentContainer(
     uint8_t header, const uint8_t (&value)[16]) {
   ie_sor_transparent_container =
-      std::make_optional<SOR_Transparent_Container>(header, value);
+      std::make_optional<SorTransparentContainer>(header, value);
 }
 
 //------------------------------------------------------------------------------
@@ -860,10 +860,10 @@ int RegistrationAccept::Decode(uint8_t* buf, int len) {
 
       case 0x73: {
         Logger::nas_mm().debug("Decoding IEI (0x73)");
-        SOR_Transparent_Container ie_sor_transparent_container_tmp = {};
+        SorTransparentContainer ie_sor_transparent_container_tmp = {};
         decoded_size += ie_sor_transparent_container_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
-        ie_sor_transparent_container = std::optional<SOR_Transparent_Container>(
+        ie_sor_transparent_container = std::optional<SorTransparentContainer>(
             ie_sor_transparent_container_tmp);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);

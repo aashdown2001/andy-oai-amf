@@ -1130,7 +1130,7 @@ void amf_n1::registration_request_handle(
     } break;
 
     case _5G_GUTI: {
-      guti = registration_request->get_5g_guti();
+      guti = registration_request->Get5gGuti();
       Logger::amf_n1().debug(
           "Decoded GUTI from registration request message %s", guti.c_str());
       if (guti.empty()) {
@@ -3022,7 +3022,7 @@ void amf_n1::ue_initiate_de_registration_handle(
   switch (mobile_id_type) {
     case _5G_GUTI: {
       Logger::amf_n1().debug(
-          "5G Mobile Identity, GUTI %s", dereg_request->get_5g_guti().c_str());
+          "5G Mobile Identity, GUTI %s", dereg_request->Get5gGuti().c_str());
     } break;
     default: {
     }
@@ -3174,14 +3174,14 @@ void amf_n1::ue_initiate_de_registration_handle(
         "Could not delete nas_context associated SUPI %s ", supi.c_str());
   }
 
-  if (remove_guti_2_nas_context(dereg_request->get_5g_guti())) {
+  if (remove_guti_2_nas_context(dereg_request->Get5gGuti())) {
     Logger::amf_n1().debug(
         "Deleted nas_context associated GUTI %s ",
-        dereg_request->get_5g_guti().c_str());
+        dereg_request->Get5gGuti().c_str());
   } else {
     Logger::amf_n1().debug(
         "Could not delete nas_context associated GUTI %s ",
-        dereg_request->get_5g_guti().c_str());
+        dereg_request->Get5gGuti().c_str());
   }
 
   // TODO: AMF to AN: N2 UE Context Release Request

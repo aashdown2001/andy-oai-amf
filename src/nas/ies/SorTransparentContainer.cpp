@@ -19,20 +19,20 @@
  *      contact@openairinterface.org
  */
 
-#include "SOR_Transparent_Container.hpp"
+#include "SorTransparentContainer.hpp"
 
 #include "logger.hpp"
 using namespace nas;
 
 //------------------------------------------------------------------------------
-SOR_Transparent_Container::SOR_Transparent_Container()
+SorTransparentContainer::SorTransparentContainer()
     : Type6NasIe(kIeiSorTransparentContainer), header_(), sor_mac_i_() {
   SetLengthIndicator(kSorTransparentContainerIeMinimumLength);
   SetIeName(kSorTransparentContainerIeName);
 }
 
 //------------------------------------------------------------------------------
-SOR_Transparent_Container::SOR_Transparent_Container(
+SorTransparentContainer::SorTransparentContainer(
     uint8_t header, const uint8_t (&value)[16]) {
   header_ = header;
   for (int i = 0; i < 16; i++) {
@@ -43,17 +43,17 @@ SOR_Transparent_Container::SOR_Transparent_Container(
 }
 
 //------------------------------------------------------------------------------
-SOR_Transparent_Container::~SOR_Transparent_Container() {}
+SorTransparentContainer::~SorTransparentContainer() {}
 
 //------------------------------------------------------------------------------
-void SOR_Transparent_Container::getValue(uint8_t (&value)[16]) const {
+void SorTransparentContainer::getValue(uint8_t (&value)[16]) const {
   for (int i = 0; i < 16; i++) {
     value[i] = sor_mac_i_[i];
   }
 }
 
 //------------------------------------------------------------------------------
-int SOR_Transparent_Container::Encode(uint8_t* buf, int len) {
+int SorTransparentContainer::Encode(uint8_t* buf, int len) {
   Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
 
   int ie_len = GetIeLength();
@@ -97,7 +97,7 @@ int SOR_Transparent_Container::Encode(uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-int SOR_Transparent_Container::Decode(uint8_t* buf, int len, bool is_iei) {
+int SorTransparentContainer::Decode(uint8_t* buf, int len, bool is_iei) {
   if (len < kSorTransparentContainerMinimumLength) {
     Logger::nas_mm().error(
         "Buffer length is less than the minimum length of this IE (%d octet)",

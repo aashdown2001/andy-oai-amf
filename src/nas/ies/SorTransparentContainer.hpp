@@ -29,11 +29,11 @@ constexpr auto kSorTransparentContainerIeName = "SOR Transparent Container";
 
 namespace nas {
 
-class SOR_Transparent_Container : Type6NasIe {
+class SorTransparentContainer : Type6NasIe {
  public:
-  SOR_Transparent_Container();
-  SOR_Transparent_Container(uint8_t header, const uint8_t (&value)[16]);
-  ~SOR_Transparent_Container();
+  SorTransparentContainer();
+  SorTransparentContainer(uint8_t header, const uint8_t (&value)[16]);
+  ~SorTransparentContainer();
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);

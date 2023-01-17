@@ -44,6 +44,7 @@ class IdentityResponse : public NasMmPlainHeader {
   void SetSuciSupiFormatImsi(
       const string mcc, const string mnc, const string routingInd,
       uint8_t protection_sch_id, uint8_t hnpki, const string msin);
+
   void Set5gGuti();
   void SetImeiImeisv();
   void Set5gSTmsi();

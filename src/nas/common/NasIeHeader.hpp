@@ -62,7 +62,7 @@
 #include "ReleaseAssistanceIndication.hpp"
 #include "RequestType.hpp"
 #include "S1UeSecurityCapability.hpp"
-#include "SOR_Transparent_Container.hpp"
+#include "SorTransparentContainer.hpp"
 #include "S_NSSAI.hpp"
 #include "ServiceType.hpp"
 #include "UENetworkCapability.hpp"

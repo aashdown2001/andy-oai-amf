@@ -62,7 +62,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   bool getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi);
 
   void Set5gGuti();
-  std::string get_5g_guti();
+  std::string Get5gGuti();
 
   void SetImeiImeisv();
   void Set5gSTmsi();

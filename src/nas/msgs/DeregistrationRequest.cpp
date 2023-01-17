@@ -111,7 +111,7 @@ bool DeregistrationRequest::getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi) {
 }
 
 //------------------------------------------------------------------------------
-std::string DeregistrationRequest::get_5g_guti() {
+std::string DeregistrationRequest::Get5gGuti() {
   std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
   ie_5gs_mobility_id.Get5gGuti(guti);
   if (!guti.has_value()) return {};

@@ -116,7 +116,7 @@ bool RegistrationRequest::getSuciSupiFormatImsi(nas::SUCI_imsi_t& imsi) {
 }
 
 //------------------------------------------------------------------------------
-std::string RegistrationRequest::get_5g_guti() {
+std::string RegistrationRequest::Get5gGuti() {
   std::optional<nas::_5G_GUTI_t> guti = std::nullopt;
   ie_5gs_mobile_identity.Get5gGuti(guti);
   if (!guti.has_value()) return {};

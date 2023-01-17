@@ -35,9 +35,15 @@ class AuthenticationResult : public NasMmPlainHeader {
   int Decode(uint8_t* buf, int len);
 
   void SetHeader(uint8_t security_header_type);
+
   void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
+  // TODO: Get
+
   void SetEapMessage(bstring eap);
+  // TODO: Get
+
   void SetAbba(uint8_t length, uint8_t* value);
+  // TODO: Get
 
  public:
   NasKeySetIdentifier ie_ngKSI;  // Mandatory (1/2 lower octet)

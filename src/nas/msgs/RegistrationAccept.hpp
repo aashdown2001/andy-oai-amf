@@ -107,7 +107,7 @@ class RegistrationAccept : public NasMmPlainHeader {
   // TODO: Emergency number list
   // TODO: Extended emergency number list
 
-  void setSOR_Transparent_Container(uint8_t header, const uint8_t (&value)[16]);
+  void SetSorTransparentContainer(uint8_t header, const uint8_t (&value)[16]);
   // TODO: Get
 
   void SetEapMessage(bstring eap);
@@ -173,7 +173,7 @@ class RegistrationAccept : public NasMmPlainHeader {
   std::optional<GprsTimer2> ie_T3502_value;     // Optional
   // TODO: Emergency number list
   // TODO: Extended emergency number list
-  std::optional<SOR_Transparent_Container>
+  std::optional<SorTransparentContainer>
       ie_sor_transparent_container;                           // Optional
   std::optional<EapMessage> ie_eap_message;                   // Optional
   std::optional<NssaiInclusionMode> ie_nssai_inclusion_mode;  // Optional

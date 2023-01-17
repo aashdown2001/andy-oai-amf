@@ -44,9 +44,9 @@ void RegistrationComplete::SetHeader(uint8_t security_header_type) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationComplete::setSOR_Transparent_Container(
+void RegistrationComplete::SetSorTransparentContainer(
     uint8_t header, const uint8_t (&value)[16]) {
-  ie_sor_transparent_container = new SOR_Transparent_Container(header, value);
+  ie_sor_transparent_container = new SorTransparentContainer(header, value);
 }
 
 //------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ int RegistrationComplete::Decode(
     switch (octet) {
       case 0x73: {
         Logger::nas_mm().debug("Decoding IEI (0x73)");
-        ie_sor_transparent_container = new SOR_Transparent_Container();
+        ie_sor_transparent_container = new SorTransparentContainer();
         decoded_size += ie_sor_transparent_container->Decode(
             buf + decoded_size, len - decoded_size, true);
         octet = *(buf + decoded_size);
