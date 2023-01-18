@@ -66,6 +66,9 @@ int IdentityRequest::Encode(uint8_t* buf, int len) {
     return KEncodeDecodeError;
   }
 
+  if (size == 0)
+    encoded_size++;  // 1/2 for 5GS Identity Type and 1/2 for spare mode
+
   Logger::nas_mm().debug(
       "Encoded IdentityRequest message len (%d)", encoded_size);
   return encoded_size;
