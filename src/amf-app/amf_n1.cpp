@@ -3255,8 +3255,8 @@ void amf_n1::ul_nas_transport_handle(
 
       // TODO: Only use the first one for now if there's multiple requested
       // NSSAI since we don't know which slice associated with this PDU session
-      if (nc->requestedNssai.size() > 0) {
-        snssai = nc->requestedNssai[0];
+      if (nc->allowed_nssai.size() > 0) {
+        snssai = nc->allowed_nssai[0];
         Logger::amf_n1().debug(
             "Use first Requested S-NSSAI %s", snssai.ToString().c_str());
       } else {
@@ -4128,6 +4128,23 @@ void amf_n1::initialize_registration_accept(
       requested_nssai.push_back(ss.second);
   }
 
+  // Allowed NSSAI
+  for (auto s : common_nssais) {
+    SNSSAI_t snssai = {};
+    snssai.sst      = s.sst;
+    snssai.sd       = s.sd;
+    if (s.sd == SD_NO_VALUE) {
+      snssai.length = SST_LENGTH;
+    } else {
+      snssai.length = SST_LENGTH + SD_LENGTH;
+    }
+    Logger::amf_n1().debug("Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
+    allowed_nssais.push_back(snssai);
+    // Store in the NAS context
+    nc->allowed_nssai.push_back(snssai);  // TODO: refactor NAS_Context
+  }
+
+  // Rejected NSSAIs
   for (auto rn : requested_nssai) {
     bool found = false;
 
@@ -4142,9 +4159,9 @@ void amf_n1::initialize_registration_accept(
         } else {
           snssai.length = SST_LENGTH + SD_LENGTH;
         }
-        Logger::amf_n1().debug(
-            "Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
-        allowed_nssais.push_back(snssai);
+        //        Logger::amf_n1().debug(
+        //            "Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
+        //        allowed_nssais.push_back(snssai);
         found = true;
         break;
       } else {
