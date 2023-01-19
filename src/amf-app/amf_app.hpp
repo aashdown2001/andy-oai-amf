@@ -19,36 +19,27 @@
  *      contact@openairinterface.org
  */
 
-/*! \file amf_app.hpp
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _AMF_APP_H_
 #define _AMF_APP_H_
 
+#include <boost/thread.hpp>
+#include <boost/thread/future.hpp>
 #include <map>
 #include <shared_mutex>
 #include <string>
 
-#include "amf_config.hpp"
-#include "amf_module_from_config.hpp"
-#include "amf_profile.hpp"
-#include "itti.hpp"
-#include "itti_msg_n11.hpp"
-#include "itti_msg_amf_app.hpp"
-#include "ue_context.hpp"
-#include "amf_subscription.hpp"
-#include "itti_msg_sbi.hpp"
-#include "amf_msg.hpp"
 #include "ProblemDetails.h"
 #include "UeN1N2InfoSubscriptionCreateData.h"
-
+#include "amf_config.hpp"
+#include "amf_module_from_config.hpp"
+#include "amf_msg.hpp"
+#include "amf_profile.hpp"
+#include "amf_subscription.hpp"
+#include "itti.hpp"
+#include "itti_msg_amf_app.hpp"
+#include "itti_msg_sbi.hpp"
+#include "ue_context.hpp"
 #include "uint_generator.hpp"
-#include <boost/thread.hpp>
-#include <boost/thread/future.hpp>
 
 using namespace config;
 
@@ -92,9 +83,9 @@ class amf_app {
   std::map<uint32_t, boost::shared_ptr<boost::promise<std::string>>>
       curl_handle_responses_n2_sm;
 
-  mutable std::shared_mutex m_curl_handle_responses_n11;
+  mutable std::shared_mutex m_curl_handle_responses_sbi;
   std::map<uint32_t, boost::shared_ptr<boost::promise<nlohmann::json>>>
-      curl_handle_responses_n11;
+      curl_handle_responses_sbi;
 
   util::uint_generator<uint32_t> n1n2sub_id_generator;
   std::map<
@@ -151,6 +142,13 @@ class amf_app {
    * @return void
    */
   void handle_itti_message(itti_sbi_n1n2_message_unsubscribe& itti_msg);
+
+  /*
+   * Handle ITTI message (SBI PDU Session Release Notification)
+   * @param [itti_sbi_pdu_session_release_notif&]: ITTI message
+   * @return void
+   */
+  void handle_itti_message(itti_sbi_pdu_session_release_notif& itti_msg);
 
   /*
    * Handle ITTI message (SBI AMF configuration)
@@ -297,6 +295,18 @@ class amf_app {
   bool get_pdu_sessions_context(
       const string& supi,
       std::vector<std::shared_ptr<pdu_session_context>>& sessions_ctx);
+
+  /*
+   * Update PDU Session Context status
+   * @param [const std::string&] ue_id: UE SUPI
+   * @param [const uint8_t&] pdu_session_id: PDU Session ID
+   * @param [const oai::amf::model::SmContextStatusNotification&]
+   * statusNotification: Notification information received from SMF
+   * @return true if success, otherwise false
+   */
+  bool update_pdu_sessions_context(
+      const string& ue_id, const uint8_t& pdu_session_id,
+      const oai::amf::model::SmContextStatusNotification& statusNotification);
 
   /*
    * Generate a TMSI value for UE
@@ -458,14 +468,14 @@ class amf_app {
   void generate_amf_profile();
 
   /*
-   * Send request to N11 task to trigger NF instance registration to NRF
+   * Send request to SBI task to trigger NF instance registration to NRF
    * @param [void]
    * @return void
    */
   void trigger_nf_registration_request();
 
   /*
-   * Send request to N11 task to trigger NF instance deregistration to NRF
+   * Send request to SBI task to trigger NF instance deregistration to NRF
    * @param [void]
    * @return void
    */

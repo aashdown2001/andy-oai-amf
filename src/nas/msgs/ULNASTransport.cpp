@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #include "ULNASTransport.hpp"
 
 #include "3gpp_ts24501.hpp"
@@ -137,7 +130,7 @@ uint8_t ULNASTransport::getRequestType() {
 
 //------------------------------------------------------------------------------
 void ULNASTransport::setS_NSSAI(SNSSAI_s snssai) {
-  ie_s_nssai = new S_NSSAI(0x22, snssai);
+  ie_s_nssai = new S_NSSAI(std::optional<uint8_t>{kIeiSNssai}, snssai);
 }
 
 //------------------------------------------------------------------------------
@@ -378,7 +371,7 @@ int ULNASTransport::decodefrombuffer(
         Logger::nas_mm().debug("Decoding IEI (0x22)");
         ie_s_nssai = new S_NSSAI();
         decoded_size += ie_s_nssai->decodefrombuffer(
-            buf + decoded_size, len - decoded_size, true);
+            buf + decoded_size, len - decoded_size, kIeIsOptional);
         octet = *(buf + decoded_size);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;

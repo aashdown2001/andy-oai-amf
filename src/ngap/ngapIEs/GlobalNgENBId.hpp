@@ -18,3 +18,35 @@
  * For more information about the OpenAirInterface (OAI) Software Alliance:
  *      contact@openairinterface.org
  */
+
+#ifndef _GLOBAL_NG_ENB_ID_H
+#define _GLOBAL_NG_ENB_ID_H
+
+#include "NgENBId.hpp"
+#include "PlmnId.hpp"
+
+extern "C" {
+#include "Ngap_GlobalNgENB-ID.h"
+}
+
+namespace ngap {
+
+class GlobalNgENBId {
+ public:
+  GlobalNgENBId();
+  virtual ~GlobalNgENBId();
+
+  bool encode(Ngap_GlobalNgENB_ID_t&);
+  bool decode(Ngap_GlobalNgENB_ID_t&);
+
+  void set(const PlmnId& plmn, const NgENB_ID& ng_enb_id);
+  void get(PlmnId& plmn, NgENB_ID& ng_enb_id) const;
+
+ private:
+  PlmnId plmn_id_;      // Mandatory
+  NgENB_ID ng_enb_id_;  // Mandatory
+};
+
+}  // namespace ngap
+
+#endif

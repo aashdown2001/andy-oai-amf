@@ -19,46 +19,36 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author
- \date 2021
- \email: contact@openairinterface.org
- */
+#ifndef _PDU_SESSION_RESOURCE_ITEM_CXT_REL_CPL_H_
+#define _PDU_SESSION_RESOURCE_ITEM_CXT_REL_CPL_H_
 
-#ifndef _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_ITEM_H_
-#define _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_ITEM_H_
-
-#include "AMF-UE-NGAP-ID.hpp"
-#include "RAN-UE-NGAP-ID.hpp"
+#include "PDUSessionID.hpp"
 
 extern "C" {
-#include "Ngap_ProtocolIE-Field.h"
-#include "Ngap_UE-associatedLogicalNG-connectionItem.h"
+#include "Ngap_PDUSessionResourceItemCxtRelCpl.h"
 }
 
 namespace ngap {
 
-class UEAssociationLogicalNGConnectionItem {
+class PDUSessionResourceItemCxtRelCpl {
  public:
-  UEAssociationLogicalNGConnectionItem();
-  virtual ~UEAssociationLogicalNGConnectionItem(){};
+  PDUSessionResourceItemCxtRelCpl();
+  virtual ~PDUSessionResourceItemCxtRelCpl();
 
-  void setAmfUeNgapId(unsigned long id);
-  bool getAmfUeNgapId(unsigned long& id);
-  void setRanUeNgapId(uint32_t id);
-  bool getRanUeNgapId(uint32_t& id);
+  void set(const PDUSessionID& pdu_session_id);
+  void get(PDUSessionID& pdu_session_id);
 
-  bool encode(Ngap_UE_associatedLogicalNG_connectionItem_t& item);
-  bool encode(Ngap_UE_associatedLogicalNG_connectionItem_t* item);
-  bool encode(UEAssociationLogicalNGConnectionItem& item);
-  bool decode(Ngap_UE_associatedLogicalNG_connectionItem_t* item);
-  bool decode(UEAssociationLogicalNGConnectionItem& item);
+  bool encode(Ngap_PDUSessionResourceItemCxtRelCpl_t*
+                  pdu_session_resource_item_cxt_rel_cpl);
+  bool decode(const Ngap_PDUSessionResourceItemCxtRelCpl_t* const
+                  pdu_session_resource_item_cxt_rel_cpl);
 
  private:
-  AMF_UE_NGAP_ID* amfUeNgapId;
-  RAN_UE_NGAP_ID* ranUeNgapId;
+  PDUSessionID pdu_session_id_;  // Mandatory
+  // TODO (not defined in ASN1C) OCTET_STRING_t
+  // pdu_session_resource_release_response_transfer_; //Optional
 };
 
 }  // namespace ngap
+
 #endif

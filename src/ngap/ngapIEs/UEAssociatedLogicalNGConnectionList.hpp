@@ -19,46 +19,30 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author
- \date 2021
- \email: contact@openairinterface.org
- */
+#ifndef _UE_ASSOCIATED_LOGICAL_NG_CONNECTION_LIST_H_
+#define _UE_ASSOCIATED_LOGICAL_NG_CONNECTION_LIST_H_
 
-#ifndef _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_LIST_H_
-#define _UE_ASSOCIATION_LOGICAL_NG_CONNECTION_LIST_H_
-
-#include "UEAssociationLogicalNGConnectionItem.hpp"
+#include "UEAssociatedLogicalNGConnectionItem.hpp"
 
 #include <vector>
 
 extern "C" {
 #include "Ngap_ProtocolIE-Field.h"
-#include "Ngap_UE-associatedLogicalNG-connectionItem.h"
+//#include "Ngap_UE-associatedLogicalNG-connectionItem.h"
 #include "Ngap_UE-associatedLogicalNG-connectionList.h"
 }
 
 namespace ngap {
 
-class UEAssociationLogicalNGConnectionList {
+class UEAssociatedLogicalNGConnectionList {
  public:
-  UEAssociationLogicalNGConnectionList();
-  virtual ~UEAssociationLogicalNGConnectionList();
+  UEAssociatedLogicalNGConnectionList();
+  virtual ~UEAssociatedLogicalNGConnectionList();
 
-  void setUEAssociationLogicalNGConnectionItem(
-      UEAssociationLogicalNGConnectionItem*
-          m_UEAssociationLogicalNGConnectionItem,
-      int num);
-  void getUEAssociationLogicalNGConnectionItem(
-      UEAssociationLogicalNGConnectionItem*&
-          m_UEAssociationLogicalNGConnectionItem,
-      int& num);
+  void set(std::vector<UEAssociatedLogicalNGConnectionItem>& list);
+  void get(std::vector<UEAssociatedLogicalNGConnectionItem>& list);
 
-  void setUEAssociationLogicalNGConnectionItem(
-      std::vector<UEAssociationLogicalNGConnectionItem>& list);
-  void getUEAssociationLogicalNGConnectionItem(
-      std::vector<UEAssociationLogicalNGConnectionItem>& list);
+  void addItem(UEAssociatedLogicalNGConnectionItem& item);
 
   bool encode(Ngap_UE_associatedLogicalNG_connectionList_t*
                   ue_associatedLogicalNG_connectionList);
@@ -66,8 +50,7 @@ class UEAssociationLogicalNGConnectionList {
                   ue_associatedLogicalNG_connectionList);
 
  private:
-  UEAssociationLogicalNGConnectionItem* ueAssociationLogicalNGConnectionItem;
-  int number_of_items;
+  std::vector<UEAssociatedLogicalNGConnectionItem> list_;
 };
 
 }  // namespace ngap
