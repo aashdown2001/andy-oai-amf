@@ -1285,6 +1285,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_complete& itti_msg) {
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
   }
+
   if (nc != nullptr) {
     amf_n1_inst->set_5gcm_state(nc, CM_IDLE);
 
@@ -1394,6 +1395,9 @@ void amf_n2::handle_itti_message(itti_ue_context_release_complete& itti_msg) {
     }
     curl_responses.erase(curl_responses.begin());
   }
+
+  // Remove UE NGAP context
+  remove_ue_context_with_ran_ue_ngap_id(ran_ue_ngap_id);
 }
 
 //------------------------------------------------------------------------------
