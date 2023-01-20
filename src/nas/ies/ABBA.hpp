@@ -37,6 +37,8 @@ class ABBA : public Type4NasIe {
   ABBA(uint8_t iei, uint8_t length, uint8_t* value);
   ~ABBA();
 
+  static std::string GetIeName() { return kAbbaIeName; }
+
   void Set(uint8_t length, uint8_t* value);
   void Set(uint8_t iei, uint8_t length, uint8_t* value);
 

@@ -119,6 +119,7 @@ int NasMmPlainHeader::Encode(uint8_t* buf, int len) {
       return KEncodeDecodeError;
     }
     encoded_size += size;
+
     Logger::nas_mm().debug(
         "Encoded NasMmPlainHeader (len %d octets)", encoded_size);
     return encoded_size;

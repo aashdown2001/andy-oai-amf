@@ -31,7 +31,6 @@ using namespace nas;
 UeRadioCapabilityId::UeRadioCapabilityId()
     : Type4NasIe(kIeiUeRadioCapabilityId), value_() {
   SetLengthIndicator(0);
-  SetIeName(kUeRadioCapabilityIdIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -39,7 +38,6 @@ UeRadioCapabilityId::UeRadioCapabilityId(bstring value)
     : Type4NasIe(kIeiUeRadioCapabilityId) {
   value_ = bstrcpy(value);
   SetLengthIndicator(blength(value_));
-  SetIeName(kUeRadioCapabilityIdIeName);
 }
 
 //------------------------------------------------------------------------------

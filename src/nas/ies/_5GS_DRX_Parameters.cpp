@@ -33,14 +33,12 @@ _5GS_DRX_Parameters::_5GS_DRX_Parameters(uint8_t value)
     : Type4NasIe(kIei5gsDrxParameters) {
   _value = value & 0x0F;
   SetLengthIndicator(1);
-  SetIeName(k5gsDrxParametersIeName);
 }
 
 //------------------------------------------------------------------------------
 _5GS_DRX_Parameters::_5GS_DRX_Parameters() {
   _value = 0;
   SetLengthIndicator(1);
-  SetIeName(k5gsDrxParametersIeName);
 }
 _5GS_DRX_Parameters::~_5GS_DRX_Parameters() {}
 

@@ -25,6 +25,7 @@
 #include "Type1NasIe.hpp"
 
 constexpr auto kNasKeySetIdentifierName = "NAS Key Set Identifier";
+
 namespace nas {
 
 class NasKeySetIdentifier : public Type1NasIe {
@@ -34,8 +35,9 @@ class NasKeySetIdentifier : public Type1NasIe {
       const uint8_t& iei, const bool& tsc, const uint8_t& key_id);
   NasKeySetIdentifier(
       const bool& tsc, const uint8_t& key_id);  // Default: low position
-
   ~NasKeySetIdentifier();
+
+  static std::string GetIeName() { return kNasKeySetIdentifierName; }
 
   void Set(const bool& high_pos);
   // void Set(const bool& tsc, const uint8_t& key_id);

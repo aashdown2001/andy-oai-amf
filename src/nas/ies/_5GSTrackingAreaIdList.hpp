@@ -39,6 +39,8 @@ class _5GSTrackingAreaIdList : public Type4NasIe {
   _5GSTrackingAreaIdList(const std::vector<p_tai_t>& tai_list);
   int Encode(uint8_t* buf, int len);
 
+  static std::string GetIeName() { return k5gsTrackingAreaIdListIeName; }
+
  private:
   std::vector<p_tai_t> m_tai_list;
 

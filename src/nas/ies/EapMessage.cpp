@@ -29,20 +29,17 @@ using namespace nas;
 //------------------------------------------------------------------------------
 EapMessage::EapMessage() : Type6NasIe(), eap_() {
   SetLengthIndicator(0);
-  SetIeName(kEapMessageIeName);
 }
 
 //------------------------------------------------------------------------------
 EapMessage::EapMessage(uint8_t iei) : Type6NasIe(iei), eap_() {
   SetLengthIndicator(0);
-  SetIeName(kEapMessageIeName);
 }
 
 //------------------------------------------------------------------------------
 EapMessage::EapMessage(const uint8_t iei, bstring eap) : Type6NasIe(iei) {
   eap_ = bstrcpy(eap);
   SetLengthIndicator(blength(eap));
-  SetIeName(kEapMessageIeName);
 }
 
 //------------------------------------------------------------------------------

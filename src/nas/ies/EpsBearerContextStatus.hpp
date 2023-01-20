@@ -35,6 +35,8 @@ class EpsBearerContextStatus : public Type4NasIe {
   EpsBearerContextStatus(uint16_t value);
   ~EpsBearerContextStatus();
 
+  static std::string GetIeName() { return kEpsBearerContextStatusIeName; }
+
   void SetValue(uint16_t value);
   uint16_t GetValue() const;
 

@@ -38,6 +38,8 @@ class NasSecurityAlgorithms : public Type3NasIe {
       uint8_t iei, uint8_t ciphering, uint8_t integrity_protection);
   ~NasSecurityAlgorithms();
 
+  static std::string GetIeName() { return kNasSecurityAlgorithmsIeName; }
+
   void SetTypeOfCipheringAlgorithm(uint8_t value);
   uint8_t GetTypeOfCipheringAlgorithm() const;
 

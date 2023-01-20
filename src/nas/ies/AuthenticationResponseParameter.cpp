@@ -28,7 +28,6 @@ using namespace nas;
 AuthenticationResponseParameter::AuthenticationResponseParameter()
     : Type4NasIe(kIeiAuthenticationResponseParameter), res_or_res_star_() {
   SetLengthIndicator(4);  // Minimum length for the content (RES or RES*)
-  SetIeName(kAuthenticationResponseParameterIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -36,7 +35,6 @@ AuthenticationResponseParameter::AuthenticationResponseParameter(bstring para)
     : Type4NasIe(kIeiAuthenticationResponseParameter) {
   res_or_res_star_ = bstrcpy(para);
   SetLengthIndicator(blength(res_or_res_star_));
-  SetIeName(kAuthenticationResponseParameterIeName);
 }
 
 //------------------------------------------------------------------------------

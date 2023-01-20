@@ -33,14 +33,12 @@ MicoIndication::MicoIndication(bool sprti, bool raai)
     : Type1NasIeFormatTv(kIeiMicoIndication) {
   raai_  = raai;
   sprti_ = sprti;
-  SetIeName(kMicoIndicationIeName);
 }
 
 //------------------------------------------------------------------------------
 MicoIndication::MicoIndication() : Type1NasIeFormatTv(kIeiMicoIndication) {
   raai_  = false;
   sprti_ = false;
-  SetIeName(kMicoIndicationIeName);
 }
 
 //------------------------------------------------------------------------------

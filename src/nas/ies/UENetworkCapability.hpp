@@ -37,6 +37,8 @@ class UENetworkCapability : public Type4NasIe {
   UENetworkCapability(const uint8_t iei, uint8_t eea, uint8_t eia);
   ~UENetworkCapability();
 
+  static std::string GetIeName() { return kUeNetworkCapabilityIeName; }
+
   void SetEea(uint8_t value);
   void SetEia(uint8_t value);
 

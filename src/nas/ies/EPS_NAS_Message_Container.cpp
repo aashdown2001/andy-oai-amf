@@ -29,15 +29,12 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 EPS_NAS_Message_Container::EPS_NAS_Message_Container()
-    : Type6NasIe(kIeiEpsNasMessageContainer), _value() {
-  SetIeName(kEpsNasMessageContainerIeName);
-}
+    : Type6NasIe(kIeiEpsNasMessageContainer), _value() {}
 
 //------------------------------------------------------------------------------
 EPS_NAS_Message_Container::EPS_NAS_Message_Container(bstring value)
     : Type6NasIe(kIeiEpsNasMessageContainer) {
   _value = bstrcpy(value);
-  SetIeName(kEpsNasMessageContainerIeName);
   SetLengthIndicator(blength(_value));
 }
 

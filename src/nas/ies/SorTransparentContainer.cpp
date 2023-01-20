@@ -28,7 +28,6 @@ using namespace nas;
 SorTransparentContainer::SorTransparentContainer()
     : Type6NasIe(kIeiSorTransparentContainer), header_(), sor_mac_i_() {
   SetLengthIndicator(kSorTransparentContainerIeMinimumLength);
-  SetIeName(kSorTransparentContainerIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -39,7 +38,6 @@ SorTransparentContainer::SorTransparentContainer(
     this->sor_mac_i_[i] = value[i];
   }
   SetLengthIndicator(kSorTransparentContainerIeMinimumLength);
-  SetIeName(kSorTransparentContainerIeName);
 }
 
 //------------------------------------------------------------------------------

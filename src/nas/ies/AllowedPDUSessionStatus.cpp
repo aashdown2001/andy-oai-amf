@@ -33,7 +33,6 @@ AllowedPDUSessionStatus::AllowedPDUSessionStatus()
     : Type4NasIe(kIeiAllowedPduSessionStatus) {
   _value = 0;
   SetLengthIndicator(2);
-  SetIeName(kAllowedPDUSessionStatusIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -41,7 +40,6 @@ AllowedPDUSessionStatus::AllowedPDUSessionStatus(uint16_t value)
     : Type4NasIe(kIeiAllowedPduSessionStatus) {
   _value = value;
   SetLengthIndicator(2);
-  SetIeName(kAllowedPDUSessionStatusIeName);
 }
 
 //------------------------------------------------------------------------------

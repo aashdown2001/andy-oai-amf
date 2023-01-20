@@ -36,6 +36,8 @@ class _5gsUpdateType : public Type4NasIe {
       uint8_t eps_PNB_CIoT, uint8_t _5gs_PNB_CIoT, bool ng_RAN, bool sms);
   ~_5gsUpdateType();
 
+  static std::string GetIeName() { return k5gsUpdateTypeIeName; }
+
   void SetEpsPnbCiot(uint8_t value);
   void Set5gsPnbCiot(uint8_t value);
   void SetNgRan(uint8_t value);

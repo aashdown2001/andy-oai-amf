@@ -84,6 +84,8 @@ class _5GSMobileIdentity : public Type6NasIe {
   _5GSMobileIdentity(uint8_t iei);
   ~_5GSMobileIdentity();
 
+  static std::string GetIeName() { return k5gsMobileIdentityIeName; }
+
   // Common
   void ClearIe();
   uint8_t GetTypeOfIdentity() const { return type_of_identity_; };

@@ -37,6 +37,8 @@ class S_NSSAI : public Type4NasIe {
   S_NSSAI(std::optional<uint8_t> iei, SNSSAI_s snssai);
   ~S_NSSAI();
 
+  static std::string GetIeName() { return kSNssaiIeName; }
+
   // void SetSNssai(SNSSAI_s snssai);
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, const bool is_option = true);

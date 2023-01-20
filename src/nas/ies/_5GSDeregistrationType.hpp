@@ -42,6 +42,8 @@ class _5GSDeregistrationType : public Type1NasIeFormatTv {
   _5GSDeregistrationType(_5gs_deregistration_type_t type);
   ~_5GSDeregistrationType();
 
+  static std::string GetIeName() { return k5gsDeregistrationTypeIeName; }
+
   // int Decode(uint8_t* buf, int len);
   // int Encode(uint8_t* buf, int len);
 

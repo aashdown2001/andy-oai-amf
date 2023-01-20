@@ -32,7 +32,6 @@ UENetworkCapability::UENetworkCapability() : Type4NasIe() {
   eea_ = 0;
   eia_ = 0;
   SetLengthIndicator(2);
-  SetIeName(kUeNetworkCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -40,7 +39,6 @@ UENetworkCapability::UENetworkCapability(uint8_t iei) : Type4NasIe(iei) {
   eea_ = 0;
   eia_ = 0;
   SetLengthIndicator(2);
-  SetIeName(kUeNetworkCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -53,7 +51,6 @@ UENetworkCapability::UENetworkCapability(
   eea_ = eea;
   eia_ = eia;
   SetLengthIndicator(2);
-  SetIeName(kUeNetworkCapabilityIeName);
   Logger::nas_mm().debug(
       "Initialized %s EEA 0x%x, EIA 0x%x", GetIeName().c_str(), eea_, eia_);
 }

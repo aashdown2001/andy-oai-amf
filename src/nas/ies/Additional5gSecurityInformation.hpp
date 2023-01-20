@@ -36,6 +36,10 @@ class Additional5gSecurityInformation : public Type4NasIe {
   Additional5gSecurityInformation(bool RINMR, bool HDP);
   ~Additional5gSecurityInformation();
 
+  static std::string GetIeName() {
+    return kAdditional5gSecurityInformationIeName;
+  }
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);
 

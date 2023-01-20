@@ -25,6 +25,8 @@
 #include "NasIe.hpp"
 
 constexpr uint8_t kExtendedProtocolDiscriminatorLength = 1;
+constexpr auto kExtendedProtocolDiscriminatorIeName =
+    "Extended Protocol Discriminator";
 
 namespace nas {
 
@@ -33,6 +35,10 @@ class ExtendedProtocolDiscriminator : public NasIe {
   ExtendedProtocolDiscriminator(){};  // TODO: = delete;
   ExtendedProtocolDiscriminator(const uint8_t& epd);
   virtual ~ExtendedProtocolDiscriminator();
+
+  static std::string GetIeName() {
+    return kExtendedProtocolDiscriminatorIeName;
+  }
 
   bool Validate(const int& len) const override;
   void Set(const uint8_t& epd);

@@ -35,7 +35,6 @@ _5GSTrackingAreaIdList::_5GSTrackingAreaIdList()
   SetLengthIndicator(
       k5gsTrackingAreaIdListMinimumLength -
       2);  // Minimim length - 2 bytes for header
-  SetIeName(k5gsTrackingAreaIdListIeName);
 }
 //------------------------------------------------------------------------------
 _5GSTrackingAreaIdList::_5GSTrackingAreaIdList(
@@ -43,7 +42,6 @@ _5GSTrackingAreaIdList::_5GSTrackingAreaIdList(
     : Type4NasIe(kIei5gsTrackingAreaIdentityList) {
   m_tai_list = tai_list;
   // Don't know Length Indicator for now
-  SetIeName(k5gsTrackingAreaIdListIeName);
 }
 
 //------------------------------------------------------------------------------

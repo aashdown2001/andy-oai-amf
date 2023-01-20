@@ -25,20 +25,15 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-_5gsIdentityType::_5gsIdentityType() : Type1NasIeFormatTv() {
-  SetIeName(k5gsIdentityTypeIeName);
-}
+_5gsIdentityType::_5gsIdentityType() : Type1NasIeFormatTv() {}
 
 //------------------------------------------------------------------------------
-_5gsIdentityType::_5gsIdentityType(uint8_t iei) : Type1NasIeFormatTv(iei) {
-  SetIeName(k5gsIdentityTypeIeName);
-}
+_5gsIdentityType::_5gsIdentityType(uint8_t iei) : Type1NasIeFormatTv(iei) {}
 
 //------------------------------------------------------------------------------
 _5gsIdentityType::_5gsIdentityType(uint8_t iei, uint8_t value)
     : Type1NasIeFormatTv(iei) {
   Type1NasIeFormatTv::SetValue(value & 0x07);
-  SetIeName(k5gsIdentityTypeIeName);
 }
 
 //------------------------------------------------------------------------------

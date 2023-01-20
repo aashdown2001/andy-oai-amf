@@ -40,6 +40,8 @@ class Authentication_Parameter_RAND : public Type3NasIe {
       uint8_t iei, uint8_t value[kAuthenticationParameterRandValueLength]);
   ~Authentication_Parameter_RAND();
 
+  static std::string GetIeName() { return kAuthenticationParameterRandIeName; }
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
 

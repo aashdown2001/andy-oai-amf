@@ -35,7 +35,6 @@ _5gsUpdateType::_5gsUpdateType() : Type4NasIe(kIei5gsUpdateType) {
   ng_ran_        = false;
   sms_           = false;
   SetLengthIndicator(1);
-  SetIeName(k5gsUpdateTypeIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -47,7 +46,6 @@ _5gsUpdateType::_5gsUpdateType(
   ng_ran_        = ng_RAN;
   sms_           = sms;
   SetLengthIndicator(1);
-  SetIeName(k5gsUpdateTypeIeName);
 }
 
 //------------------------------------------------------------------------------

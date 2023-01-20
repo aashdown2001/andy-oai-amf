@@ -24,15 +24,12 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-ImeisvRequest::ImeisvRequest() : Type1NasIeFormatTv(kIeiImeisvRequest) {
-  SetIeName(kImeisvRequestIeName);
-}
+ImeisvRequest::ImeisvRequest() : Type1NasIeFormatTv(kIeiImeisvRequest) {}
 
 //------------------------------------------------------------------------------
 ImeisvRequest::ImeisvRequest(uint8_t value)
     : Type1NasIeFormatTv(kIeiImeisvRequest) {
   SetValue(value & 0x07);
-  SetIeName(kImeisvRequestIeName);
 }
 
 //------------------------------------------------------------------------------

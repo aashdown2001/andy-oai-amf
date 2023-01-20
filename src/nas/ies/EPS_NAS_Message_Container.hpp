@@ -34,6 +34,8 @@ class EPS_NAS_Message_Container : Type6NasIe {
   EPS_NAS_Message_Container(bstring value);
   ~EPS_NAS_Message_Container();
 
+  static std::string GetIeName() { return kEpsNasMessageContainerIeName; }
+
   // TODO: SetValue(const bstring& value)
   void getValue(bstring& value) const;
 

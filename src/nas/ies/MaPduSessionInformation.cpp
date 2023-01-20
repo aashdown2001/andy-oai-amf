@@ -25,15 +25,12 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 MaPduSessionInformation::MaPduSessionInformation()
-    : Type1NasIeFormatTv(kIeiMaPduSessionInformation) {
-  SetIeName(kMaPduSessionInformationIeName);
-}
+    : Type1NasIeFormatTv(kIeiMaPduSessionInformation) {}
 
 //------------------------------------------------------------------------------
 MaPduSessionInformation::MaPduSessionInformation(uint8_t value)
     : Type1NasIeFormatTv(kIeiMaPduSessionInformation) {
   SetValue(value & 0x0f);
-  SetIeName(kMaPduSessionInformationIeName);
 }
 
 //------------------------------------------------------------------------------

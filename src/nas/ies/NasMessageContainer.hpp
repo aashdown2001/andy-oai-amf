@@ -36,6 +36,8 @@ class NasMessageContainer : Type6NasIe {
   NasMessageContainer(bstring value);
   ~NasMessageContainer();
 
+  static std::string GetIeName() { return kNasMessageContainerIeName; }
+
   void GetValue(bstring& value) const;
 
   int Encode(uint8_t* buf, int len);

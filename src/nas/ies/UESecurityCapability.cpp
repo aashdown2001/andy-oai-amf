@@ -30,7 +30,6 @@ UESecurityCapability::UESecurityCapability() : Type4NasIe() {
   eea_    = std::nullopt;
   eia_    = std::nullopt;
   SetLengthIndicator(2);
-  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -40,7 +39,6 @@ UESecurityCapability::UESecurityCapability(uint8_t iei) : Type4NasIe(iei) {
   eea_    = std::nullopt;
   eia_    = std::nullopt;
   SetLengthIndicator(2);
-  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -51,7 +49,6 @@ UESecurityCapability::UESecurityCapability(uint8_t _5g_ea, uint8_t _5g_ia)
   eea_    = std::nullopt;
   eia_    = std::nullopt;
   SetLengthIndicator(2);
-  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -63,7 +60,6 @@ UESecurityCapability::UESecurityCapability(
   eea_    = std::nullopt;
   eia_    = std::nullopt;
   SetLengthIndicator(2);
-  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -75,7 +71,6 @@ UESecurityCapability::UESecurityCapability(
   eea_    = std::optional<uint8_t>(eea);
   eia_    = std::optional<uint8_t>(eia);
   SetLengthIndicator(4);
-  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -87,7 +82,6 @@ UESecurityCapability::UESecurityCapability(
   eea_    = std::optional<uint8_t>(eea);
   eia_    = std::optional<uint8_t>(eia);
   SetLengthIndicator(4);
-  SetIeName(kUeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------

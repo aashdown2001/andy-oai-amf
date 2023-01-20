@@ -31,7 +31,6 @@ using namespace nas;
 //------------------------------------------------------------------------------
 LadnIndication::LadnIndication() : Type6NasIe(kIeiLadnIndication) {
   LADN = {};
-  SetIeName(kLadnIndicationIeName);
 }
 
 //------------------------------------------------------------------------------

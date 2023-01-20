@@ -32,7 +32,6 @@ using namespace nas;
 //------------------------------------------------------------------------------
 NSSAI::NSSAI(uint8_t iei) : Type4NasIe(iei) {
   SetLengthIndicator(0);
-  SetIeName(kNssaiIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -44,13 +43,10 @@ NSSAI::NSSAI(uint8_t iei, const std::vector<struct SNSSAI_s>& nssai)
     length += (1 + nssai[i].length);  // 1 for length IE
   }
   SetLengthIndicator(length);
-  SetIeName(kNssaiIeName);
 }
 
 //------------------------------------------------------------------------------
-NSSAI::NSSAI() : Type4NasIe(), S_NSSAIs() {
-  SetIeName(kNssaiIeName);
-}
+NSSAI::NSSAI() : Type4NasIe(), S_NSSAIs() {}
 
 //------------------------------------------------------------------------------
 NSSAI::~NSSAI() {}

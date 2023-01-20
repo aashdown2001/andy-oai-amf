@@ -36,6 +36,8 @@ class UplinkDataStatus : public Type4NasIe {
   UplinkDataStatus(const uint16_t& value);
   ~UplinkDataStatus();
 
+  static std::string GetIeName() { return kUplinkDataStatusIeName; }
+
   void SetValue(uint16_t value);
   uint16_t GetValue() const;
 

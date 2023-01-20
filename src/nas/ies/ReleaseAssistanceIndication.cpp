@@ -25,15 +25,12 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 ReleaseAssistanceIndication::ReleaseAssistanceIndication()
-    : Type1NasIeFormatTv(kIeiReleaseAssistanceIndication) {
-  SetIeName(kReleaseAssistanceIndicationIeName);
-}
+    : Type1NasIeFormatTv(kIeiReleaseAssistanceIndication) {}
 
 //------------------------------------------------------------------------------
 ReleaseAssistanceIndication::ReleaseAssistanceIndication(uint8_t value)
     : Type1NasIeFormatTv(kIeiReleaseAssistanceIndication) {
   SetValue(value & 0x03);
-  SetIeName(kReleaseAssistanceIndicationIeName);
 }
 
 //------------------------------------------------------------------------------

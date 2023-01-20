@@ -25,6 +25,7 @@
 #include "NasIe.hpp"
 
 constexpr uint8_t kNasMessageTypeIeSize = 1;
+constexpr auto kNasMessageTypeIeName    = "Nas Message Type";
 
 namespace nas {
 
@@ -33,6 +34,8 @@ class NasMessageType : public NasIe {
   NasMessageType(){};  // TODO: = delete;
   NasMessageType(const uint8_t& message_type);
   virtual ~NasMessageType();
+
+  static std::string GetIeName() { return kNasMessageTypeIeName; }
 
   bool Validate(const int& len) const override;
 

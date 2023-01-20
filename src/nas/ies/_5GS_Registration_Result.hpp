@@ -39,11 +39,14 @@ class _5GS_Registration_Result : public Type4NasIe {
       uint8_t iei, bool emergency, bool nssaa, bool sms, uint8_t value);
   ~_5GS_Registration_Result();
 
+  static std::string GetIeName() { return k5gsRegistrationResultIeName; }
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);
 
   void setValue(uint8_t value);
   uint8_t getValue() const;
+
   void set(uint8_t iei, bool emergency, bool nssaa, bool sms, uint8_t value);
   void set(bool emergency, bool nssaa, bool sms, uint8_t value);
 

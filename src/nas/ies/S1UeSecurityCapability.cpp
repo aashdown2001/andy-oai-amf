@@ -35,7 +35,6 @@ S1UeSecurityCapability::S1UeSecurityCapability() : Type4NasIe() {
   uia_ = std::nullopt;
   gea_ = std::nullopt;
   SetLengthIndicator(2);
-  SetIeName(kS1UeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -46,7 +45,6 @@ S1UeSecurityCapability::S1UeSecurityCapability(uint8_t iei) : Type4NasIe(iei) {
   uia_ = std::nullopt;
   gea_ = std::nullopt;
   SetLengthIndicator(2);
-  SetIeName(kS1UeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -55,7 +53,6 @@ S1UeSecurityCapability::S1UeSecurityCapability(
   eea_ = eea;
   eia_ = eia;
   SetLengthIndicator(2);
-  SetIeName(kS1UeSecurityCapabilityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -66,7 +63,6 @@ S1UeSecurityCapability::S1UeSecurityCapability(
   uea_ = std::optional<uint8_t>(uea);
   uia_ = std::optional<uint8_t>(uia);
   SetLengthIndicator(4);
-  SetIeName(kS1UeSecurityCapabilityIeName);
 }
 //------------------------------------------------------------------------------
 S1UeSecurityCapability::~S1UeSecurityCapability() {}

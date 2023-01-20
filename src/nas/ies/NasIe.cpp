@@ -29,12 +29,12 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 NasIe::NasIe() {
-  ie_name_ = {};
+  // ie_name_ = {};
 }
 
 //------------------------------------------------------------------------------
 NasIe::~NasIe() {}
-
+/*
 //------------------------------------------------------------------------------
 void NasIe::SetIeName(const std::string& name) {
   ie_name_ = name;
@@ -49,3 +49,4 @@ std::string NasIe::GetIeName() const {
 void NasIe::GetIeName(std::string& name) const {
   name = ie_name_;
 }
+*/

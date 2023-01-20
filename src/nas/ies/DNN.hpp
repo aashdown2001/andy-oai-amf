@@ -36,6 +36,8 @@ class DNN : public Type4NasIe {
   DNN(bstring dnn);
   ~DNN();
 
+  static std::string GetIeName() { return kDnnIeName; }
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);
 

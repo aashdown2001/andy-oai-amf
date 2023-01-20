@@ -31,12 +31,16 @@ constexpr auto kPduSessionReactivationResultErrorCauseIeName =
 
 namespace nas {
 
-class PDU_Session_Reactivation_Result_Error_Cause : Type6NasIe {
+class PDU_Session_Reactivation_Result_Error_Cause : public Type6NasIe {
  public:
   PDU_Session_Reactivation_Result_Error_Cause();
   PDU_Session_Reactivation_Result_Error_Cause(
       uint8_t session_id, uint8_t value);
   ~PDU_Session_Reactivation_Result_Error_Cause();
+
+  static std::string GetIeName() {
+    return kPduSessionReactivationResultErrorCauseIeName;
+  }
 
   void setValue(uint8_t session_id, uint8_t cause);
   std::pair<uint8_t, uint8_t> getValue() const;

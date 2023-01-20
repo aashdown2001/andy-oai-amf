@@ -27,20 +27,17 @@ using namespace nas;
 //------------------------------------------------------------------------------
 PduSessionIdentity2::PduSessionIdentity2(uint8_t iei) : Type3NasIe(iei) {
   value_ = 0;
-  SetIeName(kPduSessionIdentity2IeName);
 }
 
 //------------------------------------------------------------------------------
 PduSessionIdentity2::PduSessionIdentity2(const uint8_t iei, uint8_t value)
     : Type3NasIe(iei) {
   value_ = value;
-  SetIeName(kPduSessionIdentity2IeName);
 }
 
 //------------------------------------------------------------------------------
 PduSessionIdentity2::PduSessionIdentity2() : Type3NasIe() {
   value_ = 0;
-  SetIeName(kPduSessionIdentity2IeName);
 }
 
 //------------------------------------------------------------------------------

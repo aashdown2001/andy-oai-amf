@@ -35,14 +35,12 @@ using namespace nas;
 _5GSMobileIdentity::_5GSMobileIdentity() : Type6NasIe() {
   type_of_identity_ = 0;
   ClearIe();
-  SetIeName(k5gsMobileIdentityIeName);
 }
 
 //------------------------------------------------------------------------------
 _5GSMobileIdentity::_5GSMobileIdentity(uint8_t iei) : Type6NasIe(iei) {
   type_of_identity_ = 0;
   ClearIe();
-  SetIeName(k5gsMobileIdentityIeName);
 }
 
 //------------------------------------------------------------------------------

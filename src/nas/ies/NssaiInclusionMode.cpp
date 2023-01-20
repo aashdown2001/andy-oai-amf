@@ -33,15 +33,12 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 NssaiInclusionMode::NssaiInclusionMode()
-    : Type1NasIeFormatTv(kIeiNssaiInclusionMode) {
-  SetIeName(kNssaiInclusionModeIeName);
-}
+    : Type1NasIeFormatTv(kIeiNssaiInclusionMode) {}
 
 //------------------------------------------------------------------------------
 NssaiInclusionMode::NssaiInclusionMode(uint8_t value)
     : Type1NasIeFormatTv(kIeiNssaiInclusionMode) {
   SetValue(value);
-  SetIeName(kNssaiInclusionModeIeName);
 }
 
 //------------------------------------------------------------------------------

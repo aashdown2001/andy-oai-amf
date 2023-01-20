@@ -29,7 +29,6 @@ Additional5gSecurityInformation::Additional5gSecurityInformation()
   rinmr_ = false;
   hdp_   = false;
   SetLengthIndicator(1);
-  SetIeName(kAdditional5gSecurityInformationIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -39,7 +38,6 @@ Additional5gSecurityInformation::Additional5gSecurityInformation(
   rinmr_ = rinmr;
   hdp_   = hdp;
   SetLengthIndicator(1);
-  SetIeName(kAdditional5gSecurityInformationIeName);
 }
 
 //------------------------------------------------------------------------------

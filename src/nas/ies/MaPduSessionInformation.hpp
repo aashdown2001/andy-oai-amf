@@ -34,6 +34,8 @@ class MaPduSessionInformation : public Type1NasIeFormatTv {
   MaPduSessionInformation(uint8_t value);
   ~MaPduSessionInformation();
 
+  static std::string GetIeName() { return kMaPduSessionInformationIeName; }
+
   void Set(uint8_t value);
   uint8_t Get() const;
 

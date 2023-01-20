@@ -35,6 +35,8 @@ class SorTransparentContainer : Type6NasIe {
   SorTransparentContainer(uint8_t header, const uint8_t (&value)[16]);
   ~SorTransparentContainer();
 
+  static std::string GetIeName() { return kSorTransparentContainerIeName; }
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);
 

@@ -24,8 +24,6 @@
 
 #include "Type6NasIe.hpp"
 
-using namespace std;
-
 constexpr uint8_t kLadnIndicationMinimumLength  = 3;
 constexpr uint16_t kLadnIndicationMaximumLength = 1715;
 constexpr auto kLadnIndicationIeName            = "LADN Indication";
@@ -37,6 +35,8 @@ class LadnIndication : Type6NasIe {
   LadnIndication();
   LadnIndication(const std::vector<bstring>& ladn);
   ~LadnIndication();
+
+  static std::string GetIeName() { return kLadnIndicationIeName; }
 
   // void SetValue(const std::vector<bstring>& ladn);
   void GetValue(std::vector<bstring>& ladn);

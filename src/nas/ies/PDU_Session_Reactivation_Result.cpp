@@ -31,7 +31,6 @@ using namespace nas;
 PDU_Session_Reactivation_Result::PDU_Session_Reactivation_Result()
     : Type4NasIe(kIeiPduSessionReactivationResult) {
   SetLengthIndicator(2);
-  SetIeName(kPduSessionReactivationResultIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -39,7 +38,6 @@ PDU_Session_Reactivation_Result::PDU_Session_Reactivation_Result(uint16_t value)
     : Type4NasIe(kIeiPduSessionReactivationResult) {
   _value = value;
   SetLengthIndicator(2);
-  SetIeName(kPduSessionReactivationResultIeName);
 }
 
 //------------------------------------------------------------------------------

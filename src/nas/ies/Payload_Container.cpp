@@ -31,7 +31,6 @@ Payload_Container::Payload_Container() : Type6NasIe() {
   content = std::nullopt;
   CONTENT = std::nullopt;
   SetLengthIndicator(0);
-  SetIeName(kPayloadContainerIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -39,7 +38,6 @@ Payload_Container::Payload_Container(uint8_t iei) : Type6NasIe(iei) {
   content = std::nullopt;
   CONTENT = std::nullopt;
   SetLengthIndicator(0);
-  SetIeName(kPayloadContainerIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -47,7 +45,6 @@ Payload_Container::Payload_Container(const bstring& b) : Type6NasIe() {
   content = std::optional<bstring>(b);
   CONTENT = std::nullopt;
   SetLengthIndicator(blength(b));
-  SetIeName(kPayloadContainerIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -56,7 +53,6 @@ Payload_Container::Payload_Container(uint8_t iei, const bstring& b)
   content = std::optional<bstring>(b);
   CONTENT = std::nullopt;
   SetLengthIndicator(blength(b));
-  SetIeName(kPayloadContainerIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -73,7 +69,6 @@ Payload_Container::Payload_Container(
              contents.at(i).length;  // 2 for Length of Payload container entry
   }
   SetLengthIndicator(length);
-  SetIeName(kPayloadContainerIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -90,7 +85,6 @@ Payload_Container::Payload_Container(
              contents.at(i).length;  // 2 for Length of Payload container entry
   }
   SetLengthIndicator(length);
-  SetIeName(kPayloadContainerIeName);
 }
 
 //------------------------------------------------------------------------------

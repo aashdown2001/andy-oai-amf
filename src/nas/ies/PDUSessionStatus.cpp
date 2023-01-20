@@ -32,7 +32,6 @@ using namespace nas;
 PDUSessionStatus::PDUSessionStatus() : Type4NasIe(kIeiPduSessionStatus) {
   _value = 0;
   SetLengthIndicator(2);
-  SetIeName(kPduSessionStatusIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -40,7 +39,6 @@ PDUSessionStatus::PDUSessionStatus(uint16_t value)
     : Type4NasIe(kIeiPduSessionStatus) {
   _value = value;
   SetLengthIndicator(2);
-  SetIeName(kPduSessionStatusIeName);
 }
 
 //------------------------------------------------------------------------------

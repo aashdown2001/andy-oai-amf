@@ -29,16 +29,13 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 NetworkSlicingIndication::NetworkSlicingIndication()
-    : Type1NasIeFormatTv(), dcni_(), nssci_() {
-  SetIeName(kNetworkSlicingIndicationIeName);
-}
+    : Type1NasIeFormatTv(), dcni_(), nssci_() {}
 
 //------------------------------------------------------------------------------
 NetworkSlicingIndication::NetworkSlicingIndication(uint8_t iei)
     : Type1NasIeFormatTv(iei) {
   dcni_  = false;
   nssci_ = false;
-  SetIeName(kNetworkSlicingIndicationIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -46,7 +43,6 @@ NetworkSlicingIndication::NetworkSlicingIndication(bool dcni, bool nssci)
     : Type1NasIeFormatTv() {
   dcni_  = dcni;
   nssci_ = nssci;
-  SetIeName(kNetworkSlicingIndicationIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -55,7 +51,6 @@ NetworkSlicingIndication::NetworkSlicingIndication(
     : Type1NasIeFormatTv(iei) {
   dcni_  = dcni;
   nssci_ = nssci;
-  SetIeName(kNetworkSlicingIndicationIeName);
 }
 
 //------------------------------------------------------------------------------

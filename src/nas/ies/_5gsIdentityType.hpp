@@ -35,6 +35,8 @@ class _5gsIdentityType : public Type1NasIeFormatTv {
   _5gsIdentityType(uint8_t iei, uint8_t value);
   ~_5gsIdentityType();
 
+  static std::string GetIeName() { return k5gsIdentityTypeIeName; }
+
   void SetValue(uint8_t value);
   uint8_t GetValue() const;
 

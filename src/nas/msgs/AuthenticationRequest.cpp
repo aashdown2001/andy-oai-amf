@@ -93,7 +93,8 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
   if (size != KEncodeDecodeError) {
     encoded_size += size;
   } else {
-    Logger::nas_mm().error("Encoding ie_ngKSI error");
+    Logger::nas_mm().error(
+        "Encoding %s error", NasKeySetIdentifier::GetIeName().c_str());
     return KEncodeDecodeError;
   }
   // Spare half octet
@@ -104,48 +105,58 @@ int AuthenticationRequest::Encode(uint8_t* buf, int len) {
   if (size != KEncodeDecodeError) {
     encoded_size += size;
   } else {
-    Logger::nas_mm().error("Encoding ie_abba error");
+    Logger::nas_mm().error("Encoding %s error", ABBA::GetIeName().c_str());
     return KEncodeDecodeError;
   }
 
   // Authentication parameter RAND
   if (!ie_authentication_parameter_rand.has_value()) {
-    Logger::nas_mm().warn(
-        "IE ie_authentication_parameter_rand is not available");
+    Logger::nas_mm().debug(
+        "IE %s is not available",
+        Authentication_Parameter_RAND::GetIeName().c_str());
   } else {
-    int size = ie_authentication_parameter_rand.value().Encode(
+    size = ie_authentication_parameter_rand.value().Encode(
         buf + encoded_size, len - encoded_size);
     if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
-      Logger::nas_mm().error("Encoding ie_authentication_parameter_rand error");
+      Logger::nas_mm().error(
+          "Encoding %s error",
+          Authentication_Parameter_RAND::GetIeName().c_str());
       return KEncodeDecodeError;
     }
   }
+
   // Authentication parameter AUTN
   if (!ie_authentication_parameter_autn.has_value()) {
-    Logger::nas_mm().warn(
-        "IE ie_authentication_parameter_autn is not available");
+    Logger::nas_mm().debug(
+        "IE %s is not available",
+        Authentication_Parameter_AUTN::GetIeName().c_str());
   } else {
-    int size = ie_authentication_parameter_autn.value().Encode(
+    size = ie_authentication_parameter_autn.value().Encode(
         buf + encoded_size, len - encoded_size);
     if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
-      Logger::nas_mm().error("Encoding ie_authentication_parameter_autn error");
+      Logger::nas_mm().error(
+          "Encoding %s error",
+          Authentication_Parameter_AUTN::GetIeName().c_str());
       return KEncodeDecodeError;
     }
   }
+
   // EAP message
   if (!ie_eap_message.has_value()) {
-    Logger::nas_mm().warn("IE ie_eap_message is not available");
+    Logger::nas_mm().debug(
+        "IE %s is not available", EapMessage::GetIeName().c_str());
   } else {
-    int size =
+    size =
         ie_eap_message.value().Encode(buf + encoded_size, len - encoded_size);
     if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
-      Logger::nas_mm().error("Encoding ie_eap_message error");
+      Logger::nas_mm().error(
+          "Encoding %s error", EapMessage::GetIeName().c_str());
       return KEncodeDecodeError;
     }
   }
@@ -170,15 +181,31 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
   decoded_size += decoded_result;
 
   // NgKSI
-  decoded_size += ie_ngKSI.Decode(
+  decoded_result = ie_ngKSI.Decode(
       buf + decoded_size, len - decoded_size, false,
-      false);      // length 1/2, low position
+      false);  // length 1/2, low position
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error(
+        "Decoding %s error", NasKeySetIdentifier::GetIeName().c_str());
+    return KEncodeDecodeError;
+  }
+  decoded_size += decoded_result;
   decoded_size++;  // 1/2 octet from ie_ngKSI, 1/2 from Spare half octet
+
   // ABBA
-  decoded_size += ie_abba.Decode(buf + decoded_size, len - decoded_size, false);
+  decoded_result =
+      ie_abba.Decode(buf + decoded_size, len - decoded_size, false);
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error("Decoding %s error", ABBA::GetIeName().c_str());
+    return KEncodeDecodeError;
+  }
+  decoded_size += decoded_result;
+
   Logger::nas_mm().debug("Decoded_size %d", decoded_size);
 
-  uint8_t octet = *(buf + decoded_size);
+  // Decode other IEs
+  uint8_t octet = 0x00;
+  DECODE_U8_VALUE(buf + decoded_size, octet);
   Logger::nas_mm().debug("First option IEI 0x%x", octet);
   while ((octet != 0x0)) {
     switch (octet) {
@@ -189,12 +216,12 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
         if ((decoded_result = ie_authentication_parameter_rand_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
-          return decoded_result;
+          return KEncodeDecodeError;
         decoded_size += decoded_result;
         ie_authentication_parameter_rand =
             std::optional<Authentication_Parameter_RAND>(
                 ie_authentication_parameter_rand_tmp);
-        octet = *(buf + decoded_size);
+        DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
 
@@ -203,12 +230,12 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
         if ((decoded_result = ie_authentication_parameter_autn_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
-          return decoded_result;
+          return KEncodeDecodeError;
         decoded_size += decoded_result;
         ie_authentication_parameter_autn =
             std::optional<Authentication_Parameter_AUTN>(
                 ie_authentication_parameter_autn_tmp);
-        octet = *(buf + decoded_size);
+        DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
       } break;
 
@@ -218,15 +245,22 @@ int AuthenticationRequest::Decode(uint8_t* buf, int len) {
         if ((decoded_result = ie_eap_message_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
-          return decoded_result;
+          return KEncodeDecodeError;
         decoded_size += decoded_result;
         ie_eap_message = std::optional<EapMessage>(ie_eap_message_tmp);
-        octet          = *(buf + decoded_size);
+        DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI 0x%x", octet);
+      } break;
+
+      default: {
+        Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
+        // Stop decoding
+        octet = 0x00;
       } break;
     }
   }
+
   Logger::nas_mm().debug(
       "Decoded AuthenticationRequest message (len %d)", decoded_size);
-  return 1;
+  return decoded_size;
 }

@@ -27,14 +27,12 @@ using namespace nas;
 //------------------------------------------------------------------------------
 DNN::DNN() : Type4NasIe(kIeiDnn), _DNN() {
   SetLengthIndicator(1);
-  SetIeName(kDnnIeName);
 }
 
 //------------------------------------------------------------------------------
 DNN::DNN(bstring dnn) : Type4NasIe(kIeiDnn) {
   _DNN = bstrcpy(dnn);
   SetLengthIndicator(blength(dnn));
-  SetIeName(kDnnIeName);
 }
 
 //------------------------------------------------------------------------------

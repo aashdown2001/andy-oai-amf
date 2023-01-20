@@ -35,7 +35,6 @@ _5GSTrackingAreaIdentity::_5GSTrackingAreaIdentity()
   mcc_ = {};
   mnc_ = {};
   tac_ = 0;
-  SetIeName(k5gsTrackingAreaIdentityIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -45,7 +44,6 @@ _5GSTrackingAreaIdentity::_5GSTrackingAreaIdentity(
   mcc_ = mcc;
   mnc_ = mnc;
   tac_ = tac & 0x0fff;
-  SetIeName(k5gsTrackingAreaIdentityIeName);
 }
 
 //------------------------------------------------------------------------------

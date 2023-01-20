@@ -30,13 +30,15 @@ constexpr auto kEapMessageIeName            = "EAP Message";
 
 namespace nas {
 
-class EapMessage : Type6NasIe {
+class EapMessage : public Type6NasIe {
  public:
   EapMessage();
   EapMessage(uint8_t iei);
   EapMessage(bstring eap);
   EapMessage(uint8_t iei, bstring eap);
   ~EapMessage();
+
+  static std::string GetIeName() { return kEapMessageIeName; }
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);

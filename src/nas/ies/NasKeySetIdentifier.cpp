@@ -38,7 +38,6 @@ NasKeySetIdentifier::NasKeySetIdentifier(
   tsc_    = 0x01 & tsc;
   key_id_ = 0x07 & key_id;
   SetValue();
-  SetIeName(kNasKeySetIdentifierName);
 }
 
 //------------------------------------------------------------------------------
@@ -47,7 +46,6 @@ NasKeySetIdentifier::NasKeySetIdentifier(const bool& tsc, const uint8_t& key_id)
   tsc_    = 0x01 & tsc;
   key_id_ = 0x07 & key_id;
   SetValue();
-  SetIeName(kNasKeySetIdentifierName);
 }
 
 //------------------------------------------------------------------------------

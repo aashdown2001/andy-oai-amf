@@ -62,7 +62,8 @@ int IdentityRequest::Encode(uint8_t* buf, int len) {
   if (size != KEncodeDecodeError) {
     encoded_size += size;
   } else {
-    Logger::nas_mm().error("Encoding _5gs_identity_type  error");
+    Logger::nas_mm().error(
+        "Encoding %s error", _5gsIdentityType::GetIeName().c_str());
     return KEncodeDecodeError;
   }
 
@@ -91,8 +92,11 @@ int IdentityRequest::Decode(uint8_t* buf, int len) {
 
   decoded_result =
       _5gs_identity_type_.Decode(buf + decoded_size, len - decoded_size, false);
-
-  if (decoded_result == KEncodeDecodeError) return KEncodeDecodeError;
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error(
+        "Decoding %s error", _5gsIdentityType::GetIeName().c_str());
+    return KEncodeDecodeError;
+  }
   if (decoded_result == 0) {
     decoded_result = 1;  // including 1/2 octet for Spare
   }

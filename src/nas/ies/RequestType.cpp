@@ -34,13 +34,11 @@ using namespace nas;
 //------------------------------------------------------------------------------
 RequestType::RequestType() : Type1NasIeFormatTv(kIeiRequestType) {
   value_ = 0;
-  SetIeName(kRequestTypeIeName);
 }
 
 //------------------------------------------------------------------------------
 RequestType::RequestType(uint8_t value) : Type1NasIeFormatTv(kIeiRequestType) {
   value_ = value;
-  SetIeName(kRequestTypeIeName);
 }
 
 //------------------------------------------------------------------------------

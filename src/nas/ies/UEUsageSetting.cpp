@@ -32,7 +32,6 @@ using namespace nas;
 UEUsageSetting::UEUsageSetting() : Type4NasIe(kIeiUeUsageSetting) {
   ues_usage_setting_ = false;
   SetLengthIndicator(1);
-  SetIeName(kUeUsageSettingIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -40,7 +39,6 @@ UEUsageSetting::UEUsageSetting(bool ues_usage_setting)
     : Type4NasIe(kIeiUeUsageSetting) {
   ues_usage_setting_ = ues_usage_setting;
   SetLengthIndicator(1);
-  SetIeName(kUeUsageSettingIeName);
 }
 
 //------------------------------------------------------------------------------

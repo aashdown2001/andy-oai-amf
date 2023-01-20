@@ -60,19 +60,21 @@ int AuthenticationReject::Encode(uint8_t* buf, int len) {
   encoded_size += encoded_ie_size;
 
   if (!ie_eap_message.has_value()) {
-    Logger::nas_mm().warn("IE ie_eap_message is not available");
+    Logger::nas_mm().debug(
+        "IE %s is not available", EapMessage::GetIeName().c_str());
   } else {
-    if (int size = ie_eap_message.value().Encode(
-            buf + encoded_size, len - encoded_size)) {
+    int size =
+        ie_eap_message.value().Encode(buf + encoded_size, len - encoded_size);
+    if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error("Encoding ie_eap_message error");
-      return 0;
+      return KEncodeDecodeError;
     }
   }
   Logger::nas_mm().debug(
       "Encoded AuthenticationReject message len (%d)", encoded_size);
-  return 1;
+  return encoded_size;
 }
 
 //------------------------------------------------------------------------------
@@ -90,22 +92,23 @@ int AuthenticationReject::Decode(uint8_t* buf, int len) {
   decoded_size += decoded_result;
 
   // IEIs
-  uint8_t octet = *(buf + decoded_size);
-  Logger::nas_mm().debug("First option IEI (0x%x)", octet);
+  uint8_t octet = 0x00;
+  DECODE_U8_VALUE(buf + decoded_size, octet);
   while ((octet != 0x0)) {
+    Logger::nas_mm().debug("IEI (0x%x)", octet);
     switch (octet) {
       case kIeiEapMessage: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiEapMessage);
         EapMessage ie_eap_message_tmp = {};
-        if ((decoded_result = ie_eap_message_tmp.Decode(
-                 buf + decoded_size, len - decoded_size, true)) ==
-            KEncodeDecodeError)
-          return decoded_result;
+        decoded_result                = ie_eap_message_tmp.Decode(
+            buf + decoded_size, len - decoded_size, true);
+        if (decoded_result == KEncodeDecodeError) return KEncodeDecodeError;
         decoded_size += decoded_result;
         ie_eap_message = std::optional<EapMessage>(ie_eap_message_tmp);
-        octet          = *(buf + decoded_size);
+        DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       default: {
         Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
         // Stop decoding
@@ -113,6 +116,7 @@ int AuthenticationReject::Decode(uint8_t* buf, int len) {
       } break;
     }
   }
+
   Logger::nas_mm().debug(
       "Decoded AuthenticationReject message len (%d)", decoded_size);
   return decoded_size;

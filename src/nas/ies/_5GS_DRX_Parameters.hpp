@@ -41,6 +41,8 @@ class _5GS_DRX_Parameters : public Type4NasIe {
   void SetValue(uint8_t value);
   uint8_t GetValue() const;
 
+  static std::string GetIeName() { return k5gsDrxParametersIeName; }
+
  private:
   uint8_t _value;
 };

@@ -30,11 +30,13 @@ constexpr auto kPduSessionStatusIeName           = "PDU Session Status";
 
 namespace nas {
 
-class PDUSessionStatus : Type4NasIe {
+class PDUSessionStatus : public Type4NasIe {
  public:
   PDUSessionStatus();
   PDUSessionStatus(uint16_t value);
   ~PDUSessionStatus();
+
+  static std::string GetIeName() { return kPduSessionStatusIeName; }
 
   void SetValue(uint16_t value);
   uint16_t GetValue() const;

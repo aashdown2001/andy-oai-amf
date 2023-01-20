@@ -28,14 +28,11 @@ using namespace nas;
 Non_3GPP_NW_Provided_Policies::Non_3GPP_NW_Provided_Policies(uint8_t value)
     : Type1NasIeFormatTv(kIeiNon3gppNwProvidedPolicies) {
   SetValue(value & 0x01);
-  SetIeName(kNon3gppNwProvidedPoliciesIeName);
 }
 
 //------------------------------------------------------------------------------
 Non_3GPP_NW_Provided_Policies::Non_3GPP_NW_Provided_Policies()
-    : Type1NasIeFormatTv(kIeiNon3gppNwProvidedPolicies) {
-  SetIeName(kNon3gppNwProvidedPoliciesIeName);
-}
+    : Type1NasIeFormatTv(kIeiNon3gppNwProvidedPolicies) {}
 
 //------------------------------------------------------------------------------
 Non_3GPP_NW_Provided_Policies::~Non_3GPP_NW_Provided_Policies(){};

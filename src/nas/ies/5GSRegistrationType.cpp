@@ -28,9 +28,7 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 _5GSRegistrationType::_5GSRegistrationType()
-    : Type1NasIeFormatTv(), follow_on_req_(false), reg_type_(0) {
-  SetIeName(k5gsRegistrationTypeName);
-}
+    : Type1NasIeFormatTv(), follow_on_req_(false), reg_type_(0) {}
 
 //------------------------------------------------------------------------------
 _5GSRegistrationType::_5GSRegistrationType(
@@ -38,7 +36,6 @@ _5GSRegistrationType::_5GSRegistrationType(
     : Type1NasIeFormatTv(), follow_on_req_(follow_on_req) {
   if (validateValue(follow_on_req, type)) reg_type_ = type;
   setValue();
-  SetIeName(k5gsRegistrationTypeName);
 }
 
 //------------------------------------------------------------------------------
@@ -48,7 +45,6 @@ _5GSRegistrationType::_5GSRegistrationType(
   follow_on_req_ = follow_on_req;
   if (validateValue(follow_on_req, type)) reg_type_ = type;
   setValue();
-  SetIeName("5GS Registration Type");
 }
 
 //------------------------------------------------------------------------------

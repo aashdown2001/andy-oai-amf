@@ -37,6 +37,8 @@ class PlmnList : public Type4NasIe {
   PlmnList(uint8_t iei);
   ~PlmnList();
 
+  static std::string GetIeName() { return kPlmnListIeName; }
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
 

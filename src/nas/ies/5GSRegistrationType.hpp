@@ -36,6 +36,8 @@ class _5GSRegistrationType : public Type1NasIeFormatTv {
       const uint8_t& iei, const bool& follow_on_req, const uint8_t& type);
   virtual ~_5GSRegistrationType();
 
+  static std::string GetIeName() { return k5gsRegistrationTypeName; }
+
   void setValue();
   void getValue();
 

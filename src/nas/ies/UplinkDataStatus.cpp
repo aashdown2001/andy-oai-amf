@@ -31,7 +31,6 @@ using namespace nas;
 UplinkDataStatus::UplinkDataStatus() : Type4NasIe(kIeiUplinkDataStatus) {
   _value = 0;
   SetLengthIndicator(2);
-  SetIeName(kUplinkDataStatusIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -39,7 +38,6 @@ UplinkDataStatus::UplinkDataStatus(const uint16_t& value)
     : Type4NasIe(kIeiUplinkDataStatus) {
   _value = value;
   SetLengthIndicator(2);
-  SetIeName(kUplinkDataStatusIeName);
 }
 
 //-----------------------------------------------------------------------------

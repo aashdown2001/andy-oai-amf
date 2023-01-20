@@ -68,7 +68,7 @@ void Type1NasIeFormatV::Set(const uint8_t& value) {
 }
 //------------------------------------------------------------------------------
 int Type1NasIeFormatV::Encode(uint8_t* buf, const int& len) {
-  Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
+  // Logger::nas_mm().debug("Encoding %s", GetIeName().c_str());
   if (!Validate(len)) return KEncodeDecodeError;
 
   int encoded_size = 0;
@@ -87,15 +87,15 @@ int Type1NasIeFormatV::Encode(uint8_t* buf, const int& len) {
 
   ENCODE_U8(buf + encoded_size, octet, encoded_size);
 
-  Logger::nas_mm().debug(
-      "Encoded %s (len %d)", GetIeName().c_str(), encoded_size);
+  // Logger::nas_mm().debug(
+  //    "Encoded %s (len %d)", GetIeName().c_str(), encoded_size);
   return 0;  // 1/2 octet
 }
 
 //------------------------------------------------------------------------------
 int Type1NasIeFormatV::Decode(
     const uint8_t* const buf, const int& len, bool high_pos) {
-  Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
+  // Logger::nas_mm().debug("Decoding %s", GetIeName().c_str());
 
   if (!Validate(len)) return KEncodeDecodeError;
   high_pos_        = high_pos;
@@ -108,7 +108,7 @@ int Type1NasIeFormatV::Decode(
   } else {
     value_ = (octet & 0x0f);
   }
-  Logger::nas_mm().debug(
-      "Decoded %s (len %d)", GetIeName().c_str(), decoded_size);
+  // Logger::nas_mm().debug(
+  //     "Decoded %s (len %d)", GetIeName().c_str(), decoded_size);
   return 0;  // 1/2 octet
 }

@@ -36,7 +36,6 @@ PDU_Session_Reactivation_Result_Error_Cause::
   pdu_session_id_cause_value_pair.push_back(value);
   SetLengthIndicator(
       2);  // Minimum length with 1 pair (PDU Session ID, Cause Value)
-  SetIeName(kPduSessionReactivationResultErrorCauseIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -48,7 +47,6 @@ PDU_Session_Reactivation_Result_Error_Cause::
   pdu_session_id_cause_value_pair.push_back(value);
   SetLengthIndicator(
       2);  // Minimum length with 1 pair (PDU Session ID, Cause Value)
-  SetIeName(kPduSessionReactivationResultErrorCauseIeName);
 }
 
 //------------------------------------------------------------------------------

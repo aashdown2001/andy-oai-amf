@@ -30,7 +30,6 @@ using namespace nas;
 Authentication_Parameter_AUTN::Authentication_Parameter_AUTN(uint8_t iei)
     : Type4NasIe(iei), _value() {
   SetLengthIndicator(0);
-  SetIeName(kAuthenticationParameterAutnIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -41,14 +40,12 @@ Authentication_Parameter_AUTN::Authentication_Parameter_AUTN(
     this->_value[i] = value[i];
   }
   SetLengthIndicator(kAuthenticationParameterAutnValueLength);
-  SetIeName(kAuthenticationParameterAutnIeName);
 }
 
 //------------------------------------------------------------------------------
 Authentication_Parameter_AUTN::Authentication_Parameter_AUTN()
     : Type4NasIe(), _value() {
   SetLengthIndicator(0);
-  SetIeName(kAuthenticationParameterAutnIeName);
 }
 
 //------------------------------------------------------------------------------

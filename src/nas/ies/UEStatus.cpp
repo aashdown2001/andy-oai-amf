@@ -32,7 +32,6 @@ UEStatus::UEStatus() : Type4NasIe(kIeiUeStatus) {
   s1_ = false;
   n1_ = false;
   SetLengthIndicator(1);
-  SetIeName(kUeStatusIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -40,7 +39,6 @@ UEStatus::UEStatus(bool n1, bool s1) : Type4NasIe(kIeiUeStatus) {
   s1_ = s1;
   n1_ = n1;
   SetLengthIndicator(1);
-  SetIeName(kUeStatusIeName);
 }
 
 //------------------------------------------------------------------------------

@@ -35,7 +35,6 @@ S_NSSAI::S_NSSAI(std::optional<uint8_t> iei) : Type4NasIe() {
   mapped_hplmn_sst_ = std::nullopt;
   mapped_hplmn_sd_  = std::nullopt;
   SetLengthIndicator(1);  // SST
-  SetIeName(kSNssaiIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -76,7 +75,6 @@ S_NSSAI::S_NSSAI(std::optional<uint8_t> iei, SNSSAI_s snssai) {
   }
 
   SetLengthIndicator(snssai.length);
-  SetIeName(kSNssaiIeName);
 }
 
 //------------------------------------------------------------------------------

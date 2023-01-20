@@ -29,17 +29,13 @@ using namespace nas;
 NasSecurityAlgorithms::NasSecurityAlgorithms()
     : Type3NasIe(),
       type_of_ciphering_algorithm_(),
-      type_of_integrity_protection_algorithm_() {
-  SetIeName(kNasSecurityAlgorithmsIeName);
-}
+      type_of_integrity_protection_algorithm_() {}
 
 //------------------------------------------------------------------------------
 NasSecurityAlgorithms::NasSecurityAlgorithms(uint8_t iei)
     : Type3NasIe(iei),
       type_of_ciphering_algorithm_(),
-      type_of_integrity_protection_algorithm_() {
-  SetIeName(kNasSecurityAlgorithmsIeName);
-}
+      type_of_integrity_protection_algorithm_() {}
 
 //------------------------------------------------------------------------------
 NasSecurityAlgorithms::~NasSecurityAlgorithms() {}
@@ -50,7 +46,6 @@ NasSecurityAlgorithms::NasSecurityAlgorithms(
     : Type3NasIe() {
   type_of_ciphering_algorithm_            = ciphering & 0x0f;
   type_of_integrity_protection_algorithm_ = integrity_protection & 0x0f;
-  SetIeName(kNasSecurityAlgorithmsIeName);
 }
 
 //------------------------------------------------------------------------------

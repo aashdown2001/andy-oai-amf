@@ -31,13 +31,11 @@ using namespace nas;
 //------------------------------------------------------------------------------
 PlmnList::PlmnList(uint8_t iei) : Type4NasIe(iei) {
   SetLengthIndicator(0);
-  SetIeName(kPlmnListIeName);
 }
 
 //------------------------------------------------------------------------------
 PlmnList::PlmnList() : Type4NasIe() {
   SetLengthIndicator(0);
-  SetIeName(kPlmnListIeName);
 }
 
 //------------------------------------------------------------------------------

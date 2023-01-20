@@ -42,6 +42,8 @@ class _5GMMCapability : public Type4NasIe {
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei = true);
 
+  static std::string GetIeName() { return k5gmmCapabilityIeName; }
+
  private:
   uint8_t octet3_;  // minimum length of 3 octets
   std::optional<uint8_t> octet4_;

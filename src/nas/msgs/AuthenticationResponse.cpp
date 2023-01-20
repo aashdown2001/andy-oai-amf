@@ -89,29 +89,37 @@ int AuthenticationResponse::Encode(uint8_t* buf, int len) {
   encoded_size += encoded_ie_size;
 
   if (!ie_authentication_response_parameter.has_value()) {
-    Logger::nas_mm().warn(
-        "IE ie_authentication_response_parameter is not available");
+    Logger::nas_mm().debug(
+        "IE %s is not available",
+        AuthenticationResponseParameter::GetIeName().c_str());
   } else {
-    if (int size = ie_authentication_response_parameter.value().Encode(
-            buf + encoded_size, len - encoded_size)) {
+    int size = ie_authentication_response_parameter.value().Encode(
+        buf + encoded_size, len - encoded_size);
+    if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
       Logger::nas_mm().error(
-          "Encoding ie_authentication_response_parameter error");
-      return 0;
+          "Encoding %s error",
+          AuthenticationResponseParameter::GetIeName().c_str());
+      return KEncodeDecodeError;
     }
   }
+
   if (!ie_eap_message.has_value()) {
-    Logger::nas_mm().warn("IE ie_eap_message is not available");
+    Logger::nas_mm().debug(
+        "IE %s is not available", EapMessage::GetIeName().c_str());
   } else {
-    if (int size = ie_eap_message.value().Encode(
-            buf + encoded_size, len - encoded_size)) {
+    int size =
+        ie_eap_message.value().Encode(buf + encoded_size, len - encoded_size);
+    if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
-      Logger::nas_mm().error("Encoding ie_eap_message error");
-      return 0;
+      Logger::nas_mm().error(
+          "Encoding %s error", EapMessage::GetIeName().c_str());
+      return KEncodeDecodeError;
     }
   }
+
   Logger::nas_mm().debug(
       "Encoded AuthenticationResponse message len (%d)", encoded_size);
   return encoded_size;
@@ -130,8 +138,9 @@ int AuthenticationResponse::Decode(uint8_t* buf, int len) {
   }
   decoded_size += decoded_result;
 
-  // IEIs
-  uint8_t octet = *(buf + decoded_size);
+  // Decode other IEs
+  uint8_t octet = 0x00;
+  DECODE_U8_VALUE(buf + decoded_size, octet);
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
   while ((octet != 0x0)) {
     switch (octet) {
@@ -140,24 +149,31 @@ int AuthenticationResponse::Decode(uint8_t* buf, int len) {
             "Decoding IEI 0x%x", kIeiAuthenticationResponseParameter);
         AuthenticationResponseParameter
             ie_authentication_response_parameter_tmp = {};
-        decoded_size += ie_authentication_response_parameter_tmp.Decode(
-            buf + decoded_size, len - decoded_size, true);
+        if ((decoded_result = ie_authentication_response_parameter_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return KEncodeDecodeError;
+        decoded_size += decoded_result;
         ie_authentication_response_parameter =
             std::optional<AuthenticationResponseParameter>(
                 ie_authentication_response_parameter_tmp);
-        octet = *(buf + decoded_size);
+        DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
 
       case kIeiEapMessage: {
         Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiEapMessage);
         EapMessage ie_eap_message_tmp = {};
-        decoded_size += ie_eap_message_tmp.Decode(
-            buf + decoded_size, len - decoded_size, true);
+        if ((decoded_result = ie_eap_message_tmp.Decode(
+                 buf + decoded_size, len - decoded_size, true)) ==
+            KEncodeDecodeError)
+          return KEncodeDecodeError;
+        decoded_size += decoded_result;
         ie_eap_message = std::optional<EapMessage>(ie_eap_message_tmp);
-        octet          = *(buf + decoded_size);
+        DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       default: {
         Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
         // Stop decoding
@@ -165,6 +181,7 @@ int AuthenticationResponse::Decode(uint8_t* buf, int len) {
       } break;
     }
   }
+
   Logger::nas_mm().debug(
       "Decoded AuthenticationResponse message len (%d)", decoded_size);
   return decoded_size;

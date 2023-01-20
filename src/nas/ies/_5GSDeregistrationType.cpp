@@ -28,21 +28,18 @@ using namespace nas;
 //------------------------------------------------------------------------------
 _5GSDeregistrationType::_5GSDeregistrationType() : Type1NasIeFormatTv() {
   u1.b = 0;
-  SetIeName(k5gsDeregistrationTypeIeName);
 }
 
 //------------------------------------------------------------------------------
 _5GSDeregistrationType::_5GSDeregistrationType(uint8_t iei)
     : Type1NasIeFormatTv(iei) {
   u1.bf.iei = iei;
-  SetIeName(k5gsDeregistrationTypeIeName);
 }
 
 //------------------------------------------------------------------------------
 _5GSDeregistrationType::_5GSDeregistrationType(uint8_t iei, uint8_t value) {
   u1.b = (iei << 4) | (value && 0x0f);
   SetValue(value && 0x0f);
-  SetIeName(k5gsDeregistrationTypeIeName);
 }
 //------------------------------------------------------------------------------
 _5GSDeregistrationType::_5GSDeregistrationType(
@@ -56,7 +53,6 @@ _5GSDeregistrationType::_5GSDeregistrationType(
     SetIei(type.iei);
   }
   SetValue(u1.b && 0x0f);
-  SetIeName(k5gsDeregistrationTypeIeName);
 }
 
 //------------------------------------------------------------------------------

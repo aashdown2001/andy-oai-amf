@@ -27,7 +27,8 @@
 constexpr uint8_t kAuthenticationFailureParameterLength = 16;
 constexpr uint8_t kAuthenticationFailureParameterContentLength =
     kAuthenticationFailureParameterLength - 2;
-constexpr auto kAuthenticationFailureParameterIeName = "5GMM Capability";
+constexpr auto kAuthenticationFailureParameterIeName =
+    "Authentication Failure Parameter";
 
 namespace nas {
 
@@ -36,6 +37,10 @@ class AuthenticationFailureParameter : public Type4NasIe {
   AuthenticationFailureParameter();
   AuthenticationFailureParameter(const bstring& value);
   ~AuthenticationFailureParameter();
+
+  static std::string GetIeName() {
+    return kAuthenticationFailureParameterIeName;
+  }
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);

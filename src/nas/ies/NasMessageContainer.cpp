@@ -32,7 +32,6 @@ using namespace nas;
 NasMessageContainer::NasMessageContainer()
     : Type6NasIe(kIeiNasMessageContainer), value_() {
   SetLengthIndicator(0);
-  SetIeName(kNasMessageContainerIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -40,7 +39,6 @@ NasMessageContainer::NasMessageContainer(bstring value)
     : Type6NasIe(kIeiNasMessageContainer) {
   value_ = bstrcpy(value);
   SetLengthIndicator(blength(value));
-  SetIeName(kNasMessageContainerIeName);
 }
 
 //------------------------------------------------------------------------------

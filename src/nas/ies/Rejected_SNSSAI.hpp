@@ -48,7 +48,7 @@ class Rejected_SNSSAI {
   void getCause(uint8_t& cause);
 
   int Encode(uint8_t* buf, int len);
-  int decodefrombuffer(uint8_t* buf, int len);
+  int Decode(uint8_t* buf, int len);
 
  private:
   uint8_t length_;

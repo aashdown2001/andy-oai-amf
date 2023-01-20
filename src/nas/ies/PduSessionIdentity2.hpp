@@ -36,6 +36,8 @@ class PduSessionIdentity2 : public Type3NasIe {
   PduSessionIdentity2(const uint8_t iei, uint8_t value);
   ~PduSessionIdentity2();
 
+  static std::string GetIeName() { return kPduSessionIdentity2IeName; }
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
 

@@ -27,15 +27,11 @@ using namespace nas;
 
 //------------------------------------------------------------------------------
 Authentication_Parameter_RAND::Authentication_Parameter_RAND()
-    : Type3NasIe(), _value() {
-  SetIeName(kAuthenticationParameterRandIeName);
-}
+    : Type3NasIe(), _value() {}
 
 //------------------------------------------------------------------------------
 Authentication_Parameter_RAND::Authentication_Parameter_RAND(uint8_t iei)
-    : Type3NasIe(iei), _value() {
-  SetIeName(kAuthenticationParameterRandIeName);
-}
+    : Type3NasIe(iei), _value() {}
 
 //------------------------------------------------------------------------------
 Authentication_Parameter_RAND::Authentication_Parameter_RAND(
@@ -44,7 +40,6 @@ Authentication_Parameter_RAND::Authentication_Parameter_RAND(
   for (int i = 0; i < kAuthenticationParameterRandValueLength; i++) {
     this->_value[i] = value[i];
   }
-  SetIeName(kAuthenticationParameterRandIeName);
 }
 
 //------------------------------------------------------------------------------

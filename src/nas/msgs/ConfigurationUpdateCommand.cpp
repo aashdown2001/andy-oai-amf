@@ -105,27 +105,31 @@ int ConfigurationUpdateCommand::Encode(uint8_t* buf, int len) {
   encoded_size += encoded_ie_size;
 
   if (!full_name_for_network.has_value()) {
-    Logger::nas_mm().debug("IE Full Name For Network is not available");
+    Logger::nas_mm().debug(
+        "IE %s is not available", NetworkName::GetIeName().c_str());
   } else {
     encoded_ie_size = full_name_for_network.value().Encode(
         buf + encoded_size, len - encoded_size);
     if (encoded_ie_size != KEncodeDecodeError) {
       encoded_size += encoded_ie_size;
     } else {
-      Logger::nas_mm().error("Encoding Full Name For Network error");
+      Logger::nas_mm().error(
+          "Encoding %s error", NetworkName::GetIeName().c_str());
       return KEncodeDecodeError;
     }
   }
 
   if (!short_name_for_network.has_value()) {
-    Logger::nas_mm().debug("IE Short Name For Network is not available");
+    Logger::nas_mm().debug(
+        "IE %s is not available", NetworkName::GetIeName().c_str());
   } else {
     encoded_ie_size = short_name_for_network.value().Encode(
         buf + encoded_size, len - encoded_size);
     if (encoded_ie_size != KEncodeDecodeError) {
       encoded_size += encoded_ie_size;
     } else {
-      Logger::nas_mm().error("Encoding Short Name For Network error");
+      Logger::nas_mm().error(
+          "Encoding %s error", NetworkName::GetIeName().c_str());
       return KEncodeDecodeError;
     }
   }
@@ -150,7 +154,9 @@ int ConfigurationUpdateCommand::Decode(uint8_t* buf, int len) {
   }
   decoded_size += decoded_result;
 
-  uint8_t octet = *(buf + decoded_size);
+  // Decode other IEs
+  uint8_t octet = 0x00;
+  DECODE_U8_VALUE(buf + decoded_size, octet);
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
   while ((octet != 0x0)) {
     switch (octet) {
@@ -159,12 +165,15 @@ int ConfigurationUpdateCommand::Decode(uint8_t* buf, int len) {
         NetworkName full_name_for_network_tmp = {};
         if ((decoded_result = full_name_for_network_tmp.decodefrombuffer(
                  buf + decoded_size, len - decoded_size, true)) ==
-            KEncodeDecodeError)
-          return decoded_result;
+            KEncodeDecodeError) {
+          Logger::nas_mm().error(
+              "Encoding %s error", NetworkName::GetIeName().c_str());
+          return KEncodeDecodeError;
+        }
         decoded_size += decoded_result;
         full_name_for_network =
             std::optional<NetworkName>(full_name_for_network_tmp);
-        octet = *(buf + decoded_size);
+        DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
 
@@ -173,12 +182,15 @@ int ConfigurationUpdateCommand::Decode(uint8_t* buf, int len) {
         NetworkName short_name_for_network_tmp = {};
         if ((decoded_result = short_name_for_network_tmp.decodefrombuffer(
                  buf + decoded_size, len - decoded_size, true)) ==
-            KEncodeDecodeError)
-          return decoded_result;
+            KEncodeDecodeError) {
+          Logger::nas_mm().error(
+              "Encoding %s error", NetworkName::GetIeName().c_str());
+          return KEncodeDecodeError;
+        }
         decoded_size += decoded_result;
         short_name_for_network =
             std::optional<NetworkName>(short_name_for_network_tmp);
-        octet = *(buf + decoded_size);
+        DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
 

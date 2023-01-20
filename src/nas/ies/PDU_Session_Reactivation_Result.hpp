@@ -36,6 +36,8 @@ class PDU_Session_Reactivation_Result : public Type4NasIe {
   PDU_Session_Reactivation_Result(uint16_t value);
   ~PDU_Session_Reactivation_Result();
 
+  static std::string GetIeName() { return kPduSessionReactivationResultIeName; }
+
   void setValue(uint16_t value);
   uint16_t getValue() const;
 

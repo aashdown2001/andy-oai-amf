@@ -27,9 +27,7 @@ using namespace nas;
 EpsNasSecurityAlgorithms::EpsNasSecurityAlgorithms()
     : Type3NasIe(kIeiEpsNasSecurityAlgorithms),
       type_of_ciphering_algorithm_(),
-      type_of_integrity_protection_algorithm_() {
-  SetIeName(kEpsNasSecurityAlgorithmsIeName);
-}
+      type_of_integrity_protection_algorithm_() {}
 
 //------------------------------------------------------------------------------
 EpsNasSecurityAlgorithms::EpsNasSecurityAlgorithms(
@@ -37,7 +35,6 @@ EpsNasSecurityAlgorithms::EpsNasSecurityAlgorithms(
     : Type3NasIe(kIeiEpsNasSecurityAlgorithms) {
   type_of_ciphering_algorithm_            = ciphering & 0x07;
   type_of_integrity_protection_algorithm_ = integrity_protection & 0x07;
-  SetIeName(kEpsNasSecurityAlgorithmsIeName);
 }
 
 //------------------------------------------------------------------------------

@@ -40,6 +40,8 @@ class Authentication_Parameter_AUTN : public Type4NasIe {
       uint8_t value[kAuthenticationParameterAutnValueLength]);
   ~Authentication_Parameter_AUTN();
 
+  static std::string GetIeName() { return kAuthenticationParameterAutnIeName; }
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_option);
 

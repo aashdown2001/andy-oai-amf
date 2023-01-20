@@ -23,9 +23,7 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-ServiceType::ServiceType() : Type1NasIe(true), service_type_value_() {
-  SetIeName(kServiceTypeIeName);
-}
+ServiceType::ServiceType() : Type1NasIe(true), service_type_value_() {}
 
 //------------------------------------------------------------------------------
 ServiceType::ServiceType(uint8_t value) : Type1NasIe(true) {

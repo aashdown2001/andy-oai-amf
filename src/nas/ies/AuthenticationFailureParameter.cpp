@@ -27,7 +27,6 @@ using namespace nas;
 AuthenticationFailureParameter::AuthenticationFailureParameter()
     : Type4NasIe(kIeiAuthenticationFailureParameter), value_() {
   SetLengthIndicator(kAuthenticationFailureParameterContentLength);
-  SetIeName(kAuthenticationFailureParameterIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -35,7 +34,6 @@ AuthenticationFailureParameter::AuthenticationFailureParameter(
     const bstring& value) {
   value_ = bstrcpy(value);
   SetLengthIndicator(kAuthenticationFailureParameterContentLength);
-  SetIeName(kAuthenticationFailureParameterIeName);
 }
 
 //------------------------------------------------------------------------------

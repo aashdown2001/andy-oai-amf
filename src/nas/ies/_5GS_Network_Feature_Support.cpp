@@ -34,7 +34,6 @@ _5GS_Network_Feature_Support::_5GS_Network_Feature_Support()
   _value  = 0;
   _value2 = 0;
   SetLengthIndicator(1);  // With mimimum length of 3
-  SetIeName(k5gsNetworkFeatureSupportIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -43,7 +42,6 @@ _5GS_Network_Feature_Support::_5GS_Network_Feature_Support(uint8_t value)
   _value  = value;
   _value2 = 0;
   SetLengthIndicator(1);  // With mimimum length of 3
-  SetIeName(k5gsNetworkFeatureSupportIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -53,7 +51,6 @@ _5GS_Network_Feature_Support::_5GS_Network_Feature_Support(
   _value  = value;
   _value2 = value2;
   SetLengthIndicator(2);
-  SetIeName(k5gsNetworkFeatureSupportIeName);
 }
 
 //------------------------------------------------------------------------------

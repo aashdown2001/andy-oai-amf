@@ -33,7 +33,6 @@ _5GS_Registration_Result::_5GS_Registration_Result() : Type4NasIe() {
   sms_allowed_          = false;
   value_                = 0;
   SetLengthIndicator(k5gsRegistrationResultContentLength);
-  SetIeName(k5gsRegistrationResultIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -44,7 +43,6 @@ _5GS_Registration_Result::_5GS_Registration_Result(uint8_t iei)
   sms_allowed_          = false;
   value_                = 0;
   SetLengthIndicator(k5gsRegistrationResultContentLength);
-  SetIeName(k5gsRegistrationResultIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -56,7 +54,6 @@ _5GS_Registration_Result::_5GS_Registration_Result(
   sms_allowed_          = sms;
   value_                = value & 0x07;
   SetLengthIndicator(k5gsRegistrationResultContentLength);
-  SetIeName(k5gsRegistrationResultIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -68,7 +65,6 @@ _5GS_Registration_Result::_5GS_Registration_Result(
   sms_allowed_          = sms;
   value_                = value & 0x07;
   SetLengthIndicator(k5gsRegistrationResultContentLength);
-  SetIeName(k5gsRegistrationResultIeName);
 }
 
 //------------------------------------------------------------------------------

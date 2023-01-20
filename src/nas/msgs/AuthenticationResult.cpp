@@ -76,7 +76,8 @@ int AuthenticationResult::Encode(uint8_t* buf, int len) {
   if (size != KEncodeDecodeError) {
     encoded_size += size;
   } else {
-    Logger::nas_mm().error("Encoding ie_ngKSI error");
+    Logger::nas_mm().error(
+        "Encoding %s error", NasKeySetIdentifier::GetIeName().c_str());
     return KEncodeDecodeError;
   }
   // Spare half octet
@@ -84,25 +85,27 @@ int AuthenticationResult::Encode(uint8_t* buf, int len) {
 
   // EAP message
   size = ie_eap_message.Encode(buf + encoded_size, len - encoded_size);
-
   if (size != KEncodeDecodeError) {
     encoded_size += size;
   } else {
-    Logger::nas_mm().error("Encoding ie_eap_message error");
+    Logger::nas_mm().error(
+        "Encoding %s error", EapMessage::GetIeName().c_str());
     return KEncodeDecodeError;
   }
 
+  // ABBA
   if (!ie_abba.has_value()) {
-    Logger::nas_mm().warn("IE ie_abba is not available");
+    Logger::nas_mm().debug("IE %s is not available", ABBA::GetIeName().c_str());
   } else {
     size = ie_abba.value().Encode(buf + encoded_size, len - encoded_size);
     if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
-      Logger::nas_mm().error("encoding ie_abba error");
+      Logger::nas_mm().error("Encoding %s error", ABBA::GetIeName().c_str());
       return KEncodeDecodeError;
     }
   }
+
   Logger::nas_mm().debug(
       "Encoded AuthenticationResult message len (%d)", encoded_size);
   return encoded_size;
@@ -124,32 +127,45 @@ int AuthenticationResult::Decode(uint8_t* buf, int len) {
   // NAS key set identifier
   decoded_result =
       ie_ngKSI.Decode(buf + decoded_size, len - decoded_size, false, false);
-  if (decoded_result == KEncodeDecodeError) return KEncodeDecodeError;
+  if (decoded_result == KEncodeDecodeError) {
+    Logger::nas_mm().error(
+        "Decoding %s error", NasKeySetIdentifier::GetIeName().c_str());
+    return KEncodeDecodeError;
+  }
   decoded_size++;  // 1/2 octet for ngKSI, 1/2 for Spare half octet
 
   // EAP message
   decoded_result =
       ie_eap_message.Decode(buf + decoded_size, len - decoded_size, false);
-
-  if (decoded_result == KEncodeDecodeError == KEncodeDecodeError)
+  if (decoded_result == KEncodeDecodeError == KEncodeDecodeError) {
+    Logger::nas_mm().error(
+        "Decoding %s error", EapMessage::GetIeName().c_str());
     return decoded_result;
+  }
+
   decoded_size += decoded_result;
 
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
-  uint8_t octet = *(buf + decoded_size);
+
+  // Decode other IEs
+  uint8_t octet = 0x00;
+  DECODE_U8_VALUE(buf + decoded_size, octet);
   Logger::nas_mm().debug("First option IEI (0x%x)", octet);
   while ((octet != 0x0)) {
     switch (octet) {
       case kIeiAbba: {
-        Logger::nas_mm().debug("decoding IEI (0x38)");
+        Logger::nas_mm().debug("Decoding IEI (0x38)");
         ABBA ie_abba_tmp = {};
         if ((decoded_result = ie_abba_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
-            KEncodeDecodeError)
-          return decoded_result;
+            KEncodeDecodeError) {
+          Logger::nas_mm().error(
+              "Decoding %s error", ABBA::GetIeName().c_str());
+          return KEncodeDecodeError;
+        }
         decoded_size += decoded_result;
         ie_abba = std::optional<ABBA>(ie_abba_tmp);
-        octet   = *(buf + decoded_size);
+        DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
 
@@ -160,6 +176,7 @@ int AuthenticationResult::Decode(uint8_t* buf, int len) {
       } break;
     }
   }
+
   Logger::nas_mm().debug(
       "Decoded AuthenticationResult message len (%d)", decoded_size);
   return decoded_size;

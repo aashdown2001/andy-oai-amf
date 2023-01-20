@@ -37,6 +37,8 @@ class NetworkSlicingIndication : Type1NasIeFormatTv {
   NetworkSlicingIndication(bool dcni, bool nssci);
   ~NetworkSlicingIndication();
 
+  static std::string GetIeName() { return kNetworkSlicingIndicationIeName; }
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);
 

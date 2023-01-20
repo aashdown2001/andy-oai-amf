@@ -38,6 +38,8 @@ class NSSAI : public Type4NasIe {
   NSSAI(uint8_t iei, const std::vector<struct SNSSAI_s>& nssai);
   ~NSSAI();
 
+  static std::string GetIeName() { return kNssaiIeName; }
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);
 

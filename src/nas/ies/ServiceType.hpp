@@ -34,6 +34,8 @@ class ServiceType : public Type1NasIe {
   ServiceType(uint8_t value);
   ~ServiceType();
 
+  static std::string GetIeName() { return kServiceTypeIeName; }
+
   // int Encode(uint8_t* buf, int len);
   // int Decode(uint8_t* nuf, int len, bool is_iei, bool is_high);
 

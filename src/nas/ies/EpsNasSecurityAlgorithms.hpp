@@ -35,6 +35,8 @@ class EpsNasSecurityAlgorithms : public Type3NasIe {
   EpsNasSecurityAlgorithms(uint8_t ciphering, uint8_t integrity_protection);
   ~EpsNasSecurityAlgorithms();
 
+  static std::string GetIeName() { return kEpsNasSecurityAlgorithmsIeName; }
+
   void SetTypeOfCipheringAlgorithm(uint8_t value);
   uint8_t GetTypeOfCipheringAlgorithm() const;
 

@@ -25,6 +25,7 @@
 #include "NasIe.hpp"
 
 constexpr uint8_t kSecurityHeaderTypeLength = 1;
+constexpr auto kSecurityHeaderTypeIeName    = "Security Header Type";
 
 namespace nas {
 
@@ -32,6 +33,8 @@ class SecurityHeaderType : public NasIe {
  public:
   SecurityHeaderType();
   virtual ~SecurityHeaderType();
+
+  static std::string GetIeName() { return kSecurityHeaderTypeIeName; }
 
   bool Validate(const int& len) const override;
 

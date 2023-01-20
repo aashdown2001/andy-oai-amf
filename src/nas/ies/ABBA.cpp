@@ -29,13 +29,11 @@ using namespace nas;
 //------------------------------------------------------------------------------
 ABBA::ABBA() : Type4NasIe(), value_() {
   SetLengthIndicator(0);
-  SetIeName(kAbbaIeName);
 }
 
 //------------------------------------------------------------------------------
 ABBA::ABBA(uint8_t iei) : Type4NasIe(iei), value_() {
   SetLengthIndicator(0);
-  SetIeName(kAbbaIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -44,7 +42,6 @@ ABBA::ABBA(uint8_t length, uint8_t* value) : Type4NasIe() {
     this->value_[i] = value[i];
   }
   SetLengthIndicator(length);
-  SetIeName(kAbbaIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -53,7 +50,6 @@ ABBA::ABBA(uint8_t iei, uint8_t length, uint8_t* value) : Type4NasIe(iei) {
     this->value_[i] = value[i];
   }
   SetLengthIndicator(length);
-  SetIeName(kAbbaIeName);
 }
 
 //------------------------------------------------------------------------------

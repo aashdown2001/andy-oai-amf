@@ -68,7 +68,7 @@ void RegistrationReject::SetEapMessage(bstring eap) {
 void RegistrationReject::setRejected_NSSAI(
     const std::vector<Rejected_SNSSAI>& nssai) {
   ie_rejected_nssai = std::make_optional<Rejected_NSSAI>(kIeiRejectedNssaiRr);
-  ie_rejected_nssai.value().setRejectedSNSSAIs(nssai);
+  ie_rejected_nssai.value().SetRejectedSNssais(nssai);
 }
 
 //------------------------------------------------------------------------------
@@ -194,7 +194,7 @@ int RegistrationReject::Decode(
 
       case kIeiRejectedNssaiRr: {
         Logger::nas_mm().debug("Decoding IEI 0x69: Rejected NSSAI");
-        Rejected_NSSAI ie_rejected_nssai_tmp = {};
+        Rejected_NSSAI ie_rejected_nssai_tmp(kIeiRejectedNssaiRr);
         decoded_size += ie_rejected_nssai_tmp.Decode(
             buf + decoded_size, len - decoded_size, true);
         ie_rejected_nssai =

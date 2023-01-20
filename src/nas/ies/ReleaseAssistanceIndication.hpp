@@ -35,6 +35,8 @@ class ReleaseAssistanceIndication : public Type1NasIeFormatTv {
   ReleaseAssistanceIndication(uint8_t value);
   ~ReleaseAssistanceIndication();
 
+  static std::string GetIeName() { return kReleaseAssistanceIndicationIeName; }
+
   void Set(uint8_t value);
   uint8_t Get() const;
 

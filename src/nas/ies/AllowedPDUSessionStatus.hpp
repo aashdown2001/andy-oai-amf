@@ -36,6 +36,8 @@ class AllowedPDUSessionStatus : public Type4NasIe {
   AllowedPDUSessionStatus(uint16_t value);
   ~AllowedPDUSessionStatus();
 
+  static std::string GetIeName() { return kAllowedPDUSessionStatusIeName; }
+
   void SetValue(uint16_t value);
   uint16_t GetValue() const;
 

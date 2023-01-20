@@ -27,14 +27,12 @@ using namespace nas;
 AdditionalInformation::AdditionalInformation()
     : Type4NasIe(kIeiAdditionalInformation), value_() {
   SetLengthIndicator(1);  // Minimum 3 octets (-2 for header)
-  SetIeName(kAdditionalInformationIeName);
 }
 
 //------------------------------------------------------------------------------
 AdditionalInformation::AdditionalInformation(const bstring& value) {
   value_ = bstrcpy(value);
   SetLengthIndicator(blength(value));
-  SetIeName(kAdditionalInformationIeName);
 }
 
 //------------------------------------------------------------------------------

@@ -36,6 +36,8 @@ class AdditionalInformation : public Type4NasIe {
   AdditionalInformation(const bstring& value);
   ~AdditionalInformation();
 
+  static std::string GetIeName() { return kAdditionalInformationIeName; }
+
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len, bool is_iei);
 

@@ -36,6 +36,8 @@ class Non_3GPP_NW_Provided_Policies : public Type1NasIeFormatTv {
   Non_3GPP_NW_Provided_Policies(uint8_t value);
   ~Non_3GPP_NW_Provided_Policies();
 
+  static std::string GetIeName() { return kNon3gppNwProvidedPoliciesIeName; }
+
   // int Encode(uint8_t* buf, int len);
   // int Decode(uint8_t* buf, int len, bool is_iei);
 

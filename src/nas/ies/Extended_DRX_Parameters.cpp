@@ -28,7 +28,6 @@ using namespace nas;
 Extended_DRX_Parameters::Extended_DRX_Parameters()
     : Type4NasIe(kIeiExtendedDrxParameters), paging_time_(), e_drx_value_() {
   SetLengthIndicator(1);
-  SetIeName(kExtendedDrxParametersIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -38,7 +37,6 @@ Extended_DRX_Parameters::Extended_DRX_Parameters(
   paging_time_ = paging_time & 0x0F;
   e_drx_value_ = value & 0x0F;
   SetLengthIndicator(1);
-  SetIeName(kExtendedDrxParametersIeName);
 }
 
 //------------------------------------------------------------------------------

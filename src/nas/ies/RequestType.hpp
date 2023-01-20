@@ -35,6 +35,8 @@ class RequestType : public Type1NasIeFormatTv {
   RequestType(uint8_t value);
   ~RequestType();
 
+  static std::string GetIeName() { return kRequestTypeIeName; }
+
   void SetValue(uint8_t value);
   uint8_t GetValue() const;
 
