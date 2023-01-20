@@ -110,8 +110,9 @@ int AuthenticationFailure::Encode(uint8_t* buf, int len) {
   }
 
   if (!ie_authentication_failure_parameter.has_value()) {
-    Logger::nas_mm().warn(
-        "IE ie_authentication_failure_parameter is not available");
+    Logger::nas_mm().debug(
+        "IE %s is not available",
+        AuthenticationFailureParameter::GetIeName().c_str());
   } else {
     size = ie_authentication_failure_parameter.value().Encode(
         buf + encoded_size, len - encoded_size);
@@ -148,29 +149,33 @@ int AuthenticationFailure::Decode(uint8_t* buf, int len) {
   if ((decoded_result = ie_5gmm_cause.Decode(
            buf + decoded_size, len - decoded_size, false)) ==
       KEncodeDecodeError)
-    return decoded_result;
+    return KEncodeDecodeError;
   decoded_size += decoded_result;
 
   Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
-  uint8_t octet = *(buf + decoded_size);
-  Logger::nas_mm().debug("First option IEI (0x%x)", octet);
+
+  // Decode other IEs
+  uint8_t octet = 0x00;
+  DECODE_U8_VALUE(buf + decoded_size, octet);
   while ((octet != 0x0)) {
+    Logger::nas_mm().debug("IEI 0x%x", octet);
     switch (octet) {
-      case 0x30: {
+      case kIeiAuthenticationFailureParameter: {
         Logger::nas_mm().debug("Decoding IEI (0x30)");
         AuthenticationFailureParameter ie_authentication_failure_parameter_tmp =
             {};
         if ((decoded_result = ie_authentication_failure_parameter_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
-          return decoded_result;
+          return KEncodeDecodeError;
         decoded_size += decoded_result;
         ie_authentication_failure_parameter =
             std::optional<AuthenticationFailureParameter>(
                 ie_authentication_failure_parameter_tmp);
-        octet = *(buf + decoded_size);
+        DECODE_U8_VALUE(buf + decoded_size, octet);
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
+
       default: {
         Logger::nas_mm().warn("Unknown IEI 0x%x, stop decoding...", octet);
         // Stop decoding
@@ -178,6 +183,7 @@ int AuthenticationFailure::Decode(uint8_t* buf, int len) {
       } break;
     }
   }
+
   Logger::nas_mm().debug(
       "Decoded AuthenticationFailure message len (%d)", decoded_size);
   return decoded_size;

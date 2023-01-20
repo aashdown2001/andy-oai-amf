@@ -28,19 +28,16 @@ using namespace nas;
 //------------------------------------------------------------------------------
 _5gmmCause::_5gmmCause(uint8_t iei) : Type3NasIe(iei) {
   value_ = 0;
-  SetIeName(k5gmmCauseIeName);
 }
 
 //------------------------------------------------------------------------------
 _5gmmCause::_5gmmCause() : Type3NasIe() {
   value_ = 0;
-  SetIeName(k5gmmCauseIeName);
 }
 
 //------------------------------------------------------------------------------
 _5gmmCause::_5gmmCause(uint8_t iei, uint8_t value) : Type3NasIe(iei) {
   value_ = value;
-  SetIeName(k5gmmCauseIeName);
 }
 
 //------------------------------------------------------------------------------
@@ -97,7 +94,7 @@ int _5gmmCause::Decode(uint8_t* buf, int len, bool is_iei) {
 
   int decoded_size = 0;
   // IEI and Length
-  decoded_size += Type3NasIe::Decode(buf + decoded_size, len, true);
+  decoded_size += Type3NasIe::Decode(buf + decoded_size, len, is_iei);
 
   DECODE_U8(buf + decoded_size, value_, decoded_size);
 
