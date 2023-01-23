@@ -42,18 +42,18 @@ void ServiceAccept::SetHeader(uint8_t security_header_type) {
 }
 
 //------------------------------------------------------------------------------
-void ServiceAccept::setPDU_session_status(uint16_t value) {
+void ServiceAccept::SetPduSessionStatus(uint16_t value) {
   ie_PDU_session_status = std::make_optional<PDUSessionStatus>(value);
 }
 
 //------------------------------------------------------------------------------
-void ServiceAccept::setPDU_session_reactivation_result(uint16_t value) {
+void ServiceAccept::SetPduSessionReactivationResult(uint16_t value) {
   ie_pdu_session_reactivation_result =
       std::make_optional<PDU_Session_Reactivation_Result>(value);
 }
 
 //------------------------------------------------------------------------------
-void ServiceAccept::setPDU_session_reactivation_result_error_cause(
+void ServiceAccept::SetPduSessionReactivationResultErrorCause(
     uint8_t session_id, uint8_t value) {
   ie_pdu_session_reactivation_result_error_cause =
       std::make_optional<PDU_Session_Reactivation_Result_Error_Cause>(
@@ -66,7 +66,7 @@ void ServiceAccept::SetEapMessage(bstring eap) {
 }
 
 //------------------------------------------------------------------------------
-void ServiceAccept::setT3448_Value(uint8_t unit, uint8_t value) {
+void ServiceAccept::SetT3448Value(uint8_t unit, uint8_t value) {
   ie_T3448_value = std::make_optional<GprsTimer3>(0x6B, unit, value);
 }
 

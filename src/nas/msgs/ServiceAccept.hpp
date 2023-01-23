@@ -40,20 +40,20 @@ class ServiceAccept : public NasMmPlainHeader {
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len);
 
-  void setPDU_session_status(uint16_t value);
+  void SetPduSessionStatus(uint16_t value);
   // TODO: Get
 
-  void setPDU_session_reactivation_result(uint16_t);
+  void SetPduSessionReactivationResult(uint16_t);
   // TODO: Get
 
-  void setPDU_session_reactivation_result_error_cause(
+  void SetPduSessionReactivationResultErrorCause(
       uint8_t session_id, uint8_t value);
   // TODO: Get
 
   void SetEapMessage(bstring eap);
   // TODO: Get
 
-  void setT3448_Value(uint8_t unit, uint8_t value);
+  void SetT3448Value(uint8_t unit, uint8_t value);
   // TODO: Get
 
  private:

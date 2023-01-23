@@ -51,7 +51,7 @@ class ServiceRequest : public NasMmPlainHeader {
   void setUplink_data_status(uint16_t value);
   uint16_t getUplinkDataStatus();
 
-  void setPDU_session_status(uint16_t value);
+  void SetPduSessionStatus(uint16_t value);
   uint16_t getPduSessionStatus();
 
   void setAllowed_PDU_Session_Status(uint16_t value);

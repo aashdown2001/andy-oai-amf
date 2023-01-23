@@ -592,11 +592,13 @@ void amf_n1::nas_signalling_establishment_request_handle(
         Logger::amf_n1().error("No NAS Context found");
         return;
       }
-      if (!nc->security_ctx) {
-        Logger::amf_n1().error("No Security Context found");
-        return;
-      }
+      /*  if (!nc->security_ctx) {
+          Logger::amf_n1().error("No Security Context found");
+          return;
+        }
+         */
       if (nc && nc->security_ctx) nc->security_ctx->ul_count.seq_num = ulCount;
+
       service_request_handle(nc, ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
     } break;
 
@@ -809,7 +811,7 @@ void amf_n1::service_request_handle(
     return;
   }
 
-  if (!nc or !uc) {
+  if (!nc or !uc or !nc->security_ctx) {
     Logger::amf_n1().debug(
         "Cannot find NAS/UE context, send Service Reject to UE");
     // TODO: service reject
@@ -938,7 +940,7 @@ void amf_n1::service_request_handle(
   // No PDU Sessions To Be Activated
   if (pdu_session_to_be_activated.size() == 0) {
     Logger::amf_n1().debug("There is no PDU session to be activated");
-    service_accept->setPDU_session_status(0x0000);
+    service_accept->SetPduSessionStatus(0x0000);
     uint8_t buffer[BUFFER_SIZE_256];
     int encoded_size      = service_accept->Encode(buffer, BUFFER_SIZE_256);
     bstring protected_nas = nullptr;
@@ -978,9 +980,8 @@ void amf_n1::service_request_handle(
 
     std::shared_ptr<pdu_session_context> psc = {};
 
-    service_accept->setPDU_session_status(
-        service_request->getPduSessionStatus());
-    service_accept->setPDU_session_reactivation_result(0x0000);
+    service_accept->SetPduSessionStatus(service_request->getPduSessionStatus());
+    service_accept->SetPduSessionReactivationResult(0x0000);
 
     uint8_t pdu_session_id = pdu_session_to_be_activated.at(0);
     if (!amf_app_inst->find_pdu_session_context(supi, pdu_session_id, psc)) {
@@ -2550,8 +2551,8 @@ void amf_n1::security_mode_complete_handle(
   Logger::amf_n1().debug("Allocated GUTI %s", guti.c_str());
 
   // TODO: remove hardcoded values
-  registration_accept->set_5GS_Network_Feature_Support(0x01, 0x00);
-  // registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
+  registration_accept->Set5gsNetworkFeatureSupport(0x01, 0x00);
+  // registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = registration_accept->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
@@ -3364,7 +3365,7 @@ void amf_n1::run_mobility_registration_update_procedure(
   // Encoding REGISTRATION ACCEPT
   auto reg_accept = std::make_unique<RegistrationAccept>();
   initialize_registration_accept(reg_accept);
-  reg_accept->set_5GS_Network_Feature_Support(
+  reg_accept->Set5gsNetworkFeatureSupport(
       0x00, 0x00);  // TODO: remove hardcoded values
 
   std::shared_ptr<pdu_session_context> psc = {};
@@ -3463,14 +3464,14 @@ void amf_n1::run_periodic_registration_update_procedure(
       amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
 
   if (pdu_session_status == 0x0000) {
-    reg_accept->setPDU_session_status(0x0000);
+    reg_accept->SetPduSessionStatus(0x0000);
   } else {
-    reg_accept->setPDU_session_status(pdu_session_status);
+    reg_accept->SetPduSessionStatus(pdu_session_status);
     Logger::amf_n1().debug(
         "PDU Session Status 0x%02x", htonl(pdu_session_status));
   }
 
-  reg_accept->set_5GS_Network_Feature_Support(0x01, 0x00);
+  reg_accept->Set5gsNetworkFeatureSupport(0x01, 0x00);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = reg_accept->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
@@ -3533,14 +3534,14 @@ void amf_n1::run_periodic_registration_update_procedure(
   uint16_t pdu_session_status = 0xffff;
   pdu_session_status          = registration_request->getPduSessionStatus();
   if (pdu_session_status == 0x0000) {
-    reg_accept->setPDU_session_status(0x0000);
+    reg_accept->SetPduSessionStatus(0x0000);
   } else {
-    reg_accept->setPDU_session_status(pdu_session_status);
+    reg_accept->SetPduSessionStatus(pdu_session_status);
     Logger::amf_n1().debug(
         "PDU Session Status 0x%02x", htonl(pdu_session_status));
   }
 
-  reg_accept->set_5GS_Network_Feature_Support(0x01, 0x00);
+  reg_accept->Set5gsNetworkFeatureSupport(0x01, 0x00);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = reg_accept->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
@@ -4037,10 +4038,10 @@ void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept) {
   // TODO: to be updated with the function below
   registration_accept->SetHeader(PLAIN_5GS_MSG);
-  registration_accept->set5GSRegistrationResult(
+  registration_accept->Set5gsRegistrationResult(
       false, false, false,
       0x01);  // 3GPP Access
-  registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
+  registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
 
   std::vector<p_tai_t> tai_list;
   for (auto p : amf_cfg.plmn_list) {
@@ -4070,7 +4071,7 @@ void amf_n1::initialize_registration_accept(
       nssai.push_back(snssai);
     }
   }
-  registration_accept->setALLOWED_NSSAI(nssai);
+  registration_accept->SetAllowedNssai(nssai);
   return;
 }
 
@@ -4079,10 +4080,10 @@ void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept,
     const std::shared_ptr<nas_context>& nc) {
   registration_accept->SetHeader(PLAIN_5GS_MSG);
-  registration_accept->set5GSRegistrationResult(
+  registration_accept->Set5gsRegistrationResult(
       false, false, false,
       0x01);  // 3GPP Access
-  registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
+  registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
 
   // Find UE Context
   std::shared_ptr<ue_context> uc = {};
@@ -4163,9 +4164,9 @@ void amf_n1::initialize_registration_accept(
     }
   }
 
-  registration_accept->setALLOWED_NSSAI(allowed_nssais);
-  registration_accept->setRejected_NSSAI(rejected_nssais);
-  registration_accept->setCONFIGURED_NSSAI(allowed_nssais);  // TODO
+  registration_accept->SetAllowedNssai(allowed_nssais);
+  registration_accept->SetRejectedNssai(rejected_nssais);
+  registration_accept->SetConfiguredNssai(allowed_nssais);  // TODO
   return;
 }
 

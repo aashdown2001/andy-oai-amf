@@ -67,7 +67,7 @@ void ServiceRequest::setUplink_data_status(uint16_t value) {
 }
 
 //------------------------------------------------------------------------------
-void ServiceRequest::setPDU_session_status(uint16_t value) {
+void ServiceRequest::SetPduSessionStatus(uint16_t value) {
   ie_PDU_session_status = std::make_optional<PDUSessionStatus>(value);
 }
 
