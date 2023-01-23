@@ -98,6 +98,7 @@ class nas_context {
   // Set to true if marked as default
   std::vector<std::pair<bool, nas::SNSSAI_t>> subscribed_snssai;
   std::vector<nas::SNSSAI_t> configured_nssai;
+  // TODO: rejected_nssai;
   // std::vector<nas::SNSSAI_t>  default_configured_nssai;
   // std::vector<nas::SNSSAI_t> s_nssai; //for Network Slice selection
 
