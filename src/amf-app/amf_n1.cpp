@@ -48,6 +48,7 @@
 #include "SecurityModeComplete.hpp"
 #include "ServiceAccept.hpp"
 #include "ServiceRequest.hpp"
+#include "ServiceReject.hpp"
 #include "String2Value.hpp"
 #include "UEAuthenticationCtx.h"
 #include "ULNASTransport.hpp"
@@ -811,19 +812,28 @@ void amf_n1::service_request_handle(
     return;
   }
 
+  // If there's no appropriate context, send Service Reject
   if (!nc or !uc or !nc->security_ctx) {
     Logger::amf_n1().debug(
         "Cannot find NAS/UE context, send Service Reject to UE");
-    // TODO: service reject
-    uint8_t nas[4];
-    nas[0] = EPD_5GS_MM_MSG;
-    nas[1] = PLAIN_5GS_MSG;
-    nas[2] = SERVICE_REJECT;
-    nas[3] = _5GMM_CAUSE_UE_IDENTITY_CANNOT_BE_DERIVED;
+
+    std::unique_ptr<ServiceReject> service_reject =
+        std::make_unique<ServiceReject>();
+    service_reject->SetHeader(PLAIN_5GS_MSG);
+    service_reject->Set5gmmCause(_5GMM_CAUSE_UE_IDENTITY_CANNOT_BE_DERIVED);
+
+    uint8_t buffer[BUFFER_SIZE_512] = {0};
+    int encoded_size = service_reject->Encode(buffer, BUFFER_SIZE_512);
+    comUt::print_buffer(
+        "amf_n1", "Service-Reject message buffer", buffer, encoded_size);
+    if (!encoded_size) {
+      Logger::amf_n1().error("Encode Service-Reject message error");
+      return;
+    }
 
     std::shared_ptr<itti_dl_nas_transport> dnt =
         std::make_shared<itti_dl_nas_transport>(TASK_AMF_N1, TASK_AMF_N2);
-    dnt->nas            = blk2bstr(nas, 4);
+    dnt->nas            = blk2bstr(buffer, encoded_size);
     dnt->amf_ue_ngap_id = amf_ue_ngap_id;
     dnt->ran_ue_ngap_id = ran_ue_ngap_id;
 
@@ -836,6 +846,7 @@ void amf_n1::service_request_handle(
     return;
   }
 
+  // Otherwise, continue to process Service Request message
   set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
   nas_secu_ctx* secu = nc->security_ctx;  // TODO: remove naked ptr
   if (!secu) {

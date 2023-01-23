@@ -242,9 +242,9 @@ int ServiceAccept::Decode(uint8_t* buf, int len) {
         Logger::nas_mm().debug("Next IEI (0x%x)", octet);
       } break;
 
-      case kIeiGprsTimer3T3348: {
-        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiGprsTimer3T3348);
-        GprsTimer3 ie_T3448_value_tmp(kIeiGprsTimer3T3348);
+      case kIeiGprsTimer3T3448: {
+        Logger::nas_mm().debug("Decoding IEI 0x%x", kIeiGprsTimer3T3448);
+        GprsTimer3 ie_T3448_value_tmp(kIeiGprsTimer3T3448);
         if ((decoded_result = ie_T3448_value_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
