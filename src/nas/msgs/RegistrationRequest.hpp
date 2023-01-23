@@ -41,7 +41,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   int Decode(uint8_t* buf, int len);
 
   void SetHeader(uint8_t security_header_type);
-  void getSecurityHeaderType(uint8_t security_header_type);
+  void GetSecurityHeaderType(uint8_t security_header_type);
   bool verifyHeader();
 
   void set5gsRegistrationType(bool is_for, uint8_t type);
@@ -113,7 +113,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   void setUES_Usage_Setting(bool ues_usage_setting);
   uint8_t getUEsUsageSetting();
 
-  void set_5GS_DRX_arameters(uint8_t value);
+  void Set5gsDrxParameters(uint8_t value);
   uint8_t get5GSDrxParameters();
 
   void setEPS_NAS_Message_Container(bstring value);
@@ -127,7 +127,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   void SetPayloadContainer(std::vector<PayloadContainerEntry> content);
   bool GetPayloadContainer(std::vector<PayloadContainerEntry>& content);
 
-  void setNetwork_Slicing_Indication(bool dcni, bool nssci);
+  void SetNetworkSlicingIndication(bool dcni, bool nssci);
   bool getNetworkSlicingIndication(uint8_t& dcni, uint8_t& nssci);
 
   void set_5GS_Update_Type(
@@ -142,7 +142,7 @@ class RegistrationRequest : public NasMmPlainHeader {
   bool getEpsNasMessageContainer(bstring& epsNas);
   // bool getEpsNasMessageContainer(bstring& epsNas);
 
-  void setEPS_Bearer_Context_Status(uint16_t value);
+  void SetEpsBearerContextsStatus(uint16_t value);
   bool getEpsBearerContextStatus(uint16_t& value);
 
  public:

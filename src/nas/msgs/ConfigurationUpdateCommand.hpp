@@ -35,7 +35,7 @@ class ConfigurationUpdateCommand : public NasMmPlainHeader {
   ~ConfigurationUpdateCommand();
 
   void SetHeader(uint8_t security_header_type);
-  void getSecurityHeaderType(uint8_t security_header_type);
+  void GetSecurityHeaderType(uint8_t security_header_type);
   bool verifyHeader();
 
   void setFullNameForNetwork(const NetworkName& name);

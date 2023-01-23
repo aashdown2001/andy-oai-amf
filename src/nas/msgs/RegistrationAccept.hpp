@@ -32,13 +32,13 @@ class RegistrationAccept : public NasMmPlainHeader {
   ~RegistrationAccept();
 
   void SetHeader(uint8_t security_header_type);
-  void getSecurityHeaderType(uint8_t security_header_type);  // TODO
+  void GetSecurityHeaderType(uint8_t security_header_type);  // TODO
   bool verifyHeader();                                       // TODO
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len);
 
-  void set5GSRegistrationResult(
+  void Set5gsRegistrationResult(
       bool emergency, bool nssaa, bool sms, const uint8_t& value);
   // TODO: Get
 
@@ -60,48 +60,48 @@ class RegistrationAccept : public NasMmPlainHeader {
   // TODO: Get
 
   // Equivalent PLMNs
-  void setEquivalent_PLMNs(const std::vector<nas_plmn_t>& list);
+  void SetEquivalentPlmns(const std::vector<nas_plmn_t>& list);
   // TODO: Get
 
   void setTaiList(std::vector<p_tai_t> tai_list);
 
-  void setALLOWED_NSSAI(const std::vector<struct SNSSAI_s>& nssai);
+  void SetAllowedNssai(const std::vector<struct SNSSAI_s>& nssai);
   // TODO: Get
-  void setRejected_NSSAI(const std::vector<Rejected_SNSSAI>& nssai);
+  void SetRejectedNssai(const std::vector<Rejected_SNSSAI>& nssai);
   // TODO: Get
-  void setCONFIGURED_NSSAI(const std::vector<struct SNSSAI_s>& nssai);
-  // TODO: Get
-
-  void set_5GS_Network_Feature_Support(uint8_t value, uint8_t value2);
+  void SetConfiguredNssai(const std::vector<struct SNSSAI_s>& nssai);
   // TODO: Get
 
-  void setPDU_session_status(uint16_t value);
+  void Set5gsNetworkFeatureSupport(uint8_t value, uint8_t value2);
   // TODO: Get
 
-  void setPDU_session_reactivation_result(uint16_t value);
+  void SetPduSessionStatus(uint16_t value);
   // TODO: Get
 
-  void setPDU_session_reactivation_result_error_cause(
+  void SetPduSessionReactivationResult(uint16_t value);
+  // TODO: Get
+
+  void SetPduSessionReactivationResultErrorCause(
       uint8_t session_id, uint8_t value);
   // TODO: Get
 
   // TODO: LADN information
 
-  void setMICO_Indication(bool sprti, bool raai);
+  void SetMicoIndication(bool sprti, bool raai);
   // TODO: Get
 
-  void setNetwork_Slicing_Indication(bool dcni, bool nssci);
+  void SetNetworkSlicingIndication(bool dcni, bool nssci);
   // TODO: Get
 
   // TODO: Service Area List
 
-  void setT3512_Value(uint8_t unit, uint8_t value);
+  void SetT3512Value(uint8_t unit, uint8_t value);
   // TODO: Get
 
-  void setNon_3GPP_de_registration_timer_value(uint8_t value);
+  void SetNon3gppDeregistrationTimerValue(uint8_t value);
   // TODO: Get
 
-  void setT3502_value(uint8_t value);
+  void SetT3502Value(uint8_t value);
   // TODO: Get
 
   // TODO: Emergency number list
@@ -113,36 +113,36 @@ class RegistrationAccept : public NasMmPlainHeader {
   void SetEapMessage(bstring eap);
   // TODO: Get
 
-  void setNSSAI_Inclusion_Mode(uint8_t value);
+  void SetNssaiInclusionMode(uint8_t value);
   // TODO: Get
 
   // TODO: Operator-defined access category definitions
 
-  void set_5GS_DRX_arameters(uint8_t value);
+  void Set5gsDrxParameters(uint8_t value);
   // TODO: Get
 
-  void setNon_3GPP_NW_Provided_Policies(uint8_t value);
+  void SetNon3gppNwProvidedPolicies(uint8_t value);
   // TODO: Get
 
-  void setEPS_Bearer_Context_Status(uint16_t value);
+  void SetEpsBearerContextsStatus(uint16_t value);
   // TODO: Get
 
-  void setExtended_DRX_Parameters(uint8_t paging_time, uint8_t value);
+  void SetExtendedDrxParameters(uint8_t paging_time, uint8_t value);
   // TODO: Get
 
-  void setT3447_Value(uint8_t unit, uint8_t value);
+  void SetT3447Value(uint8_t unit, uint8_t value);
   // TODO: Get
 
-  void setT3448_Value(uint8_t unit, uint8_t value);
+  void SetT3448Value(uint8_t unit, uint8_t value);
   // TODO: Get
 
-  void setT3324_Value(uint8_t unit, uint8_t value);
+  void SetT3324Value(uint8_t unit, uint8_t value);
   // TODO: Get
 
-  void setUE_Radio_Capability_ID(bstring value);
+  void SetUeRadioCapabilityId(bstring value);
   // TODO: Get
 
-  void setPending_NSSAI(std::vector<struct SNSSAI_s> nssai);
+  void SetPendingNssai(std::vector<struct SNSSAI_s> nssai);
   // TODO: Get
 
  public:

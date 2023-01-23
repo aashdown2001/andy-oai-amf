@@ -32,7 +32,7 @@ class RegistrationReject : public NasMmPlainHeader {
   ~RegistrationReject();
 
   void SetHeader(uint8_t security_header_type);
-  void getSecurityHeaderType(uint8_t security_header_type);
+  void GetSecurityHeaderType(uint8_t security_header_type);
   bool verifyHeader();
 
   int Encode(uint8_t* buf, int len);
@@ -48,7 +48,7 @@ class RegistrationReject : public NasMmPlainHeader {
   // TOGO: Get
 
   void SetEapMessage(bstring eap);
-  void setRejected_NSSAI(const std::vector<Rejected_SNSSAI>& nssai);
+  void SetRejectedNssai(const std::vector<Rejected_SNSSAI>& nssai);
   // TODO: Get
 
  public:

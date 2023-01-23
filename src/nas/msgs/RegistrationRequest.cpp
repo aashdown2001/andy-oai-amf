@@ -380,7 +380,7 @@ uint8_t RegistrationRequest::getUEsUsageSetting() {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::set_5GS_DRX_arameters(uint8_t value) {
+void RegistrationRequest::Set5gsDrxParameters(uint8_t value) {
   ie_5gs_drx_parameters = std::make_optional<_5GS_DRX_Parameters>(value);
 }
 
@@ -457,7 +457,7 @@ bool RegistrationRequest::GetPayloadContainer(
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setNetwork_Slicing_Indication(bool dcni, bool nssci) {
+void RegistrationRequest::SetNetworkSlicingIndication(bool dcni, bool nssci) {
   ie_network_slicing_indication = std::make_optional<NetworkSlicingIndication>(
       kIeiNetworkSlicingIndication, dcni, nssci);
 }
@@ -512,7 +512,7 @@ bool RegistrationRequest::GetNasMessageContainer(bstring& nas) {
 }
 
 //------------------------------------------------------------------------------
-void RegistrationRequest::setEPS_Bearer_Context_Status(uint16_t value) {
+void RegistrationRequest::SetEpsBearerContextsStatus(uint16_t value) {
   ie_eps_bearer_context_status =
       std::make_optional<EpsBearerContextStatus>(value);
 }
