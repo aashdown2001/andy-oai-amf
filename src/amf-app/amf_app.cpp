@@ -100,11 +100,6 @@ amf_app::amf_app(const amf_config& amf_cfg)
 }
 
 //------------------------------------------------------------------------------
-void amf_app::allRegistredModulesInit(const amf_modules& modules) {
-  Logger::amf_app().info("Initiating all registered modules");
-}
-
-//------------------------------------------------------------------------------
 void amf_app_task(void*) {
   const task_id_t task_id = TASK_AMF_APP;
   itti_inst->notify_task_ready(task_id);
@@ -207,26 +202,6 @@ long amf_app::generate_amf_ue_ngap_id() {
 }
 
 //------------------------------------------------------------------------------
-bool amf_app::is_amf_ue_id_2_ue_context(const long& amf_ue_ngap_id) const {
-  std::shared_lock lock(m_amf_ue_ngap_id2ue_ctx);
-  return bool{amf_ue_ngap_id2ue_ctx.count(amf_ue_ngap_id) > 0};
-}
-
-//------------------------------------------------------------------------------
-std::shared_ptr<ue_context> amf_app::amf_ue_id_2_ue_context(
-    const long& amf_ue_ngap_id) const {
-  std::shared_lock lock(m_amf_ue_ngap_id2ue_ctx);
-  return amf_ue_ngap_id2ue_ctx.at(amf_ue_ngap_id);
-}
-
-//------------------------------------------------------------------------------
-void amf_app::set_amf_ue_ngap_id_2_ue_context(
-    const long& amf_ue_ngap_id, const std::shared_ptr<ue_context>& uc) {
-  std::unique_lock lock(m_amf_ue_ngap_id2ue_ctx);
-  amf_ue_ngap_id2ue_ctx[amf_ue_ngap_id] = uc;
-}
-
-//------------------------------------------------------------------------------
 bool amf_app::is_ran_amf_id_2_ue_context(const string& ue_context_key) const {
   std::shared_lock lock(m_ue_ctx_key);
   return bool{ue_ctx_key.count(ue_context_key) > 0};
@@ -247,8 +222,8 @@ bool amf_app::ran_amf_id_2_ue_context(
     uc = ue_ctx_key.at(ue_context_key);
     if (uc == nullptr) return false;
     return true;
-  } else
-    return false;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -272,6 +247,18 @@ std::shared_ptr<ue_context> amf_app::supi_2_ue_context(
 }
 
 //------------------------------------------------------------------------------
+bool amf_app::supi_2_ue_context(
+    const std::string& supi, std::shared_ptr<ue_context>& uc) const {
+  std::shared_lock lock(m_supi2ue_ctx);
+  if (supi2ue_ctx.count(supi) > 0) {
+    uc = supi2ue_ctx.at(supi);
+    if (uc == nullptr) return false;
+    return true;
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void amf_app::set_supi_2_ue_context(
     const string& supi, const std::shared_ptr<ue_context>& uc) {
   std::unique_lock lock(m_supi2ue_ctx);
@@ -282,9 +269,8 @@ void amf_app::set_supi_2_ue_context(
 bool amf_app::find_pdu_session_context(
     const string& supi, const std::uint8_t pdu_session_id,
     std::shared_ptr<pdu_session_context>& psc) {
-  if (!is_supi_2_ue_context(supi)) return false;
   std::shared_ptr<ue_context> uc = {};
-  uc                             = supi_2_ue_context(supi);
+  if (!supi_2_ue_context(supi, uc)) return false;
   if (!uc->find_pdu_session_context(pdu_session_id, psc)) return false;
   return true;
 }
@@ -293,9 +279,8 @@ bool amf_app::find_pdu_session_context(
 bool amf_app::get_pdu_sessions_context(
     const string& supi,
     std::vector<std::shared_ptr<pdu_session_context>>& sessions_ctx) {
-  if (!is_supi_2_ue_context(supi)) return false;
   std::shared_ptr<ue_context> uc = {};
-  uc                             = supi_2_ue_context(supi);
+  if (!supi_2_ue_context(supi, uc)) return false;
   if (!uc->get_pdu_sessions_context(sessions_ctx)) return false;
   return true;
 }
@@ -304,9 +289,8 @@ bool amf_app::get_pdu_sessions_context(
 bool amf_app::update_pdu_sessions_context(
     const string& ue_id, const uint8_t& pdu_session_id,
     const oai::amf::model::SmContextStatusNotification& statusNotification) {
-  if (!is_supi_2_ue_context(ue_id)) return false;
   std::shared_ptr<ue_context> uc = {};
-  uc                             = supi_2_ue_context(ue_id);
+  if (!supi_2_ue_context(supi, uc)) return false;
   // TODO: process SmContextStatusNotification
   oai::amf::model::StatusInfo statusInfo = statusNotification.getStatusInfo();
   oai::amf::model::ResourceStatus resourceStatus =
@@ -334,16 +318,16 @@ void amf_app::handle_itti_message(
   if (itti_msg.is_ppi_set) {  // Paging procedure
     Logger::amf_app().info(
         "Handle ITTI N1N2 Message Transfer Request for Paging");
-    std::shared_ptr<itti_paging> i =
+    std::shared_ptr<itti_paging> paging_msg =
         std::make_shared<itti_paging>(TASK_AMF_APP, TASK_AMF_N2);
-    amf_n1_inst->supi_2_amf_id(itti_msg.supi, i->amf_ue_ngap_id);
-    amf_n1_inst->supi_2_ran_id(itti_msg.supi, i->ran_ue_ngap_id);
+    amf_n1_inst->supi_2_amf_id(itti_msg.supi, paging_msg->amf_ue_ngap_id);
+    amf_n1_inst->supi_2_ran_id(itti_msg.supi, paging_msg->ran_ue_ngap_id);
 
-    int ret = itti_inst->send_msg(i);
-    if (0 != ret) {
+    int ret = itti_inst->send_msg(paging_msg);
+    if (ret != RETURNok) {
       Logger::amf_app().error(
           "Could not send ITTI message %s to task TASK_AMF_N2",
-          i->get_msg_name());
+          paging_msg->get_msg_name());
     }
   } else {
     Logger::amf_app().info("Handle ITTI N1N2 Message Transfer Request");

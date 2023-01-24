@@ -193,30 +193,6 @@ class amf_app {
   uint32_t get_number_registered_ues() const;
 
   /*
-   * Verify if a UE context associated with an AMF UE NGAP ID exist
-   * @param [const long&] amf_ue_ngap_id: AMF UE NGAP ID
-   * @return true if UE context exist, otherwise false
-   */
-  bool is_amf_ue_id_2_ue_context(const long& amf_ue_ngap_id) const;
-
-  /*
-   * Get UE context associated with an AMF UE NGAP ID
-   * @param [const long&] amf_ue_ngap_id: AMF UE NGAP ID
-   * @return shared pointer to the context
-   */
-  std::shared_ptr<ue_context> amf_ue_id_2_ue_context(
-      const long& amf_ue_ngap_id) const;
-
-  /*
-   * Store an UE context associated with an AMF UE NGAP ID
-   * @param [const long&] amf_ue_ngap_id: AMF UE NGAP ID
-   * @param [std::shared_ptr<ue_context>&] uc: pointer to UE context
-   * @return void
-   */
-  void set_amf_ue_ngap_id_2_ue_context(
-      const long& amf_ue_ngap_id, const std::shared_ptr<ue_context>& uc);
-
-  /*
    * Verify if a UE context associated with an UE Context Key exist
    * @param [const std::string&] ue_context_key: UE Context Key
    * @return true if UE context exist, otherwise false
@@ -263,6 +239,15 @@ class amf_app {
    * @return shared pointer to the context
    */
   std::shared_ptr<ue_context> supi_2_ue_context(const string& supi) const;
+
+  /*
+   * Get UE context associated with a SUPI
+   * @param [const std::string&] supi: SUPI
+   * @param [std::shared_ptr<ue_context>&] uc: pointer to UE context if exist
+   * @return true if UE Context exist and not null
+   */
+  bool supi_2_ue_context(
+      const std::string& supi, std::shared_ptr<ue_context>& uc) const;
 
   /*
    * Store an UE context associated with a SUPI
