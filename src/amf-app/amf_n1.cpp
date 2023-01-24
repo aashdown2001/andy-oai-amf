@@ -3373,18 +3373,27 @@ void amf_n1::sha256(
 void amf_n1::run_mobility_registration_update_procedure(
     std::shared_ptr<nas_context>& nc, uint16_t uplink_data_status,
     uint16_t pdu_session_status) {
+  std::shared_ptr<ue_context> uc = {};
+  if (!find_ue_context(nc, uc)) {
+    Logger::amf_n1().warn("Cannot find the UE context");
+    return;
+  }
+
+  nas_secu_ctx* secu = nc->security_ctx;
+  if (!secu) {
+    Logger::amf_n1().warn("No Security Context found");
+    // Run Registration procedure
+    run_registration_procedure(nc);
+    return;
+  }
+
+  std::shared_ptr<pdu_session_context> psc = {};
+
   // Encoding REGISTRATION ACCEPT
   auto reg_accept = std::make_unique<RegistrationAccept>();
   initialize_registration_accept(reg_accept);
   reg_accept->Set5gsNetworkFeatureSupport(
       0x00, 0x00);  // TODO: remove hardcoded values
-
-  std::shared_ptr<pdu_session_context> psc = {};
-  std::shared_ptr<ue_context> uc           = {};
-  if (!find_ue_context(nc, uc)) {
-    Logger::amf_n1().warn("Cannot find the UE context");
-    return;
-  }
 
   reg_accept->Set5gGuti(
       amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
@@ -3396,12 +3405,6 @@ void amf_n1::run_mobility_registration_update_procedure(
       "amf_n1", "Registration-Accept Message Buffer", buffer, encoded_size);
   if (!encoded_size) {
     Logger::nas_mm().error("Encode Registration-Accept message error");
-    return;
-  }
-
-  nas_secu_ctx* secu = nc->security_ctx;
-  if (!secu) {
-    Logger::amf_n1().error("No Security Context found");
     return;
   }
 
