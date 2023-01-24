@@ -199,8 +199,8 @@ void amf_sbi::handle_itti_message(
 //------------------------------------------------------------------------------
 void amf_sbi::handle_itti_message(
     itti_nsmf_pdusession_update_sm_context& itti_msg) {
-  string ue_context_key = "app_ue_ranid_" + to_string(itti_msg.ran_ue_ngap_id) +
-                          ":amfid_" + to_string(itti_msg.amf_ue_ngap_id);
+  string ue_context_key = conv::get_ue_context_key(
+      itti_msg.ran_ue_ngap_id, itti_msg.amf_ue_ngap_id);
   std::shared_ptr<ue_context> uc = {};
   if (!amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_sbi().error(
@@ -294,9 +294,9 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
     return;
   }
 
-  std::string supi      = "imsi-" + nc->imsi;
-  string ue_context_key = "app_ue_ranid_" + to_string(nc->ran_ue_ngap_id) +
-                          ":amfid_" + to_string(nc->amf_ue_ngap_id);
+  std::string supi = "imsi-" + nc->imsi;
+  string ue_context_key =
+      conv::get_ue_context_key(nc->ran_ue_ngap_id, nc->amf_ue_ngap_id);
   std::shared_ptr<ue_context> uc = {};
   Logger::amf_sbi().info(
       "Find ue_context in amf_app using UE Context Key: %s",

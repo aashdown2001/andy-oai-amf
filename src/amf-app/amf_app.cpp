@@ -106,7 +106,7 @@ void amf_app_task(void*) {
   do {
     std::shared_ptr<itti_msg> shared_msg = itti_inst->receive_msg(task_id);
     auto* msg                            = shared_msg.get();
-    timer_id_t tid;
+    timer_id_t tid                       = {};
     switch (msg->msg_type) {
       case NAS_SIG_ESTAB_REQ: {
         Logger::amf_app().debug("Received NAS_SIG_ESTAB_REQ");
@@ -287,7 +287,7 @@ bool amf_app::get_pdu_sessions_context(
 
 //------------------------------------------------------------------------------
 bool amf_app::update_pdu_sessions_context(
-    const string& ue_id, const uint8_t& pdu_session_id,
+    const string& supi, const uint8_t& pdu_session_id,
     const oai::amf::model::SmContextStatusNotification& statusNotification) {
   std::shared_ptr<ue_context> uc = {};
   if (!supi_2_ue_context(supi, uc)) return false;
@@ -359,7 +359,7 @@ void amf_app::handle_itti_message(
     amf_n1_inst->supi_2_ran_id(itti_msg.supi, dl_msg->ran_ue_ngap_id);
 
     int ret = itti_inst->send_msg(dl_msg);
-    if (0 != ret) {
+    if (ret != RETURNok) {
       Logger::amf_app().error(
           "Could not send ITTI message %s to task TASK_AMF_N1",
           dl_msg->get_msg_name());
@@ -378,8 +378,8 @@ void amf_app::handle_itti_message(
     amf_ue_ngap_id = generate_amf_ue_ngap_id();
   }
 
-  string ue_context_key = "app_ue_ranid_" + to_string(itti_msg.ran_ue_ngap_id) +
-                          ":amfid_" + to_string(amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(itti_msg.ran_ue_ngap_id, amf_ue_ngap_id);
   if (!is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_app().debug(
         "No existing UE Context, Create a new one with ran_amf_id %s",
@@ -552,8 +552,8 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
     }
   }
 
-  string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
-                          ":amfid_" + to_string(amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
   if (!is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_app().debug(
         "No existing UE Context associated with UE Context Key %s",
@@ -895,8 +895,7 @@ uint32_t amf_app::generate_tmsi() {
 bool amf_app::generate_5g_guti(
     const uint32_t ranid, const long amfid, string& mcc, string& mnc,
     uint32_t& tmsi) {
-  string ue_context_key =
-      "app_ue_ranid_" + to_string(ranid) + ":amfid_" + to_string(amfid);
+  string ue_context_key = conv::get_ue_context_key(ranid, amfid);
   if (!is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_app().error(
         "No UE context for ran_amf_id %s, exit", ue_context_key.c_str());

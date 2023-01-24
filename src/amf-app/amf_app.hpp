@@ -99,7 +99,6 @@ class amf_app {
   explicit amf_app(const amf_config& amf_cfg);
   amf_app(amf_app const&) = delete;
   void operator=(amf_app const&) = delete;
-  void allRegistredModulesInit(const amf_modules& modules);
 
   /*
    * Generate AMF UE NGAP ID
@@ -283,14 +282,14 @@ class amf_app {
 
   /*
    * Update PDU Session Context status
-   * @param [const std::string&] ue_id: UE SUPI
+   * @param [const std::string&] supi: UE SUPI
    * @param [const uint8_t&] pdu_session_id: PDU Session ID
    * @param [const oai::amf::model::SmContextStatusNotification&]
    * statusNotification: Notification information received from SMF
    * @return true if success, otherwise false
    */
   bool update_pdu_sessions_context(
-      const string& ue_id, const uint8_t& pdu_session_id,
+      const string& supi, const uint8_t& pdu_session_id,
       const oai::amf::model::SmContextStatusNotification& statusNotification);
 
   /*

@@ -363,9 +363,8 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
   long amf_ue_ngap_id     = nas_data_ind.amf_ue_ngap_id;
   uint32_t ran_ue_ngap_id = nas_data_ind.ran_ue_ngap_id;
 
-  std::string nas_context_key =
-      "app_ue_ranid_" + to_string(ran_ue_ngap_id) + ":amfid_" +
-      to_string(amf_ue_ngap_id);  // key for nas_context, option 1
+  std::string nas_context_key = conv::get_ue_context_key(
+      ran_ue_ngap_id, amf_ue_ngap_id);  // key for nas_context, option 1
 
   std::string snn = {};
   if (nas_data_ind.mnc.length() == 2)  // TODO: remove hardcoded value
@@ -717,8 +716,8 @@ void amf_n1::identity_response_handle(
     Logger::amf_n1().debug("Identity Response: SUCI (%s)", supi.c_str());
   }
 
-  string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
-                          ":amfid_" + to_string(amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
 
   if (amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
     std::shared_ptr<ue_context> uc = {};
@@ -4200,8 +4199,8 @@ bool amf_n1::find_ue_context(
   string supi = "imsi-" + nc->imsi;
   Logger::amf_n1().debug("Key for PDU Session Context SUPI (%s)", supi.c_str());
 
-  string ue_context_key = "app_ue_ranid_" + to_string(nc->ran_ue_ngap_id) +
-                          ":amfid_" + to_string(nc->amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(nc->ran_ue_ngap_id, nc->amf_ue_ngap_id);
 
   if (!amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_n1().error("No UE context with key %s", ue_context_key.c_str());
@@ -4223,8 +4222,8 @@ bool amf_n1::find_ue_context(
 bool amf_n1::find_ue_context(
     uint32_t ran_ue_ngap_id, long amf_ue_ngap_id,
     std::shared_ptr<ue_context>& uc) {
-  string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
-                          ":amfid_" + to_string(amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
 
   if (!amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_n1().error("No UE context with key %s", ue_context_key.c_str());

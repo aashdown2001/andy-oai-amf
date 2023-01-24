@@ -469,3 +469,11 @@ bool conv::check_octet_string(const OCTET_STRING_t& octet_str) {
   if (!octet_str.buf or (octet_str.size == 0)) return false;
   return true;
 }
+
+//------------------------------------------------------------------------------
+std::string conv::get_ue_context_key(
+    const uint32_t ran_ue_ngap_id, long amf_ue_ngap_id) {
+  return (
+      "app_ue_ranid_" + std::to_string(ran_ue_ngap_id) + ":amfid_" +
+      std::to_string(amf_ue_ngap_id));
+}
