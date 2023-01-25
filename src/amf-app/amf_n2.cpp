@@ -935,8 +935,9 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
   }
 
   uint8_t buffer[BUFFER_SIZE_2048];
-  int encoded_size = msg->Encode(buffer, BUFFER_SIZE_2048);
-  bstring b        = blk2bstr(buffer, encoded_size);
+  int encoded_size = 0;
+  msg->encode2NewBuffer(buffer, encoded_size);
+  bstring b = blk2bstr(buffer, encoded_size);
   sctp_s_38412.sctp_send_msg(gc->sctp_assoc_id, unc->sctp_stream_send, &b);
   bdestroy_wrapper(&b);
 }
