@@ -101,7 +101,8 @@ int UENetworkCapability::Encode(uint8_t* buf, int len) {
 
   // TODO: Encode the rest as spare for now
   uint8_t spare = 0;
-  for (int i = 0; i < (ie_len - encoded_size); i++) {
+  int spare_len = ie_len - encoded_size;
+  for (int i = 0; i < spare_len; i++) {
     ENCODE_U8(buf + encoded_size, spare, encoded_size);
   }
 
@@ -136,7 +137,8 @@ int UENetworkCapability::Decode(uint8_t* buf, int len, bool is_iei) {
 
   // TODO: decode the rest as spare for now
   uint8_t spare = 0;
-  for (int i = 0; i < (ie_len - decoded_size); i++) {
+  int spare_len = ie_len - decoded_size;
+  for (int i = 0; i < spare_len; i++) {
     ENCODE_U8(buf + decoded_size, spare, decoded_size);
   }
 

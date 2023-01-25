@@ -730,6 +730,12 @@ void amf_n1::identity_response_handle(
     if (uc != nullptr) {
       uc->supi = "imsi-" + supi;
       // associate SUPI with UC
+      // Verify if there's PDU session info in the old context
+      if (amf_app_inst->is_supi_2_ue_context(supi)) {
+        std::shared_ptr<ue_context> old_uc = {};
+        old_uc = amf_app_inst->supi_2_ue_context(supi);
+        uc->copy_pdu_sessions(old_uc);
+      }
       amf_app_inst->set_supi_2_ue_context(uc->supi, uc);
       Logger::amf_n1().debug("Update UC context, SUPI %s", uc->supi.c_str());
     }
