@@ -661,8 +661,18 @@ void amf_n1::uplink_nas_msg_handle(
           "Received Registration Complete message, handling...");
       registration_complete_handle(ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
     } break;
+    case SERVICE_REQUEST: {
+      Logger::amf_n1().debug("Received Service Request message, handling...");
+      std::shared_ptr<nas_context> nc = {};
+      if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+        service_request_handle(nc, ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
+      } else {
+        Logger::amf_n1().debug("No NAS context available");
+      }
+    } break;
     default: {
-      Logger::amf_n1().debug("Received Unknown message type, ignoring...");
+      Logger::amf_n1().debug(
+          "Received Unknown message type 0x%x, ignoring...", message_type);
     }
   }
 }
@@ -731,9 +741,9 @@ void amf_n1::identity_response_handle(
       uc->supi = "imsi-" + supi;
       // associate SUPI with UC
       // Verify if there's PDU session info in the old context
-      if (amf_app_inst->is_supi_2_ue_context(supi)) {
+      if (amf_app_inst->is_supi_2_ue_context(uc->supi)) {
         std::shared_ptr<ue_context> old_uc = {};
-        old_uc = amf_app_inst->supi_2_ue_context(supi);
+        old_uc = amf_app_inst->supi_2_ue_context(uc->supi);
         uc->copy_pdu_sessions(old_uc);
       }
       amf_app_inst->set_supi_2_ue_context(uc->supi, uc);
