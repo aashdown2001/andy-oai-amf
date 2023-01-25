@@ -91,5 +91,10 @@ class conv {
 
   static bool check_bstring(const bstring& b_str);
   static bool check_octet_string(const OCTET_STRING_t& octet_str);
+
+  static std::string get_ue_context_key(
+      const uint32_t ran_ue_ngap_id, long amf_ue_ngap_id);
+  static std::string get_serving_network_name(
+      const std::string& mnc, const std::string& mcc);
 };
 #endif /* FILE_CONVERSIONS_HPP_SEEN */

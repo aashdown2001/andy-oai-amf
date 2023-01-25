@@ -115,7 +115,6 @@ int main(int argc, char** argv) {
   itti_inst->start(amf_cfg.itti.itti_timer_sched_params);
 
   amf_app_inst = new amf_app(amf_cfg);
-  amf_app_inst->allRegistredModulesInit(modules);
 
   Logger::amf_app().debug("Initiating AMF server endpoints");
   // AMF HTTP1 server

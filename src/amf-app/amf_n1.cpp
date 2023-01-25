@@ -364,17 +364,19 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
   long amf_ue_ngap_id     = nas_data_ind.amf_ue_ngap_id;
   uint32_t ran_ue_ngap_id = nas_data_ind.ran_ue_ngap_id;
 
-  std::string nas_context_key =
-      "app_ue_ranid_" + to_string(ran_ue_ngap_id) + ":amfid_" +
-      to_string(amf_ue_ngap_id);  // key for nas_context, option 1
+  std::string nas_context_key = conv::get_ue_context_key(
+      ran_ue_ngap_id, amf_ue_ngap_id);  // key for nas_context, option 1
 
-  std::string snn = {};
+  std::string snn =
+      conv::get_serving_network_name(nas_data_ind.mnc, nas_data_ind.mcc);
+  /*
   if (nas_data_ind.mnc.length() == 2)  // TODO: remove hardcoded value
     snn = "5G:mnc0" + nas_data_ind.mnc + ".mcc" + nas_data_ind.mcc +
           ".3gppnetwork.org";
   else
     snn = "5G:mnc" + nas_data_ind.mnc + ".mcc" + nas_data_ind.mcc +
           ".3gppnetwork.org";
+          */
   Logger::amf_n1().debug("Serving network name %s", snn.c_str());
 
   plmn_t plmn = {};
@@ -730,8 +732,8 @@ void amf_n1::identity_response_handle(
   supi = imsi.mcc + imsi.mnc + imsi.msin;
   Logger::amf_n1().debug("Identity Response: SUCI (%s)", supi.c_str());
 
-  string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
-                          ":amfid_" + to_string(amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
 
   if (amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
     std::shared_ptr<ue_context> uc = {};
@@ -1259,7 +1261,7 @@ void amf_n1::registration_request_handle(
       if (uc) uc.reset();
 
       std::shared_ptr<ue_ngap_context> unc = {};
-      if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
+      if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
         Logger::amf_n1().error(
             "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
             ran_ue_ngap_id);
@@ -2605,7 +2607,7 @@ void amf_n1::security_mode_complete_handle(
   // Find UE context
 
   std::shared_ptr<ue_ngap_context> unc = {};
-  if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
+  if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
     Logger::amf_n1().warn(
         "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
         ran_ue_ngap_id);
@@ -4223,8 +4225,8 @@ bool amf_n1::find_ue_context(
   string supi = "imsi-" + nc->imsi;
   Logger::amf_n1().debug("Key for PDU Session Context SUPI (%s)", supi.c_str());
 
-  string ue_context_key = "app_ue_ranid_" + to_string(nc->ran_ue_ngap_id) +
-                          ":amfid_" + to_string(nc->amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(nc->ran_ue_ngap_id, nc->amf_ue_ngap_id);
 
   if (!amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_n1().error("No UE context with key %s", ue_context_key.c_str());
@@ -4246,8 +4248,8 @@ bool amf_n1::find_ue_context(
 bool amf_n1::find_ue_context(
     uint32_t ran_ue_ngap_id, long amf_ue_ngap_id,
     std::shared_ptr<ue_context>& uc) {
-  string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
-                          ":amfid_" + to_string(amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
 
   if (!amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_n1().error("No UE context with key %s", ue_context_key.c_str());
@@ -4772,16 +4774,23 @@ bool amf_n1::get_slice_selection_subscription_data_from_conf_file(
   // For now, use the common NSSAIs, supported by AMF and gNB, as subscribed
   // NSSAIs
 
+  // Get UE context
   std::shared_ptr<ue_context> uc = {};
   if (!find_ue_context(nc->ran_ue_ngap_id, nc->amf_ue_ngap_id, uc)) {
     Logger::amf_n1().warn("Cannot find the UE context");
     return false;
   }
 
+  // Get UE NGAP Context
+  std::shared_ptr<ue_ngap_context> unc = {};
+  if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(nc->ran_ue_ngap_id, unc)) {
+    Logger::amf_n1().error(
+        "No existed UE NGAP context associated with "
+        "ran_ue_ngap_id " GNB_UE_NGAP_ID_FMT,
+        nc->ran_ue_ngap_id);
+    return false;
+  }
   // Get gNB Context
-  std::shared_ptr<ue_ngap_context> unc =
-      amf_n2_inst->ran_ue_id_2_ue_ngap_context(nc->ran_ue_ngap_id);
-
   std::shared_ptr<gnb_context> gc = {};
   if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
     Logger::amf_n1().error(
