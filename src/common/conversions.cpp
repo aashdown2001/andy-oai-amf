@@ -477,3 +477,14 @@ std::string conv::get_ue_context_key(
       "app_ue_ranid_" + std::to_string(ran_ue_ngap_id) + ":amfid_" +
       std::to_string(amf_ue_ngap_id));
 }
+
+//------------------------------------------------------------------------------
+std::string conv::get_serving_network_name(
+    const std::string& mnc, const std::string& mcc) {
+  std::string snn = {};
+  if (mnc.length() == 2)  // TODO: remove hardcoded value
+    snn = "5G:mnc0" + mnc + ".mcc" + mcc + ".3gppnetwork.org";
+  else
+    snn = "5G:mnc" + mnc + ".mcc" + mcc + ".3gppnetwork.org";
+  return snn;
+}

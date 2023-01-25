@@ -229,8 +229,19 @@ class amf_n2 : public ngap::ngap_app {
    * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
    * @return shared pointer to the UE NGAP context
    */
-  std::shared_ptr<ue_ngap_context> ran_ue_id_2_ue_ngap_context(
-      const uint32_t& ran_ue_ngap_id) const;
+  //  std::shared_ptr<ue_ngap_context> ran_ue_id_2_ue_ngap_context(
+  //      const uint32_t& ran_ue_ngap_id) const;
+
+  /*
+   * Verify whether a UE NGAP context associated with a RAN UE NGAP ID exist
+   * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
+   * @param [std::shared_ptr<ue_ngap_context>&] unc: shared pointer to the
+   * existing UE NGAP context
+   * @return true if exist, otherwise return false
+   */
+  bool ran_ue_id_2_ue_ngap_context(
+      const uint32_t& ran_ue_ngap_id,
+      std::shared_ptr<ue_ngap_context>& unc) const;
 
   /*
    * Verify whether a UE NGAP context associated with a RAN UE NGAP ID exist
@@ -238,17 +249,6 @@ class amf_n2 : public ngap::ngap_app {
    * @return true if exist, otherwise return false
    */
   bool is_ran_ue_id_2_ue_ngap_context(const uint32_t& ran_ue_ngap_id) const;
-
-  /*
-   * Verify whether a UE NGAP context associated with a RAN UE NGAP ID exist
-   * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
-   * @param [std::shared_ptr<ue_ngap_context>&] unc: shared pointer to the UE
-   * NGAP context
-   * @return true if exist, otherwise return false
-   */
-  bool is_ran_ue_id_2_ue_ngap_context(
-      const uint32_t& ran_ue_ngap_id,
-      std::shared_ptr<ue_ngap_context>& unc) const;
 
   /*
    * Store UE NGAP context associated with a RAN UE NGAP ID
