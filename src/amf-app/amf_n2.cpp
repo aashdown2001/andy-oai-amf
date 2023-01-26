@@ -934,7 +934,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
     }
   }
 
-  uint8_t buffer[BUFFER_SIZE_2048];
+  uint8_t* buffer  = (uint8_t*) calloc(1, BUFFER_SIZE_2048);
   int encoded_size = 0;
   msg->encode2NewBuffer(buffer, encoded_size);
   bstring b = blk2bstr(buffer, encoded_size);
