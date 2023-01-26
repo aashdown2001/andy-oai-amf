@@ -830,8 +830,36 @@ void amf_n1::service_request_handle(
     return;
   }
 
+  // Decode Service Request to get 5G-TMSI
+  std::unique_ptr<ServiceRequest> service_request =
+      std::make_unique<ServiceRequest>();
+  int decoded_size =
+      service_request->Decode(nullptr, (uint8_t*) bdata(nas), blength(nas));
+  // bdestroy_wrapper(&nas);
+
+  if (decoded_size != KEncodeDecodeError) {
+    // TODO: get old security context if exist
+    uint16_t amf_set_id = {};
+    uint8_t amf_pointer = {};
+    string tmsi         = {};
+    if (service_request->Get5gSTmsi(amf_set_id, amf_pointer, tmsi)) {
+      std::string guti = uc->tai.mcc + uc->tai.mnc + amf_cfg.guami.regionID +
+                         std::to_string(amf_set_id) +
+                         std::to_string(amf_pointer) + tmsi;
+
+      Logger::amf_app().debug(
+          "GUTI %s, 5G-TMSI %s", guti.c_str(), tmsi.c_str());
+      std::shared_ptr<nas_context> old_nc = {};
+      if (is_guti_2_nas_context(guti)) {
+        old_nc           = guti_2_nas_context(guti);
+        nc->security_ctx = old_nc->security_ctx;
+      }
+    }
+  }
+
   // If there's no appropriate context, send Service Reject
-  if (!nc or !uc or !nc->security_ctx) {
+  if (!nc or !uc or !nc->security_ctx or (decoded_size == KEncodeDecodeError)) {
+    // TODO: Try to get
     Logger::amf_n1().debug(
         "Cannot find NAS/UE context, send Service Reject to UE");
 
@@ -871,10 +899,7 @@ void amf_n1::service_request_handle(
     Logger::amf_n1().error("No Security Context found");
     return;
   }
-  std::unique_ptr<ServiceRequest> service_request =
-      std::make_unique<ServiceRequest>();
-  service_request->Decode(nullptr, (uint8_t*) bdata(nas), blength(nas));
-  // bdestroy_wrapper(&nas);
+
   std::unique_ptr<ServiceAccept> service_accept =
       std::make_unique<ServiceAccept>();
   service_accept->SetHeader(PLAIN_5GS_MSG);
