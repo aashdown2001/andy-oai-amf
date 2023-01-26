@@ -447,13 +447,7 @@ bool conv::octet_string_2_int8(const OCTET_STRING_t& o_str, uint8_t& value) {
 bool conv::octet_string_copy(
     OCTET_STRING_t& destination, const OCTET_STRING_t& source) {
   if (!source.buf) return false;
-  destination.buf = (uint8_t*) calloc(source.size + 1, sizeof(uint8_t));
-  if (!destination.buf) return false;
-
-  memcpy(destination.buf, source.buf, source.size);
-  ((uint8_t*) destination.buf)[source.size] = '\0';
-
-  destination.size = source.size;
+  OCTET_STRING_fromBuf(&destination, (char*) source.buf, source.size);
   return true;
 }
 

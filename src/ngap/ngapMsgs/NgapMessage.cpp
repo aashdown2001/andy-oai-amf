@@ -464,8 +464,10 @@ int NgapMessage::Encode(uint8_t* buf, int bufSize) {
   asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, ngapPdu);
   asn_enc_rval_t er = aper_encode_to_buffer(
       &asn_DEF_Ngap_NGAP_PDU, NULL, ngapPdu, buf, bufSize);
-  Logger::ngap().debug("er.encoded (%d)", er.encoded);
-  return er.encoded;
+
+  int encoded_size = (er.encoded + 7) >> 3;
+  Logger::ngap().debug("Encoded size (%d)", encoded_size);
+  return encoded_size;
 }
 
 //------------------------------------------------------------------------------
