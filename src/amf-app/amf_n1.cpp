@@ -851,8 +851,8 @@ void amf_n1::service_request_handle(
           "GUTI %s, 5G-TMSI %s", guti.c_str(), tmsi.c_str());
       std::shared_ptr<nas_context> old_nc = {};
       if (is_guti_2_nas_context(guti)) {
-        old_nc           = guti_2_nas_context(guti);
-        nc->security_ctx = old_nc->security_ctx;
+        old_nc = guti_2_nas_context(guti);
+        // nc->security_ctx = old_nc->security_ctx;
       }
     }
   }
@@ -3426,7 +3426,7 @@ void amf_n1::run_mobility_registration_update_procedure(
   if (!secu) {
     Logger::amf_n1().warn("No Security Context found");
     // Run Registration procedure
-    run_registration_procedure(nc);
+    // run_registration_procedure(nc);
     return;
   }
 
