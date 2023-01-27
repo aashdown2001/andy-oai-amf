@@ -48,6 +48,7 @@
 #include "SecurityModeComplete.hpp"
 #include "ServiceAccept.hpp"
 #include "ServiceRequest.hpp"
+#include "ServiceReject.hpp"
 #include "String2Value.hpp"
 #include "UEAuthenticationCtx.h"
 #include "ULNASTransport.hpp"
@@ -363,17 +364,19 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
   long amf_ue_ngap_id     = nas_data_ind.amf_ue_ngap_id;
   uint32_t ran_ue_ngap_id = nas_data_ind.ran_ue_ngap_id;
 
-  std::string nas_context_key =
-      "app_ue_ranid_" + to_string(ran_ue_ngap_id) + ":amfid_" +
-      to_string(amf_ue_ngap_id);  // key for nas_context, option 1
+  std::string nas_context_key = conv::get_ue_context_key(
+      ran_ue_ngap_id, amf_ue_ngap_id);  // key for nas_context, option 1
 
-  std::string snn = {};
+  std::string snn =
+      conv::get_serving_network_name(nas_data_ind.mnc, nas_data_ind.mcc);
+  /*
   if (nas_data_ind.mnc.length() == 2)  // TODO: remove hardcoded value
     snn = "5G:mnc0" + nas_data_ind.mnc + ".mcc" + nas_data_ind.mcc +
           ".3gppnetwork.org";
   else
     snn = "5G:mnc" + nas_data_ind.mnc + ".mcc" + nas_data_ind.mcc +
           ".3gppnetwork.org";
+          */
   Logger::amf_n1().debug("Serving network name %s", snn.c_str());
 
   plmn_t plmn = {};
@@ -592,11 +595,13 @@ void amf_n1::nas_signalling_establishment_request_handle(
         Logger::amf_n1().error("No NAS Context found");
         return;
       }
-      if (!nc->security_ctx) {
-        Logger::amf_n1().error("No Security Context found");
-        return;
-      }
+      /*  if (!nc->security_ctx) {
+          Logger::amf_n1().error("No Security Context found");
+          return;
+        }
+         */
       if (nc && nc->security_ctx) nc->security_ctx->ul_count.seq_num = ulCount;
+
       service_request_handle(nc, ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
     } break;
 
@@ -658,8 +663,18 @@ void amf_n1::uplink_nas_msg_handle(
           "Received Registration Complete message, handling...");
       registration_complete_handle(ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
     } break;
+    case SERVICE_REQUEST: {
+      Logger::amf_n1().debug("Received Service Request message, handling...");
+      std::shared_ptr<nas_context> nc = {};
+      if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+        service_request_handle(nc, ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
+      } else {
+        Logger::amf_n1().debug("No NAS context available");
+      }
+    } break;
     default: {
-      Logger::amf_n1().debug("Received Unknown message type, ignoring...");
+      Logger::amf_n1().debug(
+          "Received Unknown message type 0x%x, ignoring...", message_type);
     }
   }
 }
@@ -704,21 +719,21 @@ void amf_n1::identity_response_handle(
     const uint32_t ran_ue_ngap_id, const long amf_ue_ngap_id,
     bstring plain_msg) {
   auto identity_response = std::make_unique<IdentityResponse>();
-  if (!identity_response->decodefrombuffer(
-          NULL, (uint8_t*) bdata(plain_msg), blength(plain_msg))) {
+  if (!identity_response->Decode(
+          (uint8_t*) bdata(plain_msg), blength(plain_msg))) {
     Logger::amf_n1().error("Decode Identity Response error");
     return;
   }
   string supi = {};
-  if (identity_response->ie_mobility_id) {
-    nas::SUCI_imsi_t imsi;
-    identity_response->ie_mobility_id->getSuciWithSupiImsi(imsi);
-    supi = imsi.mcc + imsi.mnc + imsi.msin;
-    Logger::amf_n1().debug("Identity Response: SUCI (%s)", supi.c_str());
-  }
+  //_5GSMobileIdentity mobile_identity  = {};
+  // TODO: avoid accessing member function directly
+  nas::SUCI_imsi_t imsi = {};
+  identity_response->ie_mobile_identity.GetSuciWithSupiImsi(imsi);
+  supi = imsi.mcc + imsi.mnc + imsi.msin;
+  Logger::amf_n1().debug("Identity Response: SUCI (%s)", supi.c_str());
 
-  string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
-                          ":amfid_" + to_string(amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
 
   if (amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
     std::shared_ptr<ue_context> uc = {};
@@ -727,6 +742,12 @@ void amf_n1::identity_response_handle(
     if (uc != nullptr) {
       uc->supi = "imsi-" + supi;
       // associate SUPI with UC
+      // Verify if there's PDU session info in the old context
+      if (amf_app_inst->is_supi_2_ue_context(uc->supi)) {
+        std::shared_ptr<ue_context> old_uc = {};
+        old_uc = amf_app_inst->supi_2_ue_context(uc->supi);
+        uc->copy_pdu_sessions(old_uc);
+      }
       amf_app_inst->set_supi_2_ue_context(uc->supi, uc);
       Logger::amf_n1().debug("Update UC context, SUPI %s", uc->supi.c_str());
     }
@@ -809,19 +830,56 @@ void amf_n1::service_request_handle(
     return;
   }
 
-  if (!nc or !uc) {
+  // Decode Service Request to get 5G-TMSI
+  std::unique_ptr<ServiceRequest> service_request =
+      std::make_unique<ServiceRequest>();
+  int decoded_size =
+      service_request->Decode(nullptr, (uint8_t*) bdata(nas), blength(nas));
+  // bdestroy_wrapper(&nas);
+
+  if (decoded_size != KEncodeDecodeError) {
+    // TODO: get old security context if exist
+    uint16_t amf_set_id = {};
+    uint8_t amf_pointer = {};
+    string tmsi         = {};
+    if (service_request->Get5gSTmsi(amf_set_id, amf_pointer, tmsi)) {
+      std::string guti = uc->tai.mcc + uc->tai.mnc + amf_cfg.guami.regionID +
+                         std::to_string(amf_set_id) +
+                         std::to_string(amf_pointer) + tmsi;
+
+      Logger::amf_app().debug(
+          "GUTI %s, 5G-TMSI %s", guti.c_str(), tmsi.c_str());
+      std::shared_ptr<nas_context> old_nc = {};
+      if (is_guti_2_nas_context(guti)) {
+        old_nc = guti_2_nas_context(guti);
+        // nc->security_ctx = old_nc->security_ctx;
+      }
+    }
+  }
+
+  // If there's no appropriate context, send Service Reject
+  if (!nc or !uc or !nc->security_ctx or (decoded_size == KEncodeDecodeError)) {
+    // TODO: Try to get
     Logger::amf_n1().debug(
         "Cannot find NAS/UE context, send Service Reject to UE");
-    // TODO: service reject
-    uint8_t nas[4];
-    nas[0] = EPD_5GS_MM_MSG;
-    nas[1] = PLAIN_5GS_MSG;
-    nas[2] = SERVICE_REJECT;
-    nas[3] = _5GMM_CAUSE_UE_IDENTITY_CANNOT_BE_DERIVED;
+
+    std::unique_ptr<ServiceReject> service_reject =
+        std::make_unique<ServiceReject>();
+    service_reject->SetHeader(PLAIN_5GS_MSG);
+    service_reject->Set5gmmCause(_5GMM_CAUSE_UE_IDENTITY_CANNOT_BE_DERIVED);
+
+    uint8_t buffer[BUFFER_SIZE_512] = {0};
+    int encoded_size = service_reject->Encode(buffer, BUFFER_SIZE_512);
+    comUt::print_buffer(
+        "amf_n1", "Service-Reject message buffer", buffer, encoded_size);
+    if (!encoded_size) {
+      Logger::amf_n1().error("Encode Service-Reject message error");
+      return;
+    }
 
     std::shared_ptr<itti_dl_nas_transport> dnt =
         std::make_shared<itti_dl_nas_transport>(TASK_AMF_N1, TASK_AMF_N2);
-    dnt->nas            = blk2bstr(nas, 4);
+    dnt->nas            = blk2bstr(buffer, encoded_size);
     dnt->amf_ue_ngap_id = amf_ue_ngap_id;
     dnt->ran_ue_ngap_id = ran_ue_ngap_id;
 
@@ -834,20 +892,17 @@ void amf_n1::service_request_handle(
     return;
   }
 
+  // Otherwise, continue to process Service Request message
   set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
   nas_secu_ctx* secu = nc->security_ctx;  // TODO: remove naked ptr
   if (!secu) {
     Logger::amf_n1().error("No Security Context found");
     return;
   }
-  std::unique_ptr<ServiceRequest> service_request =
-      std::make_unique<ServiceRequest>();
-  service_request->decodefrombuffer(
-      nullptr, (uint8_t*) bdata(nas), blength(nas));
-  // bdestroy_wrapper(&nas);
+
   std::unique_ptr<ServiceAccept> service_accept =
       std::make_unique<ServiceAccept>();
-  service_accept->setHeader(PLAIN_5GS_MSG);
+  service_accept->SetHeader(PLAIN_5GS_MSG);
   string supi = "imsi-" + nc->imsi;
   uc->supi    = supi;
   set_supi_2_amf_id(supi, amf_ue_ngap_id);
@@ -886,7 +941,7 @@ void amf_n1::service_request_handle(
   if (pdu_session_status == 0) {
     // Get PDU Session Status from NAS Message Container if available
     bstring plain_msg = nullptr;
-    if (service_request->getNasMessageContainer(plain_msg)) {
+    if (service_request->GetNasMessageContainer(plain_msg)) {
       if (blength(plain_msg) < NAS_MESSAGE_MIN_LENGTH) {
         Logger::amf_n1().debug("NAS message is too short!");
         bdestroy_wrapper(&plain_msg);
@@ -908,7 +963,7 @@ void amf_n1::service_request_handle(
               "NAS Message Container contains a Service Request, handling ...");
           std::unique_ptr<ServiceRequest> service_request_nas =
               std::make_unique<ServiceRequest>();
-          service_request_nas->decodefrombuffer(
+          service_request_nas->Decode(
               nullptr, (uint8_t*) bdata(plain_msg), blength(plain_msg));
           bdestroy_wrapper(&plain_msg);
 
@@ -939,9 +994,9 @@ void amf_n1::service_request_handle(
   // No PDU Sessions To Be Activated
   if (pdu_session_to_be_activated.size() == 0) {
     Logger::amf_n1().debug("There is no PDU session to be activated");
-    service_accept->setPDU_session_status(0x0000);
+    service_accept->SetPduSessionStatus(0x0000);
     uint8_t buffer[BUFFER_SIZE_256];
-    int encoded_size = service_accept->encode2buffer(buffer, BUFFER_SIZE_256);
+    int encoded_size      = service_accept->Encode(buffer, BUFFER_SIZE_256);
     bstring protected_nas = nullptr;
     encode_nas_message_protected(
         secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
@@ -979,9 +1034,8 @@ void amf_n1::service_request_handle(
 
     std::shared_ptr<pdu_session_context> psc = {};
 
-    service_accept->setPDU_session_status(
-        service_request->getPduSessionStatus());
-    service_accept->setPDU_session_reactivation_result(0x0000);
+    service_accept->SetPduSessionStatus(service_request->getPduSessionStatus());
+    service_accept->SetPduSessionReactivationResult(0x0000);
 
     uint8_t pdu_session_id = pdu_session_to_be_activated.at(0);
     if (!amf_app_inst->find_pdu_session_context(supi, pdu_session_id, psc)) {
@@ -991,7 +1045,7 @@ void amf_n1::service_request_handle(
     }
 
     uint8_t buffer[BUFFER_SIZE_256];
-    int encoded_size = service_accept->encode2buffer(buffer, BUFFER_SIZE_256);
+    int encoded_size      = service_accept->Encode(buffer, BUFFER_SIZE_256);
     bstring protected_nas = nullptr;
     encode_nas_message_protected(
         secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
@@ -1039,8 +1093,7 @@ void amf_n1::registration_request_handle(
   std::unique_ptr<RegistrationRequest> registration_request =
       std::make_unique<RegistrationRequest>();
 
-  registration_request->decodefrombuffer(
-      nullptr, (uint8_t*) bdata(reg), blength(reg));
+  registration_request->Decode((uint8_t*) bdata(reg), blength(reg));
 
   // TODO: Use set function
   nc->registration_request = blk2bstr((uint8_t*) bdata(reg), blength(reg));
@@ -1056,7 +1109,7 @@ void amf_n1::registration_request_handle(
 
   // Check 5gs Mobility Identity (Mandatory IE)
   std::string guti         = {};
-  uint8_t mobility_id_type = registration_request->getMobilityIdentityType();
+  uint8_t mobility_id_type = registration_request->getMobileIdentityType();
   switch (mobility_id_type) {
     case SUCI: {
       nas::SUCI_imsi_t imsi = {};
@@ -1132,7 +1185,7 @@ void amf_n1::registration_request_handle(
     } break;
 
     case _5G_GUTI: {
-      guti = registration_request->get_5g_guti();
+      guti = registration_request->Get5gGuti();
       Logger::amf_n1().debug(
           "Decoded GUTI from registration request message %s", guti.c_str());
       if (guti.empty()) {
@@ -1233,7 +1286,7 @@ void amf_n1::registration_request_handle(
       if (uc) uc.reset();
 
       std::shared_ptr<ue_ngap_context> unc = {};
-      if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
+      if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
         Logger::amf_n1().error(
             "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
             ran_ue_ngap_id);
@@ -1268,7 +1321,7 @@ void amf_n1::registration_request_handle(
   // Check 5GS_Registration_type IE (Mandatory IE)
   uint8_t reg_type              = 0;
   bool is_follow_on_req_pending = false;
-  if (!registration_request->get5GSRegistrationType(
+  if (!registration_request->get5gsRegistrationType(
           is_follow_on_req_pending, reg_type)) {
     Logger::amf_n1().error("Missing Mandatory IE 5GS Registration type...");
     send_registration_reject_msg(
@@ -1291,8 +1344,8 @@ void amf_n1::registration_request_handle(
   // Get non-current native NAS key set identity (Optional IE), used for
   // inter-system change from S1 to N1 Get 5GMM Capability IE (optional), not
   // included for periodic registration updating procedure
-  uint8_t _5g_mm_cap = registration_request->get5GMMCapability();
-  if (_5g_mm_cap == -1) {
+  uint8_t _5g_mm_cap = 0;
+  if (!registration_request->get5GMMCapability(_5g_mm_cap)) {
     Logger::amf_n1().warn("No Optional IE 5GMMCapability available");
   }
   nc->mmCapability = _5g_mm_cap;
@@ -1309,7 +1362,7 @@ void amf_n1::registration_request_handle(
     Logger::amf_n1().warn("No Optional IE UESecurityCapability available");
   } else {
     nc->ueSecurityCaplen =
-        registration_request->ie_ue_security_capability->getLength();
+        registration_request->ie_ue_security_capability->GetLengthIndicator();
   }
 
   nc->ueSecurityCapEnc = encrypt_alg;
@@ -1337,13 +1390,13 @@ void amf_n1::registration_request_handle(
 
   bstring nas_msg = nullptr;
   bool is_messagecontainer =
-      registration_request->getNasMessageContainer(nas_msg);
+      registration_request->GetNasMessageContainer(nas_msg);
 
   if (is_messagecontainer) {
     std::unique_ptr<RegistrationRequest> registration_request_msg_container =
         std::make_unique<RegistrationRequest>();
-    registration_request_msg_container->decodefrombuffer(
-        nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
+    registration_request_msg_container->Decode(
+        (uint8_t*) bdata(nas_msg), blength(nas_msg));
 
     if (!registration_request_msg_container->getRequestedNssai(
             nc->requestedNssai)) {
@@ -1370,9 +1423,10 @@ void amf_n1::registration_request_handle(
 
     case MOBILITY_REGISTRATION_UPDATING: {
       Logger::amf_n1().debug("Handling Mobility Registration Update...");
+      uint16_t uplink_data_status = 0;
+      registration_request->getUplinkDataStatus(uplink_data_status);
       run_mobility_registration_update_procedure(
-          nc, registration_request->getUplinkDataStatus(),
-          registration_request->getPduSessionStatus());
+          nc, uplink_data_status, registration_request->getPduSessionStatus());
     } break;
 
     case PERIODIC_REGISTRATION_UPDATING: {
@@ -1596,11 +1650,10 @@ void amf_n1::send_registration_reject_msg(
   Logger::amf_n1().debug("Create Registration Reject and send to UE");
   std::unique_ptr<RegistrationReject> registration_reject =
       std::make_unique<RegistrationReject>();
-  registration_reject->setHeader(PLAIN_5GS_MSG);
-  registration_reject->set_5GMM_Cause(cause_value);
+  registration_reject->SetHeader(PLAIN_5GS_MSG);
+  registration_reject->Set5gmmCause(cause_value);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
-  int encoded_size =
-      registration_reject->encode2buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = registration_reject->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Registration-Reject message buffer", buffer, encoded_size);
   if (!encoded_size) {
@@ -1679,10 +1732,10 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context>& nc) {
     nc->is_auth_vectors_present = false;
     std::unique_ptr<IdentityRequest> identity_request =
         std::make_unique<IdentityRequest>();
-    identity_request->setHeader(PLAIN_5GS_MSG);
-    identity_request->set_5GS_Identity_Type(SUCI);
+    identity_request->SetHeader(PLAIN_5GS_MSG);
+    identity_request->Set5gsIdentityType(SUCI);
     uint8_t buffer[BUFFER_SIZE_256];
-    int encoded_size = identity_request->encode2buffer(buffer, BUFFER_SIZE_256);
+    int encoded_size = identity_request->Encode(buffer, BUFFER_SIZE_256);
 
     std::shared_ptr<itti_dl_nas_transport> dnt =
         std::make_shared<itti_dl_nas_transport>(TASK_AMF_N1, TASK_AMF_N2);
@@ -2112,23 +2165,24 @@ bool amf_n1::start_authentication_procedure(
   nc->is_common_procedure_for_authentication_running = true;
   std::unique_ptr<AuthenticationRequest> auth_request =
       std::make_unique<AuthenticationRequest>();
-  auth_request->setHeader(PLAIN_5GS_MSG);
-  auth_request->setngKSI(NAS_KEY_SET_IDENTIFIER_NATIVE, ngksi);
+  auth_request->SetHeader(PLAIN_5GS_MSG);
+  auth_request->SetNgKsi(NAS_KEY_SET_IDENTIFIER_NATIVE, ngksi);
   uint8_t abba[2];
   abba[0] = 0x00;
   abba[1] = 0x00;
-  auth_request->setABBA(2, abba);
-  uint8_t* rand = nc->_5g_av[vindex].rand;
-  if (rand) auth_request->setAuthentication_Parameter_RAND(rand);
+  auth_request->SetAbba(2, abba);
+  // uint8_t* rand = nc->_5g_av[vindex].rand;
+  auth_request->setAuthentication_Parameter_RAND(nc->_5g_av[vindex].rand);
   Logger::amf_n1().debug("Sending Authentication Request with RAND");
   printf("0x");
-  for (int i = 0; i < 16; i++) printf("%x", rand[i]);
+  for (int i = 0; i < kAuthenticationParameterRandValueLength; i++)
+    printf("%x", nc->_5g_av[vindex].rand[i]);
   printf("\n");
 
   uint8_t* autn = nc->_5g_av[vindex].autn;
   if (autn) auth_request->setAuthentication_Parameter_AUTN(autn);
   uint8_t buffer[1024] = {0};
-  int encoded_size     = auth_request->encode2buffer(buffer, 1024);
+  int encoded_size     = auth_request->Encode(buffer, 1024);
   if (!encoded_size) {
     Logger::nas_mm().error("Encode Authentication Request message error");
     return false;
@@ -2191,12 +2245,11 @@ void amf_n1::authentication_response_handle(
   // Decode AUTHENTICATION RESPONSE message
   auto auth_response = std::make_unique<AuthenticationResponse>();
 
-  auth_response->decodefrombuffer(
-      nullptr, (uint8_t*) bdata(plain_msg), blength(plain_msg));
+  auth_response->Decode((uint8_t*) bdata(plain_msg), blength(plain_msg));
   bstring resStar = nullptr;
   bool isAuthOk   = true;
   // Get response RES*
-  if (!auth_response->getAuthenticationResponseParameter(resStar)) {
+  if (!auth_response->GetAuthenticationResponseParameter(resStar)) {
     Logger::amf_n1().warn(
         "Cannot receive AuthenticationResponseParameter (RES*)");
   } else {
@@ -2281,9 +2334,8 @@ void amf_n1::authentication_failure_handle(
   // 1. decode AUTHENTICATION FAILURE message
   auto auth_failure = std::make_unique<AuthenticationFailure>();
 
-  auth_failure->decodefrombuffer(
-      NULL, (uint8_t*) bdata(plain_msg), blength(plain_msg));
-  uint8_t mm_cause = auth_failure->get5GMmCause();
+  auth_failure->Decode((uint8_t*) bdata(plain_msg), blength(plain_msg));
+  uint8_t mm_cause = auth_failure->Get5GMmCause();
   if (mm_cause == -1) {
     Logger::amf_n1().error("Missing mandatory IE 5G_MM_CAUSE");
     send_registration_reject_msg(
@@ -2295,7 +2347,7 @@ void amf_n1::authentication_failure_handle(
     case _5GMM_CAUSE_SYNCH_FAILURE: {
       Logger::amf_n1().debug("Initial new Authentication procedure");
       bstring auts = nullptr;
-      if (!auth_failure->getAutsInAuthFailPara(auts)) {
+      if (!auth_failure->GetAuthenticationFailureParameter(auts)) {
         Logger::amf_n1().warn(
             "IE Authentication Failure Parameter (AUTS) not received");
       }
@@ -2396,28 +2448,25 @@ bool amf_n1::start_security_mode_control_procedure(
 
   std::unique_ptr<SecurityModeCommand> smc =
       std::make_unique<SecurityModeCommand>();
-  smc->setHeader(PLAIN_5GS_MSG);
-  smc->setNAS_Security_Algorithms(amf_nea, amf_nia);
+  smc->SetHeader(PLAIN_5GS_MSG);
+  smc->SetNasSecurityAlgorithms(amf_nea, amf_nia);
   Logger::amf_n1().debug("Encoded ngKSI 0x%x", nc->ngKsi);
-  smc->setngKSI(NAS_KEY_SET_IDENTIFIER_NATIVE, nc->ngKsi & 0x07);
+  smc->SetNgKsi(NAS_KEY_SET_IDENTIFIER_NATIVE, nc->ngKsi & 0x07);
   if (nc->ueSecurityCaplen >= 4) {
-    smc->setUE_Security_Capability(
+    smc->SetUeSecurityCapability(
         nc->ueSecurityCapEnc, nc->ueSecurityCapInt, nc->ueSecurityCapEEA,
         nc->ueSecurityCapEIA);
   } else {
-    smc->setUE_Security_Capability(nc->ueSecurityCapEnc, nc->ueSecurityCapInt);
+    smc->SetUeSecurityCapability(nc->ueSecurityCapEnc, nc->ueSecurityCapInt);
   }
 
-  if (smc->ie_ue_security_capability != NULL) {
-    smc->ie_ue_security_capability->setLength(nc->ueSecurityCaplen);
-  } else {
-    Logger::amf_n1().error("UE Security Capability is missing");
-  }
+  // TODO: remove
+  // smc->ie_ue_security_capability->SetLengthIndicator(nc->ueSecurityCaplen);
 
-  smc->setIMEISV_Request(0xe1);  // TODO: remove hardcoded value
-  smc->setAdditional_5G_Security_Information(true, false);
+  smc->SetImeisvRequest(0xe1);  // TODO: remove hardcoded value
+  smc->SetAdditional5gSecurityInformation(true, false);
   uint8_t buffer[BUFFER_SIZE_1024];
-  int encoded_size = smc->encode2buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = smc->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Security-Mode-Command message buffer", buffer, encoded_size);
 
@@ -2482,15 +2531,14 @@ void amf_n1::security_mode_complete_handle(
   }
   // Decode Security Mode Complete
   auto security_mode_complete = std::make_unique<SecurityModeComplete>();
-  security_mode_complete->decodefrombuffer(
-      nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
+  security_mode_complete->Decode((uint8_t*) bdata(nas_msg), blength(nas_msg));
 
   comUt::print_buffer(
       "amf_n1", "Security Mode Complete message buffer",
       (uint8_t*) bdata(nas_msg), blength(nas_msg));
 
   bstring nas_msg_container = nullptr;
-  if (security_mode_complete->getNasMessageContainer(nas_msg_container)) {
+  if (security_mode_complete->GetNasMessageContainer(nas_msg_container)) {
     comUt::print_buffer(
         "amf_n1", "NAS Message Container", (uint8_t*) bdata(nas_msg_container),
         blength(nas_msg_container));
@@ -2504,9 +2552,8 @@ void amf_n1::security_mode_complete_handle(
       // Decode registration request message
       std::unique_ptr<RegistrationRequest> registration_request =
           std::make_unique<RegistrationRequest>();
-      registration_request->decodefrombuffer(
-          nullptr, (uint8_t*) bdata(nas_msg_container),
-          blength(nas_msg_container));
+      registration_request->Decode(
+          (uint8_t*) bdata(nas_msg_container), blength(nas_msg_container));
       // bdestroy_wrapper(&nas_msg_container);  // free buffer
 
       // Get Requested NSSAI (Optional IE), if provided
@@ -2548,7 +2595,7 @@ void amf_n1::security_mode_complete_handle(
     // TODO:
     return;
   }
-  registration_accept->set5G_GUTI(
+  registration_accept->Set5gGuti(
       mcc, mnc, amf_cfg.guami.regionID, amf_cfg.guami.AmfSetID,
       amf_cfg.guami.AmfPointer, tmsi);
 
@@ -2558,11 +2605,10 @@ void amf_n1::security_mode_complete_handle(
   Logger::amf_n1().debug("Allocated GUTI %s", guti.c_str());
 
   // TODO: remove hardcoded values
-  registration_accept->set_5GS_Network_Feature_Support(0x01, 0x00);
-  // registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
+  registration_accept->Set5gsNetworkFeatureSupport(0x01, 0x00);
+  // registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
-  int encoded_size =
-      registration_accept->encode2buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = registration_accept->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Registration-Accept message buffer", buffer, encoded_size);
   if (!encoded_size) {
@@ -2586,7 +2632,7 @@ void amf_n1::security_mode_complete_handle(
   // Find UE context
 
   std::shared_ptr<ue_ngap_context> unc = {};
-  if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
+  if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
     Logger::amf_n1().warn(
         "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
         ran_ue_ngap_id);
@@ -2753,7 +2799,7 @@ void amf_n1::registration_complete_handle(
 
   // Decode Registration Complete message
   auto registration_complete = std::make_unique<RegistrationComplete>();
-  int decoded_size           = registration_complete->decodefrombuffer(
+  int decoded_size           = registration_complete->Decode(
       nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
   if (decoded_size <= 0) {
     Logger::amf_n1().warn("Error when decoding Registration Complete");
@@ -2773,13 +2819,13 @@ void amf_n1::registration_complete_handle(
   auto configuration_update_command =
       std::make_unique<ConfigurationUpdateCommand>();
 
-  configuration_update_command->setHeader(PLAIN_5GS_MSG);
+  configuration_update_command->SetHeader(PLAIN_5GS_MSG);
   configuration_update_command->setFullNameForNetwork("Testing");   // TODO:
   configuration_update_command->setShortNameForNetwork("Testing");  // TODO:
 
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size =
-      configuration_update_command->encode2Buffer(buffer, BUFFER_SIZE_1024);
+      configuration_update_command->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Configuration Update Command message Buffer", buffer,
       encoded_size);
@@ -3020,8 +3066,9 @@ void amf_n1::ue_initiate_de_registration_handle(
   }
 
   // Decode NAS message
-  auto dereg_request = std::make_unique<DeregistrationRequest>();
-  dereg_request->decodefrombuffer(NULL, (uint8_t*) bdata(nas), blength(nas));
+  auto dereg_request = std::make_unique<DeregistrationRequest>(
+      true);  // UE originating de-registration
+  dereg_request->Decode((uint8_t*) bdata(nas), blength(nas));
 
   // TODO: validate 5G Mobile Identity
   uint8_t mobile_id_type = 0;
@@ -3030,7 +3077,7 @@ void amf_n1::ue_initiate_de_registration_handle(
   switch (mobile_id_type) {
     case _5G_GUTI: {
       Logger::amf_n1().debug(
-          "5G Mobile Identity, GUTI %s", dereg_request->get_5g_guti().c_str());
+          "5G Mobile Identity, GUTI %s", dereg_request->Get5gGuti().c_str());
     } break;
     default: {
     }
@@ -3112,10 +3159,10 @@ void amf_n1::ue_initiate_de_registration_handle(
   if ((deregType & DEREGISTRATION_TYPE_MASK) == 0) {
     // Prepare DeregistrationAccept
     auto dereg_accept = std::make_unique<DeregistrationAccept>();
-    dereg_accept->setHeader(PLAIN_5GS_MSG);
+    dereg_accept->SetHeader(PLAIN_5GS_MSG);
 
     uint8_t buffer[BUFFER_SIZE_512] = {0};
-    int encoded_size = dereg_accept->encode2buffer(buffer, BUFFER_SIZE_512);
+    int encoded_size = dereg_accept->Encode(buffer, BUFFER_SIZE_512);
 
     comUt::print_buffer(
         "amf_n1", "De-registration Accept message buffer", buffer,
@@ -3182,14 +3229,14 @@ void amf_n1::ue_initiate_de_registration_handle(
         "Could not delete nas_context associated SUPI %s ", supi.c_str());
   }
 
-  if (remove_guti_2_nas_context(dereg_request->get_5g_guti())) {
+  if (remove_guti_2_nas_context(dereg_request->Get5gGuti())) {
     Logger::amf_n1().debug(
         "Deleted nas_context associated GUTI %s ",
-        dereg_request->get_5g_guti().c_str());
+        dereg_request->Get5gGuti().c_str());
   } else {
     Logger::amf_n1().debug(
         "Could not delete nas_context associated GUTI %s ",
-        dereg_request->get_5g_guti().c_str());
+        dereg_request->Get5gGuti().c_str());
   }
 
   // TODO: AMF to AN: N2 UE Context Release Request
@@ -3229,10 +3276,15 @@ void amf_n1::ul_nas_transport_handle(
   // Decode UL_NAS_TRANSPORT message
   Logger::amf_n1().debug("Handling UL NAS Transport");
   auto ul_nas = std::make_unique<ULNASTransport>();
-  ul_nas->decodefrombuffer(NULL, (uint8_t*) bdata(nas), blength(nas));
-  uint8_t payload_type   = ul_nas->getPayloadContainerType();
-  uint8_t pdu_session_id = ul_nas->getPduSessionId();
-  uint8_t request_type   = ul_nas->getRequestType();
+  ul_nas->Decode((uint8_t*) bdata(nas), blength(nas));
+  uint8_t payload_type   = ul_nas->GetPayloadContainerType();
+  uint8_t pdu_session_id = ul_nas->GetPduSessionId();
+
+  uint8_t request_type = 0;
+  if (!ul_nas->GetRequestType(request_type)) {
+    Logger::amf_n1().debug("Request Type is not available");
+    // TODO:
+  }
 
   bstring sm_msg = nullptr;
 
@@ -3240,7 +3292,7 @@ void amf_n1::ul_nas_transport_handle(
       ((request_type & 0x07) == EXISTING_PDU_SESSION)) {
     // SNSSAI
     SNSSAI_t snssai = {};
-    if (!ul_nas->getSnssai(snssai)) {  // If no SNSSAI in this message, use the
+    if (!ul_nas->GetSNssai(snssai)) {  // If no SNSSAI in this message, use the
                                        // one in Registration Request
       Logger::amf_n1().debug(
           "No Requested NSSAI available in ULNASTransport, use NSSAI from "
@@ -3289,10 +3341,8 @@ void amf_n1::ul_nas_transport_handle(
 
     switch (payload_type) {
       case N1_SM_INFORMATION: {
-        if (!ul_nas->getPayloadContainer(sm_msg)) {
-          Logger::amf_n1().error("Cannot decode Payload Container");
-          return;
-        }
+        // Get payload container
+        ul_nas->GetPayloadContainer(sm_msg);
 
         std::shared_ptr<itti_nsmf_pdusession_create_sm_context> itti_msg =
             std::make_shared<itti_nsmf_pdusession_create_sm_context>(
@@ -3324,10 +3374,8 @@ void amf_n1::ul_nas_transport_handle(
   } else {
     switch (payload_type) {
       case N1_SM_INFORMATION: {
-        if (!ul_nas->getPayloadContainer(sm_msg)) {
-          Logger::amf_n1().error("Cannot decode Payload Container");
-          return;
-        }
+        // Get payload container
+        ul_nas->GetPayloadContainer(sm_msg);
 
         std::shared_ptr<itti_nsmf_pdusession_update_sm_context> itti_msg =
             std::make_shared<itti_nsmf_pdusession_update_sm_context>(
@@ -3368,35 +3416,38 @@ void amf_n1::sha256(
 void amf_n1::run_mobility_registration_update_procedure(
     std::shared_ptr<nas_context>& nc, uint16_t uplink_data_status,
     uint16_t pdu_session_status) {
-  // Encoding REGISTRATION ACCEPT
-  auto reg_accept = std::make_unique<RegistrationAccept>();
-  initialize_registration_accept(reg_accept);
-  reg_accept->set_5GS_Network_Feature_Support(
-      0x00, 0x00);  // TODO: remove hardcoded values
-
-  std::shared_ptr<pdu_session_context> psc = {};
-  std::shared_ptr<ue_context> uc           = {};
+  std::shared_ptr<ue_context> uc = {};
   if (!find_ue_context(nc, uc)) {
     Logger::amf_n1().warn("Cannot find the UE context");
     return;
   }
 
-  reg_accept->set5G_GUTI(
+  nas_secu_ctx* secu = nc->security_ctx;
+  if (!secu) {
+    Logger::amf_n1().warn("No Security Context found");
+    // Run Registration procedure
+    // run_registration_procedure(nc);
+    return;
+  }
+
+  std::shared_ptr<pdu_session_context> psc = {};
+
+  // Encoding REGISTRATION ACCEPT
+  auto reg_accept = std::make_unique<RegistrationAccept>();
+  initialize_registration_accept(reg_accept);
+  reg_accept->Set5gsNetworkFeatureSupport(
+      0x00, 0x00);  // TODO: remove hardcoded values
+
+  reg_accept->Set5gGuti(
       amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
       amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
 
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
-  int encoded_size = reg_accept->encode2buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = reg_accept->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Registration-Accept Message Buffer", buffer, encoded_size);
   if (!encoded_size) {
     Logger::nas_mm().error("Encode Registration-Accept message error");
-    return;
-  }
-
-  nas_secu_ctx* secu = nc->security_ctx;
-  if (!secu) {
-    Logger::amf_n1().error("No Security Context found");
     return;
   }
 
@@ -3465,21 +3516,21 @@ void amf_n1::run_periodic_registration_update_procedure(
     return;
   }
 
-  reg_accept->set5G_GUTI(
+  reg_accept->Set5gGuti(
       amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
       amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
 
   if (pdu_session_status == 0x0000) {
-    reg_accept->setPDU_session_status(0x0000);
+    reg_accept->SetPduSessionStatus(0x0000);
   } else {
-    reg_accept->setPDU_session_status(pdu_session_status);
+    reg_accept->SetPduSessionStatus(pdu_session_status);
     Logger::amf_n1().debug(
         "PDU Session Status 0x%02x", htonl(pdu_session_status));
   }
 
-  reg_accept->set_5GS_Network_Feature_Support(0x01, 0x00);
+  reg_accept->Set5gsNetworkFeatureSupport(0x01, 0x00);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
-  int encoded_size = reg_accept->encode2buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = reg_accept->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Registration-Accept Message Buffer", buffer, encoded_size);
   if (!encoded_size) {
@@ -3519,8 +3570,7 @@ void amf_n1::run_periodic_registration_update_procedure(
   // decoding REGISTRATION request
   std::unique_ptr<RegistrationRequest> registration_request =
       std::make_unique<RegistrationRequest>();
-  registration_request->decodefrombuffer(
-      nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
+  registration_request->Decode((uint8_t*) bdata(nas_msg), blength(nas_msg));
   // bdestroy_wrapper(&nas_msg);  // free buffer
 
   // Encoding REGISTRATION ACCEPT
@@ -3534,23 +3584,23 @@ void amf_n1::run_periodic_registration_update_procedure(
     return;
   }
 
-  reg_accept->set5G_GUTI(
+  reg_accept->Set5gGuti(
       amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
       amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
 
   uint16_t pdu_session_status = 0xffff;
   pdu_session_status          = registration_request->getPduSessionStatus();
   if (pdu_session_status == 0x0000) {
-    reg_accept->setPDU_session_status(0x0000);
+    reg_accept->SetPduSessionStatus(0x0000);
   } else {
-    reg_accept->setPDU_session_status(pdu_session_status);
+    reg_accept->SetPduSessionStatus(pdu_session_status);
     Logger::amf_n1().debug(
         "PDU Session Status 0x%02x", htonl(pdu_session_status));
   }
 
-  reg_accept->set_5GS_Network_Feature_Support(0x01, 0x00);
+  reg_accept->Set5gsNetworkFeatureSupport(0x01, 0x00);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
-  int encoded_size = reg_accept->encode2buffer(buffer, BUFFER_SIZE_1024);
+  int encoded_size = reg_accept->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
       "amf_n1", "Registration-Accept Message Buffer", buffer, encoded_size);
   if (!encoded_size) {
@@ -4044,11 +4094,11 @@ void amf_n1::get_pdu_session_to_be_activated(
 void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept) {
   // TODO: to be updated with the function below
-  registration_accept->setHeader(PLAIN_5GS_MSG);
-  registration_accept->set_5GS_Registration_Result(
+  registration_accept->SetHeader(PLAIN_5GS_MSG);
+  registration_accept->Set5gsRegistrationResult(
       false, false, false,
       0x01);  // 3GPP Access
-  registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
+  registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
 
   std::vector<p_tai_t> tai_list;
   for (auto p : amf_cfg.plmn_list) {
@@ -4078,7 +4128,7 @@ void amf_n1::initialize_registration_accept(
       nssai.push_back(snssai);
     }
   }
-  registration_accept->setALLOWED_NSSAI(nssai);
+  registration_accept->SetAllowedNssai(nssai);
   return;
 }
 
@@ -4086,11 +4136,11 @@ void amf_n1::initialize_registration_accept(
 void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept,
     const std::shared_ptr<nas_context>& nc) {
-  registration_accept->setHeader(PLAIN_5GS_MSG);
-  registration_accept->set_5GS_Registration_Result(
+  registration_accept->SetHeader(PLAIN_5GS_MSG);
+  registration_accept->Set5gsRegistrationResult(
       false, false, false,
       0x01);  // 3GPP Access
-  registration_accept->setT3512_Value(0x5, T3512_TIMER_VALUE_MIN);
+  registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
 
   // Find UE Context
   std::shared_ptr<ue_context> uc = {};
@@ -4188,9 +4238,9 @@ void amf_n1::initialize_registration_accept(
     }
   }
 
-  registration_accept->setALLOWED_NSSAI(allowed_nssais);
-  registration_accept->setRejected_NSSAI(rejected_nssais);
-  registration_accept->setCONFIGURED_NSSAI(allowed_nssais);  // TODO
+  registration_accept->SetAllowedNssai(allowed_nssais);
+  registration_accept->SetRejectedNssai(rejected_nssais);
+  registration_accept->SetConfiguredNssai(allowed_nssais);  // TODO
   return;
 }
 
@@ -4200,8 +4250,8 @@ bool amf_n1::find_ue_context(
   string supi = "imsi-" + nc->imsi;
   Logger::amf_n1().debug("Key for PDU Session Context SUPI (%s)", supi.c_str());
 
-  string ue_context_key = "app_ue_ranid_" + to_string(nc->ran_ue_ngap_id) +
-                          ":amfid_" + to_string(nc->amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(nc->ran_ue_ngap_id, nc->amf_ue_ngap_id);
 
   if (!amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_n1().error("No UE context with key %s", ue_context_key.c_str());
@@ -4223,8 +4273,8 @@ bool amf_n1::find_ue_context(
 bool amf_n1::find_ue_context(
     uint32_t ran_ue_ngap_id, long amf_ue_ngap_id,
     std::shared_ptr<ue_context>& uc) {
-  string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
-                          ":amfid_" + to_string(amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
 
   if (!amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_n1().error("No UE context with key %s", ue_context_key.c_str());
@@ -4749,16 +4799,23 @@ bool amf_n1::get_slice_selection_subscription_data_from_conf_file(
   // For now, use the common NSSAIs, supported by AMF and gNB, as subscribed
   // NSSAIs
 
+  // Get UE context
   std::shared_ptr<ue_context> uc = {};
   if (!find_ue_context(nc->ran_ue_ngap_id, nc->amf_ue_ngap_id, uc)) {
     Logger::amf_n1().warn("Cannot find the UE context");
     return false;
   }
 
+  // Get UE NGAP Context
+  std::shared_ptr<ue_ngap_context> unc = {};
+  if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(nc->ran_ue_ngap_id, unc)) {
+    Logger::amf_n1().error(
+        "No existed UE NGAP context associated with "
+        "ran_ue_ngap_id " GNB_UE_NGAP_ID_FMT,
+        nc->ran_ue_ngap_id);
+    return false;
+  }
   // Get gNB Context
-  std::shared_ptr<ue_ngap_context> unc =
-      amf_n2_inst->ran_ue_id_2_ue_ngap_context(nc->ran_ue_ngap_id);
-
   std::shared_ptr<gnb_context> gc = {};
   if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
     Logger::amf_n1().error(

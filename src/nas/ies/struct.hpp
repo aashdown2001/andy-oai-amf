@@ -19,13 +19,6 @@
  *      contact@openairinterface.org
  */
 
-/*! \file
- \brief
- \author  Keliang DU, BUPT
- \date 2020
- \email: contact@openairinterface.org
- */
-
 #ifndef _STRUCT_H_
 #define _STRUCT_H_
 #include <stdint.h>
@@ -94,6 +87,7 @@ typedef struct {
 } IE_t_E;
 
 typedef struct {
+  uint8_t length;
   uint8_t payloadContainerType : 4;
   std::vector<IE_t> optionalIE;
 } PayloadContainerEntry;

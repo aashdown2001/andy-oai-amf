@@ -100,18 +100,13 @@ amf_app::amf_app(const amf_config& amf_cfg)
 }
 
 //------------------------------------------------------------------------------
-void amf_app::allRegistredModulesInit(const amf_modules& modules) {
-  Logger::amf_app().info("Initiating all registered modules");
-}
-
-//------------------------------------------------------------------------------
 void amf_app_task(void*) {
   const task_id_t task_id = TASK_AMF_APP;
   itti_inst->notify_task_ready(task_id);
   do {
     std::shared_ptr<itti_msg> shared_msg = itti_inst->receive_msg(task_id);
     auto* msg                            = shared_msg.get();
-    timer_id_t tid;
+    timer_id_t tid                       = {};
     switch (msg->msg_type) {
       case NAS_SIG_ESTAB_REQ: {
         Logger::amf_app().debug("Received NAS_SIG_ESTAB_REQ");
@@ -207,29 +202,15 @@ long amf_app::generate_amf_ue_ngap_id() {
 }
 
 //------------------------------------------------------------------------------
-bool amf_app::is_amf_ue_id_2_ue_context(const long& amf_ue_ngap_id) const {
-  std::shared_lock lock(m_amf_ue_ngap_id2ue_ctx);
-  return bool{amf_ue_ngap_id2ue_ctx.count(amf_ue_ngap_id) > 0};
-}
-
-//------------------------------------------------------------------------------
-std::shared_ptr<ue_context> amf_app::amf_ue_id_2_ue_context(
-    const long& amf_ue_ngap_id) const {
-  std::shared_lock lock(m_amf_ue_ngap_id2ue_ctx);
-  return amf_ue_ngap_id2ue_ctx.at(amf_ue_ngap_id);
-}
-
-//------------------------------------------------------------------------------
-void amf_app::set_amf_ue_ngap_id_2_ue_context(
-    const long& amf_ue_ngap_id, const std::shared_ptr<ue_context>& uc) {
-  std::unique_lock lock(m_amf_ue_ngap_id2ue_ctx);
-  amf_ue_ngap_id2ue_ctx[amf_ue_ngap_id] = uc;
-}
-
-//------------------------------------------------------------------------------
 bool amf_app::is_ran_amf_id_2_ue_context(const string& ue_context_key) const {
   std::shared_lock lock(m_ue_ctx_key);
-  return bool{ue_ctx_key.count(ue_context_key) > 0};
+  // return bool{ue_ctx_key.count(ue_context_key) > 0};
+  if (ue_ctx_key.count(ue_context_key) > 0) {
+    if (ue_ctx_key.at(ue_context_key) != nullptr) {
+      return true;
+    }
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -247,8 +228,8 @@ bool amf_app::ran_amf_id_2_ue_context(
     uc = ue_ctx_key.at(ue_context_key);
     if (uc == nullptr) return false;
     return true;
-  } else
-    return false;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -261,7 +242,13 @@ void amf_app::set_ran_amf_id_2_ue_context(
 //------------------------------------------------------------------------------
 bool amf_app::is_supi_2_ue_context(const string& supi) const {
   std::shared_lock lock(m_supi2ue_ctx);
-  return bool{supi2ue_ctx.count(supi) > 0};
+  // return bool{supi2ue_ctx.count(supi) > 0};
+  if (supi2ue_ctx.count(supi) > 0) {
+    if (supi2ue_ctx.at(supi) != nullptr) {
+      return true;
+    }
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -269,6 +256,18 @@ std::shared_ptr<ue_context> amf_app::supi_2_ue_context(
     const string& supi) const {
   std::shared_lock lock(m_supi2ue_ctx);
   return supi2ue_ctx.at(supi);
+}
+
+//------------------------------------------------------------------------------
+bool amf_app::supi_2_ue_context(
+    const std::string& supi, std::shared_ptr<ue_context>& uc) const {
+  std::shared_lock lock(m_supi2ue_ctx);
+  if (supi2ue_ctx.count(supi) > 0) {
+    uc = supi2ue_ctx.at(supi);
+    if (uc == nullptr) return false;
+    return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -282,9 +281,8 @@ void amf_app::set_supi_2_ue_context(
 bool amf_app::find_pdu_session_context(
     const string& supi, const std::uint8_t pdu_session_id,
     std::shared_ptr<pdu_session_context>& psc) {
-  if (!is_supi_2_ue_context(supi)) return false;
   std::shared_ptr<ue_context> uc = {};
-  uc                             = supi_2_ue_context(supi);
+  if (!supi_2_ue_context(supi, uc)) return false;
   if (!uc->find_pdu_session_context(pdu_session_id, psc)) return false;
   return true;
 }
@@ -293,20 +291,18 @@ bool amf_app::find_pdu_session_context(
 bool amf_app::get_pdu_sessions_context(
     const string& supi,
     std::vector<std::shared_ptr<pdu_session_context>>& sessions_ctx) {
-  if (!is_supi_2_ue_context(supi)) return false;
   std::shared_ptr<ue_context> uc = {};
-  uc                             = supi_2_ue_context(supi);
+  if (!supi_2_ue_context(supi, uc)) return false;
   if (!uc->get_pdu_sessions_context(sessions_ctx)) return false;
   return true;
 }
 
 //------------------------------------------------------------------------------
 bool amf_app::update_pdu_sessions_context(
-    const string& ue_id, const uint8_t& pdu_session_id,
+    const string& supi, const uint8_t& pdu_session_id,
     const oai::amf::model::SmContextStatusNotification& statusNotification) {
-  if (!is_supi_2_ue_context(ue_id)) return false;
   std::shared_ptr<ue_context> uc = {};
-  uc                             = supi_2_ue_context(ue_id);
+  if (!supi_2_ue_context(supi, uc)) return false;
   // TODO: process SmContextStatusNotification
   oai::amf::model::StatusInfo statusInfo = statusNotification.getStatusInfo();
   oai::amf::model::ResourceStatus resourceStatus =
@@ -334,29 +330,29 @@ void amf_app::handle_itti_message(
   if (itti_msg.is_ppi_set) {  // Paging procedure
     Logger::amf_app().info(
         "Handle ITTI N1N2 Message Transfer Request for Paging");
-    std::shared_ptr<itti_paging> i =
+    std::shared_ptr<itti_paging> paging_msg =
         std::make_shared<itti_paging>(TASK_AMF_APP, TASK_AMF_N2);
-    amf_n1_inst->supi_2_amf_id(itti_msg.supi, i->amf_ue_ngap_id);
-    amf_n1_inst->supi_2_ran_id(itti_msg.supi, i->ran_ue_ngap_id);
+    amf_n1_inst->supi_2_amf_id(itti_msg.supi, paging_msg->amf_ue_ngap_id);
+    amf_n1_inst->supi_2_ran_id(itti_msg.supi, paging_msg->ran_ue_ngap_id);
 
-    int ret = itti_inst->send_msg(i);
-    if (0 != ret) {
+    int ret = itti_inst->send_msg(paging_msg);
+    if (ret != RETURNok) {
       Logger::amf_app().error(
           "Could not send ITTI message %s to task TASK_AMF_N2",
-          i->get_msg_name());
+          paging_msg->get_msg_name());
     }
   } else {
     Logger::amf_app().info("Handle ITTI N1N2 Message Transfer Request");
     // Encode DL NAS TRANSPORT message(NAS message)
     auto dl = std::make_unique<DLNASTransport>();
-    dl->setHeader(PLAIN_5GS_MSG);
-    dl->setPayload_Container_Type(N1_SM_INFORMATION);
-    dl->setPayload_Container(
+    dl->SetHeader(PLAIN_5GS_MSG);
+    dl->SetPayloadContainerType(N1_SM_INFORMATION);
+    dl->SetPayloadContainer(
         (uint8_t*) bdata(bstrcpy(itti_msg.n1sm)), blength(itti_msg.n1sm));
-    dl->setPDUSessionId(itti_msg.pdu_session_id);
+    dl->SetPduSessionId(itti_msg.pdu_session_id);
 
     uint8_t nas[BUFFER_SIZE_1024];
-    int encoded_size = dl->encode2buffer(nas, BUFFER_SIZE_1024);
+    int encoded_size = dl->Encode(nas, BUFFER_SIZE_1024);
     comUt::print_buffer("amf_app", "n1n2 transfer", nas, encoded_size);
 
     std::shared_ptr<itti_downlink_nas_transfer> dl_msg =
@@ -375,7 +371,7 @@ void amf_app::handle_itti_message(
     amf_n1_inst->supi_2_ran_id(itti_msg.supi, dl_msg->ran_ue_ngap_id);
 
     int ret = itti_inst->send_msg(dl_msg);
-    if (0 != ret) {
+    if (ret != RETURNok) {
       Logger::amf_app().error(
           "Could not send ITTI message %s to task TASK_AMF_N1",
           dl_msg->get_msg_name());
@@ -394,8 +390,8 @@ void amf_app::handle_itti_message(
     amf_ue_ngap_id = generate_amf_ue_ngap_id();
   }
 
-  string ue_context_key = "app_ue_ranid_" + to_string(itti_msg.ran_ue_ngap_id) +
-                          ":amfid_" + to_string(amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(itti_msg.ran_ue_ngap_id, amf_ue_ngap_id);
   if (!is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_app().debug(
         "No existing UE Context, Create a new one with ran_amf_id %s",
@@ -406,13 +402,12 @@ void amf_app::handle_itti_message(
 
   // Update AMF UE NGAP ID
   std::shared_ptr<ue_ngap_context> unc = {};
-  if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(itti_msg.ran_ue_ngap_id)) {
+  if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(itti_msg.ran_ue_ngap_id, unc)) {
     Logger::amf_n1().error(
         "Could not find UE NGAP Context with ran_ue_ngap_id "
         "(" GNB_UE_NGAP_ID_FMT ")",
         itti_msg.ran_ue_ngap_id);
   } else {
-    unc = amf_n2_inst->ran_ue_id_2_ue_ngap_context(itti_msg.ran_ue_ngap_id);
     unc->amf_ue_ngap_id = amf_ue_ngap_id;
     amf_n2_inst->set_amf_ue_ngap_id_2_ue_ngap_context(amf_ue_ngap_id, unc);
   }
@@ -568,8 +563,8 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
     }
   }
 
-  string ue_context_key = "app_ue_ranid_" + to_string(ran_ue_ngap_id) +
-                          ":amfid_" + to_string(amf_ue_ngap_id);
+  string ue_context_key =
+      conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
   if (!is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_app().debug(
         "No existing UE Context associated with UE Context Key %s",
@@ -615,21 +610,12 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
   // Step 4. Create UE NGAP Context if necessary
   // Create/Update UE NGAP Context
   std::shared_ptr<ue_ngap_context> unc = {};
-  if (!amf_n2_inst->is_ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id)) {
+  if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
     Logger::amf_app().debug(
         "Create a new UE NGAP context with ran_ue_ngap_id " GNB_UE_NGAP_ID_FMT,
         ran_ue_ngap_id);
     unc = std::shared_ptr<ue_ngap_context>(new ue_ngap_context());
     amf_n2_inst->set_ran_ue_ngap_id_2_ue_ngap_context(ran_ue_ngap_id, unc);
-  } else {
-    unc = amf_n2_inst->ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id);
-    if (!unc) {
-      Logger::amf_app().error(
-          "Failed to get UE NGAP context for "
-          "ran_ue_ngap_id " GNB_UE_NGAP_ID_FMT,
-          ran_ue_ngap_id);
-      return;
-    }
   }
 
   // Store related information into UE NGAP context
@@ -911,8 +897,7 @@ uint32_t amf_app::generate_tmsi() {
 bool amf_app::generate_5g_guti(
     const uint32_t ranid, const long amfid, string& mcc, string& mnc,
     uint32_t& tmsi) {
-  string ue_context_key =
-      "app_ue_ranid_" + to_string(ranid) + ":amfid_" + to_string(amfid);
+  string ue_context_key = conv::get_ue_context_key(ranid, amfid);
   if (!is_ran_amf_id_2_ue_context(ue_context_key)) {
     Logger::amf_app().error(
         "No UE context for ran_amf_id %s, exit", ue_context_key.c_str());

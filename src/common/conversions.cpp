@@ -447,13 +447,7 @@ bool conv::octet_string_2_int8(const OCTET_STRING_t& o_str, uint8_t& value) {
 bool conv::octet_string_copy(
     OCTET_STRING_t& destination, const OCTET_STRING_t& source) {
   if (!source.buf) return false;
-  destination.buf = (uint8_t*) calloc(source.size + 1, sizeof(uint8_t));
-  if (!destination.buf) return false;
-
-  memcpy(destination.buf, source.buf, source.size);
-  ((uint8_t*) destination.buf)[source.size] = '\0';
-
-  destination.size = source.size;
+  OCTET_STRING_fromBuf(&destination, (char*) source.buf, source.size);
   return true;
 }
 
@@ -468,4 +462,23 @@ bool conv::check_bstring(const bstring& b_str) {
 bool conv::check_octet_string(const OCTET_STRING_t& octet_str) {
   if (!octet_str.buf or (octet_str.size == 0)) return false;
   return true;
+}
+
+//------------------------------------------------------------------------------
+std::string conv::get_ue_context_key(
+    const uint32_t ran_ue_ngap_id, long amf_ue_ngap_id) {
+  return (
+      "app_ue_ranid_" + std::to_string(ran_ue_ngap_id) + ":amfid_" +
+      std::to_string(amf_ue_ngap_id));
+}
+
+//------------------------------------------------------------------------------
+std::string conv::get_serving_network_name(
+    const std::string& mnc, const std::string& mcc) {
+  std::string snn = {};
+  if (mnc.length() == 2)  // TODO: remove hardcoded value
+    snn = "5G:mnc0" + mnc + ".mcc" + mcc + ".3gppnetwork.org";
+  else
+    snn = "5G:mnc" + mnc + ".mcc" + mcc + ".3gppnetwork.org";
+  return snn;
 }

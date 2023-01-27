@@ -39,6 +39,7 @@ add_library (AMF_UTILS STATIC
  ${CMAKE_CURRENT_SOURCE_DIR}/thread_sched.cpp
  ${CMAKE_CURRENT_SOURCE_DIR}/mime_parser.cpp
  ${CMAKE_CURRENT_SOURCE_DIR}/fqdn.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/3gpp_conversions.cpp
+ ${CMAKE_CURRENT_SOURCE_DIR}/3gpp_conversions.cpp
+ ${CMAKE_CURRENT_SOURCE_DIR}/NasUtils.cpp
  )
 

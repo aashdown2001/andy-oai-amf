@@ -166,7 +166,7 @@ void PduSessionResourceSetupResponseTransferIE::setSecurityResult(
 }
 
 //------------------------------------------------------------------------------
-int PduSessionResourceSetupResponseTransferIE::encode2buffer(
+int PduSessionResourceSetupResponseTransferIE::Encode(
     uint8_t* buf, int buf_size) {
   asn_fprint(
       stderr, &asn_DEF_Ngap_PDUSessionResourceSetupResponseTransfer,
