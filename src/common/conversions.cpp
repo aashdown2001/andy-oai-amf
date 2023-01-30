@@ -452,6 +452,15 @@ bool conv::octet_string_copy(
 }
 
 //------------------------------------------------------------------------------
+void conv::to_lower(std::string& str) {
+  boost::algorithm::to_lower(str);
+}
+
+//------------------------------------------------------------------------------
+void conv::to_lower(bstring& b_str) {
+  btolower(b_str);
+}
+//------------------------------------------------------------------------------
 bool conv::check_bstring(const bstring& b_str) {
   if (b_str == nullptr || b_str->slen < 0 || b_str->data == nullptr)
     return false;

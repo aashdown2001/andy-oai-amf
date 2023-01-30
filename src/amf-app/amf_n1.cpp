@@ -3335,6 +3335,9 @@ void amf_n1::ul_nas_transport_handle(
       // TODO: use default DNN for the corresponding NSSAI
     }
 
+    // Use DNN as case insensitive
+    conv::to_lower(dnn);
+
     comUt::print_buffer(
         "amf_n1", "Decoded DNN Bit String", (uint8_t*) bdata(dnn),
         blength(dnn));

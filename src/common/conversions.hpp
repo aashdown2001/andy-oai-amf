@@ -89,6 +89,9 @@ class conv {
   static bool octet_string_copy(
       OCTET_STRING_t& destination, const OCTET_STRING_t& source);
 
+  static void to_lower(std::string& str);
+  static void to_lower(bstring& b_str);
+
   static bool check_bstring(const bstring& b_str);
   static bool check_octet_string(const OCTET_STRING_t& octet_str);
 
