@@ -202,22 +202,13 @@ void amf_sbi::handle_itti_message(
   string ue_context_key = conv::get_ue_context_key(
       itti_msg.ran_ue_ngap_id, itti_msg.amf_ue_ngap_id);
   std::shared_ptr<ue_context> uc = {};
-  if (!amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
+  if (!amf_app_inst->ran_amf_id_2_ue_context(ue_context_key, uc)) {
     Logger::amf_sbi().error(
         "No UE context for %s exit", ue_context_key.c_str());
     return;
   }
 
-  uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
-
-  std::string supi = {};
-  if (uc != nullptr) {
-    supi = uc->supi;
-  } else {
-    Logger::amf_sbi().error(
-        "Could not find UE context with key %s", ue_context_key.c_str());
-    return;
-  }
+  std::string supi = uc->supi;
 
   Logger::amf_sbi().debug(
       "Send PDU Session Update SM Context Request to SMF (SUPI %s, PDU Session "
@@ -301,14 +292,7 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
   Logger::amf_sbi().info(
       "Find ue_context in amf_app using UE Context Key: %s",
       ue_context_key.c_str());
-  if (!amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
-    Logger::amf_sbi().error(
-        "No UE context for %s exit", ue_context_key.c_str());
-    return;
-  }
-
-  uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
-  if (!uc) {
+  if (!amf_app_inst->ran_amf_id_2_ue_context(ue_context_key, uc)) {
     Logger::amf_sbi().error(
         "No UE context for %s exit", ue_context_key.c_str());
     return;

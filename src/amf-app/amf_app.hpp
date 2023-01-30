@@ -199,14 +199,6 @@ class amf_app {
   bool is_ran_amf_id_2_ue_context(const std::string& ue_context_key) const;
 
   /*
-   * Get UE context associated with an UE Context Key
-   * @param [const std::string&] ue_context_key: UE Context Key
-   * @return shared pointer to the context
-   */
-  std::shared_ptr<ue_context> ran_amf_id_2_ue_context(
-      const std::string& ue_context_key) const;
-
-  /*
    * Get UE context associated with an UE Context Key and verify if this pointer
    * is nullptr
    * @param [const std::string&] ue_context_key: UE Context Key

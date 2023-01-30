@@ -115,12 +115,13 @@ class amf_n1 {
   bool is_guti_2_nas_context(const std::string& guti) const;
 
   /*
-   * Get UE NAS context associated with a GUTI
+   * Get UE NAS context associated with a GUTI if exist and not null
    * @param [const std::string&] guti: UE GUTI
-   * @return shared pointer to the UE NAS context
+   * @param [std::shared_ptr<nas_context>&] nc: UE NAS Context
+   * @return true if context exists and not null, otherwise return false
    */
-  std::shared_ptr<nas_context> guti_2_nas_context(
-      const std::string& guti) const;
+  bool guti_2_nas_context(
+      const std::string& guti, std::shared_ptr<nas_context>& nc) const;
 
   /*
    * Store an UE NAS context associated with a GUTI

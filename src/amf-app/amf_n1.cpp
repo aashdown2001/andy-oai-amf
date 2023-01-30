@@ -369,14 +369,6 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
 
   std::string snn =
       conv::get_serving_network_name(nas_data_ind.mnc, nas_data_ind.mcc);
-  /*
-  if (nas_data_ind.mnc.length() == 2)  // TODO: remove hardcoded value
-    snn = "5G:mnc0" + nas_data_ind.mnc + ".mcc" + nas_data_ind.mcc +
-          ".3gppnetwork.org";
-  else
-    snn = "5G:mnc" + nas_data_ind.mnc + ".mcc" + nas_data_ind.mcc +
-          ".3gppnetwork.org";
-          */
   Logger::amf_n1().debug("Serving network name %s", snn.c_str());
 
   plmn_t plmn = {};
@@ -390,12 +382,11 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
   if (nas_data_ind.is_guti_valid) {
     std::string guti = nas_data_ind.guti;
     Logger::amf_n1().debug("GUTI valid %s", guti.c_str());
-    if (is_guti_2_nas_context(guti)) {
+    if (guti_2_nas_context(guti, nc)) {
       Logger::amf_n1().debug(
           "Existing nas_context with GUTI %s, update "
           "amf_ue_ngap_id/ran_ue_ngap_id",
           guti.c_str());
-      nc = guti_2_nas_context(guti);
       // Update Nas Context
       nc->amf_ue_ngap_id = nas_data_ind.amf_ue_ngap_id;
       nc->ran_ue_ngap_id = nas_data_ind.ran_ue_ngap_id;
@@ -404,10 +395,10 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
       set_supi_2_amf_id("imsi-" + nc->imsi, amf_ue_ngap_id);
       set_supi_2_ran_id("imsi-" + nc->imsi, ran_ue_ngap_id);
       set_imsi_2_nas_context("imsi-" + nc->imsi, nc);
-
     } else {
       Logger::amf_n1().error(
           "No existing nas_context with GUTI %s", nas_data_ind.guti.c_str());
+      // TODO:
       // return;
     }
   } else {
@@ -735,32 +726,28 @@ void amf_n1::identity_response_handle(
   string ue_context_key =
       conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
 
-  if (amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
-    std::shared_ptr<ue_context> uc = {};
-    uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
+  std::shared_ptr<ue_context> uc = {};
+  if (amf_app_inst->ran_amf_id_2_ue_context(ue_context_key, uc)) {
     // Update UE context
-    if (uc != nullptr) {
-      uc->supi = "imsi-" + supi;
-      // associate SUPI with UC
-      // Verify if there's PDU session info in the old context
-      if (amf_app_inst->is_supi_2_ue_context(uc->supi)) {
-        std::shared_ptr<ue_context> old_uc = {};
-        old_uc = amf_app_inst->supi_2_ue_context(uc->supi);
-        uc->copy_pdu_sessions(old_uc);
-      }
-      amf_app_inst->set_supi_2_ue_context(uc->supi, uc);
-      Logger::amf_n1().debug("Update UC context, SUPI %s", uc->supi.c_str());
+    uc->supi = "imsi-" + supi;
+    // associate SUPI with UC
+    // Verify if there's PDU session info in the old context
+    if (amf_app_inst->is_supi_2_ue_context(uc->supi)) {
+      std::shared_ptr<ue_context> old_uc = {};
+      old_uc = amf_app_inst->supi_2_ue_context(uc->supi);
+      uc->copy_pdu_sessions(old_uc);
     }
+    amf_app_inst->set_supi_2_ue_context(uc->supi, uc);
+    Logger::amf_n1().debug("Update UC context, SUPI %s", uc->supi.c_str());
   }
 
   std::shared_ptr<nas_context> nc = {};
-  if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id)) {
-    nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
+  if (amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().debug(
         "Find nas_context by amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
   } else {
-    nc = std::shared_ptr<nas_context>(new nas_context);
+    nc = std::make_shared<nas_context>();
     set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
     nc->ctx_avaliability_ind = false;
   }
@@ -850,8 +837,7 @@ void amf_n1::service_request_handle(
       Logger::amf_app().debug(
           "GUTI %s, 5G-TMSI %s", guti.c_str(), tmsi.c_str());
       std::shared_ptr<nas_context> old_nc = {};
-      if (is_guti_2_nas_context(guti)) {
-        old_nc = guti_2_nas_context(guti);
+      if (guti_2_nas_context(guti, old_nc)) {
         // nc->security_ctx = old_nc->security_ctx;
       }
     }
@@ -1196,10 +1182,9 @@ void amf_n1::registration_request_handle(
         Logger::amf_n1().debug("Exiting nas_context");
         nc->is_5g_guti_present         = true;
         nc->to_be_register_by_new_suci = true;
-      } else if (is_guti_2_nas_context(guti)) {
+      } else if (guti_2_nas_context(guti, nc)) {
         Logger::amf_n1().debug(
             "nas_context existed with GUTI %s", guti.c_str());
-        nc = guti_2_nas_context(guti);
         set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
         // Update Nas Context
         nc->amf_ue_ngap_id = amf_ue_ngap_id;
@@ -1265,8 +1250,8 @@ void amf_n1::registration_request_handle(
   // Create NAS context
   if (nc == nullptr) {
     // try to get the GUTI -> nas_context
-    if (is_guti_2_nas_context(guti)) {
-      nc = guti_2_nas_context(guti);
+    if (guti_2_nas_context(guti, nc)) {
+      // nc = guti_2_nas_context(guti);
       set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
       nc->amf_ue_ngap_id = amf_ue_ngap_id;
       nc->ran_ue_ngap_id = ran_ue_ngap_id;
@@ -1574,10 +1559,16 @@ bool amf_n1::is_guti_2_nas_context(const std::string& guti) const {
 }
 
 //------------------------------------------------------------------------------
-std::shared_ptr<nas_context> amf_n1::guti_2_nas_context(
-    const std::string& guti) const {
+bool amf_n1::guti_2_nas_context(
+    const std::string& guti, std::shared_ptr<nas_context>& nc) const {
   std::shared_lock lock(m_guti2nas_context);
-  return guti2nas_context.at(guti);
+  if (guti2nas_context.count(guti) > 0) {
+    if (guti2nas_context.at(guti) != nullptr) {
+      nc = guti2nas_context.at(guti);
+      return true;
+    }
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -4253,16 +4244,8 @@ bool amf_n1::find_ue_context(
   string ue_context_key =
       conv::get_ue_context_key(nc->ran_ue_ngap_id, nc->amf_ue_ngap_id);
 
-  if (!amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
+  if (!amf_app_inst->ran_amf_id_2_ue_context(ue_context_key, uc)) {
     Logger::amf_n1().error("No UE context with key %s", ue_context_key.c_str());
-    return false;
-  }
-
-  uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
-
-  if (uc == nullptr) {
-    Logger::amf_n1().warn(
-        "Cannot find the UE context with key %s", ue_context_key.c_str());
     return false;
   }
 
@@ -4276,16 +4259,8 @@ bool amf_n1::find_ue_context(
   string ue_context_key =
       conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
 
-  if (!amf_app_inst->is_ran_amf_id_2_ue_context(ue_context_key)) {
+  if (!amf_app_inst->ran_amf_id_2_ue_context(ue_context_key, uc)) {
     Logger::amf_n1().error("No UE context with key %s", ue_context_key.c_str());
-    return false;
-  }
-
-  uc = amf_app_inst->ran_amf_id_2_ue_context(ue_context_key);
-
-  if (uc == nullptr) {
-    Logger::amf_n1().warn(
-        "Cannot find the UE context with key %s", ue_context_key.c_str());
     return false;
   }
 
