@@ -235,20 +235,12 @@ void amf_app::set_ran_amf_id_2_ue_context(
 //------------------------------------------------------------------------------
 bool amf_app::is_supi_2_ue_context(const string& supi) const {
   std::shared_lock lock(m_supi2ue_ctx);
-  // return bool{supi2ue_ctx.count(supi) > 0};
   if (supi2ue_ctx.count(supi) > 0) {
     if (supi2ue_ctx.at(supi) != nullptr) {
       return true;
     }
   }
   return false;
-}
-
-//------------------------------------------------------------------------------
-std::shared_ptr<ue_context> amf_app::supi_2_ue_context(
-    const string& supi) const {
-  std::shared_lock lock(m_supi2ue_ctx);
-  return supi2ue_ctx.at(supi);
 }
 
 //------------------------------------------------------------------------------
@@ -520,7 +512,8 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
 
   if (ue_ctx.supiIsSet()) {
     supi = ue_ctx.getSupi();
-    if (!is_supi_2_ue_context(supi)) {
+    // Update UE Context
+    if (!supi_2_ue_context(supi, uc)) {
       // Create a new UE Context
       Logger::amf_app().debug(
           "No existing UE Context, Create a new one with SUPI %s",
@@ -529,8 +522,6 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
       uc->amf_ue_ngap_id = -1;
       uc->supi           = supi;
       set_supi_2_ue_context(supi, uc);
-    } else {  // Update UE Context
-      uc = supi_2_ue_context(supi);
     }
   }
 

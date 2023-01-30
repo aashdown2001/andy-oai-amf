@@ -212,7 +212,7 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
   long amf_ue_ngap_id             = itti_msg.amf_ue_ngap_id;
   uint32_t ran_ue_ngap_id         = itti_msg.ran_ue_ngap_id;
   std::shared_ptr<nas_context> nc = {};
-  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+  if (!amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().warn(
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
@@ -263,7 +263,7 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
 
       // Get NSSAI
       std::shared_ptr<nas_context> nc = {};
-      if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+      if (!amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
         Logger::amf_n1().warn(
             "No existed NAS context for UE with amf_ue_ngap_id "
             "(" AMF_UE_NGAP_ID_FMT ")",
@@ -657,7 +657,7 @@ void amf_n1::uplink_nas_msg_handle(
     case SERVICE_REQUEST: {
       Logger::amf_n1().debug("Received Service Request message, handling...");
       std::shared_ptr<nas_context> nc = {};
-      if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+      if (amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
         service_request_handle(nc, ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
       } else {
         Logger::amf_n1().debug("No NAS context available");
@@ -732,9 +732,8 @@ void amf_n1::identity_response_handle(
     uc->supi = "imsi-" + supi;
     // associate SUPI with UC
     // Verify if there's PDU session info in the old context
-    if (amf_app_inst->is_supi_2_ue_context(uc->supi)) {
-      std::shared_ptr<ue_context> old_uc = {};
-      old_uc = amf_app_inst->supi_2_ue_context(uc->supi);
+    std::shared_ptr<ue_context> old_uc = {};
+    if (amf_app_inst->is_supi_2_ue_context(uc->supi, old_uc)) {
       uc->copy_pdu_sessions(old_uc);
     }
     amf_app_inst->set_supi_2_ue_context(uc->supi, uc);
@@ -902,9 +901,8 @@ void amf_n1::service_request_handle(
 
   // Get the status of PDU Session context
   std::shared_ptr<pdu_session_context> old_psc = {};
-  if (amf_app_inst->is_supi_2_ue_context(supi)) {
-    std::shared_ptr<ue_context> old_uc = {};
-    old_uc                             = amf_app_inst->supi_2_ue_context(supi);
+  std::shared_ptr<ue_context> old_uc           = {};
+  if (amf_app_inst->supi_2_ue_context(supi, old_uc)) {
     uc->copy_pdu_sessions(old_uc);
     amf_app_inst->set_supi_2_ue_context(supi, uc);
   }
@@ -1140,11 +1138,10 @@ void amf_n1::registration_request_handle(
 
         // Try to find old nas_context and release
         std::shared_ptr<nas_context> old_nc = {};
-        old_nc = imsi_2_nas_context("imsi-" + nc->imsi);
-        // release
-        if (old_nc) {
+        if (imsi_2_nas_context("imsi-" + nc->imsi, old_nc)) {
           old_nc.reset();
         }
+
         set_imsi_2_nas_context("imsi-" + nc->imsi, nc);
         Logger::amf_n1().info(
             "Associating IMSI (%s) with nas_context (%p)",
@@ -1453,23 +1450,16 @@ bool amf_n1::is_amf_ue_id_2_nas_context(const long& amf_ue_ngap_id) const {
 }
 
 //------------------------------------------------------------------------------
-bool amf_n1::is_amf_ue_id_2_nas_context(
+bool amf_n1::amf_ue_id_2_nas_context(
     const long& amf_ue_ngap_id, std::shared_ptr<nas_context>& nc) const {
   std::shared_lock lock(m_amfueid2nas_context);
   if (amfueid2nas_context.count(amf_ue_ngap_id) > 0) {
-    nc = amfueid2nas_context.at(amf_ue_ngap_id);
-    if (nc != nullptr) {
+    if (amfueid2nas_context.at(amf_ue_ngap_id) != nullptr) {
+      nc = amfueid2nas_context.at(amf_ue_ngap_id);
       return true;
     }
   }
   return false;
-}
-
-//------------------------------------------------------------------------------
-std::shared_ptr<nas_context> amf_n1::amf_ue_id_2_nas_context(
-    const long& amf_ue_ngap_id) const {
-  std::shared_lock lock(m_amfueid2nas_context);
-  return amfueid2nas_context.at(amf_ue_ngap_id);
 }
 
 //------------------------------------------------------------------------------
@@ -1589,13 +1579,15 @@ bool amf_n1::remove_guti_2_nas_context(const std::string& guti) {
 }
 
 //------------------------------------------------------------------------------
-std::shared_ptr<nas_context> amf_n1::imsi_2_nas_context(
-    const std::string& imsi) const {
+bool amf_n1::imsi_2_nas_context(
+    const std::string& imsi, std::shared_ptr<nas_context>& nc) const {
   std::shared_lock lock(m_nas_context);
   if (imsi2nas_context.count(imsi) > 0) {
-    return imsi2nas_context.at(imsi);
+    if (!imsi2nas_context.at(imsi)) return false;
+    nc = imsi2nas_context.at(imsi);
+    return true;
   } else {
-    return nullptr;
+    return false;
   }
 }
 
@@ -2217,7 +2209,7 @@ void amf_n1::authentication_response_handle(
     bstring plain_msg) {
   std::shared_ptr<nas_context> nc = {};
 
-  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+  if (!amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().error(
         "No existed NAS context for UE with amf_ue_ngap_id " AMF_UE_NGAP_ID_FMT,
         amf_ue_ngap_id);
@@ -2310,7 +2302,7 @@ void amf_n1::authentication_failure_handle(
     const uint32_t ran_ue_ngap_id, const long amf_ue_ngap_id,
     bstring plain_msg) {
   std::shared_ptr<nas_context> nc = {};
-  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+  if (!amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().error(
         "No existed NAS context for UE with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT
         ")",
@@ -2514,7 +2506,7 @@ void amf_n1::security_mode_complete_handle(
   }
 
   std::shared_ptr<nas_context> nc = {};
-  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+  if (!amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().warn(
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
@@ -2775,7 +2767,7 @@ void amf_n1::registration_complete_handle(
   }
 
   std::shared_ptr<nas_context> nc = {};
-  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+  if (!amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().warn(
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
@@ -3049,7 +3041,7 @@ void amf_n1::ue_initiate_de_registration_handle(
   Logger::amf_n1().debug("Handling UE-initiated De-registration Request");
 
   std::shared_ptr<nas_context> nc = {};
-  if (!is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+  if (!amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().warn(
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
@@ -3290,7 +3282,7 @@ void amf_n1::ul_nas_transport_handle(
           "Requested/Configured NSSAI!");
 
       std::shared_ptr<nas_context> nc = {};
-      if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+      if (!amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
         Logger::amf_n1().warn(
             "No existed nas_context with amf_ue_ngap_id(0x%x)", amf_ue_ngap_id);
         return;
@@ -4271,7 +4263,7 @@ bool amf_n1::find_ue_context(
 void amf_n1::mobile_reachable_timer_timeout(
     timer_id_t& timer_id, const uint64_t amf_ue_ngap_id) {
   std::shared_ptr<nas_context> nc = {};
-  if (!amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+  if (!amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().warn(
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);
@@ -4301,7 +4293,7 @@ void amf_n1::mobile_reachable_timer_timeout(
 void amf_n1::implicit_deregistration_timer_timeout(
     timer_id_t timer_id, uint64_t amf_ue_ngap_id) {
   std::shared_ptr<nas_context> nc = {};
-  if (amf_n1_inst->is_amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
+  if (amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     Logger::amf_n1().warn(
         "No existed nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
         amf_ue_ngap_id);

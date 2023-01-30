@@ -226,13 +226,6 @@ class amf_app {
 
   /*
    * Get UE context associated with a SUPI
-   * @param [const std::string&] supi: UE SUPI
-   * @return shared pointer to the context
-   */
-  std::shared_ptr<ue_context> supi_2_ue_context(const string& supi) const;
-
-  /*
-   * Get UE context associated with a SUPI
    * @param [const std::string&] supi: SUPI
    * @param [std::shared_ptr<ue_context>&] uc: pointer to UE context if exist
    * @return true if UE Context exist and not null
