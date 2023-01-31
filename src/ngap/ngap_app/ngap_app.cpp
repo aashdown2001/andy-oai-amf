@@ -164,14 +164,22 @@ void ngap_app::set_assoc_id_2_gnb_context(
 //------------------------------------------------------------------------------
 bool ngap_app::is_gnb_id_2_gnb_context(const long& gnb_id) const {
   std::shared_lock lock(m_gnbid2gnbContext);
-  return bool{gnbid2gnbContext.count(gnb_id) > 0};
+  if (gnbid2gnbContext.count(gnb_id) > 0) {
+    if (gnbid2gnbContext.at(gnb_id) != nullptr) return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
-std::shared_ptr<gnb_context> ngap_app::gnb_id_2_gnb_context(
-    const long& gnb_id) const {
+bool ngap_app::gnb_id_2_gnb_context(
+    const long& gnb_id, std::shared_ptr<gnb_context>& gc) const {
   std::shared_lock lock(m_gnbid2gnbContext);
-  return gnbid2gnbContext.at(gnb_id);
+  if (gnbid2gnbContext.count(gnb_id) > 0) {
+    if (gnbid2gnbContext.at(gnb_id) == nullptr) return false;
+    gc = gnbid2gnbContext.at(gnb_id);
+    return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------

@@ -1673,8 +1673,12 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   int encoded_size = handover_request->Encode(buffer, BUFFER_SIZE_4096);
   bstring b        = blk2bstr(buffer, encoded_size);
   std::shared_ptr<gnb_context> gc_target = {};
-  gc_target                              = gnb_id_2_gnb_context(gnb_id_value);
-  unc->target_gnb_assoc_id               = gc_target->sctp_assoc_id;
+  if (!gnb_id_2_gnb_context(gnb_id_value, gc_target)) {
+    Logger::amf_n2().warn("Could not find Target's gNB context!");
+    return false;
+  }
+
+  unc->target_gnb_assoc_id = gc_target->sctp_assoc_id;
   sctp_s_38412.sctp_send_msg(gc_target->sctp_assoc_id, 0, &b);
   bdestroy_wrapper(&b);
   return true;
