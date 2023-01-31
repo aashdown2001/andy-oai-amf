@@ -316,7 +316,7 @@ void amf_n2::handle_itti_message(
       itti_msg->stream);
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(itti_msg->assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(itti_msg->assoc_id, gc)) {
     Logger::amf_n2().error(
         "No existed gNB context with assoc_id(%d)", itti_msg->assoc_id);
     return;
@@ -467,7 +467,7 @@ void amf_n2::handle_itti_message(itti_ng_reset& itti_msg) {
       "Parameters: assoc_id %d, stream %d", itti_msg.assoc_id, itti_msg.stream);
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
     Logger::amf_n2().error(
         "No existed gNB context with assoc_id(%d)", itti_msg.assoc_id);
     return;
@@ -533,7 +533,7 @@ void amf_n2::handle_itti_message(itti_ng_reset& itti_msg) {
 void amf_n2::handle_itti_message(itti_ng_shutdown& itti_msg) {
   Logger::amf_n2().debug("Handle NG Shutdown ...");
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
     Logger::amf_n2().error(
         "No existed gNB context with assoc_id(%d)", itti_msg.assoc_id);
     return;
@@ -575,7 +575,7 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
           TASK_AMF_N2, TASK_AMF_APP);
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(init_ue_msg.assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(init_ue_msg.assoc_id, gc)) {
     Logger::amf_n2().error(
         "No existing gNG context with assoc_id (%d)", init_ue_msg.assoc_id);
     return;
@@ -698,7 +698,7 @@ void amf_n2::handle_itti_message(itti_ul_nas_transport& ul_nas_transport) {
   unsigned long amf_ue_ngap_id    = ul_nas_transport.ulNas->getAmfUeNgapId();
   uint32_t ran_ue_ngap_id         = ul_nas_transport.ulNas->getRanUeNgapId();
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(ul_nas_transport.assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(ul_nas_transport.assoc_id, gc)) {
     Logger::amf_n2().error(
         "gNB with assoc_id (%d) is illegal", ul_nas_transport.assoc_id);
     return;
@@ -777,7 +777,7 @@ void amf_n2::handle_itti_message(itti_dl_nas_transport& dl_nas_transport) {
   }
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
     Logger::amf_n2().error(
         "No existing gNG context with assoc_id (%d)", unc->gnb_assoc_id);
     return;
@@ -813,7 +813,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
 
   unc->ncc                        = 1;
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
     Logger::amf_n2().error(
         "No existing gNG context with assoc_id (%d)", unc->gnb_assoc_id);
     return;
@@ -949,7 +949,7 @@ void amf_n2::handle_itti_message(
   }
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
     Logger::amf_n2().error(
         "No existing gNG context with assoc_id (%d)", unc->gnb_assoc_id);
     return;
@@ -1030,7 +1030,7 @@ void amf_n2::handle_itti_message(
   }
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
     Logger::amf_n2().error(
         "No existing gNG context with assoc_id (%d)", unc->gnb_assoc_id);
     return;
@@ -1087,7 +1087,7 @@ void amf_n2::handle_itti_message(
   }
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
     Logger::amf_n2().error(
         "No existing gNG context with assoc_id (%d)", unc->gnb_assoc_id);
     return;
@@ -1159,7 +1159,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
   }
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
     Logger::amf_n2().error(
         "No existing gNG context with assoc_id (%d)", unc->gnb_assoc_id);
     return;
@@ -1388,7 +1388,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_complete& itti_msg) {
 void amf_n2::handle_itti_message(
     itti_ue_radio_capability_indication& itti_msg) {
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
     Logger::amf_n2().error(
         "No existed gNB context with assoc_id (%d)", itti_msg.assoc_id);
     return;
@@ -1410,7 +1410,7 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   uint32_t ran_ue_ngap_id      = itti_msg.handoverReq->getRanUeNgapId();
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
     Logger::amf_n2().error(
         "gNB with assoc_id (%d) is illegal", itti_msg.assoc_id);
     return false;
@@ -1691,7 +1691,7 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
       ran_ue_ngap_id, amf_ue_ngap_id);
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
     Logger::amf_n2().error(
         "gNB with assoc_id (%d) is illegal", itti_msg.assoc_id);
     return;
@@ -1848,7 +1848,7 @@ void amf_n2::handle_itti_message(itti_handover_notify& itti_msg) {
       ran_ue_ngap_id, amf_ue_ngap_id);
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(itti_msg.assoc_id, gc)) {
     Logger::amf_n2().error(
         "gNB with assoc_id (%d) is illegal", itti_msg.assoc_id);
     return;
@@ -1995,6 +1995,7 @@ void amf_n2::handle_itti_message(itti_uplink_ran_status_transfer& itti_msg) {
   Logger::amf_n2().debug(
       "Uplink RAN Status Transfer amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
       amf_ue_ngap_id);
+
   if (!is_assoc_id_2_gnb_context(itti_msg.assoc_id)) {
     Logger::amf_n2().error(
         "gNB with assoc_id (%d) is illegal", itti_msg.assoc_id);
@@ -2363,7 +2364,7 @@ bool amf_n2::get_common_NSSAI(
 
   // Get gNB Context
   std::shared_ptr<gnb_context> gc = {};
-  if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
+  if (!amf_n2_inst->assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
     Logger::amf_n1().error(
         "No existed gNB context with assoc_id (%d)", unc->gnb_assoc_id);
     return false;

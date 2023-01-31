@@ -268,14 +268,6 @@ class amf_n2 : public ngap::ngap_app {
   void remove_ue_context_with_ran_ue_ngap_id(const uint32_t& ran_ue_ngap_id);
 
   /*
-   * Get UE NGAP context associated with a AMF UE NGAP ID
-   * @param [const unsigned long&] amf_ue_ngap_id: AMF UE NGAP ID
-   * @return shared pointer to the UE NGAP context
-   */
-  std::shared_ptr<ue_ngap_context> amf_ue_id_2_ue_ngap_context(
-      const unsigned long& amf_ue_ngap_id) const;
-
-  /*
    * Verify whether a UE NGAP context associated with a AMF UE NGAP ID exist
    * @param [const unsigned long&] amf_ue_ngap_id: AMF UE NGAP ID
    * @return true if exist, otherwise return false

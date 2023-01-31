@@ -222,10 +222,11 @@ class amf_n1 {
   /*
    * Get UE NAS context associated with an IMSI
    * @param [const std::string&] imsi: UE IMSI
-   * @return shared pointer to the UE NAS context
+   * @param [const std::shared_ptr<nas_context>&] nc: pointer to UE NAS context
+   * @return true if the NAS context exist and not null, otherwise return false
    */
-  std::shared_ptr<nas_context> imsi_2_nas_context(
-      const std::string& imsi) const;
+  bool imsi_2_nas_context(
+      const std::string& imsi, std::shared_ptr<nas_context>&) const;
 
   /*
    * Store an UE NAS context associated with an IMSI

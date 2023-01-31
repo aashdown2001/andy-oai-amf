@@ -402,11 +402,10 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
       // return;
     }
   } else {
-    if (is_amf_ue_id_2_nas_context(amf_ue_ngap_id)) {
+    if (amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
       Logger::amf_n1().debug(
           "Existing nas_context with amf_ue_ngap_id " AMF_UE_NGAP_ID_FMT,
           amf_ue_ngap_id);
-      nc = amf_ue_id_2_nas_context(amf_ue_ngap_id);
     } else
       Logger::amf_n1().warn(
           "No existing nas_context with amf_ue_ngap_id " AMF_UE_NGAP_ID_FMT,
@@ -733,7 +732,7 @@ void amf_n1::identity_response_handle(
     // associate SUPI with UC
     // Verify if there's PDU session info in the old context
     std::shared_ptr<ue_context> old_uc = {};
-    if (amf_app_inst->is_supi_2_ue_context(uc->supi, old_uc)) {
+    if (amf_app_inst->supi_2_ue_context(uc->supi, old_uc)) {
       uc->copy_pdu_sessions(old_uc);
     }
     amf_app_inst->set_supi_2_ue_context(uc->supi, uc);
@@ -2621,7 +2620,7 @@ void amf_n1::security_mode_complete_handle(
         ran_ue_ngap_id);
   } else {
     std::shared_ptr<gnb_context> gc = {};
-    if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
+    if (!amf_n2_inst->assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
       Logger::amf_n1().error(
           "No existed gNB context with assoc_id (%d)", unc->gnb_assoc_id);
     } else {
@@ -4784,7 +4783,7 @@ bool amf_n1::get_slice_selection_subscription_data_from_conf_file(
   }
   // Get gNB Context
   std::shared_ptr<gnb_context> gc = {};
-  if (!amf_n2_inst->is_assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
+  if (!amf_n2_inst->assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
     Logger::amf_n1().error(
         "No existed gNB context with assoc_id (%d)", unc->gnb_assoc_id);
     return false;

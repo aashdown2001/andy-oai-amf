@@ -87,21 +87,13 @@ class ngap_app : public sctp_application {
   bool is_assoc_id_2_gnb_context(const sctp_assoc_id_t& assoc_id) const;
 
   /*
-   * Verify whether an association id associated with a GNB context exist
+   *  Get the gNB Context associated with an association Id if exist
    * @param [const sctp_assoc_id_t&] assoc_id: gNB association ID
    * @param [std::shared_ptr<gnb_context>&] gc: store the gNB context if exist
-   * @return true if exist, otherwise return false
+   * @return true if the context exists and not null, otherwise return false
    */
-  bool is_assoc_id_2_gnb_context(
+  bool assoc_id_2_gnb_context(
       const sctp_assoc_id_t& assoc_id, std::shared_ptr<gnb_context>& gc);
-
-  /*
-   * Get the gNB Context associated with an association id
-   * @param [const sctp_assoc_id_t&] assoc_id: gNB association ID
-   * @return the pointer to the gNB context
-   */
-  std::shared_ptr<gnb_context> assoc_id_2_gnb_context(
-      const sctp_assoc_id_t& assoc_id) const;
 
   /*
    * Store gNB Context associated with an association id
