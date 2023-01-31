@@ -46,10 +46,9 @@ namespace sctp {
 
 //------------------------------------------------------------------------------
 sctp_server::sctp_server(const char* address, const uint16_t port_num) {
-  Logger::sctp().debug("creating socket!!");
+  Logger::sctp().debug("Creating socket!!");
   create_socket(address, port_num);
-  app_ = nullptr;
-  // pthread_t thread_;
+  app_        = nullptr;
   sctp_desc   = {};
   serverAddr_ = {};
   events_     = {};
@@ -70,7 +69,7 @@ int sctp_server::create_socket(const char* address, const uint16_t port_num) {
     Logger::sctp().debug("getaddrinfo on %s was OK", address);
   }
   if ((socket_ = socket(res->ai_family, SOCK_STREAM, IPPROTO_SCTP)) < 0) {
-    Logger::sctp().error("socket: %s:%d", strerror(errno), errno);
+    Logger::sctp().error("Socket: %s:%d", strerror(errno), errno);
     return RETURNerror;
   }
   Logger::sctp().info("Created socket (%d)", socket_);
@@ -102,7 +101,7 @@ void sctp_server::start_receive(sctp_application* app) {
 //------------------------------------------------------------------------------
 void* sctp_server::sctp_receiver_thread(void* arg) {
   sctp_server* ptr = (sctp_server*) arg;
-  Logger::sctp().info("Create pthread to receive sctp message");
+  Logger::sctp().info("Create pthread to receive SCTP message");
   int fdmax;
   int clientsock;
   fd_set master;
@@ -125,7 +124,7 @@ void* sctp_server::sctp_receiver_thread(void* arg) {
         if (i == ptr->getSocket()) {
           if ((clientsock = accept(ptr->getSocket(), NULL, NULL)) < 0) {
             Logger::sctp().error(
-                "[socket(%d)] accept() error: %s:%d", ptr->getSocket(),
+                "[socket(%d)] Accept() error: %s:%d", ptr->getSocket(),
                 strerror(errno), errno);
             pthread_exit(NULL);
           } else {
@@ -184,7 +183,7 @@ int sctp_server::sctp_read_from_socket(int sd, uint32_t ppid) {
       }
       default: {
         Logger::sctp().error(
-            "Unhandled notification type (%d)", snp->sn_header.sn_type);
+            "Un-handled notification type (%d)", snp->sn_header.sn_type);
         break;
       }
     }
@@ -202,8 +201,8 @@ int sctp_server::sctp_read_from_socket(int sd, uint32_t ppid) {
       return SCTP_RC_ERROR;
     }
     Logger::sctp().info(
-        "****[Assoc_id %d, Socket %d] Received a msg (length %d) from port %d, "
-        "on stream %d, PPID %d ****",
+        "[Assoc_id %d, Socket %d] Received a msg (length %d) from port %d, "
+        "on stream %d, PPID %d",
         sinfo.sinfo_assoc_id, sd, n, ntohs(addr.sin6_port), sinfo.sinfo_stream,
         ntohl(sinfo.sinfo_ppid));
     bstring payload = blk2bstr(buffer, n);
