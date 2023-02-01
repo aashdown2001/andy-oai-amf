@@ -1903,6 +1903,7 @@ bool amf_n1::_5g_aka_confirmation_from_ausf(
   try {
     ConfirmationDataResponse confirmationdataresponse;
     response.get_to(confirmationdataresponse);
+    if (!confirmationdataresponse.kseafIsSet()) return false;
     unsigned char* kseaf_hex =
         conv::format_string_as_hex(confirmationdataresponse.getKseaf());
     memcpy(nc->_5g_av[0].kseaf, kseaf_hex, 32);
