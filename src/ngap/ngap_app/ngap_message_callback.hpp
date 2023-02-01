@@ -357,32 +357,38 @@ int ngap_amf_handle_pdu_session_resource_release_response(
     return RETURNerror;
   }
 
-  // TODO: add the full list
-  Logger::ngap().debug(
-      "Sending ITTI PDUSessionResourceReleaseResponse to TASK_AMF_SBI");
+  if (list.size() > 0) {
+    // TODO: add the full list
+    Logger::ngap().debug(
+        "Sending ITTI PDUSessionResourceReleaseResponse to TASK_AMF_SBI");
 
-  auto itti_msg = std::make_shared<itti_nsmf_pdusession_update_sm_context>(
-      TASK_NGAP, TASK_AMF_SBI);
+    auto itti_msg = std::make_shared<itti_nsmf_pdusession_update_sm_context>(
+        TASK_NGAP, TASK_AMF_SBI);
 
-  itti_msg->pdu_session_id = list[0].pduSessionId;
-  itti_msg->n2sm           = blk2bstr(
-      list[0].pduSessionResourceReleaseResponseTransfer.buf,
-      list[0].pduSessionResourceReleaseResponseTransfer.size);
-  ;
-  itti_msg->is_n2sm_set    = true;
-  itti_msg->n2sm_info_type = "PDU_RES_REL_RSP";
-  itti_msg->amf_ue_ngap_id =
-      pdu_session_resource_release_response->getAmfUeNgapId();
-  itti_msg->ran_ue_ngap_id =
-      pdu_session_resource_release_response->getRanUeNgapId();
+    itti_msg->pdu_session_id = list[0].pduSessionId;
+    itti_msg->n2sm           = blk2bstr(
+        list[0].pduSessionResourceReleaseResponseTransfer.buf,
+        list[0].pduSessionResourceReleaseResponseTransfer.size);
+    itti_msg->is_n2sm_set    = true;
+    itti_msg->n2sm_info_type = "PDU_RES_REL_RSP";
+    itti_msg->amf_ue_ngap_id =
+        pdu_session_resource_release_response->getAmfUeNgapId();
+    itti_msg->ran_ue_ngap_id =
+        pdu_session_resource_release_response->getRanUeNgapId();
 
-  int ret = itti_inst->send_msg(itti_msg);
-  if (0 != ret) {
+    int ret = itti_inst->send_msg(itti_msg);
+    if (0 != ret) {
+      Logger::ngap().error(
+          "Could not send ITTI message %s to task TASK_AMF_SBI",
+          itti_msg->get_msg_name());
+      return RETURNerror;
+    }
+  } else {
     Logger::ngap().error(
-        "Could not send ITTI message %s to task TASK_AMF_SBI",
-        itti_msg->get_msg_name());
+        "Missing mandatory IE: PDU Session Resource Released List");
     return RETURNerror;
   }
+
   return RETURNok;
 }
 
