@@ -542,12 +542,97 @@ void amf_n2::handle_itti_message(itti_ng_shutdown& itti_msg) {
   gc->ng_state = NGAP_SHUTDOWN;
 
   // Release all the resources related to this interface
-  std::vector<std::shared_ptr<ue_ngap_context>> ue_contexts;
-  get_ue_ngap_contexts(itti_msg.assoc_id, ue_contexts);
+  std::vector<std::shared_ptr<ue_ngap_context>> ngap_contexts;
+  get_ue_ngap_contexts(itti_msg.assoc_id, ngap_contexts);
 
-  for (auto ue_context : ue_contexts) {
-    remove_ue_context_with_amf_ue_ngap_id(ue_context->amf_ue_ngap_id);
-    remove_ue_context_with_ran_ue_ngap_id(ue_context->ran_ue_ngap_id);
+  for (auto ngap_context : ngap_contexts) {
+    std::shared_ptr<nas_context> nc = {};
+    if (!amf_n1_inst->is_amf_ue_id_2_nas_context(
+            ngap_context->amf_ue_ngap_id, nc)) {
+      Logger::amf_n2().error(
+          "No UE NAS context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
+          ngap_context->amf_ue_ngap_id);
+      continue;
+    }
+
+    // Get all PDU session associated with this UE
+    std::vector<std::shared_ptr<pdu_session_context>> sessions_ctx;
+    /*    string supi = "imsi-" + nc->imsi;
+        if (!amf_app_inst->get_pdu_sessions_context(supi, sessions_ctx)) {
+          Logger::amf_n2().debug("No PDU Session Context found");
+          continue;
+        }
+    */
+    // Send request to SMF to release the established PDU sessions if needed
+    // Get list of PDU sessions
+
+    string ue_context_key = conv::get_ue_context_key(
+        ngap_context->ran_ue_ngap_id, ngap_context->amf_ue_ngap_id);
+    std::shared_ptr<ue_context> uc = {};
+    if (!amf_app_inst->ran_amf_id_2_ue_context(ue_context_key, uc)) {
+      Logger::amf_n1().error(
+          "No UE context with key %s", ue_context_key.c_str());
+      continue;
+    }
+
+    if (!uc->get_pdu_sessions_context(sessions_ctx)) {
+      Logger::amf_n1().debug("No PDU session available");
+      continue;
+    }
+
+    std::map<uint32_t, boost::shared_future<uint32_t>> smf_responses;
+    for (auto session : sessions_ctx) {
+      Logger::amf_n1().debug("Session Context %d", session->pdu_session_id);
+      Logger::amf_n1().debug("SUPI %s", uc->supi.c_str());
+      std::shared_ptr<itti_nsmf_pdusession_release_sm_context> itti_msg =
+          std::make_shared<itti_nsmf_pdusession_release_sm_context>(
+              TASK_AMF_N1, TASK_AMF_SBI);
+
+      // Generate a promise and associate this promise to the ITTI message
+      uint32_t promise_id = amf_app_inst->generate_promise_id();
+      Logger::amf_n1().debug("Promise ID generated %d", promise_id);
+
+      boost::shared_ptr<boost::promise<uint32_t>> p =
+          boost::make_shared<boost::promise<uint32_t>>();
+      boost::shared_future<uint32_t> f = p->get_future();
+
+      // Store the future to be processed later
+      smf_responses.emplace(promise_id, f);
+      amf_app_inst->add_promise(promise_id, p);
+
+      itti_msg->supi             = uc->supi;
+      itti_msg->pdu_session_id   = session->pdu_session_id;
+      itti_msg->promise_id       = promise_id;
+      itti_msg->context_location = session->smf_info.context_location;
+
+      int ret = itti_inst->send_msg(itti_msg);
+      if (0 != ret) {
+        Logger::amf_n1().error(
+            "Could not send ITTI message %s to task TASK_AMF_SBI",
+            itti_msg->get_msg_name());
+      }
+    }
+
+    // Wait for the response from SMF
+    while (!smf_responses.empty()) {
+      boost::future_status status;
+      // wait for timeout or ready
+      status = smf_responses.begin()->second.wait_for(
+          boost::chrono::milliseconds(FUTURE_STATUS_TIMEOUT_MS));
+      if (status == boost::future_status::ready) {
+        assert(smf_responses.begin()->second.is_ready());
+        assert(smf_responses.begin()->second.has_value());
+        assert(!smf_responses.begin()->second.has_exception());
+        // Wait for the result from APP and send reply to AMF
+        uint32_t http_response_code = smf_responses.begin()->second.get();
+        // TODO: process response code
+      }
+      smf_responses.erase(smf_responses.begin());
+    }
+
+    // Remove UE context
+    remove_ue_context_with_amf_ue_ngap_id(ngap_context->amf_ue_ngap_id);
+    remove_ue_context_with_ran_ue_ngap_id(ngap_context->ran_ue_ngap_id);
   }
 
   // Delete gNB context

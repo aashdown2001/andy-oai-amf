@@ -23,7 +23,6 @@
 #define _AMF_NAS_CONTEXT_H_
 
 #include <stdint.h>
-
 #include <string>
 
 #include "authentication_algorithms_with_5gaka.hpp"
