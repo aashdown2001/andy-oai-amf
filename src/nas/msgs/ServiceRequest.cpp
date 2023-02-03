@@ -51,18 +51,18 @@ void ServiceRequest::SetNgKsi(uint8_t tsc, uint8_t key_set_id) {
 }
 
 //------------------------------------------------------------------------------
-void ServiceRequest::setServiceType(uint8_t value) {
+void ServiceRequest::SetServiceType(uint8_t value) {
   ie_service_type.Set(true, value);
 }
 
 //------------------------------------------------------------------------------
 void ServiceRequest::Set5gSTmsi(
-    uint16_t amfSetId, uint8_t amfPointer, string tmsi) {
-  ie_5g_s_tmsi.Set5gSTmsi(amfSetId, amfPointer, tmsi);
+    uint16_t amf_set_id, uint8_t amf_pointer, string tmsi) {
+  ie_5g_s_tmsi.Set5gSTmsi(amf_set_id, amf_pointer, tmsi);
 }
 
 //------------------------------------------------------------------------------
-void ServiceRequest::setUplink_data_status(uint16_t value) {
+void ServiceRequest::SetUplinkDataStatus(uint16_t value) {
   ie_uplink_data_status = std::make_optional<UplinkDataStatus>(value);
 }
 
@@ -72,7 +72,7 @@ void ServiceRequest::SetPduSessionStatus(uint16_t value) {
 }
 
 //------------------------------------------------------------------------------
-void ServiceRequest::setAllowed_PDU_Session_Status(uint16_t value) {
+void ServiceRequest::SetAllowedPduSessionStatus(uint16_t value) {
   ie_allowed_PDU_session_status =
       std::make_optional<AllowedPDUSessionStatus>(value);
 }
@@ -291,14 +291,14 @@ int ServiceRequest::Decode(NasMmPlainHeader* header, uint8_t* buf, int len) {
 }
 
 //------------------------------------------------------------------------------
-bool ServiceRequest::getngKSI(uint8_t& ng_ksi) {
+bool ServiceRequest::GetNgKSI(uint8_t& ng_ksi) {
   ng_ksi =
       (ie_ngKSI.GetTypeOfSecurityContext()) | ie_ngKSI.GetNasKeyIdentifier();
   return true;
 }
 
 //------------------------------------------------------------------------------
-uint16_t ServiceRequest::getUplinkDataStatus() {
+uint16_t ServiceRequest::GetUplinkDataStatus() {
   if (ie_uplink_data_status) {
     return ie_uplink_data_status->GetValue();
   } else {
@@ -307,7 +307,7 @@ uint16_t ServiceRequest::getUplinkDataStatus() {
 }
 
 //------------------------------------------------------------------------------
-uint16_t ServiceRequest::getPduSessionStatus() {
+uint16_t ServiceRequest::GetPduSessionStatus() {
   if (ie_PDU_session_status) {
     return ie_PDU_session_status->GetValue();
   } else {
@@ -316,7 +316,7 @@ uint16_t ServiceRequest::getPduSessionStatus() {
 }
 
 //------------------------------------------------------------------------------
-uint16_t ServiceRequest::getAllowedPduSessionStatus() {
+uint16_t ServiceRequest::GetAllowedPduSessionStatus() {
   if (ie_allowed_PDU_session_status) {
     return ie_allowed_PDU_session_status->GetValue();
   } else {
@@ -335,7 +335,7 @@ bool ServiceRequest::GetNasMessageContainer(bstring& nas) {
 }
 
 //------------------------------------------------------------------------------
-uint8_t ServiceRequest::getServiceType() {
+uint8_t ServiceRequest::GetServiceType() {
   uint8_t value = 0;
   ie_service_type.GetValue(value);
   return value;
@@ -343,6 +343,6 @@ uint8_t ServiceRequest::getServiceType() {
 
 //------------------------------------------------------------------------------
 bool ServiceRequest::Get5gSTmsi(
-    uint16_t& amfSetId, uint8_t& amfPointer, string& tmsi) {
-  return ie_5g_s_tmsi.Get5gSTmsi(amfSetId, amfPointer, tmsi);
+    uint16_t& amf_set_id, uint8_t& amf_pointer, string& tmsi) {
+  return ie_5g_s_tmsi.Get5gSTmsi(amf_set_id, amf_pointer, tmsi);
 }

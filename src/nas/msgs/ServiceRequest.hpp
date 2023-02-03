@@ -22,8 +22,6 @@
 #ifndef _SERVICE_REQUEST_H_
 #define _SERVICE_REQUEST_H_
 
-#include <string>
-
 #include "bstrlib.h"
 #include "NasIeHeader.hpp"
 
@@ -40,22 +38,22 @@ class ServiceRequest : public NasMmPlainHeader {
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
 
   void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
-  bool getngKSI(uint8_t& ng_ksi);
+  bool GetNgKSI(uint8_t& ng_ksi);
 
-  void setServiceType(uint8_t value);
-  uint8_t getServiceType();
+  void SetServiceType(uint8_t value);
+  uint8_t GetServiceType();
 
-  void Set5gSTmsi(uint16_t amfSetId, uint8_t amfPointer, string tmsi);
-  bool Get5gSTmsi(uint16_t& amfSetId, uint8_t& amfPointer, string& tmsi);
+  void Set5gSTmsi(uint16_t amf_set_id, uint8_t amf_pointer, string tmsi);
+  bool Get5gSTmsi(uint16_t& amf_set_id, uint8_t& amf_pointer, string& tmsi);
 
-  void setUplink_data_status(uint16_t value);
-  uint16_t getUplinkDataStatus();
+  void SetUplinkDataStatus(uint16_t value);
+  uint16_t GetUplinkDataStatus();
 
   void SetPduSessionStatus(uint16_t value);
-  uint16_t getPduSessionStatus();
+  uint16_t GetPduSessionStatus();
 
-  void setAllowed_PDU_Session_Status(uint16_t value);
-  uint16_t getAllowedPduSessionStatus();
+  void SetAllowedPduSessionStatus(uint16_t value);
+  uint16_t GetAllowedPduSessionStatus();
 
   void SetNasMessageContainer(bstring value);
   bool GetNasMessageContainer(bstring& nas);
