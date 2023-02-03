@@ -617,9 +617,10 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
   gc->next_sctp_stream += 1;
   if (gc->next_sctp_stream >= gc->instreams) gc->next_sctp_stream = 1;
   unc->gnb_assoc_id = init_ue_msg.assoc_id;
-  NrCgi_t cgi       = {};
-  Tai_t tai         = {};
 
+  // User Location Info NR (Mandatory)
+  NrCgi_t cgi = {};
+  Tai_t tai   = {};
   if (init_ue_msg.initUeMsg->getUserLocationInfoNR(cgi, tai)) {
     itti_msg->cgi = cgi;
     itti_msg->tai = tai;
@@ -629,13 +630,11 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
     return;
   }
 
-  if (init_ue_msg.initUeMsg->getRRCEstablishmentCause() == -1) {
-    Logger::amf_n2().warn("IE RRCEstablishmentCause not present");
-    itti_msg->rrc_cause = -1;  // not present, TODO with optional
-  } else {
-    itti_msg->rrc_cause = init_ue_msg.initUeMsg->getRRCEstablishmentCause();
-  }
+  // RCC Establishment Cause (Mandatory)
+  itti_msg->rrc_cause = init_ue_msg.initUeMsg->getRRCEstablishmentCause();
 
+  // UE Context Request (Optional)
+  // TODO: use std::optional
   if (init_ue_msg.initUeMsg->getUeContextRequest() == -1) {
     Logger::amf_n2().warn("IE UeContextRequest not present");
     itti_msg->ueCtxReq = -1;  // not present, TODO with optional
@@ -643,6 +642,7 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
     itti_msg->ueCtxReq = init_ue_msg.initUeMsg->getUeContextRequest();
   }
 
+  // 5G-S-TMSI (Optional)
   std::string _5g_s_tmsi = {};
   if (!init_ue_msg.initUeMsg->get5GS_TMSI(_5g_s_tmsi)) {
     itti_msg->is_5g_s_tmsi_present = false;
@@ -656,8 +656,9 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
         unc->s_setid, unc->s_pointer, unc->s_tmsi);
   }
 
+  // NAS PDU (Mandatory)
   if (!init_ue_msg.initUeMsg->getNasPdu(itti_msg->nas_buf)) {
-    Logger::amf_n2().error("Missing IE NAS-PDU");
+    Logger::amf_n2().error("Missing mandatory IE NAS-PDU");
     return;
   }
 

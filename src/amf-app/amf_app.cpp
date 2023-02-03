@@ -367,17 +367,18 @@ void amf_app::handle_itti_message(
 //------------------------------------------------------------------------------
 void amf_app::handle_itti_message(
     itti_nas_signalling_establishment_request& itti_msg) {
-  long amf_ue_ngap_id            = 0;
+  long amf_ue_ngap_id            = INVALID_AMF_UE_NGAP_ID;
   std::shared_ptr<ue_context> uc = {};
 
-  // Generate amf_ue_ngap_id
+  // Generate amf_ue_ngap_id if necessary
   if ((amf_ue_ngap_id = itti_msg.amf_ue_ngap_id) == INVALID_AMF_UE_NGAP_ID) {
     amf_ue_ngap_id = generate_amf_ue_ngap_id();
   }
 
-  string ue_context_key =
+  // Get UE context, if the context doesn't exist, create a new one
+  std::string ue_context_key =
       conv::get_ue_context_key(itti_msg.ran_ue_ngap_id, amf_ue_ngap_id);
-  if (!is_ran_amf_id_2_ue_context(ue_context_key)) {
+  if (!ran_amf_id_2_ue_context(ue_context_key, uc)) {
     Logger::amf_app().debug(
         "No existing UE Context, Create a new one with ran_amf_id %s",
         ue_context_key.c_str());
@@ -397,53 +398,47 @@ void amf_app::handle_itti_message(
     amf_n2_inst->set_amf_ue_ngap_id_2_ue_ngap_context(amf_ue_ngap_id, unc);
   }
 
-  // Create UE Context and store related information information
-  if (uc == nullptr) {
+  // Store related information
+  uc->cgi = itti_msg.cgi;
+  uc->tai = itti_msg.tai;
+  if (itti_msg.rrc_cause != -1)
+    uc->rrc_estb_cause = (e_Ngap_RRCEstablishmentCause) itti_msg.rrc_cause;
+  if (itti_msg.ueCtxReq == -1)
+    uc->isUeContextRequest = false;
+  else
+    uc->isUeContextRequest = true;
+  uc->ran_ue_ngap_id = itti_msg.ran_ue_ngap_id;
+  uc->amf_ue_ngap_id = amf_ue_ngap_id;
+
+  std::string guti   = {};
+  bool is_guti_valid = false;
+  if (itti_msg.is_5g_s_tmsi_present) {
+    guti = itti_msg.tai.mcc + itti_msg.tai.mnc + amf_cfg.guami.regionID +
+           itti_msg._5g_s_tmsi;
+    is_guti_valid = true;
+    Logger::amf_app().debug("Receiving GUTI %s", guti.c_str());
+  }
+
+  // Send NAS PDU to task_amf_n1 for further processing
+  std::shared_ptr<itti_uplink_nas_data_ind> itti_n1_msg =
+      std::make_shared<itti_uplink_nas_data_ind>(TASK_AMF_APP, TASK_AMF_N1);
+
+  itti_n1_msg->amf_ue_ngap_id              = amf_ue_ngap_id;
+  itti_n1_msg->ran_ue_ngap_id              = itti_msg.ran_ue_ngap_id;
+  itti_n1_msg->is_nas_signalling_estab_req = true;
+  itti_n1_msg->nas_msg                     = itti_msg.nas_buf;
+  itti_n1_msg->mcc                         = itti_msg.tai.mcc;
+  itti_n1_msg->mnc                         = itti_msg.tai.mnc;
+  itti_n1_msg->is_guti_valid               = is_guti_valid;
+  if (is_guti_valid) {
+    itti_n1_msg->guti = guti;
+  }
+
+  int ret = itti_inst->send_msg(itti_n1_msg);
+  if (0 != ret) {
     Logger::amf_app().error(
-        "Failed to create ue_context with ran_amf_id %s",
-        ue_context_key.c_str());
-  } else {
-    uc->cgi = itti_msg.cgi;
-    uc->tai = itti_msg.tai;
-    if (itti_msg.rrc_cause != -1)
-      uc->rrc_estb_cause = (e_Ngap_RRCEstablishmentCause) itti_msg.rrc_cause;
-    if (itti_msg.ueCtxReq == -1)
-      uc->isUeContextRequest = false;
-    else
-      uc->isUeContextRequest = true;
-    uc->ran_ue_ngap_id = itti_msg.ran_ue_ngap_id;
-    uc->amf_ue_ngap_id = amf_ue_ngap_id;
-
-    std::string guti;
-    bool is_guti_valid = false;
-    if (itti_msg.is_5g_s_tmsi_present) {
-      guti = itti_msg.tai.mcc + itti_msg.tai.mnc + amf_cfg.guami.regionID +
-             itti_msg._5g_s_tmsi;
-      is_guti_valid = true;
-      Logger::amf_app().debug("Receiving GUTI %s", guti.c_str());
-    }
-
-    // Send NAS PDU to task_amf_n1 for further processing
-    std::shared_ptr<itti_uplink_nas_data_ind> itti_n1_msg =
-        std::make_shared<itti_uplink_nas_data_ind>(TASK_AMF_APP, TASK_AMF_N1);
-
-    itti_n1_msg->amf_ue_ngap_id              = amf_ue_ngap_id;
-    itti_n1_msg->ran_ue_ngap_id              = itti_msg.ran_ue_ngap_id;
-    itti_n1_msg->is_nas_signalling_estab_req = true;
-    itti_n1_msg->nas_msg                     = itti_msg.nas_buf;
-    itti_n1_msg->mcc                         = itti_msg.tai.mcc;
-    itti_n1_msg->mnc                         = itti_msg.tai.mnc;
-    itti_n1_msg->is_guti_valid               = is_guti_valid;
-    if (is_guti_valid) {
-      itti_n1_msg->guti = guti;
-    }
-
-    int ret = itti_inst->send_msg(itti_n1_msg);
-    if (0 != ret) {
-      Logger::amf_app().error(
-          "Could not send ITTI message %s to task TASK_AMF_N1",
-          itti_n1_msg->get_msg_name());
-    }
+        "Could not send ITTI message %s to task TASK_AMF_N1",
+        itti_n1_msg->get_msg_name());
   }
 }
 
