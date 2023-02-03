@@ -3132,6 +3132,9 @@ void amf_n1::ue_initiate_de_registration_handle(
     }
   }
 
+  // TODO: AMF-nitiated AM Policy Association Termination (if exist)
+  // TODO: AMF-initiated UE Policy Association Termination (if exist)
+
   // Check Deregistration type
   uint8_t deregType = 0;
   dereg_request->getDeregistrationType(deregType);
@@ -3156,7 +3159,7 @@ void amf_n1::ue_initiate_de_registration_handle(
 
     bstring b = blk2bstr(buffer, encoded_size);
     itti_send_dl_nas_buffer_to_task_n2(b, ran_ue_ngap_id, amf_ue_ngap_id);
-    // sleep 100ms
+    // sleep 200ms
     usleep(200000);
   }
 
