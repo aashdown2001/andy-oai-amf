@@ -214,19 +214,12 @@ bool amf_app::is_ran_amf_id_2_ue_context(const string& ue_context_key) const {
 }
 
 //------------------------------------------------------------------------------
-std::shared_ptr<ue_context> amf_app::ran_amf_id_2_ue_context(
-    const string& ue_context_key) const {
-  std::shared_lock lock(m_ue_ctx_key);
-  return ue_ctx_key.at(ue_context_key);
-}
-
-//------------------------------------------------------------------------------
 bool amf_app::ran_amf_id_2_ue_context(
     const std::string& ue_context_key, std::shared_ptr<ue_context>& uc) const {
   std::shared_lock lock(m_ue_ctx_key);
   if (ue_ctx_key.count(ue_context_key) > 0) {
+    if (ue_ctx_key.at(ue_context_key) == nullptr) return false;
     uc = ue_ctx_key.at(ue_context_key);
-    if (uc == nullptr) return false;
     return true;
   }
   return false;
@@ -242,7 +235,6 @@ void amf_app::set_ran_amf_id_2_ue_context(
 //------------------------------------------------------------------------------
 bool amf_app::is_supi_2_ue_context(const string& supi) const {
   std::shared_lock lock(m_supi2ue_ctx);
-  // return bool{supi2ue_ctx.count(supi) > 0};
   if (supi2ue_ctx.count(supi) > 0) {
     if (supi2ue_ctx.at(supi) != nullptr) {
       return true;
@@ -252,19 +244,12 @@ bool amf_app::is_supi_2_ue_context(const string& supi) const {
 }
 
 //------------------------------------------------------------------------------
-std::shared_ptr<ue_context> amf_app::supi_2_ue_context(
-    const string& supi) const {
-  std::shared_lock lock(m_supi2ue_ctx);
-  return supi2ue_ctx.at(supi);
-}
-
-//------------------------------------------------------------------------------
 bool amf_app::supi_2_ue_context(
     const std::string& supi, std::shared_ptr<ue_context>& uc) const {
   std::shared_lock lock(m_supi2ue_ctx);
   if (supi2ue_ctx.count(supi) > 0) {
+    if (supi2ue_ctx.at(supi) == nullptr) return false;
     uc = supi2ue_ctx.at(supi);
-    if (uc == nullptr) return false;
     return true;
   }
   return false;
@@ -396,7 +381,7 @@ void amf_app::handle_itti_message(
     Logger::amf_app().debug(
         "No existing UE Context, Create a new one with ran_amf_id %s",
         ue_context_key.c_str());
-    uc = std::shared_ptr<ue_context>(new ue_context());
+    uc = std::make_shared<ue_context>();
     set_ran_amf_id_2_ue_context(ue_context_key, uc);
   }
 
@@ -527,7 +512,8 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
 
   if (ue_ctx.supiIsSet()) {
     supi = ue_ctx.getSupi();
-    if (!is_supi_2_ue_context(supi)) {
+    // Update UE Context
+    if (!supi_2_ue_context(supi, uc)) {
       // Create a new UE Context
       Logger::amf_app().debug(
           "No existing UE Context, Create a new one with SUPI %s",
@@ -536,8 +522,6 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
       uc->amf_ue_ngap_id = -1;
       uc->supi           = supi;
       set_supi_2_ue_context(supi, uc);
-    } else {  // Update UE Context
-      uc = supi_2_ue_context(supi);
     }
   }
 
@@ -565,7 +549,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
 
   string ue_context_key =
       conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
-  if (!is_ran_amf_id_2_ue_context(ue_context_key)) {
+  if (!ran_amf_id_2_ue_context(ue_context_key, uc)) {
     Logger::amf_app().debug(
         "No existing UE Context associated with UE Context Key %s",
         ue_context_key.c_str());
@@ -574,16 +558,9 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
       Logger::amf_app().debug(
           "Create a new UE Context with UE Context Key",
           ue_context_key.c_str());
-      uc = std::shared_ptr<ue_context>(new ue_context());
+      uc = std::make_shared<ue_context>();
     }
     set_ran_amf_id_2_ue_context(ue_context_key, uc);
-  } else {
-    uc = ran_amf_id_2_ue_context(ue_context_key);
-  }
-  // Return if UE Context is still invalid
-  if (!uc) {
-    Logger::amf_app().error("Failed to get UE Context");
-    return;
   }
 
   // Update info for UE context
@@ -897,18 +874,19 @@ uint32_t amf_app::generate_tmsi() {
 bool amf_app::generate_5g_guti(
     const uint32_t ranid, const long amfid, string& mcc, string& mnc,
     uint32_t& tmsi) {
-  string ue_context_key = conv::get_ue_context_key(ranid, amfid);
-  if (!is_ran_amf_id_2_ue_context(ue_context_key)) {
+  string ue_context_key          = conv::get_ue_context_key(ranid, amfid);
+  std::shared_ptr<ue_context> uc = {};
+
+  if (!ran_amf_id_2_ue_context(ue_context_key, uc)) {
     Logger::amf_app().error(
         "No UE context for ran_amf_id %s, exit", ue_context_key.c_str());
     return false;
   }
-  std::shared_ptr<ue_context> uc = {};
-  uc                             = ran_amf_id_2_ue_context(ue_context_key);
-  mcc                            = uc->tai.mcc;
-  mnc                            = uc->tai.mnc;
-  tmsi                           = generate_tmsi();
-  uc->tmsi                       = tmsi;
+
+  mcc      = uc->tai.mcc;
+  mnc      = uc->tai.mnc;
+  tmsi     = generate_tmsi();
+  uc->tmsi = tmsi;
   return true;
 }
 

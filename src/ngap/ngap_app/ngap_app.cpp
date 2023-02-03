@@ -88,10 +88,10 @@ void ngap_app::handle_sctp_new_association(
       "Ready to handle new NGAP SCTP association request (id %d)", assoc_id);
 
   std::shared_ptr<gnb_context> gc = {};
-  if (!is_assoc_id_2_gnb_context(assoc_id, gc)) {
+  if (!assoc_id_2_gnb_context(assoc_id, gc)) {
     Logger::ngap().debug(
         "Create a new gNB context with assoc_id (%d)", assoc_id);
-    gc = std::shared_ptr<gnb_context>(new gnb_context());
+    gc = std::make_shared<gnb_context>();
     set_assoc_id_2_gnb_context(assoc_id, gc);
   } else {
     if (gc->ng_state == NGAP_RESETING || gc->ng_state == NGAP_SHUTDOWN) {
@@ -135,23 +135,20 @@ uint32_t ngap_app::getPpid() {
 bool ngap_app::is_assoc_id_2_gnb_context(
     const sctp_assoc_id_t& assoc_id) const {
   std::shared_lock lock(m_assoc2gnbContext);
-  return bool{assoc2gnbContext.count(assoc_id) > 0};
+  if (assoc2gnbContext.count(assoc_id) > 0) {
+    if (assoc2gnbContext.at(assoc_id) != nullptr) return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
-std::shared_ptr<gnb_context> ngap_app::assoc_id_2_gnb_context(
-    const sctp_assoc_id_t& assoc_id) const {
-  std::shared_lock lock(m_assoc2gnbContext);
-  return assoc2gnbContext.at(assoc_id);
-}
-
-//------------------------------------------------------------------------------
-bool ngap_app::is_assoc_id_2_gnb_context(
+bool ngap_app::assoc_id_2_gnb_context(
     const sctp_assoc_id_t& assoc_id, std::shared_ptr<gnb_context>& gc) {
   std::shared_lock lock(m_assoc2gnbContext);
   if (assoc2gnbContext.count(assoc_id) > 0) {
+    if (assoc2gnbContext.at(assoc_id) == nullptr) return false;
     gc = assoc2gnbContext.at(assoc_id);
-    if (gc != nullptr) return true;
+    return true;
   }
   return false;
 }
@@ -167,14 +164,22 @@ void ngap_app::set_assoc_id_2_gnb_context(
 //------------------------------------------------------------------------------
 bool ngap_app::is_gnb_id_2_gnb_context(const long& gnb_id) const {
   std::shared_lock lock(m_gnbid2gnbContext);
-  return bool{gnbid2gnbContext.count(gnb_id) > 0};
+  if (gnbid2gnbContext.count(gnb_id) > 0) {
+    if (gnbid2gnbContext.at(gnb_id) != nullptr) return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
-std::shared_ptr<gnb_context> ngap_app::gnb_id_2_gnb_context(
-    const long& gnb_id) const {
+bool ngap_app::gnb_id_2_gnb_context(
+    const long& gnb_id, std::shared_ptr<gnb_context>& gc) const {
   std::shared_lock lock(m_gnbid2gnbContext);
-  return gnbid2gnbContext.at(gnb_id);
+  if (gnbid2gnbContext.count(gnb_id) > 0) {
+    if (gnbid2gnbContext.at(gnb_id) == nullptr) return false;
+    gc = gnbid2gnbContext.at(gnb_id);
+    return true;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------

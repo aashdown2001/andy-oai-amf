@@ -124,6 +124,7 @@ typedef struct auth_conf_s {
   std::string mysql_pass;
   std::string mysql_db;
   std::string random;
+
   nlohmann::json to_json() const {
     nlohmann::json json_data  = {};
     json_data["mysql_server"] = this->mysql_server;
@@ -231,6 +232,7 @@ typedef struct guami_s {
 typedef struct slice_s {
   uint8_t sst;
   uint32_t sd;
+
   bool operator==(const struct slice_s& s) const {
     if ((s.sst == this->sst) && (s.sd == this->sd)) {
       return true;
@@ -238,13 +240,15 @@ typedef struct slice_s {
       return false;
     }
   }
+
   bool operator>(const struct slice_s& s) const {
     if (this->sst > s.sst) return true;
     if (this->sst == s.sst) {
-      if (this->sd > s.sd) return true;
-      if (this->sd <= s.sd) return false;
+      return (this->sd > s.sd);
     }
+    return false;
   }
+
   nlohmann::json to_json() const {
     nlohmann::json json_data = {};
     json_data["sst"]         = this->sst;
