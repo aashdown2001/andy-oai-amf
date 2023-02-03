@@ -108,17 +108,18 @@ class amf_n1 {
       SecurityHeaderType_t& type, const uint8_t* buffer, const uint32_t length);
 
   /*
-   * Verify if a UE NAS context associated with a GUTI exist
+   * Verify if a UE NAS context associated with a GUTI exists
    * @param [const std::string&] guti: UE GUTI
-   * @return true if UE NAS context exist, otherwise false
+   * @return true if the UE NAS context exists, otherwise false
    */
   bool is_guti_2_nas_context(const std::string& guti) const;
 
   /*
-   * Get UE NAS context associated with a GUTI if exist and not null
+   * Get UE NAS context associated with a GUTI if the context exists and is not
+   * null
    * @param [const std::string&] guti: UE GUTI
    * @param [std::shared_ptr<nas_context>&] nc: UE NAS Context
-   * @return true if context exists and not null, otherwise return false
+   * @return true if the context exists and is not null, otherwise return false
    */
   bool guti_2_nas_context(
       const std::string& guti, std::shared_ptr<nas_context>& nc) const;
@@ -140,18 +141,18 @@ class amf_n1 {
   bool remove_guti_2_nas_context(const std::string& guti);
 
   /*
-   * Verify if a UE NAS context associated with an AMF UE NGAP ID exist
+   * Verify if a UE NAS context associated with an AMF UE NGAP ID exists
    * @param [const long& ] amf_ue_ngap_id: AMF UE NGAP ID
-   * @return true if UE NAS context exist, otherwise false
+   * @return true if UE NAS context exists, otherwise false
    */
   bool is_amf_ue_id_2_nas_context(const long& amf_ue_ngap_id) const;
 
   /*
-   * Verify if a UE NAS context associated with an AMF UE NGAP ID exist and not
-   * null
+   * Verify if a UE NAS context associated with an AMF UE NGAP ID exists and is
+   * not null
    * @param [const long& ] amf_ue_ngap_id: AMF UE NGAP ID
    * @param [std::shared_ptr<nas_context>&] nc: pointer to UE NAS context
-   * @return true if UE NAS context exist, otherwise false
+   * @return true if the UE NAS context exists (and not null), otherwise false
    */
   bool amf_ue_id_2_nas_context(
       const long& amf_ue_ngap_id, std::shared_ptr<nas_context>& nc) const;
@@ -223,7 +224,8 @@ class amf_n1 {
    * Get UE NAS context associated with an IMSI
    * @param [const std::string&] imsi: UE IMSI
    * @param [const std::shared_ptr<nas_context>&] nc: pointer to UE NAS context
-   * @return true if the NAS context exist and not null, otherwise return false
+   * @return true if the NAS context exists and is not null, otherwise return
+   * false
    */
   bool imsi_2_nas_context(
       const std::string& imsi, std::shared_ptr<nas_context>&) const;

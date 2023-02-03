@@ -244,10 +244,9 @@ typedef struct slice_s {
   bool operator>(const struct slice_s& s) const {
     if (this->sst > s.sst) return true;
     if (this->sst == s.sst) {
-      if (this->sd > s.sd) return true;
-      if (this->sd <= s.sd) return false;
+      return (this->sd > s.sd);
     }
-    return true;
+    return false;
   }
 
   nlohmann::json to_json() const {

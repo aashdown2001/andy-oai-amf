@@ -43,8 +43,11 @@ extern "C" {
 namespace sctp {
 
 //------------------------------------------------------------------------------
+sctp_application::~sctp_application() {}
+
+//------------------------------------------------------------------------------
 sctp_server::sctp_server(const char* address, const uint16_t port_num) {
-  Logger::sctp().debug("Creating socket!!");
+  Logger::sctp().debug("Creating socket!");
   create_socket(address, port_num);
   app_        = nullptr;
   sctp_desc   = {};
@@ -118,7 +121,7 @@ void* sctp_server::sctp_receiver_thread(void* arg) {
   FD_SET(ptr->getSocket(), &master);
   fdmax = ptr->getSocket();
 
-  while (1) {
+  while (true) {
     memcpy(&read_fds, &master, sizeof(master));
     if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
       Logger::sctp().error(

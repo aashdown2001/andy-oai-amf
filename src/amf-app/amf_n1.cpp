@@ -1247,7 +1247,6 @@ void amf_n1::registration_request_handle(
   if (nc == nullptr) {
     // try to get the GUTI -> nas_context
     if (guti_2_nas_context(guti, nc)) {
-      // nc = guti_2_nas_context(guti);
       set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
       nc->amf_ue_ngap_id = amf_ue_ngap_id;
       nc->ran_ue_ngap_id = ran_ue_ngap_id;

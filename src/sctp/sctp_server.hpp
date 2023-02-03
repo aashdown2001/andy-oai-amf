@@ -73,7 +73,7 @@ typedef struct sctp_descriptor_s {
 
 class sctp_application {
  public:
-  virtual ~sctp_application(){};
+  virtual ~sctp_application();
   virtual void handle_receive(
       bstring payload, sctp_assoc_id_t assoc_id, sctp_stream_id_t stream,
       sctp_stream_id_t instreams, sctp_stream_id_t outstreams) = 0;
