@@ -30,9 +30,8 @@ using namespace ngap;
 
 //------------------------------------------------------------------------------
 UEContextReleaseCompleteMsg::UEContextReleaseCompleteMsg() : NgapUEMessage() {
-  ies                     = nullptr;
-  userLocationInformation = std::nullopt;
-  ;
+  ies                             = nullptr;
+  userLocationInformation         = std::nullopt;
   pduSessionResourceListCxtRelCpl = std::nullopt;
 
   setMessageType(NgapMessageType::UE_CONTEXT_RELEASE_COMPLETE);
