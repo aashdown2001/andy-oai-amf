@@ -2586,8 +2586,6 @@ void amf_n1::security_mode_complete_handle(
                      conv::tmsi_to_string(tmsi);
   Logger::amf_n1().debug("Allocated GUTI %s", guti.c_str());
 
-  // TODO: remove hardcoded values
-  registration_accept->Set5gsNetworkFeatureSupport(0x01, 0x00);
   // registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = registration_accept->Encode(buffer, BUFFER_SIZE_1024);
@@ -3422,9 +3420,7 @@ void amf_n1::run_mobility_registration_update_procedure(
 
   // Encoding REGISTRATION ACCEPT
   auto reg_accept = std::make_unique<RegistrationAccept>();
-  initialize_registration_accept(reg_accept);
-  reg_accept->Set5gsNetworkFeatureSupport(
-      0x00, 0x00);  // TODO: remove hardcoded values
+  initialize_registration_accept(reg_accept, nc);
 
   reg_accept->Set5gGuti(
       amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
@@ -3495,7 +3491,7 @@ void amf_n1::run_periodic_registration_update_procedure(
   // Experimental procedure
   // Encoding REGISTRATION ACCEPT
   auto reg_accept = std::make_unique<RegistrationAccept>();
-  initialize_registration_accept(reg_accept);
+  initialize_registration_accept(reg_accept, nc);
 
   // Get UE context
   std::shared_ptr<ue_context> uc = {};
@@ -3516,7 +3512,6 @@ void amf_n1::run_periodic_registration_update_procedure(
         "PDU Session Status 0x%02x", htonl(pdu_session_status));
   }
 
-  reg_accept->Set5gsNetworkFeatureSupport(0x01, 0x00);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = reg_accept->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
@@ -3563,7 +3558,7 @@ void amf_n1::run_periodic_registration_update_procedure(
 
   // Encoding REGISTRATION ACCEPT
   auto reg_accept = std::make_unique<RegistrationAccept>();
-  initialize_registration_accept(reg_accept);
+  initialize_registration_accept(reg_accept, nc);
 
   // Get UE context
   std::shared_ptr<ue_context> uc = {};
@@ -3586,7 +3581,6 @@ void amf_n1::run_periodic_registration_update_procedure(
         "PDU Session Status 0x%02x", htonl(pdu_session_status));
   }
 
-  reg_accept->Set5gsNetworkFeatureSupport(0x01, 0x00);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = reg_accept->Encode(buffer, BUFFER_SIZE_1024);
   comUt::print_buffer(
@@ -4080,54 +4074,16 @@ void amf_n1::get_pdu_session_to_be_activated(
 
 //------------------------------------------------------------------------------
 void amf_n1::initialize_registration_accept(
-    std::unique_ptr<nas::RegistrationAccept>& registration_accept) {
-  // TODO: to be updated with the function below
-  registration_accept->SetHeader(PLAIN_5GS_MSG);
-  registration_accept->Set5gsRegistrationResult(
-      false, false, false,
-      0x01);  // 3GPP Access
-  registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
-
-  std::vector<p_tai_t> tai_list;
-  for (auto p : amf_cfg.plmn_list) {
-    p_tai_t item    = {};
-    item.type       = 0x00;
-    nas_plmn_t plmn = {};
-    plmn.mcc        = p.mcc;
-    plmn.mnc        = p.mnc;
-    item.plmn_list.push_back(plmn);
-    item.tac_list.push_back(p.tac);
-    tai_list.push_back(item);
-  }
-  registration_accept->setTaiList(tai_list);
-
-  // TODO: get the list of common SST, SD between UE/gNB and AMF
-  std::vector<struct SNSSAI_s> nssai;
-  for (auto p : amf_cfg.plmn_list) {
-    for (auto s : p.slice_list) {
-      SNSSAI_t snssai = {};
-      snssai.sst      = s.sst;
-      snssai.sd       = s.sd;
-      if (snssai.sd == SD_NO_VALUE) {
-        snssai.length = SST_LENGTH;
-      } else {
-        snssai.length = SST_LENGTH + SD_LENGTH;
-      }
-      nssai.push_back(snssai);
-    }
-  }
-  registration_accept->SetAllowedNssai(nssai);
-  return;
-}
-
-//------------------------------------------------------------------------------
-void amf_n1::initialize_registration_accept(
     std::unique_ptr<nas::RegistrationAccept>& registration_accept,
     const std::shared_ptr<nas_context>& nc) {
   registration_accept->SetHeader(PLAIN_5GS_MSG);
+
+  // Registration Result
   registration_accept->Set5gsRegistrationResult(
       false, false, false,
       0x01);  // 3GPP Access
+
+  // Timer T3512
   registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
 
   // Find UE Context
@@ -4137,6 +4093,7 @@ void amf_n1::initialize_registration_accept(
     return;
   }
 
+  // TAI List
   std::vector<p_tai_t> tai_list;
   for (auto p : amf_cfg.plmn_list) {
     p_tai_t item    = {};
@@ -4150,6 +4107,12 @@ void amf_n1::initialize_registration_accept(
   }
   registration_accept->setTaiList(tai_list);
 
+  // Network Feature Support
+  // TODO: remove hardcoded values
+  registration_accept->Set5gsNetworkFeatureSupport(
+      0x01, 0x00);  // 0x00, 0x00 to disable IMS
+
+  // Allowed/Rejected/Configured NSSAI
   // Get the list of common SST, SD between UE and AMF
   std::vector<struct SNSSAI_s> common_nssais;
   amf_n2_inst->get_common_NSSAI(nc->ran_ue_ngap_id, common_nssais);
@@ -4197,9 +4160,6 @@ void amf_n1::initialize_registration_accept(
         } else {
           snssai.length = SST_LENGTH + SD_LENGTH;
         }
-        //        Logger::amf_n1().debug(
-        //            "Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
-        //        allowed_nssais.push_back(snssai);
         found = true;
         break;
       } else {
