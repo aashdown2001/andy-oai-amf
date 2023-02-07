@@ -838,6 +838,7 @@ void amf_n1::service_request_handle(
       if (guti_2_nas_context(guti, old_nc)) {
         Logger::amf_app().debug("Get Security Context from old NAS Context");
         nc->security_ctx = old_nc->security_ctx;
+        nc->imsi         = old_nc->imsi;
       }
     }
   }
