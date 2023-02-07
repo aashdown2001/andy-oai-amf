@@ -899,7 +899,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
         Logger::amf_n2().warn(
             "Cannot get pdu_session_context with SUPI (%s)", supi.c_str());
         item.s_nssai.sst = "01";  // TODO: remove the default value
-        item.s_nssai.sd  = std::to_string(SD_NO_VALUE);
+        item.s_nssai.sd  = "0";
       } else {
         item.s_nssai.sst = std::to_string(psc->snssai.sST);
         item.s_nssai.sd  = psc->snssai.sD;
