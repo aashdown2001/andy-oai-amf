@@ -919,9 +919,9 @@ void amf_n1::service_request_handle(
   amf_app_inst->set_supi_2_ue_context(supi, uc);
 
   // Get PDU session status from Service Request
-  uint16_t pdu_session_status =
-      (uint16_t) service_request->getPduSessionStatus();
-  if (pdu_session_status == 0) {
+  uint16_t pdu_session_status = 0;
+  if (!service_request->GetPduSessionStatus(pdu_session_status) or
+      (pdu_session_status == 0)) {
     // Get PDU Session Status from NAS Message Container if available
     bstring plain_msg = nullptr;
     if (service_request->GetNasMessageContainer(plain_msg)) {
@@ -950,17 +950,19 @@ void amf_n1::service_request_handle(
               nullptr, (uint8_t*) bdata(plain_msg), blength(plain_msg));
           bdestroy_wrapper(&plain_msg);
 
-          if (service_request_nas->getPduSessionStatus() > 0) {
-            pdu_session_status =
-                (uint16_t) service_request_nas->getPduSessionStatus();
+          if (!service_request_nas->GetPduSessionStatus(pdu_session_status)) {
+            Logger::nas_mm().debug("IE PDU Session Status is not present");
           }
+          /*
+                    // Trigger UE Connectivity Status Notify
+                    Logger::amf_n1().debug(
+                        "Signal the UE Connectivity Status Event notification
+             for SUPI "
+                        "%s",
+                        supi.c_str());
+                    event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
+                    */
 
-          // Trigger UE Connectivity Status Notify
-          Logger::amf_n1().debug(
-              "Signal the UE Connectivity Status Event notification for SUPI "
-              "%s",
-              supi.c_str());
-          event_sub.ue_connectivity_state(supi, CM_CONNECTED, 1);
         } break;
 
         default:
@@ -1017,7 +1019,7 @@ void amf_n1::service_request_handle(
 
     std::shared_ptr<pdu_session_context> psc = {};
 
-    service_accept->SetPduSessionStatus(service_request->getPduSessionStatus());
+    service_accept->SetPduSessionStatus(pdu_session_status);
     service_accept->SetPduSessionReactivationResult(0x0000);
 
     uint8_t pdu_session_id = pdu_session_to_be_activated.at(0);

@@ -38,35 +38,38 @@ class ServiceRequest : public NasMmPlainHeader {
   int Decode(NasMmPlainHeader* header, uint8_t* buf, int len);
 
   void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
-  bool GetNgKSI(uint8_t& ng_ksi);
+  void GetNgKsi(uint8_t& ng_ksi) const;
 
   void SetServiceType(uint8_t value);
-  uint8_t GetServiceType();
+  void GetServiceType(uint8_t& value);
 
-  void Set5gSTmsi(uint16_t amf_set_id, uint8_t amf_pointer, string tmsi);
-  bool Get5gSTmsi(uint16_t& amf_set_id, uint8_t& amf_pointer, string& tmsi);
+  void Set5gSTmsi(uint16_t amf_set_id, uint8_t amf_pointer, std::string tmsi);
+  bool Get5gSTmsi(
+      uint16_t& amf_set_id, uint8_t& amf_pointer, std::string& tmsi) const;
 
   void SetUplinkDataStatus(uint16_t value);
-  uint16_t GetUplinkDataStatus();
+  bool GetUplinkDataStatus(uint16_t& value) const;
 
   void SetPduSessionStatus(uint16_t value);
-  uint16_t GetPduSessionStatus();
+  bool GetPduSessionStatus(uint16_t& value) const;
+  std::optional<uint16_t> GetPduSessionStatus() const;
 
   void SetAllowedPduSessionStatus(uint16_t value);
-  uint16_t GetAllowedPduSessionStatus();
+  bool GetAllowedPduSessionStatus(uint16_t& value) const;
+  std::optional<uint16_t> GetAllowedPduSessionStatus() const;
 
   void SetNasMessageContainer(bstring value);
-  bool GetNasMessageContainer(bstring& nas);
+  bool GetNasMessageContainer(bstring& nas) const;
 
  private:
-  NasKeySetIdentifier ie_ngKSI;     // Mandatory
+  NasKeySetIdentifier ie_ng_ksi;    // Mandatory
   ServiceType ie_service_type;      // Mandatory
   _5GSMobileIdentity ie_5g_s_tmsi;  // Mandatory
 
   std::optional<UplinkDataStatus> ie_uplink_data_status;  // Optional
-  std::optional<PDUSessionStatus> ie_PDU_session_status;  // Optional
+  std::optional<PDUSessionStatus> ie_pdu_session_status;  // Optional
   std::optional<AllowedPDUSessionStatus>
-      ie_allowed_PDU_session_status;                            // Optional
+      ie_allowed_pdu_session_status;                            // Optional
   std::optional<NasMessageContainer> ie_nas_message_container;  // Optional
 };
 
