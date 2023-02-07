@@ -3414,7 +3414,7 @@ void amf_n1::run_mobility_registration_update_procedure(
   if (!secu) {
     Logger::amf_n1().warn("No Security Context found");
     // Run Registration procedure
-    // run_registration_procedure(nc);
+    run_registration_procedure(nc);
     return;
   }
 
