@@ -836,7 +836,8 @@ void amf_n1::service_request_handle(
           "GUTI %s, 5G-TMSI %s", guti.c_str(), tmsi.c_str());
       std::shared_ptr<nas_context> old_nc = {};
       if (guti_2_nas_context(guti, old_nc)) {
-        // nc->security_ctx = old_nc->security_ctx;
+        Logger::amf_app().debug("Get Security Context from old NAS Context");
+        nc->security_ctx = old_nc->security_ctx;
       }
     }
   }
