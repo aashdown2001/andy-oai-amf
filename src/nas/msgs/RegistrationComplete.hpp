@@ -41,7 +41,7 @@ class RegistrationComplete {
 
  public:
   NasMmPlainHeader* plain_header;
-  SorTransparentContainer* ie_sor_transparent_container;
+  SorTransparentContainer* ie_sor_transparent_container;  // Optional
 };
 
 }  // namespace nas

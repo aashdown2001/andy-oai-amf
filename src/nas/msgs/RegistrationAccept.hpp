@@ -33,7 +33,7 @@ class RegistrationAccept : public NasMmPlainHeader {
 
   void SetHeader(uint8_t security_header_type);
   void GetSecurityHeaderType(uint8_t security_header_type);  // TODO
-  bool verifyHeader();                                       // TODO
+  bool VerifyHeader();                                       // TODO
 
   int Encode(uint8_t* buf, int len);
   int Decode(uint8_t* buf, int len);
@@ -54,7 +54,7 @@ class RegistrationAccept : public NasMmPlainHeader {
   void Set5gGuti(
       const std::string& mcc, const std::string& mnc,
       const std::string& amf_region_id, const std::string& amf_set_id,
-      const std::string& amf_pointer, const uint32_t& tmsi);
+      const std::string& amf_pointer, uint32_t tmsi);
   void SetImeiImeisv();  // TODO:
   void Set5gSTmsi();     // TODO:
   // TODO: Get
@@ -63,12 +63,15 @@ class RegistrationAccept : public NasMmPlainHeader {
   void SetEquivalentPlmns(const std::vector<nas_plmn_t>& list);
   // TODO: Get
 
-  void setTaiList(const std::vector<p_tai_t>& tai_list);
+  void SetTaiList(const std::vector<p_tai_t>& tai_list);
+  // TODO: Get
 
   void SetAllowedNssai(const std::vector<struct SNSSAI_s>& nssai);
   // TODO: Get
+
   void SetRejectedNssai(const std::vector<Rejected_SNSSAI>& nssai);
   // TODO: Get
+
   void SetConfiguredNssai(const std::vector<struct SNSSAI_s>& nssai);
   // TODO: Get
 

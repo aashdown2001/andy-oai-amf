@@ -105,7 +105,7 @@ void RegistrationAccept::SetSuciSupiFormatImsi(
 void RegistrationAccept::Set5gGuti(
     const std::string& mcc, const std::string& mnc,
     const std::string& amf_region_id, const std::string& amf_set_id,
-    const std::string& amf_pointer, const uint32_t& tmsi) {
+    const std::string& amf_pointer, uint32_t tmsi) {
   _5GSMobileIdentity ie_5g_guti_tmp = {};
   int regionId                      = fromString<int>(amf_region_id);
   int setId                         = fromString<int>(amf_set_id);
@@ -225,7 +225,7 @@ void RegistrationAccept::SetSorTransparentContainer(
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::SetEapMessage(const bstring& eap) {
-  ie_eap_message = std::make_optional<EapMessage>(0x78, eap);
+  ie_eap_message = std::make_optional<EapMessage>(kIeiEapMessage, eap);
 }
 
 //------------------------------------------------------------------------------
@@ -259,17 +259,20 @@ void RegistrationAccept::SetExtendedDrxParameters(
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::SetT3447Value(uint8_t unit, uint8_t value) {
-  ie_t3447_value = std::make_optional<GprsTimer3>(0x6C, unit, value);
+  ie_t3447_value =
+      std::make_optional<GprsTimer3>(kIeiGprsTimer3T3447, unit, value);
 }
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::SetT3448Value(uint8_t unit, uint8_t value) {
-  ie_t3448_value = std::make_optional<GprsTimer3>(0x6B, unit, value);
+  ie_t3448_value =
+      std::make_optional<GprsTimer3>(kIeiGprsTimer3T3448, unit, value);
 }
 
 //------------------------------------------------------------------------------
 void RegistrationAccept::SetT3324Value(uint8_t unit, uint8_t value) {
-  ie_t3324_value = std::make_optional<GprsTimer3>(0x6A, unit, value);
+  ie_t3324_value =
+      std::make_optional<GprsTimer3>(kIeiGprsTimer3T3324, unit, value);
 }
 
 //------------------------------------------------------------------------------
@@ -280,11 +283,11 @@ void RegistrationAccept::SetUeRadioCapabilityId(const bstring& value) {
 //------------------------------------------------------------------------------
 void RegistrationAccept::SetPendingNssai(
     const std::vector<struct SNSSAI_s>& nssai) {
-  ie_pending_nssai = std::make_optional<NSSAI>(0x39, nssai);
+  ie_pending_nssai = std::make_optional<NSSAI>(kIeiNSSAIPending, nssai);
 }
 
 //------------------------------------------------------------------------------
-void RegistrationAccept::setTaiList(const std::vector<p_tai_t>& tai_list) {
+void RegistrationAccept::SetTaiList(const std::vector<p_tai_t>& tai_list) {
   ie_tai_list = std::make_optional<_5GSTrackingAreaIdList>(tai_list);
 }
 
