@@ -139,31 +139,31 @@ class RegistrationRequest : public NasMmPlainHeader {
   void SetNasMessageContainer(const bstring& value);
   bool GetNasMessageContainer(bstring& nas) const;
 
-  bool GetEpsNasMessageContainer(bstring& epsNas) const;
-  // bool GetEpsNasMessageContainer(bstring& epsNas);
+  bool GetEpsNasMessageContainer(bstring& eps_nas) const;
+  // bool GetEpsNasMessageContainer(bstring& eps_nas);
 
   void SetEpsBearerContextsStatus(uint16_t value);
   bool GetEpsBearerContextStatus(uint16_t& value) const;
 
  public:
   _5GSRegistrationType ie_5gs_registration_type;  // Mandatory
-  NasKeySetIdentifier ie_ngKSI;                   // Mandatory
+  NasKeySetIdentifier ie_ng_ksi;                  // Mandatory
   _5GSMobileIdentity ie_5gs_mobile_identity;      // Mandatory
 
   std::optional<NasKeySetIdentifier> ie_non_current_native_nas_ksi;  // Optional
   std::optional<_5GMMCapability> ie_5g_mm_capability;                // Optional
   std::optional<UESecurityCapability> ie_ue_security_capability;     // Optional
-  std::optional<NSSAI> ie_requested_NSSAI;                           // Optional
+  std::optional<NSSAI> ie_requested_nssai;                           // Optional
   std::optional<_5GSTrackingAreaIdentity>
-      ie_last_visited_registered_TAI;                              // Optional
+      ie_last_visited_registered_tai;                              // Optional
   std::optional<UENetworkCapability> ie_s1_ue_network_capability;  // Optional
   std::optional<UplinkDataStatus> ie_uplink_data_status;           // Optional
-  std::optional<PDUSessionStatus> ie_PDU_session_status;           // Optional
-  std::optional<MicoIndication> ie_MICO_indication;                // Optional
+  std::optional<PDUSessionStatus> ie_pdu_session_status;           // Optional
+  std::optional<MicoIndication> ie_mico_indication;                // Optional
   std::optional<UEStatus> ie_ue_status;                            // Optional
   std::optional<_5GSMobileIdentity> ie_additional_guti;            // Optional
   std::optional<AllowedPDUSessionStatus>
-      ie_allowed_PDU_session_status;                         // Optional
+      ie_allowed_pdu_session_status;                         // Optional
   std::optional<UEUsageSetting> ie_ues_usage_setting;        // Optional
   std::optional<_5GS_DRX_Parameters> ie_5gs_drx_parameters;  // Optional
   std::optional<EPS_NAS_Message_Container>
