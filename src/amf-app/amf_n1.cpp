@@ -1094,11 +1094,11 @@ void amf_n1::registration_request_handle(
 
   // Check 5gs Mobility Identity (Mandatory IE)
   std::string guti         = {};
-  uint8_t mobility_id_type = registration_request->getMobileIdentityType();
+  uint8_t mobility_id_type = registration_request->GetMobileIdentityType();
   switch (mobility_id_type) {
     case SUCI: {
       nas::SUCI_imsi_t imsi = {};
-      if (!registration_request->getSuciSupiFormatImsi(imsi)) {
+      if (!registration_request->GetSuciSupiFormatImsi(imsi)) {
         Logger::amf_n1().warn("No SUCI and IMSI for SUPI Format");
       } else {
         if (!nc) {
@@ -1303,7 +1303,7 @@ void amf_n1::registration_request_handle(
   // Check 5GS_Registration_type IE (Mandatory IE)
   uint8_t reg_type              = 0;
   bool is_follow_on_req_pending = false;
-  if (!registration_request->get5gsRegistrationType(
+  if (!registration_request->Get5gsRegistrationType(
           is_follow_on_req_pending, reg_type)) {
     Logger::amf_n1().error("Missing Mandatory IE 5GS Registration type...");
     send_registration_reject_msg(
@@ -1315,7 +1315,7 @@ void amf_n1::registration_request_handle(
 
   // Check ngKSI (Mandatory IE)
   uint8_t ngKSI = 0;
-  if (!registration_request->getngKSI(ngKSI)) {
+  if (!registration_request->GetNgKsi(ngKSI)) {
     Logger::amf_n1().error("Missing Mandatory IE ngKSI...");
     send_registration_reject_msg(
         _5GMM_CAUSE_INVALID_MANDATORY_INFO, ran_ue_ngap_id, amf_ue_ngap_id);
@@ -1327,7 +1327,7 @@ void amf_n1::registration_request_handle(
   // inter-system change from S1 to N1 Get 5GMM Capability IE (optional), not
   // included for periodic registration updating procedure
   uint8_t _5g_mm_cap = 0;
-  if (!registration_request->get5GMMCapability(_5g_mm_cap)) {
+  if (!registration_request->Get5gmmCapability(_5g_mm_cap)) {
     Logger::amf_n1().warn("No Optional IE 5GMMCapability available");
   }
   nc->mmCapability = _5g_mm_cap;
@@ -1339,7 +1339,7 @@ void amf_n1::registration_request_handle(
   uint8_t security_cap_eea = {0};
   uint8_t security_cap_eia = {0};
 
-  if (!registration_request->getUeSecurityCapability(
+  if (!registration_request->GetUeSecurityCapability(
           encrypt_alg, integrity_alg, security_cap_eea, security_cap_eia)) {
     Logger::amf_n1().warn("No Optional IE UESecurityCapability available");
   } else {
@@ -1354,7 +1354,7 @@ void amf_n1::registration_request_handle(
   nc->ueSecurityCapEIA = security_cap_eia;
 
   // Get Requested NSSAI (Optional IE), if provided
-  if (!registration_request->getRequestedNssai(nc->requestedNssai)) {
+  if (!registration_request->GetRequestedNssai(nc->requestedNssai)) {
     Logger::amf_n1().debug("No Optional IE RequestedNssai available");
   }
 
@@ -1380,7 +1380,7 @@ void amf_n1::registration_request_handle(
     registration_request_msg_container->Decode(
         (uint8_t*) bdata(nas_msg), blength(nas_msg));
 
-    if (!registration_request_msg_container->getRequestedNssai(
+    if (!registration_request_msg_container->GetRequestedNssai(
             nc->requestedNssai)) {
       Logger::amf_n1().debug(
           "No Optional IE RequestedNssai available in NAS Container");
@@ -1406,9 +1406,9 @@ void amf_n1::registration_request_handle(
     case MOBILITY_REGISTRATION_UPDATING: {
       Logger::amf_n1().debug("Handling Mobility Registration Update...");
       uint16_t uplink_data_status = 0;
-      registration_request->getUplinkDataStatus(uplink_data_status);
+      registration_request->GetUplinkDataStatus(uplink_data_status);
       run_mobility_registration_update_procedure(
-          nc, uplink_data_status, registration_request->getPduSessionStatus());
+          nc, uplink_data_status, registration_request->GetPduSessionStatus());
     } break;
 
     case PERIODIC_REGISTRATION_UPDATING: {
@@ -1417,7 +1417,7 @@ void amf_n1::registration_request_handle(
         run_periodic_registration_update_procedure(nc, nas_msg);
       else
         run_periodic_registration_update_procedure(
-            nc, registration_request->getPduSessionStatus());
+            nc, registration_request->GetPduSessionStatus());
     } break;
 
     case EMERGENCY_REGISTRATION: {
@@ -2541,7 +2541,7 @@ void amf_n1::security_mode_complete_handle(
       // bdestroy_wrapper(&nas_msg_container);  // free buffer
 
       // Get Requested NSSAI (Optional IE), if provided
-      if (registration_request->getRequestedNssai(nc->requestedNssai)) {
+      if (registration_request->GetRequestedNssai(nc->requestedNssai)) {
         for (auto s : nc->requestedNssai) {
           Logger::amf_n1().debug("Requested NSSAI: %s", s.ToString().c_str());
         }
@@ -2802,8 +2802,8 @@ void amf_n1::registration_complete_handle(
       std::make_unique<ConfigurationUpdateCommand>();
 
   configuration_update_command->SetHeader(PLAIN_5GS_MSG);
-  configuration_update_command->setFullNameForNetwork("Testing");   // TODO:
-  configuration_update_command->setShortNameForNetwork("Testing");  // TODO:
+  configuration_update_command->SetFullNameForNetwork("Testing");   // TODO:
+  configuration_update_command->SetShortNameForNetwork("Testing");  // TODO:
 
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size =
@@ -3054,7 +3054,7 @@ void amf_n1::ue_initiate_de_registration_handle(
 
   // TODO: validate 5G Mobile Identity
   uint8_t mobile_id_type = 0;
-  dereg_request->getMobilityIdentityType(mobile_id_type);
+  dereg_request->GetMobilityIdentityType(mobile_id_type);
   Logger::amf_n1().debug("5G Mobile Identity %X", mobile_id_type);
   switch (mobile_id_type) {
     case _5G_GUTI: {
@@ -3137,7 +3137,7 @@ void amf_n1::ue_initiate_de_registration_handle(
 
   // Check Deregistration type
   uint8_t deregType = 0;
-  dereg_request->getDeregistrationType(deregType);
+  dereg_request->GetDeregistrationType(deregType);
   Logger::amf_n1().debug("De-registration Type 0x%x", deregType);
 
   // If UE switch-off, don't need to send Deregistration Accept
@@ -3574,7 +3574,7 @@ void amf_n1::run_periodic_registration_update_procedure(
       amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
 
   uint16_t pdu_session_status = 0xffff;
-  pdu_session_status          = registration_request->getPduSessionStatus();
+  pdu_session_status          = registration_request->GetPduSessionStatus();
   if (pdu_session_status == 0x0000) {
     reg_accept->SetPduSessionStatus(0x0000);
   } else {
@@ -4107,7 +4107,7 @@ void amf_n1::initialize_registration_accept(
     item.tac_list.push_back(p.tac);
     tai_list.push_back(item);
   }
-  registration_accept->setTaiList(tai_list);
+  registration_accept->SetTaiList(tai_list);
 
   // Network Feature Support
   // TODO: remove hardcoded values
