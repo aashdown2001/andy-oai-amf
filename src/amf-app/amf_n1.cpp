@@ -819,7 +819,7 @@ void amf_n1::service_request_handle(
   std::unique_ptr<ServiceRequest> service_request =
       std::make_unique<ServiceRequest>();
   int decoded_size =
-      service_request->Decode(nullptr, (uint8_t*) bdata(nas), blength(nas));
+      service_request->Decode((uint8_t*) bdata(nas), blength(nas));
   // bdestroy_wrapper(&nas);
 
   if (decoded_size != KEncodeDecodeError) {
@@ -947,7 +947,7 @@ void amf_n1::service_request_handle(
           std::unique_ptr<ServiceRequest> service_request_nas =
               std::make_unique<ServiceRequest>();
           service_request_nas->Decode(
-              nullptr, (uint8_t*) bdata(plain_msg), blength(plain_msg));
+              (uint8_t*) bdata(plain_msg), blength(plain_msg));
           bdestroy_wrapper(&plain_msg);
 
           if (!service_request_nas->GetPduSessionStatus(pdu_session_status)) {
