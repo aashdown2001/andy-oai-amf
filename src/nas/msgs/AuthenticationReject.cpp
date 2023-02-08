@@ -68,7 +68,8 @@ int AuthenticationReject::Encode(uint8_t* buf, int len) {
     if (size != KEncodeDecodeError) {
       encoded_size += size;
     } else {
-      Logger::nas_mm().error("Encoding ie_eap_message error");
+      Logger::nas_mm().error(
+          "Encoding %s error", EapMessage::GetIeName().c_str());
       return KEncodeDecodeError;
     }
   }

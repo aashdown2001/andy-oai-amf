@@ -2156,7 +2156,7 @@ bool amf_n1::start_authentication_procedure(
   abba[1] = 0x00;
   auth_request->SetAbba(2, abba);
   // uint8_t* rand = nc->_5g_av[vindex].rand;
-  auth_request->setAuthentication_Parameter_RAND(nc->_5g_av[vindex].rand);
+  auth_request->SetAuthenticationParameterRand(nc->_5g_av[vindex].rand);
   Logger::amf_n1().debug("Sending Authentication Request with RAND");
   printf("0x");
   for (int i = 0; i < kAuthenticationParameterRandValueLength; i++)
@@ -2164,7 +2164,7 @@ bool amf_n1::start_authentication_procedure(
   printf("\n");
 
   uint8_t* autn = nc->_5g_av[vindex].autn;
-  if (autn) auth_request->setAuthentication_Parameter_AUTN(autn);
+  if (autn) auth_request->SetAuthenticationParameterAutn(autn);
   uint8_t buffer[1024] = {0};
   int encoded_size     = auth_request->Encode(buffer, 1024);
   if (!encoded_size) {
@@ -2319,7 +2319,7 @@ void amf_n1::authentication_failure_handle(
   auto auth_failure = std::make_unique<AuthenticationFailure>();
 
   auth_failure->Decode((uint8_t*) bdata(plain_msg), blength(plain_msg));
-  uint8_t mm_cause = auth_failure->Get5GMmCause();
+  uint8_t mm_cause = auth_failure->Get5gmmCause();
   if (mm_cause == -1) {
     Logger::amf_n1().error("Missing mandatory IE 5G_MM_CAUSE");
     send_registration_reject_msg(
