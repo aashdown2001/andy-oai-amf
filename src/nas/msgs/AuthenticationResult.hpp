@@ -39,7 +39,7 @@ class AuthenticationResult : public NasMmPlainHeader {
   void SetNgKsi(uint8_t tsc, uint8_t key_set_id);
   // TODO: Get
 
-  void SetEapMessage(bstring eap);
+  void SetEapMessage(const bstring& eap);
   // TODO: Get
 
   void SetAbba(uint8_t length, uint8_t* value);
