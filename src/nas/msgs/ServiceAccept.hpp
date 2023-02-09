@@ -41,7 +41,7 @@ class ServiceAccept : public NasMmPlainHeader {
   void SetPduSessionStatus(uint16_t value);
   // TODO: Get
 
-  void SetPduSessionReactivationResult(uint16_t);
+  void SetPduSessionReactivationResult(uint16_t value);
   // TODO: Get
 
   void SetPduSessionReactivationResultErrorCause(

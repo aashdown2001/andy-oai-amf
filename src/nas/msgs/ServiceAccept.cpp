@@ -124,7 +124,6 @@ int ServiceAccept::Encode(uint8_t* buf, int len) {
     encoded_ie_size =
         ie_pdu_session_reactivation_result_error_cause.value().Encode(
             buf + encoded_size, len - encoded_size);
-
     if (encoded_ie_size != KEncodeDecodeError) {
       encoded_size += encoded_ie_size;
     } else {
@@ -141,7 +140,6 @@ int ServiceAccept::Encode(uint8_t* buf, int len) {
   } else {
     encoded_ie_size =
         ie_eap_message.value().Encode(buf + encoded_size, len - encoded_size);
-
     if (encoded_ie_size != KEncodeDecodeError) {
       encoded_size += encoded_ie_size;
     } else {
@@ -184,7 +182,7 @@ int ServiceAccept::Decode(uint8_t* buf, int len) {
     return KEncodeDecodeError;
   }
   decoded_size += decoded_result;
-  Logger::nas_mm().debug("Decoded_size(%d)", decoded_size);
+  Logger::nas_mm().debug("Decoded_size (%d)", decoded_size);
 
   // Decode other IEs
   uint8_t octet = 0x00;
