@@ -21,9 +21,7 @@
 
 #include "DLNASTransport.hpp"
 
-#include "3gpp_24.501.hpp"
 #include "bstrlib.h"
-#include "logger.hpp"
 
 using namespace nas;
 

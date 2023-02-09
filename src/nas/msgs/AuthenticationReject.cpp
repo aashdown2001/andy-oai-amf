@@ -21,9 +21,6 @@
 
 #include "AuthenticationReject.hpp"
 
-#include "3gpp_24.501.hpp"
-#include "logger.hpp"
-
 using namespace nas;
 
 //------------------------------------------------------------------------------

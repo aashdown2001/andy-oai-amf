@@ -22,6 +22,7 @@
 #ifndef _NAS_MM_PLAIN_HEADER_H_
 #define _NAS_MM_PLAIN_HEADER_H_
 
+#include "3gpp_24.501.hpp"
 #include "ExtendedProtocolDiscriminator.hpp"
 #include "NasMessageType.hpp"
 #include "SecurityHeaderType.hpp"

@@ -22,8 +22,9 @@
 #ifndef _SERVICE_REQUEST_H_
 #define _SERVICE_REQUEST_H_
 
-#include "bstrlib.h"
 #include "NasIeHeader.hpp"
+
+#include "bstrlib.h"
 
 namespace nas {
 

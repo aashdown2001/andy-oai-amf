@@ -22,9 +22,8 @@
 #ifndef CONFIGURATION_UPDATE_COMMAND_H_
 #define CONFIGURATION_UPDATE_COMMAND_H_
 
-#include <stdint.h>
-
 #include "NasIeHeader.hpp"
+
 namespace nas {
 
 class ConfigurationUpdateCommand : public NasMmPlainHeader {

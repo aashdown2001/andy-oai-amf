@@ -22,8 +22,6 @@
 #ifndef _SERVICE_REJECT_H_
 #define _SERVICE_REJECT_H_
 
-#include <stdint.h>
-
 #include "NasIeHeader.hpp"
 
 namespace nas {

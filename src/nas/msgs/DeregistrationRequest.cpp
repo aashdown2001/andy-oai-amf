@@ -21,10 +21,7 @@
 
 #include "DeregistrationRequest.hpp"
 
-#include "3gpp_24.501.hpp"
 #include "conversions.hpp"
-#include "logger.hpp"
-#include "String2Value.hpp"
 
 using namespace nas;
 
