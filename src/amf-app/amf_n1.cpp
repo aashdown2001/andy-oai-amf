@@ -1028,7 +1028,8 @@ void amf_n1::service_request_handle(
     if (!amf_app_inst->find_pdu_session_context(supi, pdu_session_id, psc)) {
       Logger::amf_n1().error(
           "Cannot get pdu_session_context with SUPI (%s)", supi.c_str());
-      // return;
+      // Set PDU session Status to 0x00
+      service_accept->SetPduSessionStatus(0x00);
     }
 
     uint8_t buffer[BUFFER_SIZE_256];
@@ -1059,6 +1060,7 @@ void amf_n1::service_request_handle(
       itti_msg->is_n2sm_avaliable = true;
     } else {
       itti_msg->is_n2sm_avaliable = false;
+      itti_msg->is_pdu_exist      = false;
       Logger::amf_n1().error("Cannot get PDU session information");
     }
 
