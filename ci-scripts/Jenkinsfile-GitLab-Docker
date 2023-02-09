@@ -495,9 +495,9 @@ pipeline {
                 localResult = localStatus.getResult()
 
                 if (localStatus.resultIsBetterOrEqualTo('SUCCESS')) {
-                  echo "Docker Federation Test Job is OK"
+                  echo "Test Job with COTS-UE is OK"
                 } else {
-                  echo "Docker Federation Test Job is KO"
+                  echo "Test Job with COTS-UE is is KO"
                   sh "ci-scripts/fail.sh"
                 }
               }
@@ -507,7 +507,7 @@ pipeline {
             always {
               script {
                 copyArtifacts(projectName: params.CN5G_COTS_UE_PipelineName,
-                              filter: '*_results_oai_cn5g*.html',
+                              filter: '*_test_results_cn5g_*.html',
                               selector: lastCompleted())
               }
             }
