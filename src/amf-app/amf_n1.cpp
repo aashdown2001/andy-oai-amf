@@ -3263,7 +3263,8 @@ void amf_n1::ul_nas_transport_handle(
   auto ul_nas = std::make_unique<ULNASTransport>();
   ul_nas->Decode((uint8_t*) bdata(nas), blength(nas));
   uint8_t payload_type   = ul_nas->GetPayloadContainerType();
-  uint8_t pdu_session_id = ul_nas->GetPduSessionId();
+  uint8_t pdu_session_id = 0;
+  ul_nas->GetPduSessionId(pdu_session_id);
 
   uint8_t request_type = 0;
   if (!ul_nas->GetRequestType(request_type)) {
@@ -3314,7 +3315,7 @@ void amf_n1::ul_nas_transport_handle(
 
     bstring dnn = bfromcstr("default");
 
-    if (!ul_nas->getDnn(dnn)) {
+    if (!ul_nas->GetDnn(dnn)) {
       Logger::amf_n1().debug(
           "No DNN available in ULNASTransport, use default DNN!");
       // TODO: use default DNN for the corresponding NSSAI
