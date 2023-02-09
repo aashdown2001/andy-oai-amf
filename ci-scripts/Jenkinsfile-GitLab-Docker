@@ -507,7 +507,7 @@ pipeline {
             always {
               script {
                 copyArtifacts(projectName: params.CN5G_COTS_UE_PipelineName,
-                              filter: '*_test_results_cn5g_*.html',
+                              filter: '*_results_cn5g_*.html',
                               selector: lastCompleted())
               }
             }
