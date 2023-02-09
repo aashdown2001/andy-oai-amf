@@ -142,10 +142,9 @@ pipeline {
             shortenShaOne = shortenShaOne.trim()
             sh "./ci-scripts/doGitLabMerge.sh --src-branch ${env.gitlabSourceBranch} --src-commit ${env.gitlabMergeRequestLastCommit} --target-branch ${env.gitlabTargetBranch} --target-commit ${GIT_COMMIT}"
             sh "sleep 10"
-            amf_tag = "ci-tmp"
-            rhel_amf_tag = 'ci-tmp-pr-' + env.gitlabMergeRequestIid + '-' + shortenShaOne
+            amf_tag = 'ci-tmp-pr-' + env.gitlabMergeRequestIid + '-' + shortenShaOne
             amf_branch = env.gitlabSourceBranch
-            echo "MR TAG      is ${rhel_amf_tag}"
+            echo "MR TAG      is ${amf_tag}"
           } else {
             echo "======== THIS IS A PUSH REQUEST ========"
             echo "Git Branch      is ${GIT_BRANCH}"
@@ -208,10 +207,6 @@ pipeline {
                 // If not satisfactory, we can remove it.
                 myShCmd('python3 ./ci-scripts/flatten_image.py --tag oai-amf:' + amf_tag, rem_u18_host_flag, rem_u18_host_user, rem_u18_host)
                 myShCmd('docker image ls >> archives/amf_docker_image_build.log', rem_u18_host_flag, rem_u18_host_user, rem_u18_host)
-                // We will keep also the TMP image in U18 case.
-                if ("MERGE".equals(env.gitlabActionType)) {
-                  myShCmd('docker image tag oai-amf:' + amf_tag + ' oai-amf:' + rhel_amf_tag, rem_u18_host_flag, rem_u18_host_user, rem_u18_host)
-                }
               }
             }
           }
@@ -259,9 +254,6 @@ pipeline {
                   myShCmd('sudo cp /etc/rhsm/ca/*.pem ./rhsm-ca', rem_rhel_host_flag, rem_rhel_host_user, rem_rhel_host)
                   myShCmd('sudo podman build --no-cache --squash --target oai-amf --tag oai-amf:' + amf_tag + ' --file docker/Dockerfile.amf.rhel8 --format docker . > archives/amf_podman_image_build.log 2>&1', rem_rhel_host_flag, rem_rhel_host_user, rem_rhel_host)
                   myShCmd('sudo podman image ls >> archives/amf_podman_image_build.log', rem_rhel_host_flag, rem_rhel_host_user, rem_rhel_host)
-                  if ("MERGE".equals(env.gitlabActionType)) {
-                    myShCmd('sudo podman image tag oai-amf:' + amf_tag + ' oai-amf:' + rhel_amf_tag, rem_rhel_host_flag, rem_rhel_host_user, rem_rhel_host)
-                  }
                 }
               }
             }
@@ -559,21 +551,6 @@ pipeline {
         if ("MERGE".equals(env.gitlabActionType)) {
           // Remove CI Base image tag
           myShCmd('docker rmi oai-amf-base:latest', rem_u18_host_flag, rem_u18_host_user, rem_u18_host)
-        }
-        // Removing temporary / intermediate images
-        try {
-          if ("MERGE".equals(env.gitlabActionType)) {
-            myShCmd('docker image rm --force oai-amf:ci-tmp', rem_u18_host_flag, rem_u18_host_user, rem_u18_host)
-          }
-        } catch (Exception e) {
-          echo "We failed to delete the OAI-AMF temp image"
-        }
-        try {
-          if ("MERGE".equals(env.gitlabActionType)) {
-            myShCmd('sudo podman image rm oai-amf:ci-tmp', rem_rhel_host_flag, rem_rhel_host_user, rem_rhel_host)
-          }
-        } catch (Exception e) {
-          echo "We failed to delete the OAI-AMF temp image"
         }
         try {
           myShCmd('docker image prune --force', rem_u18_host_flag, rem_u18_host_user, rem_u18_host)
