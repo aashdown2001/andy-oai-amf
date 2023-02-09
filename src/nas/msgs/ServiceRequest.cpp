@@ -74,7 +74,7 @@ void ServiceRequest::Set5gSTmsi(
 
 //------------------------------------------------------------------------------
 bool ServiceRequest::Get5gSTmsi(
-    uint16_t& amf_set_id, uint8_t& amf_pointer, string& tmsi) const {
+    uint16_t& amf_set_id, uint8_t& amf_pointer, std::string& tmsi) const {
   return ie_5g_s_tmsi.Get5gSTmsi(amf_set_id, amf_pointer, tmsi);
 }
 
@@ -142,7 +142,7 @@ std::optional<uint16_t> ServiceRequest::GetAllowedPduSessionStatus() const {
 }
 
 //------------------------------------------------------------------------------
-void ServiceRequest::SetNasMessageContainer(bstring value) {
+void ServiceRequest::SetNasMessageContainer(const bstring& value) {
   ie_nas_message_container = std::make_optional<NasMessageContainer>(value);
 }
 
@@ -308,7 +308,7 @@ int ServiceRequest::Decode(uint8_t* buf, int len) {
         if ((decoded_result = ie_uplink_data_status_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
-          return decoded_result;
+          return KEncodeDecodeError;
         decoded_size += decoded_result;
         ie_uplink_data_status =
             std::optional<UplinkDataStatus>(ie_uplink_data_status_tmp);
@@ -322,7 +322,7 @@ int ServiceRequest::Decode(uint8_t* buf, int len) {
         if ((decoded_result = ie_pdu_session_status_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
-          return decoded_result;
+          return KEncodeDecodeError;
         decoded_size += decoded_result;
         ie_pdu_session_status =
             std::optional<PDUSessionStatus>(ie_pdu_session_status_tmp);
@@ -337,7 +337,7 @@ int ServiceRequest::Decode(uint8_t* buf, int len) {
         if ((decoded_result = ie_allowed_pdu_session_status_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
-          return decoded_result;
+          return KEncodeDecodeError;
         decoded_size += decoded_result;
         ie_allowed_pdu_session_status = std::optional<AllowedPDUSessionStatus>(
             ie_allowed_pdu_session_status_tmp);
@@ -351,7 +351,7 @@ int ServiceRequest::Decode(uint8_t* buf, int len) {
         if ((decoded_result = ie_nas_message_container_tmp.Decode(
                  buf + decoded_size, len - decoded_size, true)) ==
             KEncodeDecodeError)
-          return decoded_result;
+          return KEncodeDecodeError;
         decoded_size += decoded_result;
         ie_nas_message_container =
             std::optional<NasMessageContainer>(ie_nas_message_container_tmp);

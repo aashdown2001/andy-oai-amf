@@ -59,7 +59,7 @@ class ServiceRequest : public NasMmPlainHeader {
   bool GetAllowedPduSessionStatus(uint16_t& value) const;
   std::optional<uint16_t> GetAllowedPduSessionStatus() const;
 
-  void SetNasMessageContainer(bstring value);
+  void SetNasMessageContainer(const bstring& value);
   bool GetNasMessageContainer(bstring& nas) const;
 
  private:
