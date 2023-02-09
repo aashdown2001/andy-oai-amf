@@ -843,6 +843,11 @@ void amf_n1::service_request_handle(
         nc->imsi                          = old_nc->imsi;
         ran_ue_ngap_id_old_nas_connection = old_nc->ran_ue_ngap_id;
         amf_ue_ngap_id_old_nas_connection = old_nc->amf_ue_ngap_id;
+        Logger::amf_n2().debug(
+            "Old ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT
+            "), old amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
+            ran_ue_ngap_id_old_nas_connection,
+            amf_ue_ngap_id_old_nas_connection);
       }
     }
   }
@@ -891,7 +896,6 @@ void amf_n1::service_request_handle(
   }
 
   // First send UEContextReleaseCommand to release old NAS signalling
-
   std::shared_ptr<ue_ngap_context> unc = {};
   if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(
           ran_ue_ngap_id_old_nas_connection, unc)) {
@@ -903,21 +907,20 @@ void amf_n1::service_request_handle(
     if (!amf_n2_inst->assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
       Logger::amf_n1().error(
           "No existed gNB context with assoc_id (%d)", unc->gnb_assoc_id);
+    }
+    std::shared_ptr<itti_ue_context_release_command> itti_msg =
+        std::make_shared<itti_ue_context_release_command>(
+            TASK_AMF_N1, TASK_AMF_N2);
+    itti_msg->amf_ue_ngap_id = amf_ue_ngap_id_old_nas_connection;
+    itti_msg->ran_ue_ngap_id = ran_ue_ngap_id_old_nas_connection;
+    itti_msg->cause.setChoiceOfCause(Ngap_Cause_PR_radioNetwork);
+    itti_msg->cause.setValue(3);  // TODO: remove hardcoded value cause nas(3)
 
-      std::shared_ptr<itti_ue_context_release_command> itti_msg =
-          std::make_shared<itti_ue_context_release_command>(
-              TASK_AMF_N1, TASK_AMF_N2);
-      itti_msg->amf_ue_ngap_id = amf_ue_ngap_id_old_nas_connection;
-      itti_msg->ran_ue_ngap_id = ran_ue_ngap_id_old_nas_connection;
-      itti_msg->cause.setChoiceOfCause(Ngap_Cause_PR_radioNetwork);
-      itti_msg->cause.setValue(3);  // TODO: remove hardcoded value cause nas(3)
-
-      int ret = itti_inst->send_msg(itti_msg);
-      if (0 != ret) {
-        Logger::amf_n1().error(
-            "Could not send ITTI message %s to task TASK_AMF_N2",
-            itti_msg->get_msg_name());
-      }
+    int ret = itti_inst->send_msg(itti_msg);
+    if (0 != ret) {
+      Logger::amf_n1().error(
+          "Could not send ITTI message %s to task TASK_AMF_N2",
+          itti_msg->get_msg_name());
     }
   }
 
