@@ -23,6 +23,7 @@ void AMFApiServer::init(size_t thr) {
   m_subscriptionsCollectionDocumentApiImplEventExposure->init();
   m_n1MessageNotifyApiImpl->init();
   m_statusNotifyApiImpl->init();
+  m_amfQueryConnectedApiImpl->init();
   Logger::amf_server().debug("Initiate AMF Server Endpoints done!");
 }
 
@@ -75,6 +76,9 @@ void AMFApiServer::start() {
 
   if (m_statusNotifyApiImpl != nullptr)
     Logger::amf_server().debug("AMF handler for StatusNotifyApiImpl");
+
+  if (m_amfQueryConnectedApiImpl != nullptr)
+    Logger::amf_server().debug("AMF handler for AMFQueryConnectedApiImpl");
 
   m_httpEndpoint->setHandler(m_router->handler());
   m_httpEndpoint->serveThreaded();
