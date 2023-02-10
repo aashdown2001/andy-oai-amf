@@ -842,6 +842,7 @@ void amf_n1::service_request_handle(
         Logger::amf_app().debug("Get Security Context from old NAS Context");
         nc->security_ctx                  = old_nc->security_ctx;
         nc->imsi                          = old_nc->imsi;
+        nc->requestedNssai                = old_nc->requestedNssai;
         nc->allowed_nssai                 = old_nc->allowed_nssai;
         nc->subscribed_snssai             = old_nc->subscribed_snssai;
         nc->configured_nssai              = old_nc->configured_nssai;
