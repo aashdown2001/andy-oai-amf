@@ -2782,7 +2782,7 @@ void amf_n1::registration_complete_handle(
   // Decode Registration Complete message
   auto registration_complete = std::make_unique<RegistrationComplete>();
   int decoded_size           = registration_complete->Decode(
-      nullptr, (uint8_t*) bdata(nas_msg), blength(nas_msg));
+      (uint8_t*) bdata(nas_msg), blength(nas_msg));
   if (decoded_size <= 0) {
     Logger::amf_n1().warn("Error when decoding Registration Complete");
     return;
