@@ -24,10 +24,9 @@
 using namespace nas;
 
 //------------------------------------------------------------------------------
-RegistrationComplete::RegistrationComplete() {
-  Logger::nas_mm().debug("Initiating class RegistrationComplete");
-  plain_header                 = nullptr;
-  ie_sor_transparent_container = nullptr;
+RegistrationComplete::RegistrationComplete()
+    : NasMmPlainHeader(EPD_5GS_MM_MSG, REGISTRATION_COMPLETE) {
+  ie_sor_transparent_container = std::nullopt;
 }
 
 //------------------------------------------------------------------------------
@@ -35,15 +34,14 @@ RegistrationComplete::~RegistrationComplete() {}
 
 //------------------------------------------------------------------------------
 void RegistrationComplete::SetHeader(uint8_t security_header_type) {
-  plain_header = new NasMmPlainHeader();
-  plain_header->SetHeader(
-      EPD_5GS_MM_MSG, security_header_type, REGISTRATION_COMPLETE);
+  NasMmPlainHeader::SetSecurityHeaderType(security_header_type);
 }
 
 //------------------------------------------------------------------------------
 void RegistrationComplete::SetSorTransparentContainer(
     uint8_t header, const uint8_t (&value)[16]) {
-  ie_sor_transparent_container = new SorTransparentContainer(header, value);
+  ie_sor_transparent_container =
+      std::make_shared<SorTransparentContainer> < (header, value);
 }
 
 //------------------------------------------------------------------------------
