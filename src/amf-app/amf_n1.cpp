@@ -840,12 +840,25 @@ void amf_n1::service_request_handle(
       std::shared_ptr<nas_context> old_nc = {};
       if (guti_2_nas_context(guti, old_nc)) {
         Logger::amf_app().debug("Get Security Context from old NAS Context");
-        nc->security_ctx                  = old_nc->security_ctx;
-        nc->imsi                          = old_nc->imsi;
-        nc->requestedNssai                = old_nc->requestedNssai;
-        nc->allowed_nssai                 = old_nc->allowed_nssai;
-        nc->subscribed_snssai             = old_nc->subscribed_snssai;
-        nc->configured_nssai              = old_nc->configured_nssai;
+        nc->security_ctx   = old_nc->security_ctx;
+        nc->imsi           = old_nc->imsi;
+        nc->requestedNssai = old_nc->requestedNssai;
+        nc->allowed_nssai  = old_nc->allowed_nssai;
+        for (auto r : nc->allowed_nssai) {
+          Logger::nas_mm().debug("Allowed NSSAI: %s", r.ToString().c_str());
+        }
+        nc->subscribed_snssai = old_nc->subscribed_snssai;
+        nc->configured_nssai  = old_nc->configured_nssai;
+
+        for (const auto& sn : nc->subscribed_snssai) {
+          if (sn.first) {
+            SNSSAI_t snssai = {};
+            snssai          = sn.second;
+            Logger::amf_n1().debug(
+                "Configured S-NSSAI %s", snssai.ToString().c_str());
+          }
+        }
+
         ran_ue_ngap_id_old_nas_connection = old_nc->ran_ue_ngap_id;
         amf_ue_ngap_id_old_nas_connection = old_nc->amf_ue_ngap_id;
         Logger::amf_n2().debug(
@@ -3654,13 +3667,44 @@ void amf_n1::ul_nas_transport_handle(
             "Use first Requested S-NSSAI %s", snssai.ToString().c_str());
       } else {
         // Otherwise, use first default subscribed S-NSSAI if available
+        bool found = false;
         for (const auto& sn : nc->subscribed_snssai) {
           if (sn.first) {
             snssai = sn.second;
             Logger::amf_n1().debug(
                 "Use Default Configured S-NSSAI %s", snssai.ToString().c_str());
+            found = true;
             break;
           }
+        }
+
+        if (!found) {
+          std::vector<struct SNSSAI_s> common_nssais;
+          amf_n2_inst->get_common_NSSAI(nc->ran_ue_ngap_id, common_nssais);
+
+          // Allowed NSSAI
+          for (auto s : common_nssais) {
+            snssai.sst = s.sst;
+            snssai.sd  = s.sd;
+            if (s.sd == SD_NO_VALUE) {
+              snssai.length = SST_LENGTH;
+            } else {
+              snssai.length = SST_LENGTH + SD_LENGTH;
+            }
+            Logger::amf_n1().debug(
+                "Allowed S-NSSAI (SST 0x%x, SD 0x%x)", s.sst, s.sd);
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          snssai.sst    = 1;  // TODO: Get default value
+          snssai.sd     = SD_NO_VALUE;
+          snssai.length = SST_LENGTH;
+          Logger::amf_n1().debug(
+              "Default allowed S-NSSAI (SST 0x%x, SD 0x%x)", snssai.sst,
+              snssai.sd);
         }
       }
     }
