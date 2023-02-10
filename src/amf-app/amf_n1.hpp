@@ -488,15 +488,6 @@ class amf_n1 {
       std::vector<uint8_t>& pdu_session_to_be_activated);
 
   /*
-   * Initialize Registration Accept with default parameters
-   * @param [std::unique_ptr<nas::RegistrationAccept>&] registration_accept:
-   * Pointer to the Registration Accept message
-   * @return void
-   */
-  void initialize_registration_accept(
-      std::unique_ptr<nas::RegistrationAccept>& registration_accept);
-
-  /*
    * Initialize Registration Accept with the parameters from NAS context
    * @param [std::unique_ptr<nas::RegistrationAccept>&] registration_accept:
    * Pointer to the Registration Accept message
