@@ -1774,7 +1774,7 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
     itti_msg->n2sm_info_type = "HANDOVER_REQ_ACK";
     itti_msg->ho_state       = "PREPARED";
     itti_msg->amf_ue_ngap_id = amf_ue_ngap_id;
-    itti_msg->ran_ue_ngap_id = ran_ue_ngap_id;
+    itti_msg->ran_ue_ngap_id = unc.get()->ran_ue_ngap_id;
     itti_msg->promise_id     = promise_id;
 
     int ret = itti_inst->send_msg(itti_msg);
