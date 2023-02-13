@@ -99,5 +99,9 @@ class conv {
       const uint32_t ran_ue_ngap_id, long amf_ue_ngap_id);
   static std::string get_serving_network_name(
       const std::string& mnc, const std::string& mcc);
+  static std::string uint32_to_hex_string(uint32_t value);
+  static std::string tmsi_to_guti(
+      const std::string& mcc, const std::string& mnc,
+      const std::string& region_id, const std::string& tmsi);
 };
 #endif /* FILE_CONVERSIONS_HPP_SEEN */

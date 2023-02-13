@@ -491,3 +491,17 @@ std::string conv::get_serving_network_name(
     snn = "5G:mnc" + mnc + ".mcc" + mcc + ".3gppnetwork.org";
   return snn;
 }
+
+//------------------------------------------------------------------------------
+std::string conv::uint32_to_hex_string(uint32_t value) {
+  char hex_str[8];
+  sprintf(hex_str, "%X", value);
+  return std::string(hex_str);
+}
+
+//------------------------------------------------------------------------------
+std::string conv::tmsi_to_guti(
+    const std::string& mcc, const std::string& mnc,
+    const std::string& region_id, const std::string& tmsi) {
+  return {mcc + mnc + region_id + tmsi};
+}

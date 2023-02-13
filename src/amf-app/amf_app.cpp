@@ -204,7 +204,6 @@ long amf_app::generate_amf_ue_ngap_id() {
 //------------------------------------------------------------------------------
 bool amf_app::is_ran_amf_id_2_ue_context(const string& ue_context_key) const {
   std::shared_lock lock(m_ue_ctx_key);
-  // return bool{ue_ctx_key.count(ue_context_key) > 0};
   if (ue_ctx_key.count(ue_context_key) > 0) {
     if (ue_ctx_key.at(ue_context_key) != nullptr) {
       return true;
