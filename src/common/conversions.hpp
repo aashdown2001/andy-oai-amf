@@ -103,5 +103,7 @@ class conv {
   static std::string tmsi_to_guti(
       const std::string& mcc, const std::string& mnc,
       const std::string& region_id, const std::string& tmsi);
+
+  static std::string imsi_to_supi(const std::string& imsi);
 };
 #endif /* FILE_CONVERSIONS_HPP_SEEN */

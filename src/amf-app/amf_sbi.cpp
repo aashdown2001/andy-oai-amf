@@ -285,7 +285,7 @@ void amf_sbi::handle_itti_message(itti_nsmf_pdusession_create_sm_context& smf) {
     return;
   }
 
-  std::string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
   string ue_context_key =
       conv::get_ue_context_key(nc->ran_ue_ngap_id, nc->amf_ue_ngap_id);
   std::shared_ptr<ue_context> uc = {};

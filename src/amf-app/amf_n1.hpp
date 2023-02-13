@@ -221,22 +221,22 @@ class amf_n1 {
   bool remove_supi_2_ran_id(const std::string& supi);
 
   /*
-   * Get UE NAS context associated with an IMSI
-   * @param [const std::string&] imsi: UE IMSI
+   * Get UE NAS context associated with an SUPI
+   * @param [const std::string&] imsi: UE SUPI
    * @param [const std::shared_ptr<nas_context>&] nc: pointer to UE NAS context
    * @return true if the NAS context exists and is not null, otherwise return
    * false
    */
-  bool imsi_2_nas_context(
+  bool supi_2_nas_context(
       const std::string& imsi, std::shared_ptr<nas_context>&) const;
 
   /*
-   * Store an UE NAS context associated with an IMSI
-   * @param [const std::string&] imsi: UE IMSI
+   * Store an UE NAS context associated with an SUPI
+   * @param [const std::string&] imsi: UE SUPI
    * @param [const std::shared_ptr<nas_context>&] nc: pointer to UE NAS context
    * @return void
    */
-  void set_imsi_2_nas_context(
+  void set_supi_2_nas_context(
       const std::string& imsi, const std::shared_ptr<nas_context>& nc);
 
   /*
@@ -244,7 +244,7 @@ class amf_n1 {
    * @param [const std::string&] imsi: UE IMSI
    * @return true if successful, otherwise return false
    */
-  bool remove_imsi_2_nas_context(const std::string& imsi);
+  bool remove_supi_2_nas_context(const std::string& imsi);
 
   /*
    * Perform Registration procedure
@@ -991,7 +991,7 @@ class amf_n1 {
       amfueid2nas_context;  // amf ue ngap id
   mutable std::shared_mutex m_amfueid2nas_context;
 
-  std::map<std::string, std::shared_ptr<nas_context>> imsi2nas_context;
+  std::map<std::string, std::shared_ptr<nas_context>> supi2nas_context;
   std::map<std::string, long> supi2amfId;
   std::map<std::string, uint32_t> supi2ranId;
   mutable std::shared_mutex m_nas_context;

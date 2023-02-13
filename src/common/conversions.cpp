@@ -505,3 +505,8 @@ std::string conv::tmsi_to_guti(
     const std::string& region_id, const std::string& tmsi) {
   return {mcc + mnc + region_id + tmsi};
 }
+
+//------------------------------------------------------------------------------
+std::string conv::imsi_to_supi(const std::string& imsi) {
+  return {"imsi-" + imsi};
+}
