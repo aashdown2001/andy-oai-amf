@@ -33,6 +33,9 @@
 #include "amf.hpp"
 #include "logger.hpp"
 
+constexpr uint8_t kTmsiIELength =
+    8;  // 4 bytes  -8 characters representation in hex
+
 static const char hex_to_ascii_table[16] = {
     '0', '1', '2', '3', '4', '5', '6', '7',
     '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
@@ -110,8 +113,8 @@ std::string conv::mncToString(
 //------------------------------------------------------------------------------
 std::string conv::tmsi_to_string(const uint32_t tmsi) {
   std::string s        = {};
-  std::string tmsi_str = std::to_string(tmsi);
-  uint8_t length       = 4 - tmsi_str.size();
+  std::string tmsi_str = uint32_to_hex_string(tmsi);
+  uint8_t length       = kTmsiIELength - tmsi_str.size();
   for (uint8_t i = 0; i < length; i++) {
     s.append("0");
   }
@@ -494,19 +497,43 @@ std::string conv::get_serving_network_name(
 
 //------------------------------------------------------------------------------
 std::string conv::uint32_to_hex_string(uint32_t value) {
-  char hex_str[8];
+  char hex_str[kTmsiIELength + 1];
   sprintf(hex_str, "%X", value);
+  Logger::amf_app().error(
+      "uint32_to_hex_string: %s", std::string(hex_str).c_str());
   return std::string(hex_str);
 }
 
 //------------------------------------------------------------------------------
 std::string conv::tmsi_to_guti(
     const std::string& mcc, const std::string& mnc,
-    const std::string& region_id, const std::string& tmsi) {
-  return {mcc + mnc + region_id + tmsi};
+    const std::string& region_id, const std::string& _5g_s_tmsi) {
+  return {mcc + mnc + region_id + _5g_s_tmsi};
 }
 
 //------------------------------------------------------------------------------
+std::string conv::tmsi_to_guti(
+    const std::string& mcc, const std::string& mnc,
+    const std::string& region_id, uint16_t amf_set_id, uint8_t amf_pointer,
+    const std::string& tmsi) {
+  return {mcc + mnc + region_id + std::to_string(amf_set_id) +
+          std::to_string(amf_pointer) + tmsi};
+}
+
+//------------------------------------------------------------------------------
+std::string conv::tmsi_to_guti(
+    const std::string& mcc, const std::string& mnc,
+    const std::string& region_id, const std::string& amf_set_id,
+    const std::string& amf_pointer, const std::string& tmsi) {
+  return {mcc + mnc + region_id + amf_set_id + amf_pointer + tmsi};
+}
+//------------------------------------------------------------------------------
 std::string conv::imsi_to_supi(const std::string& imsi) {
   return {"imsi-" + imsi};
+}
+
+//------------------------------------------------------------------------------
+std::string conv::get_imsi(
+    const std::string& mcc, const std::string& mnc, const std::string& msin) {
+  return {mcc + mnc + msin};
 }

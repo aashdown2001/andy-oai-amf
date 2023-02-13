@@ -828,9 +828,9 @@ void amf_n1::service_request_handle(
     uint8_t amf_pointer = {};
     string tmsi         = {};
     if (service_request->Get5gSTmsi(amf_set_id, amf_pointer, tmsi)) {
-      std::string guti = uc->tai.mcc + uc->tai.mnc + amf_cfg.guami.regionID +
-                         std::to_string(amf_set_id) +
-                         std::to_string(amf_pointer) + tmsi;
+      std::string guti = conv::tmsi_to_guti(
+          uc->tai.mcc, uc->tai.mnc, amf_cfg.guami.regionID, amf_set_id,
+          amf_pointer, tmsi);
 
       Logger::amf_app().debug(
           "GUTI %s, 5G-TMSI %s", guti.c_str(), tmsi.c_str());
@@ -1121,7 +1121,7 @@ void amf_n1::registration_request_handle(
         }
 
         nc->is_imsi_present = true;
-        nc->imsi            = imsi.mcc + imsi.mnc + imsi.msin;
+        nc->imsi            = conv::get_imsi(imsi.mcc, imsi.mnc, imsi.msin);
         Logger::amf_n1().debug("Received IMSI %s", nc->imsi.c_str());
 
         // Trigger UE Reachability Status Notify
@@ -1146,7 +1146,7 @@ void amf_n1::registration_request_handle(
 
         set_supi_2_nas_context(supi, nc);
         Logger::amf_n1().info(
-            "Associating IMSI (%s) with nas_context (%p)", supi.c_str(), nc);
+            "Associating SUPI (%s) with nas_context (%p)", supi.c_str(), nc);
         if (!nc->is_stacs_available) {
           ue_info_t ueItem;
           ueItem.connStatus = "5GMM-CONNECTED";  //"CM-CONNECTED";
@@ -2585,9 +2585,9 @@ void amf_n1::security_mode_complete_handle(
       mcc, mnc, amf_cfg.guami.regionID, amf_cfg.guami.AmfSetID,
       amf_cfg.guami.AmfPointer, tmsi);
 
-  std::string guti = mcc + mnc + amf_cfg.guami.regionID +
-                     amf_cfg.guami.AmfSetID + amf_cfg.guami.AmfPointer +
-                     conv::tmsi_to_string(tmsi);
+  std::string guti = conv::tmsi_to_guti(
+      mcc, mnc, amf_cfg.guami.regionID, amf_cfg.guami.AmfSetID,
+      amf_cfg.guami.AmfPointer, conv::tmsi_to_string(tmsi));
   Logger::amf_n1().debug("Allocated GUTI %s", guti.c_str());
 
   // registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
