@@ -33,7 +33,7 @@
 #include "amf.hpp"
 #include "logger.hpp"
 
-constexpr uint8_t kTmsiIELength =
+constexpr uint8_t kUint32Length =
     8;  // 4 bytes  -8 characters representation in hex
 
 static const char hex_to_ascii_table[16] = {
@@ -114,7 +114,7 @@ std::string conv::mncToString(
 std::string conv::tmsi_to_string(const uint32_t tmsi) {
   std::string s        = {};
   std::string tmsi_str = uint32_to_hex_string(tmsi);
-  uint8_t length       = kTmsiIELength - tmsi_str.size();
+  uint8_t length       = kUint32Length - tmsi_str.size();
   for (uint8_t i = 0; i < length; i++) {
     s.append("0");
   }
@@ -497,10 +497,8 @@ std::string conv::get_serving_network_name(
 
 //------------------------------------------------------------------------------
 std::string conv::uint32_to_hex_string(uint32_t value) {
-  char hex_str[kTmsiIELength + 1];
+  char hex_str[kUint32Length + 1];
   sprintf(hex_str, "%X", value);
-  Logger::amf_app().error(
-      "uint32_to_hex_string: %s", std::string(hex_str).c_str());
   return std::string(hex_str);
 }
 

@@ -2563,7 +2563,7 @@ void amf_n1::security_mode_complete_handle(
   // If AMF can't handle this and there's an error when trying to handling the
   // UE to the target AMFs, thus encoding REGISTRATION REJECT
   if (!reroute_result) {
-    uint8_t cause_value = 7;  // 5GS services not allowed - TO BE VERIFIED
+    uint8_t cause_value = 7;  // TODO: 5GS services not allowed - TO BE VERIFIED
     send_registration_reject_msg(cause_value, ran_ue_ngap_id, amf_ue_ngap_id);
     return;
   }
