@@ -514,15 +514,6 @@ std::string conv::tmsi_to_guti(
 //------------------------------------------------------------------------------
 std::string conv::tmsi_to_guti(
     const std::string& mcc, const std::string& mnc,
-    const std::string& region_id, uint16_t amf_set_id, uint8_t amf_pointer,
-    const std::string& tmsi) {
-  return {mcc + mnc + region_id + std::to_string(amf_set_id) +
-          std::to_string(amf_pointer) + tmsi};
-}
-
-//------------------------------------------------------------------------------
-std::string conv::tmsi_to_guti(
-    const std::string& mcc, const std::string& mnc,
     const std::string& region_id, const std::string& amf_set_id,
     const std::string& amf_pointer, const std::string& tmsi) {
   return {mcc + mnc + region_id + amf_set_id + amf_pointer + tmsi};

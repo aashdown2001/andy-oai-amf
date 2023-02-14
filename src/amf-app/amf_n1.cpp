@@ -829,8 +829,8 @@ void amf_n1::service_request_handle(
     string tmsi         = {};
     if (service_request->Get5gSTmsi(amf_set_id, amf_pointer, tmsi)) {
       std::string guti = conv::tmsi_to_guti(
-          uc->tai.mcc, uc->tai.mnc, amf_cfg.guami.regionID, amf_set_id,
-          amf_pointer, tmsi);
+          uc->tai.mcc, uc->tai.mnc, amf_cfg.guami.regionID,
+          std::to_string(amf_set_id), std::to_string(amf_pointer), tmsi);
 
       Logger::amf_app().debug(
           "GUTI %s, 5G-TMSI %s", guti.c_str(), tmsi.c_str());
@@ -2588,7 +2588,9 @@ void amf_n1::security_mode_complete_handle(
   std::string guti = conv::tmsi_to_guti(
       mcc, mnc, amf_cfg.guami.regionID, amf_cfg.guami.AmfSetID,
       amf_cfg.guami.AmfPointer, conv::tmsi_to_string(tmsi));
-  Logger::amf_n1().debug("Allocated GUTI %s", guti.c_str());
+  Logger::amf_n1().debug(
+      "Allocated GUTI %s (TMSI %s)", guti.c_str(),
+      conv::tmsi_to_string(tmsi).c_str());
 
   // registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};

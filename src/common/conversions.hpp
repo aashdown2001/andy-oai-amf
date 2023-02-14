@@ -105,14 +105,8 @@ class conv {
       const std::string& region_id, const std::string& _5g_s_tmsi);
   static std::string tmsi_to_guti(
       const std::string& mcc, const std::string& mnc,
-      const std::string& region_id, uint16_t amf_set_id, uint8_t amf_pointer,
-      const std::string& tmsi);
-
-  static std::string tmsi_to_guti(
-      const std::string& mcc, const std::string& mnc,
       const std::string& region_id, const std::string& amf_set_id,
       const std::string& amf_pointer, const std::string& tmsi);
-
   static std::string imsi_to_supi(const std::string& imsi);
   static std::string get_imsi(
       const std::string& mcc, const std::string& mnc, const std::string& msin);
