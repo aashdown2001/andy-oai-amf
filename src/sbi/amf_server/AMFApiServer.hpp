@@ -81,7 +81,7 @@ class AMFApiServer {
     m_statusNotifyApiImpl =
         std::make_shared<StatusNotifyApiImpl>(m_router, amf_app_inst);
 
-    m_amfQueryConnectedApiImpl = 
+    m_amfQueryConnectedApiImpl =
         std::make_shared<AMFQueryConnectedApiImpl>(m_router, amf_app_inst);
   }
 

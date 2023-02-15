@@ -35,16 +35,16 @@ HandoverRequest::HandoverRequest() : NgapMessage() {
   mobilityRestrictionList = std::nullopt;
   handoverRequestIEs      = nullptr;
 
-  amfUeNgapId = {};
-  handoverType = {};
-  cause = {};
-  ueAggregateMaximumBitRate = {};
-  ueSecurityCapabilities = {};
-  securityContext = {};
-  pDUSessionResourceSetupList = {};
-  allowedNSSAI = {};
+  amfUeNgapId                         = {};
+  handoverType                        = {};
+  cause                               = {};
+  ueAggregateMaximumBitRate           = {};
+  ueSecurityCapabilities              = {};
+  securityContext                     = {};
+  pDUSessionResourceSetupList         = {};
+  allowedNSSAI                        = {};
   SourceToTarget_TransparentContainer = {};
-  guami = {};
+  guami                               = {};
 
   setMessageType(NgapMessageType::HANDOVER_REQUEST);
   initialize();

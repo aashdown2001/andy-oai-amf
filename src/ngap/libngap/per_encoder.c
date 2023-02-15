@@ -165,10 +165,10 @@ asn_enc_rval_t aper_encode_to_buffer(
 
   if (td) ASN_DEBUG("Encoding \"%s\" using ALIGNED PER", td->name);
 
-  asn_enc_rval_t er = aper_encode(td, constraints, sptr, encode_to_buffer_cb, &key);
+  asn_enc_rval_t er =
+      aper_encode(td, constraints, sptr, encode_to_buffer_cb, &key);
 
-  if(er.encoded > 0)
-    er.encoded = (er.encoded+7) >> 3;
+  if (er.encoded > 0) er.encoded = (er.encoded + 7) >> 3;
 
   return er;
 }

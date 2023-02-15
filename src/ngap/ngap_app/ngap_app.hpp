@@ -35,7 +35,8 @@ namespace ngap {
 
 class ngap_app : public sctp_application {
  public:
-  ngap_app(const std::string& address, const uint16_t port_num, const uint32_t ppid);
+  ngap_app(
+      const std::string& address, const uint16_t port_num, const uint32_t ppid);
   virtual ~ngap_app();
 
   /*

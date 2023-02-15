@@ -230,7 +230,9 @@ void amf_n2_task(void* args_p) {
 
 //------------------------------------------------------------------------------
 amf_n2::amf_n2(const std::string& address, const uint16_t port_num)
-    : ngap_app(address, port_num, amf_cfg.n2_ppid), m_ranid2uecontext(), m_amfueid2uecontext() {
+    : ngap_app(address, port_num, amf_cfg.n2_ppid),
+      m_ranid2uecontext(),
+      m_amfueid2uecontext() {
   if (itti_inst->create_task(TASK_AMF_N2, amf_n2_task, nullptr)) {
     Logger::amf_n2().error("Cannot create task TASK_AMF_N2");
     throw std::runtime_error("Cannot create task TASK_AMF_N2");

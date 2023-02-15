@@ -8,21 +8,18 @@ namespace oai {
 namespace amf {
 namespace api {
 
-
 class AMFQueryConnectedApiImpl : public oai::amf::api::AMFQueryConnectedApi {
  public:
-    AMFQueryConnectedApiImpl(
+  AMFQueryConnectedApiImpl(
       std::shared_ptr<Pistache::Rest::Router>,
       amf_application::amf_app* amf_app_inst);
-    ~AMFQueryConnectedApiImpl() {}
+  ~AMFQueryConnectedApiImpl() {}
 
-    //Get gNBs
-    void gnbs_get_am_data(
-        Pistache::Http::ResponseWriter &response);
-    //Get UEs
-    void ues_get_am_data(
-        Pistache::Http::ResponseWriter &response);
-    
+  // Get gNBs
+  void gnbs_get_am_data(Pistache::Http::ResponseWriter& response);
+  // Get UEs
+  void ues_get_am_data(Pistache::Http::ResponseWriter& response);
+
  private:
   amf_application::amf_app* m_amf_app;
 };

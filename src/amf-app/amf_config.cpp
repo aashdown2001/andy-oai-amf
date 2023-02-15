@@ -338,7 +338,7 @@ int amf_config::load(const std::string& config_file) {
         new_if_cfg[AMF_CONFIG_STRING_INTERFACE_NGAP_AMF];
     load_interface(n2_amf_cfg, n2);
     try {
-      n2_amf_cfg.lookupValue(AMF_CONFIG_STRING_PPID,n2_ppid);
+      n2_amf_cfg.lookupValue(AMF_CONFIG_STRING_PPID, n2_ppid);
     } catch (const SettingNotFoundException& nfex) {
       Logger::amf_app().warn(
           "%s : %s, using defaults (PPID=60)", nfex.what(), nfex.getPath());

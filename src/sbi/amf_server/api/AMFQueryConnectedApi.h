@@ -12,7 +12,6 @@ namespace oai {
 namespace amf {
 namespace api {
 
-
 class AMFQueryConnectedApi {
  public:
   AMFQueryConnectedApi(std::shared_ptr<Pistache::Rest::Router>);
@@ -24,29 +23,28 @@ class AMFQueryConnectedApi {
  private:
   void setupRoutes();
   std::shared_ptr<Pistache::Rest::Router> router;
-  
-    //Get the list of GNBS
-    void gnbs_get_am_data_handler(
-        const Pistache::Rest::Request &request,              
-        Pistache::Http::ResponseWriter response);
-    void gnbs_default_handler(
-        const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
-    virtual void gnbs_get_am_data(
-        Pistache::Http::ResponseWriter &response)=0;
-    
-    //Gets a list of ue numbers
-    void ues_get_am_data_handler(
-        const Pistache::Rest::Request &request,              
-        Pistache::Http::ResponseWriter response);
-    void ues_default_handler(
-        const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
-    virtual void ues_get_am_data(
-        Pistache::Http::ResponseWriter &response)=0;
 
+  // Get the list of GNBS
+  void gnbs_get_am_data_handler(
+      const Pistache::Rest::Request& request,
+      Pistache::Http::ResponseWriter response);
+  void gnbs_default_handler(
+      const Pistache::Rest::Request& request,
+      Pistache::Http::ResponseWriter response);
+  virtual void gnbs_get_am_data(Pistache::Http::ResponseWriter& response) = 0;
+
+  // Gets a list of ue numbers
+  void ues_get_am_data_handler(
+      const Pistache::Rest::Request& request,
+      Pistache::Http::ResponseWriter response);
+  void ues_default_handler(
+      const Pistache::Rest::Request& request,
+      Pistache::Http::ResponseWriter response);
+  virtual void ues_get_am_data(Pistache::Http::ResponseWriter& response) = 0;
 };
 
-}
-}
-}
+}  // namespace api
+}  // namespace amf
+}  // namespace oai
 
 #endif

@@ -137,8 +137,7 @@ void statistics::update_5gmm_state(
 void statistics::get_ue_list(std::vector<ue_info_t>& ue_list) {
   std::unique_lock lock(m_ue_infos);
   if (ue_infos.size() > 0) {
-    for (auto const& ue_info : ue_infos)
-    {
+    for (auto const& ue_info : ue_infos) {
       ue_list.push_back(ue_info.second);
     }
   }
@@ -178,8 +177,7 @@ uint32_t statistics::get_number_connected_gnbs() const {
 void statistics::get_gnb_list(std::vector<gnb_infos>& gnb_list) {
   std::unique_lock lock(m_gnbs);
   if (gnbs.size() > 0) {
-    for (auto const& gnb_info : gnbs)
-    {
+    for (auto const& gnb_info : gnbs) {
       gnb_list.push_back(gnb_info.second);
     }
   }

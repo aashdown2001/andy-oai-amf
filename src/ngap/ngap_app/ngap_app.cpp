@@ -34,7 +34,8 @@ using namespace config;
 using namespace ngap;
 
 //------------------------------------------------------------------------------
-ngap_app::ngap_app(const std::string& address, const uint16_t port_num, const uint32_t ppid)
+ngap_app::ngap_app(
+    const std::string& address, const uint16_t port_num, const uint32_t ppid)
     : ppid_(ppid), sctp_s_38412(address.c_str(), port_num) {
   sctp_s_38412.start_receive(this);
   Logger::ngap().info(
