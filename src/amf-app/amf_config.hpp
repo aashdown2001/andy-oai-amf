@@ -501,6 +501,7 @@ class amf_config {
   unsigned int instance;
   std::string pid_dir;
   interface_cfg_t n2;
+  uint32_t n2_ppid;
   interface_cfg_t sbi;
   itti_cfg_t itti;
   std::string sbi_api_version;

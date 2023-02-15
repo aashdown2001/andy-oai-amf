@@ -67,6 +67,7 @@ amf_config::amf_config() {
   nssf_addr.api_version                   = DEFAULT_SBI_API_VERSION;
   instance                                = 0;
   n2                                      = {};
+  n2_ppid                                 = 60;
   sbi                                     = {};
   sbi_api_version                         = DEFAULT_SBI_API_VERSION;
   sbi_http2_port                          = DEFAULT_HTTP2_PORT;
@@ -336,6 +337,13 @@ int amf_config::load(const std::string& config_file) {
     const Setting& n2_amf_cfg =
         new_if_cfg[AMF_CONFIG_STRING_INTERFACE_NGAP_AMF];
     load_interface(n2_amf_cfg, n2);
+    try {
+      n2_amf_cfg.lookupValue(AMF_CONFIG_STRING_PPID,n2_ppid);
+    } catch (const SettingNotFoundException& nfex) {
+      Logger::amf_app().warn(
+          "%s : %s, using defaults (PPID=60)", nfex.what(), nfex.getPath());
+      return RETURNerror;
+    }
 
     // SBI
     const Setting& sbi_cfg = new_if_cfg[AMF_CONFIG_STRING_INTERFACE_SBI];
@@ -755,6 +763,7 @@ void amf_config::display() {
   Logger::config().info("    Iface .................: %s", n2.if_name.c_str());
   Logger::config().info("    IP Addr ...............: %s", inet_ntoa(n2.addr4));
   Logger::config().info("    Port ..................: %d", n2.port);
+  Logger::config().info("    PPID ..................: %d", n2_ppid);
 
   Logger::config().info("- SBI Networking:");
   Logger::config().info("    Iface .................: %s", sbi.if_name.c_str());

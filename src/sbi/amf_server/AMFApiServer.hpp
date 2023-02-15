@@ -22,6 +22,8 @@
 #include "N1MessageNotifyApiImpl.h"
 #include "StatusNotifyApiImpl.h"
 
+#include "AMFQueryConnectedApiImpl.h"
+
 #define PISTACHE_SERVER_THREADS 2
 #define PISTACHE_SERVER_MAX_PAYLOAD 32768
 
@@ -78,6 +80,9 @@ class AMFApiServer {
         std::make_shared<N1MessageNotifyApiImpl>(m_router, amf_app_inst);
     m_statusNotifyApiImpl =
         std::make_shared<StatusNotifyApiImpl>(m_router, amf_app_inst);
+
+    m_amfQueryConnectedApiImpl = 
+        std::make_shared<AMFQueryConnectedApiImpl>(m_router, amf_app_inst);
   }
 
   void init(size_t thr = 1);
@@ -115,6 +120,8 @@ class AMFApiServer {
       m_subscriptionsCollectionDocumentApiImplEventExposure;
   std::shared_ptr<N1MessageNotifyApiImpl> m_n1MessageNotifyApiImpl;
   std::shared_ptr<StatusNotifyApiImpl> m_statusNotifyApiImpl;
+
+  std::shared_ptr<AMFQueryConnectedApiImpl> m_amfQueryConnectedApiImpl;
 
   std::string m_address;
 };

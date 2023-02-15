@@ -134,6 +134,17 @@ void statistics::update_5gmm_state(
 }
 
 //------------------------------------------------------------------------------
+void statistics::get_ue_list(std::vector<ue_info_t>& ue_list) {
+  std::unique_lock lock(m_ue_infos);
+  if (ue_infos.size() > 0) {
+    for (auto const& ue_info : ue_infos)
+    {
+      ue_list.push_back(ue_info.second);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void statistics::remove_gnb(const uint32_t& gnb_id) {
   std::unique_lock lock(m_gnbs);
   if (gnbs.count(gnb_id) > 0) {
@@ -161,4 +172,15 @@ void statistics::update_gnb(const uint32_t& gnb_id, const gnb_infos& gnb) {
 uint32_t statistics::get_number_connected_gnbs() const {
   std::shared_lock lock(m_gnbs);
   return gnbs.size();
+}
+
+//------------------------------------------------------------------------------
+void statistics::get_gnb_list(std::vector<gnb_infos>& gnb_list) {
+  std::unique_lock lock(m_gnbs);
+  if (gnbs.size() > 0) {
+    for (auto const& gnb_info : gnbs)
+    {
+      gnb_list.push_back(gnb_info.second);
+    }
+  }
 }

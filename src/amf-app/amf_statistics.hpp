@@ -124,6 +124,20 @@ class statistics {
    */
   uint32_t get_number_connected_gnbs() const;
 
+  /*
+   * Get gNBs list info
+   * @param [std::vector<gnb_infos>&] gnb_list: gNB List Info
+   * @return void
+   */
+  void get_gnb_list(std::vector<gnb_infos>& gnb_list);
+
+  /*
+   * Get UEs list info
+   * @param [std::vector<ue_info_t>&] ue_list: UE List Info
+   * @return void
+   */
+  void get_ue_list(std::vector<ue_info_t>& ue_list);
+
  private:
   uint32_t gNB_connected;
   uint32_t UE_connected;
