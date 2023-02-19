@@ -44,6 +44,7 @@ namespace ngap {
 typedef struct S_Nssai_s {
   std::string sst;
   std::string sd;
+  uint8_t length;
 
   S_Nssai_s& operator=(const S_Nssai_s& s) {
     sst = s.sst;

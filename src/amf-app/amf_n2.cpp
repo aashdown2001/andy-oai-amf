@@ -853,7 +853,8 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
       for (auto s : p.slice_list) {
         S_Nssai item;
         item.sst = s.sst;
-        item.sd  = s.sd;
+        if (s.sd == SD_NO_VALUE) item.length = SST_LENGTH;
+        item.sd = s.sd;
         list.push_back(item);
       }
     }
