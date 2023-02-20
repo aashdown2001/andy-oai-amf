@@ -888,7 +888,7 @@ void amf_n2::handle_itti_message(itti_initial_context_setup_request& itti_msg) {
             itti_msg.amf_ue_ngap_id);
         // TODO:
       }
-      string supi = "imsi-" + nc->imsi;
+      string supi = conv::imsi_to_supi(nc->imsi);
       Logger::amf_n2().debug("SUPI (%s)", supi.c_str());
 
       // Get S_NSSAI from PDU Session Context
@@ -974,7 +974,7 @@ void amf_n2::handle_itti_message(
         itti_msg.amf_ue_ngap_id);
     // TODO:
   }
-  string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
   Logger::amf_n2().debug("SUPI (%s)", supi.c_str());
 
   // Get SNSSAI info from PDU Session Context
@@ -1196,7 +1196,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_command& itti_msg) {
         itti_msg.amf_ue_ngap_id);
     return;
   }
-  string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
 
   Logger::amf_n2().debug(
       "Send request to SBI to trigger UE Communication Failure Report (SUPI "
@@ -1304,7 +1304,7 @@ void amf_n2::handle_itti_message(itti_ue_context_release_complete& itti_msg) {
   // TODO: may consider releasing all exisiting PDU sessions
   /*
   if (pdu_sessions_to_be_released.size() == 0) {
-    string supi = "imsi-" + nc->imsi;
+      string supi = conv::imsi_to_supi(nc->imsi);
     std::vector<std::shared_ptr<pdu_session_context>> sessions_ctx;
     if (!amf_app_inst->get_pdu_sessions_context(supi, sessions_ctx)) {
       Logger::amf_n2().debug("No PDU Session Context found");
@@ -1556,7 +1556,7 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   bstring knh_bs = blk2bstr(knh, 32);
   handover_request->setSecurityContext(unc->ncc /*NCC count*/, knh_bs);
 
-  string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
   Logger::amf_n2().debug(
       "Received Handover Required for UE (SUPI %s)", supi.c_str());
 
@@ -1738,7 +1738,7 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
     return;
   }
 
-  string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
 
   // Send PDUSessionUpdateSMContextRequest to SMF for all associated PDU
   // sessions
@@ -1890,7 +1890,7 @@ void amf_n2::handle_itti_message(itti_handover_notify& itti_msg) {
     return;
   }
 
-  string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
 
   std::vector<std::shared_ptr<pdu_session_context>> sessions_ctx;
 
@@ -2184,7 +2184,7 @@ void amf_n2::remove_ue_context_with_ran_ue_ngap_id(
   std::shared_ptr<nas_context> nc = {};
   if (amf_n1_inst->amf_ue_id_2_nas_context(unc->amf_ue_ngap_id, nc)) {
     // Remove all NAS context
-    string supi = "imsi-" + nc->imsi;
+    string supi = conv::imsi_to_supi(nc->imsi);
     if (nc->is_stacs_available) {
       stacs.update_5gmm_state(nc->imsi, "5GMM-DEREGISTERED");
     }
@@ -2195,7 +2195,7 @@ void amf_n2::remove_ue_context_with_ran_ue_ngap_id(
     amf_n1_inst->event_sub.ue_loss_of_connectivity(
         supi, DEREGISTERED, 1, ran_ue_ngap_id, unc->amf_ue_ngap_id);
 
-    amf_n1_inst->remove_imsi_2_nas_context(supi);
+    amf_n1_inst->remove_supi_2_nas_context(supi);
     // TODO:  remove_guti_2_nas_context(guti);
     amf_n1_inst->remove_amf_ue_ngap_id_2_nas_context(unc->amf_ue_ngap_id);
     // Update UE status
@@ -2271,7 +2271,7 @@ void amf_n2::remove_ue_context_with_amf_ue_ngap_id(
   std::shared_ptr<nas_context> nc = {};
   if (amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {
     // Remove all NAS context
-    string supi = "imsi-" + nc->imsi;
+    string supi = conv::imsi_to_supi(nc->imsi);
     // Update UE status
     if (nc->is_stacs_available) {
       stacs.update_5gmm_state(nc->imsi, "5GMM-DEREGISTERED");
@@ -2283,7 +2283,7 @@ void amf_n2::remove_ue_context_with_amf_ue_ngap_id(
     amf_n1_inst->event_sub.ue_loss_of_connectivity(
         supi, DEREGISTERED, 1, nc->ran_ue_ngap_id, amf_ue_ngap_id);
 
-    amf_n1_inst->remove_imsi_2_nas_context(supi);
+    amf_n1_inst->remove_supi_2_nas_context(supi);
     // TODO:  remove_guti_2_nas_context(guti);
     amf_n1_inst->remove_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id);
     // Remove NGAP context related to RAN UE NGAP ID

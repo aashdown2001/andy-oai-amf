@@ -204,7 +204,6 @@ long amf_app::generate_amf_ue_ngap_id() {
 //------------------------------------------------------------------------------
 bool amf_app::is_ran_amf_id_2_ue_context(const string& ue_context_key) const {
   std::shared_lock lock(m_ue_ctx_key);
-  // return bool{ue_ctx_key.count(ue_context_key) > 0};
   if (ue_ctx_key.count(ue_context_key) > 0) {
     if (ue_ctx_key.at(ue_context_key) != nullptr) {
       return true;
@@ -407,14 +406,16 @@ void amf_app::handle_itti_message(
     uc->isUeContextRequest = false;
   else
     uc->isUeContextRequest = true;
+
   uc->ran_ue_ngap_id = itti_msg.ran_ue_ngap_id;
   uc->amf_ue_ngap_id = amf_ue_ngap_id;
 
   std::string guti   = {};
   bool is_guti_valid = false;
   if (itti_msg.is_5g_s_tmsi_present) {
-    guti = itti_msg.tai.mcc + itti_msg.tai.mnc + amf_cfg.guami.regionID +
-           itti_msg._5g_s_tmsi;
+    guti = conv::tmsi_to_guti(
+        itti_msg.tai.mcc, itti_msg.tai.mnc, amf_cfg.guami.regionID,
+        itti_msg._5g_s_tmsi);
     is_guti_valid = true;
     Logger::amf_app().debug("Receiving GUTI %s", guti.c_str());
   }
@@ -822,6 +823,7 @@ uint32_t amf_app::get_number_registered_ues() const {
   std::shared_lock lock(m_amf_ue_ngap_id2ue_ctx);
   return amf_ue_ngap_id2ue_ctx.size();
 }
+
 //---------------------------------------------------------------------------------------------
 void amf_app::add_n1n2_message_subscription(
     const std::string& ue_ctx_id, const n1n2sub_id_t& sub_id,

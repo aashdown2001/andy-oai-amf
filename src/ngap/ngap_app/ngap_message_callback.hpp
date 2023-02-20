@@ -433,7 +433,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
           "No UE NAS context with amf_ue_ngap_id (0x%x)", amf_ue_ngap_id);
       return RETURNerror;
     }
-    itti_msg->supi           = "imsi-" + nct->imsi;
+    itti_msg->supi           = conv::imsi_to_supi(nct->imsi);
     itti_msg->pdu_session_id = list[0].pduSessionId;
     itti_msg->n2sm           = blk2bstr(
         list[0].pduSessionResourceSetupResponseTransfer.buf,
@@ -503,7 +503,7 @@ int ngap_amf_handle_pdu_session_resource_setup_response(
         return RETURNerror;
       }
 
-      string supi                              = "imsi-" + nct->imsi;
+      string supi                              = conv::imsi_to_supi(nct->imsi);
       std::shared_ptr<pdu_session_context> psc = {};
       if (amf_app_inst->find_pdu_session_context(
               supi, list_fail[0].pduSessionId, psc)) {

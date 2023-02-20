@@ -149,7 +149,7 @@ amf_n1::amf_n1()
     throw std::runtime_error("Cannot create task TASK_AMF_N1");
   }
   amfueid2nas_context = {};
-  imsi2nas_context    = {};
+  supi2nas_context    = {};
   supi2amfId          = {};
   supi2ranId          = {};
   guti2nas_context    = {};
@@ -275,7 +275,7 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
       if (!amf_app_inst->find_pdu_session_context(
               nc->imsi, itti_msg.pdu_session_id, psc)) {
         Logger::amf_n1().error(
-            "Cannot get pdu_session_context with SUPI (%s)", nc->imsi.c_str());
+            "Cannot get pdu_session_context with IMSI (%s)", nc->imsi.c_str());
         return;
       }
 
@@ -392,9 +392,10 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
       nc->ran_ue_ngap_id = nas_data_ind.ran_ue_ngap_id;
 
       set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
-      set_supi_2_amf_id("imsi-" + nc->imsi, amf_ue_ngap_id);
-      set_supi_2_ran_id("imsi-" + nc->imsi, ran_ue_ngap_id);
-      set_imsi_2_nas_context("imsi-" + nc->imsi, nc);
+      std::string supi = conv::imsi_to_supi(nc->imsi);
+      set_supi_2_amf_id(supi, amf_ue_ngap_id);
+      set_supi_2_ran_id(supi, ran_ue_ngap_id);
+      set_supi_2_nas_context(supi, nc);  // TODO: To be verified IMSI or SUPI
     } else {
       Logger::amf_n1().error(
           "No existing nas_context with GUTI %s", nas_data_ind.guti.c_str());
@@ -553,7 +554,7 @@ void amf_n1::nas_signalling_establishment_request_handle(
 
     // Trigger UE Reachability Status Notify
     if (!nc->imsi.empty()) {
-      string supi = "imsi-" + nc->imsi;
+      string supi = conv::imsi_to_supi(nc->imsi);
       Logger::amf_n1().debug(
           "Signal the UE Reachability Status Event notification for SUPI %s",
           supi.c_str());
@@ -714,13 +715,12 @@ void amf_n1::identity_response_handle(
     Logger::amf_n1().error("Decode Identity Response error");
     return;
   }
-  string supi = {};
-  //_5GSMobileIdentity mobile_identity  = {};
+  string imsi_str = {};
   // TODO: avoid accessing member function directly
   nas::SUCI_imsi_t imsi = {};
   identity_response->ie_mobile_identity.GetSuciWithSupiImsi(imsi);
-  supi = imsi.mcc + imsi.mnc + imsi.msin;
-  Logger::amf_n1().debug("Identity Response: SUCI (%s)", supi.c_str());
+  imsi_str = imsi.mcc + imsi.mnc + imsi.msin;
+  Logger::amf_n1().debug("Identity Response: SUCI (%s)", imsi_str.c_str());
 
   string ue_context_key =
       conv::get_ue_context_key(ran_ue_ngap_id, amf_ue_ngap_id);
@@ -728,7 +728,7 @@ void amf_n1::identity_response_handle(
   std::shared_ptr<ue_context> uc = {};
   if (amf_app_inst->ran_amf_id_2_ue_context(ue_context_key, uc)) {
     // Update UE context
-    uc->supi = "imsi-" + supi;
+    uc->supi = conv::imsi_to_supi(imsi_str);
     // associate SUPI with UC
     // Verify if there's PDU session info in the old context
     std::shared_ptr<ue_context> old_uc = {};
@@ -756,9 +756,10 @@ void amf_n1::identity_response_handle(
   nc->amf_ue_ngap_id       = amf_ue_ngap_id;
   nc->ran_ue_ngap_id       = ran_ue_ngap_id;
   nc->is_imsi_present      = true;
-  nc->imsi                 = supi;
-  set_supi_2_amf_id("imsi-" + nc->imsi, amf_ue_ngap_id);
-  set_supi_2_ran_id("imsi-" + nc->imsi, ran_ue_ngap_id);
+  nc->imsi                 = imsi_str;
+  string supi              = conv::imsi_to_supi(nc->imsi);
+  set_supi_2_amf_id(supi, amf_ue_ngap_id);
+  set_supi_2_ran_id(supi, ran_ue_ngap_id);
   // Stop Mobile Reachable Timer/Implicit Deregistration Timer
   itti_inst->timer_remove(nc->mobile_reachable_timer);
   itti_inst->timer_remove(nc->implicit_deregistration_timer);
@@ -792,7 +793,6 @@ void amf_n1::identity_response_handle(
 
     set_5gmm_state(nc, _5GMM_COMMON_PROCEDURE_INITIATED);
 
-    string supi = "imsi-" + nc->imsi;
     Logger::amf_n1().debug(
         "Signal the UE Registration State Event notification for SUPI %s",
         supi.c_str());
@@ -828,9 +828,9 @@ void amf_n1::service_request_handle(
     uint8_t amf_pointer = {};
     string tmsi         = {};
     if (service_request->Get5gSTmsi(amf_set_id, amf_pointer, tmsi)) {
-      std::string guti = uc->tai.mcc + uc->tai.mnc + amf_cfg.guami.regionID +
-                         std::to_string(amf_set_id) +
-                         std::to_string(amf_pointer) + tmsi;
+      std::string guti = conv::tmsi_to_guti(
+          uc->tai.mcc, uc->tai.mnc, amf_cfg.guami.regionID,
+          std::to_string(amf_set_id), std::to_string(amf_pointer), tmsi);
 
       Logger::amf_app().debug(
           "GUTI %s, 5G-TMSI %s", guti.c_str(), tmsi.c_str());
@@ -887,7 +887,7 @@ void amf_n1::service_request_handle(
   std::unique_ptr<ServiceAccept> service_accept =
       std::make_unique<ServiceAccept>();
   service_accept->SetHeader(PLAIN_5GS_MSG);
-  string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
   uc->supi    = supi;
   set_supi_2_amf_id(supi, amf_ue_ngap_id);
   set_supi_2_ran_id(supi, ran_ue_ngap_id);
@@ -1121,12 +1121,12 @@ void amf_n1::registration_request_handle(
         }
 
         nc->is_imsi_present = true;
-        nc->imsi            = imsi.mcc + imsi.mnc + imsi.msin;
+        nc->imsi            = conv::get_imsi(imsi.mcc, imsi.mnc, imsi.msin);
         Logger::amf_n1().debug("Received IMSI %s", nc->imsi.c_str());
 
         // Trigger UE Reachability Status Notify
         if (!nc->imsi.empty()) {
-          string supi = "imsi-" + nc->imsi;
+          string supi = conv::imsi_to_supi(nc->imsi);
           Logger::amf_n1().debug(
               "Signal the UE Reachability Status Event notification for SUPI "
               "%s",
@@ -1134,19 +1134,19 @@ void amf_n1::registration_request_handle(
           event_sub.ue_reachability_status(supi, CM_CONNECTED, 1);
         }
 
-        set_supi_2_amf_id("imsi-" + nc->imsi, amf_ue_ngap_id);
-        set_supi_2_ran_id("imsi-" + nc->imsi, ran_ue_ngap_id);
+        std::string supi = conv::imsi_to_supi(nc->imsi);
+        set_supi_2_amf_id(supi, amf_ue_ngap_id);
+        set_supi_2_ran_id(supi, ran_ue_ngap_id);
 
         // Try to find old nas_context and release
         std::shared_ptr<nas_context> old_nc = {};
-        if (imsi_2_nas_context("imsi-" + nc->imsi, old_nc)) {
+        if (supi_2_nas_context(supi, old_nc)) {
           old_nc.reset();
         }
 
-        set_imsi_2_nas_context("imsi-" + nc->imsi, nc);
+        set_supi_2_nas_context(supi, nc);
         Logger::amf_n1().info(
-            "Associating IMSI (%s) with nas_context (%p)",
-            ("imsi-" + nc->imsi).c_str(), nc);
+            "Associating SUPI (%s) with nas_context (%p)", supi.c_str(), nc);
         if (!nc->is_stacs_available) {
           ue_info_t ueItem;
           ueItem.connStatus = "5GMM-CONNECTED";  //"CM-CONNECTED";
@@ -1187,8 +1187,9 @@ void amf_n1::registration_request_handle(
         // Update Nas Context
         nc->amf_ue_ngap_id = amf_ue_ngap_id;
         nc->ran_ue_ngap_id = ran_ue_ngap_id;
-        set_supi_2_amf_id("imsi-" + nc->imsi, amf_ue_ngap_id);
-        set_supi_2_ran_id("imsi-" + nc->imsi, ran_ue_ngap_id);
+        std::string supi   = conv::imsi_to_supi(nc->imsi);
+        set_supi_2_amf_id(supi, amf_ue_ngap_id);
+        set_supi_2_ran_id(supi, ran_ue_ngap_id);
         nc->is_auth_vectors_present       = false;
         nc->is_current_security_available = false;
         if (nc->security_ctx)
@@ -1220,9 +1221,9 @@ void amf_n1::registration_request_handle(
         nc->is_5g_guti_present         = true;
         nc->to_be_register_by_new_suci = true;
         nc->ngKsi = 100 & 0xf;  // TODO: remove hardcoded value
-        // nc->imsi =
-        // set_supi_2_amf_id("imsi-" + nc->imsi, amf_ue_ngap_id);
-        // set_supi_2_ran_id("imsi-" + nc->imsi, ran_ue_ngap_id);
+        // std::string supi = conv::imsi_to_supi(nc->imsi);
+        // set_supi_2_amf_id(supi, amf_ue_ngap_id);
+        // set_supi_2_ran_id(supi, ran_ue_ngap_id);
 
         // Stop Mobile Reachable Timer/Implicit Deregistration Timer
         itti_inst->timer_remove(nc->mobile_reachable_timer);
@@ -1230,7 +1231,7 @@ void amf_n1::registration_request_handle(
 
         // Trigger UE Reachability Status Notify
         if (!nc->imsi.empty()) {
-          string supi = "imsi-" + nc->imsi;
+          std::string supi = conv::imsi_to_supi(nc->imsi);
           Logger::amf_n1().debug(
               "Signal the UE Reachability Status Event notification for SUPI "
               "%s",
@@ -1252,8 +1253,9 @@ void amf_n1::registration_request_handle(
       set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
       nc->amf_ue_ngap_id = amf_ue_ngap_id;
       nc->ran_ue_ngap_id = ran_ue_ngap_id;
-      set_supi_2_amf_id("imsi-" + nc->imsi, amf_ue_ngap_id);
-      set_supi_2_ran_id("imsi-" + nc->imsi, ran_ue_ngap_id);
+      std::string supi   = conv::imsi_to_supi(nc->imsi);
+      set_supi_2_amf_id(supi, amf_ue_ngap_id);
+      set_supi_2_ran_id(supi, ran_ue_ngap_id);
 
       nc->is_auth_vectors_present       = false;
       nc->is_current_security_available = false;
@@ -1293,7 +1295,7 @@ void amf_n1::registration_request_handle(
 
   // Update UE context
   if (uc != nullptr) {
-    std::string supi = "imsi-" + nc->imsi;
+    std::string supi = conv::imsi_to_supi(nc->imsi);
     uc->supi         = supi;
     // associate SUPI with UC
     amf_app_inst->set_supi_2_ue_context(supi, uc);
@@ -1579,12 +1581,12 @@ bool amf_n1::remove_guti_2_nas_context(const std::string& guti) {
 }
 
 //------------------------------------------------------------------------------
-bool amf_n1::imsi_2_nas_context(
+bool amf_n1::supi_2_nas_context(
     const std::string& imsi, std::shared_ptr<nas_context>& nc) const {
   std::shared_lock lock(m_nas_context);
-  if (imsi2nas_context.count(imsi) > 0) {
-    if (!imsi2nas_context.at(imsi)) return false;
-    nc = imsi2nas_context.at(imsi);
+  if (supi2nas_context.count(imsi) > 0) {
+    if (!supi2nas_context.at(imsi)) return false;
+    nc = supi2nas_context.at(imsi);
     return true;
   } else {
     return false;
@@ -1592,17 +1594,17 @@ bool amf_n1::imsi_2_nas_context(
 }
 
 //------------------------------------------------------------------------------
-void amf_n1::set_imsi_2_nas_context(
+void amf_n1::set_supi_2_nas_context(
     const std::string& imsi, const std::shared_ptr<nas_context>& nc) {
   std::unique_lock lock(m_nas_context);
-  imsi2nas_context[imsi] = nc;
+  supi2nas_context[imsi] = nc;
 }
 
 //------------------------------------------------------------------------------
-bool amf_n1::remove_imsi_2_nas_context(const std::string& imsi) {
+bool amf_n1::remove_supi_2_nas_context(const std::string& imsi) {
   std::unique_lock lock(m_nas_context);
-  if (imsi2nas_context.count(imsi) > 0) {
-    imsi2nas_context.erase(imsi);
+  if (supi2nas_context.count(imsi) > 0) {
+    supi2nas_context.erase(imsi);
     return true;
   }
   return false;
@@ -2561,7 +2563,7 @@ void amf_n1::security_mode_complete_handle(
   // If AMF can't handle this and there's an error when trying to handling the
   // UE to the target AMFs, thus encoding REGISTRATION REJECT
   if (!reroute_result) {
-    uint8_t cause_value = 7;  // 5GS services not allowed - TO BE VERIFIED
+    uint8_t cause_value = 7;  // TODO: 5GS services not allowed - TO BE VERIFIED
     send_registration_reject_msg(cause_value, ran_ue_ngap_id, amf_ue_ngap_id);
     return;
   }
@@ -2583,10 +2585,12 @@ void amf_n1::security_mode_complete_handle(
       mcc, mnc, amf_cfg.guami.regionID, amf_cfg.guami.AmfSetID,
       amf_cfg.guami.AmfPointer, tmsi);
 
-  std::string guti = mcc + mnc + amf_cfg.guami.regionID +
-                     amf_cfg.guami.AmfSetID + amf_cfg.guami.AmfPointer +
-                     conv::tmsi_to_string(tmsi);
-  Logger::amf_n1().debug("Allocated GUTI %s", guti.c_str());
+  std::string guti = conv::tmsi_to_guti(
+      mcc, mnc, amf_cfg.guami.regionID, amf_cfg.guami.AmfSetID,
+      amf_cfg.guami.AmfPointer, conv::tmsi_to_string(tmsi));
+  Logger::amf_n1().debug(
+      "Allocated GUTI %s (TMSI %s)", guti.c_str(),
+      conv::tmsi_to_string(tmsi).c_str());
 
   // registration_accept->SetT3512Value(0x5, T3512_TIMER_VALUE_MIN);
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
@@ -2664,7 +2668,7 @@ void amf_n1::security_mode_complete_handle(
   }
 
   // Trigger UE Registration Status Notify
-  string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
   Logger::amf_n1().debug(
       "Signal the UE Registration State Event notification for SUPI %s",
       supi.c_str());
@@ -3166,7 +3170,7 @@ void amf_n1::ue_initiate_de_registration_handle(
   set_5gmm_state(nc, _5GMM_DEREGISTERED);
   stacs.display();
 
-  string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
   // Trigger UE Registration Status Notify
   Logger::amf_n1().debug(
       "Signal the UE Registration State Event notification for SUPI %s",
@@ -3206,7 +3210,7 @@ void amf_n1::ue_initiate_de_registration_handle(
         amf_ue_ngap_id);
   }
 
-  if (remove_imsi_2_nas_context(supi)) {
+  if (remove_supi_2_nas_context(supi)) {
     Logger::amf_n1().debug(
         "Deleted nas_context associated SUPI %s ", supi.c_str());
   } else {
@@ -4198,7 +4202,7 @@ void amf_n1::initialize_registration_accept(
 //------------------------------------------------------------------------------
 bool amf_n1::find_ue_context(
     const std::shared_ptr<nas_context>& nc, std::shared_ptr<ue_context>& uc) {
-  string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
   Logger::amf_n1().debug("Key for PDU Session Context SUPI (%s)", supi.c_str());
 
   string ue_context_key =
@@ -4240,7 +4244,7 @@ void amf_n1::mobile_reachable_timer_timeout(
   set_mobile_reachable_timer_timeout(nc, true);
 
   // Trigger UE Loss of Connectivity Status Notify
-  string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
   Logger::amf_n1().debug(
       "Signal the UE Loss of Connectivity Event notification for SUPI %s",
       supi.c_str());
@@ -4320,7 +4324,7 @@ void amf_n1::implicit_deregistration_timer_timeout(
   }
 
   // Trigger UE Connectivity Status Notify
-  string supi = "imsi-" + nc->imsi;
+  string supi = conv::imsi_to_supi(nc->imsi);
   Logger::amf_n1().debug(
       "Signal the UE Connectivity Status Event notification for SUPI %s",
       supi.c_str());
