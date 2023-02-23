@@ -225,28 +225,21 @@ class amf_n2 : public ngap::ngap_app {
       const uint32_t& ran_ue_ngap_id, std::vector<nas::SNSSAI_t>& common_nssai);
 
   /*
-   * Get UE NGAP context associated with a RAN UE NGAP ID
-   * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
-   * @return shared pointer to the UE NGAP context
-   */
-  //  std::shared_ptr<ue_ngap_context> ran_ue_id_2_ue_ngap_context(
-  //      const uint32_t& ran_ue_ngap_id) const;
-
-  /*
-   * Verify whether a UE NGAP context associated with a RAN UE NGAP ID exist
+   * Get the UE NGAP context associated with a RAN UE NGAP ID if it exists and
+   * not null
    * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
    * @param [std::shared_ptr<ue_ngap_context>&] unc: shared pointer to the
    * existing UE NGAP context
-   * @return true if exist, otherwise return false
+   * @return true if the context exists and is not null, otherwise return false
    */
   bool ran_ue_id_2_ue_ngap_context(
       const uint32_t& ran_ue_ngap_id,
       std::shared_ptr<ue_ngap_context>& unc) const;
 
   /*
-   * Verify whether a UE NGAP context associated with a RAN UE NGAP ID exist
+   * Verify whether a UE NGAP context associated with a RAN UE NGAP ID exists
    * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
-   * @return true if exist, otherwise return false
+   * @return true if the context exists and is not null, otherwise return false
    */
   bool is_ran_ue_id_2_ue_ngap_context(const uint32_t& ran_ue_ngap_id) const;
 
@@ -276,29 +269,23 @@ class amf_n2 : public ngap::ngap_app {
   void remove_ue_context_with_ran_ue_ngap_id(const uint32_t& ran_ue_ngap_id);
 
   /*
-   * Get UE NGAP context associated with a AMF UE NGAP ID
+   * Verify whether a UE NGAP context associated with a AMF UE NGAP ID exists
+   * and is not null
    * @param [const unsigned long&] amf_ue_ngap_id: AMF UE NGAP ID
-   * @return shared pointer to the UE NGAP context
-   */
-  std::shared_ptr<ue_ngap_context> amf_ue_id_2_ue_ngap_context(
-      const unsigned long& amf_ue_ngap_id) const;
-
-  /*
-   * Verify whether a UE NGAP context associated with a AMF UE NGAP ID exist
-   * @param [const unsigned long&] amf_ue_ngap_id: AMF UE NGAP ID
-   * @return true if exist, otherwise return false
+   * @return true if the context exists and is not null, otherwise return false
    */
   bool is_amf_ue_id_2_ue_ngap_context(
       const unsigned long& amf_ue_ngap_id) const;
 
   /*
-   * Verify whether a UE NGAP context associated with a AMF UE NGAP ID exist
+   * Get UE NGAP context associated with a AMF UE NGAP ID if the context exists
+   * and is not null
    * @param [const unsigned long&] amf_ue_ngap_id: AMF UE NGAP ID
    * @param [std::shared_ptr<ue_ngap_context>&] unc: store the pointer to UE
    * NGAP context
-   * @return true if exist, otherwise return false
+   * @return true if the context exists and is not null, otherwise return false
    */
-  bool is_amf_ue_id_2_ue_ngap_context(
+  bool amf_ue_id_2_ue_ngap_context(
       const unsigned long& amf_ue_ngap_id,
       std::shared_ptr<ue_ngap_context>& unc) const;
 
