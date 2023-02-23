@@ -135,7 +135,7 @@ int Type4NasIe::Decode(const uint8_t* const buf, const int& len, bool is_iei) {
   DECODE_U8(buf + decoded_size, li_, decoded_size);
 
   // after obtaining information for IEI/Length, validate the buffer size
-  if (!Validate(len)) return KEncodeDecodeError;
+  // if (!Validate(len)) return KEncodeDecodeError;
 
   return decoded_size;
 }
