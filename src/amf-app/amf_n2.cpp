@@ -547,7 +547,7 @@ void amf_n2::handle_itti_message(itti_ng_shutdown& itti_msg) {
 
   for (auto ngap_context : ngap_contexts) {
     std::shared_ptr<nas_context> nc = {};
-    if (!amf_n1_inst->is_amf_ue_id_2_nas_context(
+    if (!amf_n1_inst->amf_ue_id_2_nas_context(
             ngap_context->amf_ue_ngap_id, nc)) {
       Logger::amf_n2().error(
           "No UE NAS context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT ")",
