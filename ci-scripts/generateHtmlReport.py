@@ -817,7 +817,7 @@ class HtmlReport():
 			if os.path.isfile(cwd + '/archives/' + logFileName):
 				if nfType == 'AMF':
 					if variant == 'docker':
-						section_start_pattern = 'naming to docker.io/library/oai-smf:'
+						section_start_pattern = 'naming to docker.io/library/oai-amf:'
 						section_end_pattern = 'OAI-AMF DOCKER IMAGE BUILD'
 					else:
 						section_start_pattern = 'COMMIT oai-amf:'
