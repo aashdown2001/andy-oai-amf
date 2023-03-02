@@ -555,7 +555,12 @@ int amf_config::load(const std::string& config_file) {
               util::trim(address).c_str(), udm_ipv4_addr,
               "BAD IPv4 ADDRESS FORMAT FOR UDM !");
           udm_addr.ipv4_addr = udm_ipv4_addr;
-          udm_addr.port      = udm_port;
+          // We hardcode nrf port from config for the moment
+          if (!(udm_cfg.lookupValue(AMF_CONFIG_STRING_PORT, udm_port))) {
+            Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+            throw(AMF_CONFIG_STRING_PORT "failed");
+          }
+          udm_addr.port = udm_port;
           udm_addr.api_version =
               DEFAULT_SBI_API_VERSION;  // TODO: get API version
         }
