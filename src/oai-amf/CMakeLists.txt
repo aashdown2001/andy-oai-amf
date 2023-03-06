@@ -341,6 +341,7 @@ add_executable(amf
   ${SRC_TOP_DIR}/oai-amf/options.cpp
   ${SRC_TOP_DIR}/itti/itti.cpp
   ${SRC_TOP_DIR}/itti/itti_msg.cpp
+  ${SRC_TOP_DIR}/common/amf-tp.cpp
 )
 
 IF(STATIC_LINKING)
@@ -352,3 +353,5 @@ ENDIF(STATIC_LINKING)
 
 target_link_libraries(amf ${ASAN}  
       -Wl,--start-group 3GPP_COMMON_TYPES AMF CONTEXTS AMF_SCTP AMF_SECU_5GAKA AMF_SECU_NAS AMF_UTILS AMF_SBI_SERVER config++ sctp -Wl,--end-group pthread ${NETTLE_LIBRARIES} ${MySQL_LIBRARY} ${CRYPTO_LIBRARIES} ${OPENSSL_LIBRARIES} nghttp2_asio boost_system boost_thread boost_chrono ssl crypt gmp pistache curl)
+target_link_libraries(amf dl)
+target_link_libraries(amf lttng-ust)

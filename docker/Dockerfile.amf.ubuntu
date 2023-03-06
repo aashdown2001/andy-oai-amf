@@ -41,7 +41,37 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --yes \
       psmisc \
       git \
+      make \
+      gcc \
+      pkg-config \
+      libnuma-dev \
+      libpopt-dev \
+      flex bison \
+      libxml2-dev \
   && rm -rf /var/lib/apt/lists/*
+
+#lttng
+ADD userspace-rcu-latest-0.13.tar.bz2 /lttng
+RUN cd /lttng/userspace-rcu-0.13.1 \
+    && ./configure \
+    && make \
+    && make install \
+    && ldconfig
+
+ADD lttng-ust-latest-2.13.tar.bz2 /lttng
+RUN cd /lttng/lttng-ust-2.13.3 \
+    && ./configure \
+    && make \
+    && make install \
+    && ldconfig
+
+ADD lttng-tools-latest-2.13.tar.bz2 /lttng
+RUN cd /lttng/lttng-tools-2.13.7 \
+    && ./configure \
+    && make \
+    && make install \
+    && ldconfig
+
 
 # Some GIT configuration commands quite useful
 RUN git config --global https.postBuffer 123289600 && \
@@ -116,6 +146,7 @@ RUN apt-get update && \
        /lib/x86_64-linux-gnu/libboost_system.so.1.6*.0 \
        /lib/x86_64-linux-gnu/libboost_chrono.so.1.6*.0 \
        /lib/x86_64-linux-gnu/libboost_thread.so.1.6*.0
+
 
 # Copying executable and generated libraries
 WORKDIR /openair-amf/bin

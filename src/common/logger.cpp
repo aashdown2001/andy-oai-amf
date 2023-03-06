@@ -20,6 +20,7 @@
  */
 
 #include "logger.hpp"
+#include "amf-tp.hpp"
 
 #include <iostream>
 #include <memory>
@@ -153,22 +154,22 @@ void _Logger::log(_LogType lt, const char* format, va_list& args) {
 
   switch (lt) {
     case _ltTrace:
-      m_log.trace(buffer);
+      tracepoint(amf, trace, buffer);
       break;
     case _ltDebug:
-      m_log.debug(buffer);
+      tracepoint(amf, debug, buffer);
       break;
     case _ltInfo:
-      m_log.info(buffer);
+      tracepoint(amf, info, buffer);
       break;
     case _ltStartup:
-      m_log.warn(buffer);
+      tracepoint(amf, startup, buffer);
       break;
     case _ltWarn:
-      m_log.error(buffer);
+      tracepoint(amf, warn, buffer);
       break;
     case _ltError:
-      m_log.critical(buffer);
+      tracepoint(amf, error, buffer);
       break;
   }
 }
