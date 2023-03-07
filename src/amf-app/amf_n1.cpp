@@ -321,7 +321,7 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
         uint32_t ulcount =
             secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
         Authentication_5gaka::derive_kgnb(0, 0x01, kamf, kgnb);
-        output_wrapper::print_buffer("amf_n1", "kamf", kamf, 32);
+        output_wrapper::print_buffer("amf_n1", "Kamf", kamf, 32);
 
         std::shared_ptr<itti_initial_context_setup_request> csr =
             std::make_shared<itti_initial_context_setup_request>(
@@ -990,7 +990,7 @@ void amf_n1::service_request_handle(
     uint8_t kgnb[32];
     uint32_t ulcount = secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
     Logger::amf_n1().debug("uplink count(%d)", secu->ul_count.seq_num);
-    output_wrapper::print_buffer("amf_n1", "kamf", kamf, 32);
+    output_wrapper::print_buffer("amf_n1", "Kamf", kamf, 32);
     Authentication_5gaka::derive_kgnb(ulcount, 0x01, kamf, kgnb);
 
     std::shared_ptr<itti_initial_context_setup_request> itti_msg =
@@ -1039,7 +1039,7 @@ void amf_n1::service_request_handle(
     uint8_t kgnb[32];
     uint32_t ulcount = secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
     Logger::amf_n1().debug("uplink count(%d)", secu->ul_count.seq_num);
-    output_wrapper::print_buffer("amf_n1", "kamf", kamf, 32);
+    output_wrapper::print_buffer("amf_n1", "Kamf", kamf, 32);
     Authentication_5gaka::derive_kgnb(ulcount, 0x01, kamf, kgnb);
 
     std::shared_ptr<itti_initial_context_setup_request> itti_msg =
@@ -1899,12 +1899,12 @@ bool amf_n1::_5g_aka_confirmation_from_ausf(
         "amf_n1", "5G AV: kseaf", nc->_5g_av[0].kseaf, 32);
     free_wrapper((void**) &kseaf_hex);
 
-    Logger::amf_n1().debug("Deriving kamf");
+    Logger::amf_n1().debug("Deriving Kamf");
     for (int i = 0; i < MAX_5GS_AUTH_VECTORS; i++) {
       Authentication_5gaka::derive_kamf(
           nc->imsi, nc->_5g_av[i].kseaf, nc->kamf[i],
           0x0000);  // second parameter: abba
-      output_wrapper::print_buffer("amf_n1", "kamf", nc->kamf[i], 32);
+      output_wrapper::print_buffer("amf_n1", "Kamf", nc->kamf[i], 32);
     }
   } catch (nlohmann::json::exception& e) {
     Logger::amf_n1().info("Could not get JSON content from AUSF response");
@@ -2733,7 +2733,7 @@ void amf_n1::security_mode_complete_handle(
     uint8_t kgnb[32];
     uint32_t ulcount = secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
     Authentication_5gaka::derive_kgnb(0, 0x01, kamf, kgnb);
-    output_wrapper::print_buffer("amf_n1", "kamf", kamf, 32);
+    output_wrapper::print_buffer("amf_n1", "Kamf", kamf, 32);
     // Authentication_5gaka::derive_kgnb(ulcount, 0x01, kamf, kgnb);
 
     std::shared_ptr<itti_initial_context_setup_request> itti_msg =
@@ -2934,7 +2934,7 @@ bool amf_n1::nas_message_integrity_protected(
   uint8_t mac[4];
   stream_cipher.key = nsc->knas_int;
   output_wrapper::print_buffer(
-      "amf_n1", "Parameters for NIA: knas_int", nsc->knas_int,
+      "amf_n1", "Parameters for NIA: Knas_int", nsc->knas_int,
       AUTH_KNAS_INT_SIZE);
   stream_cipher.key_length = AUTH_KNAS_INT_SIZE;
   stream_cipher.count      = *(input_nas);
@@ -3474,7 +3474,7 @@ void amf_n1::run_mobility_registration_update_procedure(
   uint8_t kgnb[32];
   uint32_t ulcount = secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
   Authentication_5gaka::derive_kgnb(ulcount, 0x01, kamf, kgnb);
-  output_wrapper::print_buffer("amf_n1", "kamf", kamf, 32);
+  output_wrapper::print_buffer("amf_n1", "Kamf", kamf, 32);
 
   std::shared_ptr<itti_initial_context_setup_request> itti_msg =
       std::make_shared<itti_initial_context_setup_request>(
