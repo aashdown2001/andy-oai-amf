@@ -37,7 +37,7 @@
 #include "amf_n2.hpp"
 #include "amf_sbi.hpp"
 #include "amf_statistics.hpp"
-#include "comUt.hpp"
+#include "output_wrapper.hpp"
 #include "itti.hpp"
 #include "ngap_app.hpp"
 
@@ -337,7 +337,7 @@ void amf_app::handle_itti_message(
 
     uint8_t nas[BUFFER_SIZE_1024];
     int encoded_size = dl->Encode(nas, BUFFER_SIZE_1024);
-    comUt::print_buffer("amf_app", "n1n2 transfer", nas, encoded_size);
+    output_wrapper::print_buffer("amf_app", "n1n2 transfer", nas, encoded_size);
 
     std::shared_ptr<itti_downlink_nas_transfer> dl_msg =
         std::make_shared<itti_downlink_nas_transfer>(TASK_AMF_APP, TASK_AMF_N1);

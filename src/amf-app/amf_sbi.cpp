@@ -33,7 +33,7 @@
 #include "amf_app.hpp"
 #include "amf_config.hpp"
 #include "amf_n1.hpp"
-#include "comUt.hpp"
+#include "output_wrapper.hpp"
 #include "conversions.hpp"
 #include "fqdn.hpp"
 #include "itti.hpp"
@@ -71,7 +71,7 @@ void octet_stream_2_hex_stream(uint8_t* buf, int len, std::string& out) {
   }
   tmp[2 * len] = '\0';
   out          = tmp;
-  printf("n1sm buffer: %s\n", out.c_str());
+  Logger::amf_sbi().debug("n1sm buffer: %s", out.c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -793,7 +793,7 @@ bool amf_sbi::smf_selection_from_configuration(
 void amf_sbi::handle_post_sm_context_response_error(
     const long code, const std::string& cause, bstring n1sm,
     const std::string& supi, const uint8_t pdu_session_id) {
-  comUt::print_buffer(
+  output_wrapper::print_buffer(
       "amf_sbi", "n1 sm", (uint8_t*) bdata(n1sm), blength(n1sm));
   itti_n1n2_message_transfer_request* itti_msg =
       new itti_n1n2_message_transfer_request(TASK_AMF_SBI, TASK_AMF_APP);
@@ -1170,7 +1170,7 @@ void amf_sbi::curl_http_client(
         Logger::amf_sbi().debug(
             "Get response with json_data: %s", json_data_response.c_str());
         conv::msg_str_2_msg_hex(n1sm, n1sm_hex);
-        comUt::print_buffer(
+        output_wrapper::print_buffer(
             "amf_sbi", "Get response with n1sm:", (uint8_t*) bdata(n1sm_hex),
             blength(n1sm_hex));
 
@@ -1265,7 +1265,7 @@ void amf_sbi::curl_http_client(
 
         if (n1sm.size() > 0) {
           conv::msg_str_2_msg_hex(n1sm, n1sm_hex);
-          comUt::print_buffer(
+          output_wrapper::print_buffer(
               "amf_sbi", "Get response n1sm:", (uint8_t*) bdata(n1sm_hex),
               blength(n1sm_hex));
           itti_msg->n1sm        = bstrcpy(n1sm_hex);
@@ -1273,7 +1273,7 @@ void amf_sbi::curl_http_client(
         }
         if (n2sm.size() > 0) {
           conv::msg_str_2_msg_hex(n2sm, n2sm_hex);
-          comUt::print_buffer(
+          output_wrapper::print_buffer(
               "amf_sbi", "Get response n2sm:", (uint8_t*) bdata(n2sm_hex),
               blength(n2sm_hex));
           itti_msg->n2sm           = bstrcpy(n2sm_hex);
