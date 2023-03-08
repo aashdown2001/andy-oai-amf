@@ -42,8 +42,9 @@ void Logger::_init(
 #elif INFO_IS_ON
   spdlog::level::level_enum llevel = spdlog::level::info;
 #else
-  spdlog::level::level_enum llevel = spdlog::level::warn;
+  spdlog::level::level_enum llevel = spdlog::level::off;
 #endif
+  // TODO: Log leve: "start", "warn ", "error"
 
   if (log_stdout) {
     std::string filename = fmt::format("./{}.log", app);
@@ -87,8 +88,9 @@ _Logger::_Logger(
 #elif INFO_IS_ON
   m_log.set_level(spdlog::level::info);
 #else
-  m_log.set_level(spdlog::level::warn);
+  m_log.set_level(spdlog::level::off);
 #endif
+  // TODO: Log leve: "start", "warn ", "error"
 }
 
 //------------------------------------------------------------------------------
