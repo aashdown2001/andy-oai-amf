@@ -2643,8 +2643,7 @@ void amf_n1::security_mode_complete_handle(
       global_ran_node_id_json["plmnId"]["mcc"]      = uc->cgi.mcc;
       global_ran_node_id_json["plmnId"]["mnc"]      = uc->cgi.mnc;
       global_ran_node_id_json["gNbId"]["bitLength"] = 32;
-      global_ran_node_id_json["gNbId"]["gNBValue"] =
-          std::to_string(gc->globalRanNodeId);
+      global_ran_node_id_json["gNbId"]["gNBValue"] = std::to_string(gc->gnb_id);
       oai::amf::model::GlobalRanNodeId global_ran_node_id = {};
 
       try {

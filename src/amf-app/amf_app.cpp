@@ -489,7 +489,7 @@ void amf_app::handle_itti_message(itti_sbi_n1_message_notification& itti_msg) {
       return;
     }
 
-    gc->globalRanNodeId = gnb_id;
+    gc->gnb_id = gnb_id;
     // TODO:   gc->gnb_name
     // TODO: DefaultPagingDRX
     // TODO: Supported TA List

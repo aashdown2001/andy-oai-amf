@@ -354,9 +354,9 @@ void amf_n2::handle_itti_message(
       gnb_mcc.c_str(), gnb_mnc.c_str());
 
   // Store GNB info in the gNB context
-  gc->globalRanNodeId = gnb_id;
-  gc->plmn.mcc        = gnb_mcc;
-  gc->plmn.mnc        = gnb_mnc;
+  gc->gnb_id   = gnb_id;
+  gc->plmn.mcc = gnb_mcc;
+  gc->plmn.mnc = gnb_mnc;
 
   std::string gnb_name = {};
   if (!itti_msg->ngSetupReq->getRanNodeName(gnb_name)) {
@@ -403,7 +403,7 @@ void amf_n2::handle_itti_message(
     Logger::amf_n2().error(
         "[gNB ID %d] No common PLMN between gNB and AMF, encoding "
         "NG_SETUP_FAILURE with cause (Unknown PLMN)",
-        gc->globalRanNodeId);
+        gc->gnb_id);
     bdestroy_wrapper(&b);
     return;
   }
@@ -456,8 +456,8 @@ void amf_n2::handle_itti_message(
   Logger::amf_n2().debug("Sending NG_SETUP_RESPONSE Ok");
   gc->ng_state = NGAP_READY;
   Logger::amf_n2().debug(
-      "gNB with gNB_id 0x%x, assoc_id %d has been attached to AMF",
-      gc->globalRanNodeId, itti_msg->assoc_id);
+      "gNB with gNB_id 0x%x, assoc_id %d has been attached to AMF", gc->gnb_id,
+      itti_msg->assoc_id);
 
   // store gNB info for statistic purpose
   stacs.add_gnb(gc);
@@ -498,7 +498,7 @@ void amf_n2::handle_itti_message(itti_ng_reset& itti_msg) {
     for (auto ue_context : ue_contexts) {
       remove_ue_context_with_amf_ue_ngap_id(ue_context->amf_ue_ngap_id);
       remove_ue_context_with_ran_ue_ngap_id(
-          ue_context->ran_ue_ngap_id, gc->globalRanNodeId);
+          ue_context->ran_ue_ngap_id, gc->gnb_id);
     }
 
     stacs.display();
@@ -513,8 +513,7 @@ void amf_n2::handle_itti_message(itti_ng_reset& itti_msg) {
       if (ue.getAmfUeNgapId(amf_ue_ngap_id)) {
         remove_ue_context_with_amf_ue_ngap_id(amf_ue_ngap_id);
       } else if (ue.getRanUeNgapId(ran_ue_ngap_id)) {
-        remove_ue_context_with_ran_ue_ngap_id(
-            ran_ue_ngap_id, gc->globalRanNodeId);
+        remove_ue_context_with_ran_ue_ngap_id(ran_ue_ngap_id, gc->gnb_id);
       }
     }
   }
@@ -556,16 +555,16 @@ void amf_n2::handle_itti_message(itti_ng_shutdown& itti_msg) {
   for (auto ue_context : ue_contexts) {
     remove_ue_context_with_amf_ue_ngap_id(ue_context->amf_ue_ngap_id);
     remove_ue_context_with_ran_ue_ngap_id(
-        ue_context->ran_ue_ngap_id, gc->globalRanNodeId);
+        ue_context->ran_ue_ngap_id, gc->gnb_id);
   }
 
   // Delete gNB context
   remove_gnb_context(itti_msg.assoc_id);
-  stacs.remove_gnb(gc->globalRanNodeId);
+  stacs.remove_gnb(gc->gnb_id);
 
   Logger::amf_n2().debug(
-      "Remove gNB with association id %d, globalRanNodeId 0x%x",
-      itti_msg.assoc_id, gc->globalRanNodeId);
+      "Remove gNB with association id %d, gnb_id 0x%x", itti_msg.assoc_id,
+      gc->gnb_id);
   stacs.display();
   return;
 }
@@ -611,13 +610,12 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
   }
 
   std::shared_ptr<ue_ngap_context> unc = {};
-  if (!ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, gc->globalRanNodeId, unc)) {
+  if (!ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, gc->gnb_id, unc)) {
     Logger::amf_n2().debug(
         "Create a new UE NGAP context with ran_ue_ngap_id " GNB_UE_NGAP_ID_FMT,
         ran_ue_ngap_id);
     unc = std::make_shared<ue_ngap_context>();
-    set_ran_ue_ngap_id_2_ue_ngap_context(
-        ran_ue_ngap_id, gc->globalRanNodeId, unc);
+    set_ran_ue_ngap_id_2_ue_ngap_context(ran_ue_ngap_id, gc->gnb_id, unc);
   }
 
   // Store related information into UE NGAP context
@@ -691,7 +689,7 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
     }
   }
 
-  itti_msg->gnb_id         = gc->globalRanNodeId;
+  itti_msg->gnb_id         = gc->gnb_id;
   itti_msg->ran_ue_ngap_id = ran_ue_ngap_id;
   itti_msg->amf_ue_ngap_id = INVALID_AMF_UE_NGAP_ID;
 
@@ -717,7 +715,7 @@ void amf_n2::handle_itti_message(itti_ul_nas_transport& ul_nas_transport) {
   }
 
   std::shared_ptr<ue_ngap_context> unc = {};
-  if (!ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, gc->globalRanNodeId, unc)) {
+  if (!ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, gc->gnb_id, unc)) {
     Logger::amf_n2().error(
         "UE with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT
         ") is not attached to gnb with assoc_id "
@@ -1472,11 +1470,11 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   }
 
   Logger::amf_n2().debug(
-      "Handover Required, gNB info (gNB Name %s, globalRanNodeId 0x%x)",
-      gc->gnb_name.c_str(), gc->globalRanNodeId);
+      "Handover Required, gNB info (gNB Name %s, gNB ID 0x%x)",
+      gc->gnb_name.c_str(), gc->gnb_id);
 
   std::shared_ptr<ue_ngap_context> unc = {};
-  if (!ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, gc->globalRanNodeId, unc)) {
+  if (!ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, gc->gnb_id, unc)) {
     Logger::amf_n2().error(
         "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
         ran_ue_ngap_id);
@@ -1526,9 +1524,8 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   gnbid.get(gnb_id_value);
 
   Logger::amf_n2().debug(
-      "Handover Required, Target ID GlobalRanNodeID PLMN (MCC %s, MNC %s, "
-      "gNBId 0x%x)",
-      mcc.c_str(), mnc.c_str(), gnb_id_value);
+      "Handover Required, Target ID (gNB ID 0x%x), PLMN (MCC %s, MNC %s)",
+      gnb_id_value, mcc.c_str(), mnc.c_str());
 
   string mcc_select_tai = {};
   string mnc_select_tai = {};
@@ -1757,8 +1754,8 @@ void amf_n2::handle_itti_message(itti_handover_request_Ack& itti_msg) {
   }
 
   Logger::amf_n2().debug(
-      "Handover Request Ack, gNB info (gNB Name %s, globalRanNodeId 0x%x)",
-      gc->gnb_name.c_str(), gc->globalRanNodeId);
+      "Handover Request Ack, gNB info (gNB Name %s, gNB ID 0x%x)",
+      gc->gnb_name.c_str(), gc->gnb_id);
 
   std::shared_ptr<ue_ngap_context> unc = {};
   if (!amf_ue_id_2_ue_ngap_context(amf_ue_ngap_id, unc)) {
@@ -1914,8 +1911,8 @@ void amf_n2::handle_itti_message(itti_handover_notify& itti_msg) {
   }
 
   Logger::amf_n2().debug(
-      "Handover Notify, gNB info (gNB Name: %s, globalRanNodeId 0x%x)",
-      gc->gnb_name.c_str(), gc->globalRanNodeId);
+      "Handover Notify, gNB info (gNB Name: %s, gNB ID 0x%x)",
+      gc->gnb_name.c_str(), gc->gnb_id);
 
   std::shared_ptr<ue_ngap_context> unc = {};
   if (!amf_ue_id_2_ue_ngap_context(amf_ue_ngap_id, unc)) {
@@ -2044,8 +2041,7 @@ void amf_n2::handle_itti_message(itti_handover_notify& itti_msg) {
   unc->target_ran_ue_ngap_id = 0;               // Clear target RAN ID
   unc->ng_ue_state           = NGAP_UE_CONNECTED;
   unc->gnb_assoc_id          = itti_msg.assoc_id;  // update serving gNB
-  set_ran_ue_ngap_id_2_ue_ngap_context(
-      ran_ue_ngap_id, gc->globalRanNodeId, unc);
+  set_ran_ue_ngap_id_2_ue_ngap_context(ran_ue_ngap_id, gc->gnb_id, unc);
 }
 
 //------------------------------------------------------------------------------

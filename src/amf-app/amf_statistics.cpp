@@ -55,8 +55,9 @@ void statistics::display() {
   int i = 1;
   for (auto const& gnb : gnbs) {
     Logger::amf_app().info(
-        "|      %d      |    Connected     |         0x%x       |         %s   "
-        "     |            %s, %s             | ",
+        "|      %d      |    Connected     |         0x%x         |         %s "
+        "      "
+        "      |            %s, %s             | ",
         i, gnb.second.gnb_id, gnb.second.gnb_name.c_str(),
         gnb.second.mcc.c_str(), gnb.second.mnc.c_str());
     // Comment out to show the supported TA list
@@ -152,7 +153,7 @@ void statistics::add_gnb(const uint32_t& gnb_id, const gnb_infos& gnb) {
 //------------------------------------------------------------------------------
 void statistics::add_gnb(const std::shared_ptr<gnb_context>& gc) {
   gnb_infos gnb = {};
-  gnb.gnb_id    = gc->globalRanNodeId;
+  gnb.gnb_id    = gc->gnb_id;
   gnb.mcc       = gc->plmn.mcc;
   gnb.mnc       = gc->plmn.mnc;
   gnb.gnb_name  = gc->gnb_name;
@@ -160,7 +161,7 @@ void statistics::add_gnb(const std::shared_ptr<gnb_context>& gc) {
     gnb.plmn_list.push_back(i);
   }
   std::unique_lock lock(m_gnbs);
-  gnbs.insert(std::pair<uint32_t, gnb_infos>(gc->globalRanNodeId, gnb));
+  gnbs.insert(std::pair<uint32_t, gnb_infos>(gc->gnb_id, gnb));
   gNB_connected += 1;
 }
 
