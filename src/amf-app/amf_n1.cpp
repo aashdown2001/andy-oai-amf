@@ -1270,7 +1270,8 @@ void amf_n1::registration_request_handle(
       if (uc) uc.reset();
 
       std::shared_ptr<ue_ngap_context> unc = {};
-      if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
+      if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(
+              ran_ue_ngap_id, uc->gnb_id, unc)) {
         Logger::amf_n1().error(
             "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
             ran_ue_ngap_id);
@@ -2618,7 +2619,8 @@ void amf_n1::security_mode_complete_handle(
   // Find UE context
 
   std::shared_ptr<ue_ngap_context> unc = {};
-  if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(ran_ue_ngap_id, unc)) {
+  if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(
+          ran_ue_ngap_id, uc->gnb_id, unc)) {
     Logger::amf_n1().warn(
         "No UE NGAP context with ran_ue_ngap_id (" GNB_UE_NGAP_ID_FMT ")",
         ran_ue_ngap_id);
@@ -4122,7 +4124,7 @@ void amf_n1::initialize_registration_accept(
   // Allowed/Rejected/Configured NSSAI
   // Get the list of common SST, SD between UE and AMF
   std::vector<struct SNSSAI_s> common_nssais;
-  amf_n2_inst->get_common_NSSAI(nc->ran_ue_ngap_id, common_nssais);
+  amf_n2_inst->get_common_NSSAI(nc->ran_ue_ngap_id, uc->gnb_id, common_nssais);
 
   std::vector<struct SNSSAI_s> allowed_nssais;
   std::vector<Rejected_SNSSAI> rejected_nssais;
@@ -4747,7 +4749,8 @@ bool amf_n1::get_slice_selection_subscription_data_from_conf_file(
 
   // Get UE NGAP Context
   std::shared_ptr<ue_ngap_context> unc = {};
-  if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(nc->ran_ue_ngap_id, unc)) {
+  if (!amf_n2_inst->ran_ue_id_2_ue_ngap_context(
+          nc->ran_ue_ngap_id, uc->gnb_id, unc)) {
     Logger::amf_n1().error(
         "No existed UE NGAP context associated with "
         "ran_ue_ngap_id " GNB_UE_NGAP_ID_FMT,

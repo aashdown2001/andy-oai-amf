@@ -39,6 +39,7 @@ constexpr auto CURL_MIME_BOUNDARY = "----Boundary";
 
 #define FUTURE_STATUS_TIMEOUT_MS 100
 
+#define GNB_ID_FMT "%" PRIu32
 #define GNB_UE_NGAP_ID_FMT "%" PRIu32
 #define AMF_UE_NGAP_ID_FMT "%" PRIu64
 

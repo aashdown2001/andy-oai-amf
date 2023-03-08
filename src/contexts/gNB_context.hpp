@@ -54,7 +54,7 @@ class gnb_context {
   ng_gnb_state_t ng_state;
 
   std::string gnb_name;
-  long globalRanNodeId;
+  uint32_t globalRanNodeId;
   plmn_t plmn;
   e_Ngap_PagingDRX default_paging_drx;  // v32, v64, v128, v256
   std::vector<SupportedTaItem_t> s_ta_list;
