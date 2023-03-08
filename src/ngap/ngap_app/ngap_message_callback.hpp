@@ -59,7 +59,9 @@ constexpr uint8_t NGAP_PRESENT_MAX_VALUE        = 3;
 int ngap_amf_handle_ng_setup_request(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending ITTI NG Setup Request message to TASK_AMF_N2");
+  Logger::ngap().debug(
+      "[gNB Assoc Id %d] Sending ITTI NG Setup Request message to TASK_AMF_N2",
+      assoc_id);
   asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, message_p);
   NGSetupRequestMsg* ng_setup_req = new NGSetupRequestMsg();
   if (!ng_setup_req->decodeFromPdu(message_p)) {
@@ -105,7 +107,9 @@ int ngap_handle_ng_setup_failure(
 int ngap_amf_handle_initial_ue_message(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
-  Logger::ngap().debug("Sending ITTI Initial UE Message to TASK_AMF_N2");
+  Logger::ngap().debug(
+      "[gNB Assoc ID %d] Sending ITTI Initial UE Message to TASK_AMF_N2",
+      assoc_id);
 
   asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, message_p);
   InitialUEMessageMsg* init_ue_msg = new InitialUEMessageMsg();

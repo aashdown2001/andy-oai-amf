@@ -29,6 +29,7 @@
 
 #include "NgapIEsStruct.hpp"
 #include "sctp_server.hpp"
+#include "3gpp_23.003.h"
 
 extern "C" {
 #include "Ngap_PagingDRX.h"
@@ -54,6 +55,7 @@ class gnb_context {
 
   std::string gnb_name;
   long globalRanNodeId;
+  plmn_t plmn;
   e_Ngap_PagingDRX default_paging_drx;  // v32, v64, v128, v256
   std::vector<SupportedTaItem_t> s_ta_list;
   bstring ue_radio_cap_ind;

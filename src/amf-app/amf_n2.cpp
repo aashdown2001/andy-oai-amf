@@ -310,7 +310,8 @@ void amf_n2::handle_itti_message(itti_new_sctp_association& new_assoc) {}
 //------------------------------------------------------------------------------
 void amf_n2::handle_itti_message(
     std::shared_ptr<itti_ng_setup_request>& itti_msg) {
-  Logger::amf_n2().debug("Handle NG Setup Request...");
+  Logger::amf_n2().debug(
+      "[gNB Assoc ID %d] Handle NG Setup Request...", itti_msg->assoc_id);
   Logger::amf_n2().debug(
       "Parameters: assoc_id %d, stream %d", itti_msg->assoc_id,
       itti_msg->stream);
@@ -318,45 +319,46 @@ void amf_n2::handle_itti_message(
   std::shared_ptr<gnb_context> gc = {};
   if (!assoc_id_2_gnb_context(itti_msg->assoc_id, gc)) {
     Logger::amf_n2().error(
-        "No existed gNB context with assoc_id(%d)", itti_msg->assoc_id);
+        "No existed gNB context with assoc_id (%d)", itti_msg->assoc_id);
     return;
   }
 
   if (gc->ng_state == NGAP_RESETING || gc->ng_state == NGAP_SHUTDOWN) {
     Logger::amf_n2().warn(
-        "Received a new association request on an association that is being "
+        "[gNB Assoc ID %d] Received a new association request on an "
+        "association that is being "
         "%s, "
         "ignoring",
-        ng_gnb_state_str[gc->ng_state]);
+        itti_msg->assoc_id, ng_gnb_state_str[gc->ng_state]);
   } else {
     Logger::amf_n2().debug(
         "Update gNB context with assoc id (%d)", itti_msg->assoc_id);
   }
-
-  gnb_infos gnbItem = {};
 
   // Get IE Global RAN Node ID
   uint32_t gnb_id     = {};
   std::string gnb_mcc = {};
   std::string gnb_mnc = {};
   if (!itti_msg->ngSetupReq->getGlobalGnbID(gnb_id, gnb_mcc, gnb_mnc)) {
-    Logger::amf_n2().error("Missing Mandatory IE Global RAN Node ID");
+    Logger::amf_n2().error(
+        "[gNB Assoc ID %d] Missing Mandatory IE Global RAN Node ID",
+        itti_msg->assoc_id);
     return;
   }
   Logger::amf_n2().debug(
       "RAN Node Info, Global RAN Node ID: 0x%x, MCC %s, MNC %s", gnb_id,
       gnb_mcc.c_str(), gnb_mnc.c_str());
+
+  // Store GNB info in the gNB context
   gc->globalRanNodeId = gnb_id;
-  gnbItem.gnb_id      = gnb_id;
-  gnbItem.mcc         = gnb_mcc;
-  gnbItem.mnc         = gnb_mnc;
+  gc->plmn.mcc        = gnb_mcc;
+  gc->plmn.mnc        = gnb_mnc;
 
   std::string gnb_name = {};
   if (!itti_msg->ngSetupReq->getRanNodeName(gnb_name)) {
     Logger::amf_n2().warn("Missing IE RanNodeName");
   } else {
-    gc->gnb_name     = gnb_name;
-    gnbItem.gnb_name = gnb_name;
+    gc->gnb_name = gnb_name;
     Logger::amf_n2().debug("IE RanNodeName: %s", gnb_name.c_str());
   }
 
@@ -395,14 +397,11 @@ void amf_n2::handle_itti_message(
     bstring b = blk2bstr(buffer, encoded);
     sctp_s_38412.sctp_send_msg(itti_msg->assoc_id, itti_msg->stream, &b);
     Logger::amf_n2().error(
-        "No common PLMN, encoding NG_SETUP_FAILURE with cause (Unknown PLMN)");
+        "[gNB ID %d] No common PLMN between gNB and AMF, encoding "
+        "NG_SETUP_FAILURE with cause (Unknown PLMN)",
+        gc->globalRanNodeId);
     bdestroy_wrapper(&b);
     return;
-
-  } else {
-    for (auto i : gc->s_ta_list) {
-      gnbItem.plmn_list.push_back(i);
-    }
   }
 
   set_gnb_id_2_gnb_context(gnb_id, gc);
@@ -455,7 +454,10 @@ void amf_n2::handle_itti_message(
   Logger::amf_n2().debug(
       "gNB with gNB_id 0x%x, assoc_id %d has been attached to AMF",
       gc->globalRanNodeId, itti_msg->assoc_id);
-  stacs.add_gnb(gnbItem.gnb_id, gnbItem);
+
+  // store gNB info for statistic purpose
+  stacs.add_gnb(gc);
+
   bdestroy_wrapper(&b);
   return;
 }

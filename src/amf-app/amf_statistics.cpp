@@ -150,6 +150,21 @@ void statistics::add_gnb(const uint32_t& gnb_id, const gnb_infos& gnb) {
 }
 
 //------------------------------------------------------------------------------
+void statistics::add_gnb(const std::shared_ptr<gnb_context>& gc) {
+  gnb_infos gnb = {};
+  gnb.gnb_id    = gc->globalRanNodeId;
+  gnb.mcc       = gc->plmn.mcc;
+  gnb.mnc       = gc->plmn.mnc;
+  gnb.gnb_name  = gc->gnb_name;
+  for (auto i : gc->s_ta_list) {
+    gnb.plmn_list.push_back(i);
+  }
+  std::unique_lock lock(m_gnbs);
+  gnbs.insert(std::pair<uint32_t, gnb_infos>(gc->globalRanNodeId, gnb));
+  gNB_connected += 1;
+}
+
+//------------------------------------------------------------------------------
 void statistics::update_gnb(const uint32_t& gnb_id, const gnb_infos& gnb) {
   std::unique_lock lock(m_gnbs);
   if (gnbs.count(gnb_id) > 0) {
