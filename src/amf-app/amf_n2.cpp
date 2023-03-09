@@ -2301,8 +2301,7 @@ void amf_n2::get_ue_ngap_contexts(
 }
 
 //------------------------------------------------------------------------------
-bool amf_n2::is_amf_ue_id_2_ue_ngap_context(
-    const unsigned long& amf_ue_ngap_id) const {
+bool amf_n2::is_amf_ue_id_2_ue_ngap_context(const long& amf_ue_ngap_id) const {
   std::shared_lock lock(m_amfueid2uecontext);
   if (amfueid2uecontext.count(amf_ue_ngap_id) > 0) {
     if (amfueid2uecontext.at(amf_ue_ngap_id) != nullptr) {
@@ -2314,8 +2313,7 @@ bool amf_n2::is_amf_ue_id_2_ue_ngap_context(
 
 //------------------------------------------------------------------------------
 bool amf_n2::amf_ue_id_2_ue_ngap_context(
-    const unsigned long& amf_ue_ngap_id,
-    std::shared_ptr<ue_ngap_context>& unc) const {
+    const long& amf_ue_ngap_id, std::shared_ptr<ue_ngap_context>& unc) const {
   std::shared_lock lock(m_amfueid2uecontext);
   if (amfueid2uecontext.count(amf_ue_ngap_id) > 0) {
     unc = amfueid2uecontext.at(amf_ue_ngap_id);
@@ -2328,14 +2326,14 @@ bool amf_n2::amf_ue_id_2_ue_ngap_context(
 
 //------------------------------------------------------------------------------
 void amf_n2::set_amf_ue_ngap_id_2_ue_ngap_context(
-    const unsigned long& amf_ue_ngap_id, std::shared_ptr<ue_ngap_context> unc) {
+    const long& amf_ue_ngap_id, std::shared_ptr<ue_ngap_context> unc) {
   std::unique_lock lock(m_amfueid2uecontext);
   amfueid2uecontext[amf_ue_ngap_id] = unc;
 }
 
 //------------------------------------------------------------------------------
 void amf_n2::remove_amf_ue_ngap_id_2_ue_ngap_context(
-    const unsigned long& amf_ue_ngap_id) {
+    const long& amf_ue_ngap_id) {
   std::unique_lock lock(m_amfueid2uecontext);
   if (amfueid2uecontext.count(amf_ue_ngap_id) > 0) {
     amfueid2uecontext.erase(amf_ue_ngap_id);
@@ -2343,8 +2341,7 @@ void amf_n2::remove_amf_ue_ngap_id_2_ue_ngap_context(
 }
 
 //------------------------------------------------------------------------------
-void amf_n2::remove_ue_context_with_amf_ue_ngap_id(
-    const unsigned long& amf_ue_ngap_id) {
+void amf_n2::remove_ue_context_with_amf_ue_ngap_id(const long& amf_ue_ngap_id) {
   // Remove all NAS context if still exist
   std::shared_ptr<nas_context> nc = {};
   if (amf_n1_inst->amf_ue_id_2_nas_context(amf_ue_ngap_id, nc)) {

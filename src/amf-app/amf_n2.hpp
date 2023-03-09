@@ -241,10 +241,10 @@ class amf_n2 : public ngap::ngap_app {
   /*
    * Get the UE NGAP context associated with a RAN UE NGAP ID if it exists and
    * not null
-   * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
+   * @param [uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
    * @param [const std::string&] ue_context_key: UE context key from AMF UE NGAP
    * ID and RAN UE NGAP ID
-   * @param [std::shared_ptr<ue_ngap_context>&] unc: shared pointer to the
+   * @param [const std::shared_ptr<ue_ngap_context>&] unc: shared pointer to the
    * existing UE NGAP context
    * @return true if the context exists and is not null, otherwise return false
    */
@@ -253,8 +253,8 @@ class amf_n2 : public ngap::ngap_app {
       std::shared_ptr<ue_ngap_context>& unc) const;
   /*
    * Verify whether a UE NGAP context associated with a RAN UE NGAP ID exists
-   * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
-   * @param [const uint32_t&] gnb_id: gNB ID
+   * @param [uint32_t] ran_ue_ngap_id: RAN UE NGAP ID
+   * @param [uint32_t] gnb_id: gNB ID
    * @return true if the context exists and is not null, otherwise return false
    */
   bool is_ran_ue_id_2_ue_ngap_context(
@@ -262,8 +262,8 @@ class amf_n2 : public ngap::ngap_app {
 
   /*
    * Store UE NGAP context associated with a RAN UE NGAP ID
-   * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
-   * @param [const uint32_t&] gnb_id: gNB ID
+   * @param [uint32_t] ran_ue_ngap_id: RAN UE NGAP ID
+   * @param [uint32_t] gnb_id: gNB ID
    * @param [const std::shared_ptr<ue_ngap_context>&] unc: pointer to UE NGAP
    * context
    * @return void
@@ -274,7 +274,8 @@ class amf_n2 : public ngap::ngap_app {
 
   /*
    * Remove UE NGAP context associated with a RAN UE NGAP ID
-   * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
+   * @param [uint32_t] ran_ue_ngap_id: RAN UE NGAP ID
+   * @param [uint32_t] gnb_id: gNB ID
    * @return void
    */
   void remove_ran_ue_ngap_id_2_ngap_context(
@@ -282,7 +283,8 @@ class amf_n2 : public ngap::ngap_app {
 
   /*
    * Remove UE Context associated with a RAN UE NGAP ID
-   * @param [const uint32_t&] ran_ue_ngap_id: RAN UE NGAP ID
+   * @param [uint32_t] ran_ue_ngap_id: RAN UE NGAP ID
+   * @param [uint32_t] gnb_id: gNB ID
    * @return void
    */
   void remove_ue_context_with_ran_ue_ngap_id(
@@ -291,50 +293,45 @@ class amf_n2 : public ngap::ngap_app {
   /*
    * Verify whether a UE NGAP context associated with a AMF UE NGAP ID exists
    * and is not null
-   * @param [const unsigned long&] amf_ue_ngap_id: AMF UE NGAP ID
+   * @param [const long&] amf_ue_ngap_id: AMF UE NGAP ID
    * @return true if the context exists and is not null, otherwise return false
    */
-  bool is_amf_ue_id_2_ue_ngap_context(
-      const unsigned long& amf_ue_ngap_id) const;
+  bool is_amf_ue_id_2_ue_ngap_context(const long& amf_ue_ngap_id) const;
 
   /*
    * Get UE NGAP context associated with a AMF UE NGAP ID if the context exists
    * and is not null
-   * @param [const unsigned long&] amf_ue_ngap_id: AMF UE NGAP ID
+   * @param [const long&] amf_ue_ngap_id: AMF UE NGAP ID
    * @param [std::shared_ptr<ue_ngap_context>&] unc: store the pointer to UE
    * NGAP context
    * @return true if the context exists and is not null, otherwise return false
    */
   bool amf_ue_id_2_ue_ngap_context(
-      const unsigned long& amf_ue_ngap_id,
-      std::shared_ptr<ue_ngap_context>& unc) const;
+      const long& amf_ue_ngap_id, std::shared_ptr<ue_ngap_context>& unc) const;
 
   /*
    * Store UE NGAP context associated with a AMF UE NGAP ID
-   * @param [const unsigned long&] amf_ue_ngap_id: AMF UE NGAP ID
+   * @param [const long&] amf_ue_ngap_id: AMF UE NGAP ID
    * @param [const std::shared_ptr<ue_ngap_context>&] unc: pointer to UE NGAP
    * context
    * @return void
    */
   void set_amf_ue_ngap_id_2_ue_ngap_context(
-      const unsigned long& amf_ue_ngap_id,
-      std::shared_ptr<ue_ngap_context> unc);
+      const long& amf_ue_ngap_id, std::shared_ptr<ue_ngap_context> unc);
 
   /*
    * Remove UE NGAP context associated with a AMF UE NGAP ID
-   * @param [const unsigned long&] amf_ue_ngap_id: AMF UE NGAP ID
+   * @param [const long&] amf_ue_ngap_id: AMF UE NGAP ID
    * @return void
    */
-  void remove_amf_ue_ngap_id_2_ue_ngap_context(
-      const unsigned long& amf_ue_ngap_id);
+  void remove_amf_ue_ngap_id_2_ue_ngap_context(const long& amf_ue_ngap_id);
 
   /*
    * Remove UE Context associated with a AMF UE NGAP ID
    * @param [const unsigned long&] amf_ue_ngap_id: AMF UE NGAP ID
    * @return void
    */
-  void remove_ue_context_with_amf_ue_ngap_id(
-      const unsigned long& amf_ue_ngap_id);
+  void remove_ue_context_with_amf_ue_ngap_id(const long& amf_ue_ngap_id);
 
   /*
    * Get list of UE Context associated with a gNB
