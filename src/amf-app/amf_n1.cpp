@@ -2636,6 +2636,7 @@ void amf_n1::security_mode_complete_handle(
       Logger::amf_n1().error(
           "No existed gNB context with assoc_id (%d)", unc->gnb_assoc_id);
     } else {
+      // TODO: get_user_location(uc);
       oai::amf::model::UserLocation user_location = {};
       oai::amf::model::NrLocation nr_location     = {};
 
