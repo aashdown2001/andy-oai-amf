@@ -62,7 +62,7 @@ void ngap_app::handle_receive(
       "Decoded NGAP message, procedure code %d, present %d",
       ngap_msg_pdu->choice.initiatingMessage->procedureCode,
       ngap_msg_pdu->present);
-  asn_fprint(stderr, &asn_DEF_Ngap_NGAP_PDU, ngap_msg_pdu);
+  output_wrapper::print_asn_msg(&asn_DEF_Ngap_NGAP_PDU, ngap_msg_pdu);
 
   if ((ngap_msg_pdu->choice.initiatingMessage->procedureCode >
        (NGAP_PROCEDURE_CODE_MAX_VALUE - 1)) or

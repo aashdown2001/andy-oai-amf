@@ -30,5 +30,5 @@ file(GLOB COMMON_SRC ${SRC_TOP_DIR}/common/conversions.cpp)
 add_library(3GPP_COMMON_TYPES STATIC
   ${SRC_TOP_DIR}/common/logger.cpp
   ${SRC_TOP_DIR}/common/conversions.cpp
-  ${SRC_TOP_DIR}/common/comUt.cpp
+  ${SRC_TOP_DIR}/common/output_wrapper.cpp
 )

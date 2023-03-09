@@ -18,7 +18,7 @@
 #include "amf_sbi.hpp"
 #include "pdu_session_context.hpp"
 #include "conversions.hpp"
-#include "comUt.hpp"
+#include "output_wrapper.hpp"
 
 using namespace amf_application;
 
@@ -76,7 +76,7 @@ void N1N2MessageCollectionDocumentApiImpl::n1_n2_message_transfer(
   bstring n1sm = nullptr;
   conv::msg_str_2_msg_hex(
       n1sm_str.substr(0, n1sm_str.length()), n1sm);  // TODO: verify n1sm_length
-  comUt::print_buffer(
+  output_wrapper::print_buffer(
       "amf_server", "Received N1 SM", (uint8_t*) bdata(n1sm), blength(n1sm));
 
   psc->n1sm              = bstrcpy(n1sm);

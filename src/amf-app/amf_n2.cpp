@@ -50,7 +50,7 @@
 #include "amf_n1.hpp"
 #include "amf_sbi.hpp"
 #include "amf_statistics.hpp"
-#include "comUt.hpp"
+#include "output_wrapper.hpp"
 #include "itti.hpp"
 #include "itti_msg_amf_app.hpp"
 #include "logger.hpp"
@@ -683,7 +683,7 @@ void amf_n2::handle_itti_message(itti_initial_ue_message& init_ue_msg) {
       memcpy(
           (void*) unc->initialUEMsg.buf, (void*) initial_ue_msg_buf,
           encoded_size);
-      comUt::print_buffer(
+      output_wrapper::print_buffer(
           "ngap", "InitialUEMessage", unc->initialUEMsg.buf, encoded_size);
       unc->initialUEMsg.size = encoded_size;
     }
@@ -1028,10 +1028,8 @@ void amf_n2::handle_itti_message(
   int encoded_size = 0;
 
   psrsr->encode2NewBuffer(buffer, encoded_size);
-#if DEBUG_IS_ON
-  Logger::amf_n2().debug("N2 SM buffer data: ");
-  for (int i = 0; i < encoded_size; i++) printf("%02x ", (char) buffer[i]);
-#endif
+  output_wrapper::print_buffer(
+      "amf_n2", "N2 SM buffer data:", buffer, encoded_size);
   Logger::amf_n2().debug(" (%d bytes) \n", encoded_size);
 
   bstring b = blk2bstr(buffer, encoded_size);
@@ -1089,10 +1087,8 @@ void amf_n2::handle_itti_message(
   uint8_t* buffer  = (uint8_t*) calloc(1, BUFFER_SIZE_4096);
   int encoded_size = 0;
   modify_request_msg->encode2NewBuffer(buffer, encoded_size);
-#if DEBUG_IS_ON
-  Logger::amf_n2().debug("N2 SM buffer data: ");
-  for (int i = 0; i < encoded_size; i++) printf("%02x ", (char) buffer[i]);
-#endif
+  output_wrapper::print_buffer(
+      "amf_n2", "N2 SM buffer data:", buffer, encoded_size);
   Logger::amf_n2().debug(" (%d bytes) \n", encoded_size);
 
   bstring b = blk2bstr(buffer, encoded_size);
@@ -1145,10 +1141,8 @@ void amf_n2::handle_itti_message(
   uint8_t* buffer  = (uint8_t*) calloc(1, BUFFER_SIZE_4096);
   int encoded_size = 0;
   release_cmd_msg->encode2NewBuffer(buffer, encoded_size);
-#if DEBUG_IS_ON
-  Logger::amf_n2().debug("N2 SM buffer data: ");
-  for (int i = 0; i < encoded_size; i++) printf("%02x ", (char) buffer[i]);
-#endif
+  output_wrapper::print_buffer(
+      "amf_n2", "N2 SM buffer data:", buffer, encoded_size);
   Logger::amf_n2().debug(" (%d bytes) \n", encoded_size);
 
   bstring b = blk2bstr(buffer, encoded_size);

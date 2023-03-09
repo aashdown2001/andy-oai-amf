@@ -32,6 +32,7 @@
 
 #include "amf.hpp"
 #include "logger.hpp"
+#include "output_wrapper.hpp"
 
 constexpr uint8_t kUint32Length =
     8;  // 4 bytes  -8 characters representation in hex
@@ -166,11 +167,8 @@ void conv::convert_string_2_hex(
   }
   memset(data, 0, input_str.length() + 1);
   memcpy((void*) data, (void*) input_str.c_str(), input_str.length());
-
-  for (int i = 0; i < input_str.length(); i++) {
-    printf("%02x ", data[i]);
-  }
-  printf("\n");
+  output_wrapper::print_buffer(
+      "amf_app", "Data input", data, input_str.length());
 
   char* datahex = (char*) malloc(input_str.length() * 2 + 1);
   if (!datahex) {
@@ -202,9 +200,8 @@ unsigned char* conv::format_string_as_hex(std::string str) {
   memset(data, 0, str_len + 1);
   memcpy((void*) data, (void*) str.c_str(), str_len);
 
-  // TODO: use logger
-  std::cout << "Data: " << data << " (" << str_len << " bytes)" << std::endl;
-  std::cout << "Data (formatted): \n";
+  Logger::amf_app().debug("Data %s (%d bytes)", data, str_len);
+  Logger::amf_app().debug("Data (formatted):");
   for (int i = 0; i < str_len; i++) {
     char datatmp[3] = {0};
     memcpy(datatmp, &data[i], 2);
@@ -218,14 +215,18 @@ unsigned char* conv::format_string_as_hex(std::string str) {
     // Convert two hexadecimal characters into one character
     unsigned int nAsciiCharacter;
     sscanf(datatmp, "%x", &nAsciiCharacter);
+#if DEBUG_IS_ON
     printf("%x ", nAsciiCharacter);
+#endif
     // Concatenate this character onto the output
     datavalue[i / 2] = (unsigned char) nAsciiCharacter;
 
     // Skip the next character
     i++;
   }
+#if DEBUG_IS_ON
   printf("\n");
+#endif
 
   free_wrapper((void**) &data);
   return datavalue;
@@ -248,7 +249,7 @@ char* conv::bstring2charString(bstring b) {
 void conv::msg_str_2_msg_hex(std::string msg, bstring& b) {
   std::string msg_hex_str = {};
   convert_string_2_hex(msg, msg_hex_str);
-  printf("tmp string: %s\n", msg_hex_str.c_str());
+  Logger::amf_app().debug("Msg hex %s", msg_hex_str.c_str());
   unsigned int msg_len = msg_hex_str.length();
   char* data           = (char*) malloc(msg_len + 1);
   if (!data) {
@@ -258,7 +259,7 @@ void conv::msg_str_2_msg_hex(std::string msg, bstring& b) {
 
   memset(data, 0, msg_len + 1);
   memcpy((void*) data, (void*) msg_hex_str.c_str(), msg_len);
-  printf("data: %s\n", data);
+
   uint8_t* msg_hex = (uint8_t*) malloc(msg_len / 2 + 1);
   if (!msg_hex) {
     free_wrapper((void**) &msg_hex);
