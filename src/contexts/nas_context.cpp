@@ -34,7 +34,7 @@ nas_context::nas_context() : _vector(), _5g_he_av(), _5g_av(), kamf() {
   _5gmm_state               = {};
   registration_type         = 0;
   follow_on_req_pending_ind = false;
-  ngKsi                     = 0;
+  ngksi                     = 0;
   mmCapability              = 0;
   ueSecurityCapEnc          = 0;
   ueSecurityCapInt          = 0;

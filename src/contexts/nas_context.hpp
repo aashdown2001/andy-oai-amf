@@ -79,10 +79,10 @@ class nas_context {
   timer_id_t implicit_deregistration_timer;
 
   // parameters from Registration request
-  uint8_t registration_type : 3;
+  uint8_t registration_type;  // 3 bits
   bool follow_on_req_pending_ind;
-  uint8_t ngKsi : 4;
-  // mobility identity: imsi, supi, 5g-guti, etc
+  uint8_t ngksi;  // 4 bits
+
   std::string imsi;
   uint8_t mmCapability;  // TODO: multiple octets
   uint8_t ueSecurityCaplen;

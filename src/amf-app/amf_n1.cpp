@@ -1220,7 +1220,7 @@ void amf_n1::registration_request_handle(
         nc->serving_network            = snn;
         nc->is_5g_guti_present         = true;
         nc->to_be_register_by_new_suci = true;
-        nc->ngKsi = 100 & 0xf;  // TODO: remove hardcoded value
+        nc->ngksi = 100 & 0xf;  // TODO: remove hardcoded value
         // std::string supi = conv::imsi_to_supi(nc->imsi);
         // set_supi_2_amf_id(supi, amf_ue_ngap_id);
         // set_supi_2_ran_id(supi, ran_ue_ngap_id);
@@ -1317,14 +1317,14 @@ void amf_n1::registration_request_handle(
   nc->follow_on_req_pending_ind = is_follow_on_req_pending;
 
   // Check ngKSI (Mandatory IE)
-  uint8_t ngKSI = 0;
-  if (!registration_request->GetNgKsi(ngKSI)) {
+  uint8_t ngksi = 0;
+  if (!registration_request->GetNgKsi(ngksi)) {
     Logger::amf_n1().error("Missing Mandatory IE ngKSI...");
     send_registration_reject_msg(
         _5GMM_CAUSE_INVALID_MANDATORY_INFO, ran_ue_ngap_id, amf_ue_ngap_id);
     return;
   }
-  nc->ngKsi = ngKSI;
+  nc->ngksi = ngksi;
 
   // Get non-current native NAS key set identity (Optional IE), used for
   // inter-system change from S1 to N1 Get 5GMM Capability IE (optional), not
@@ -1685,11 +1685,11 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context>& nc) {
       if (auth_vectors_generator(nc)) {  // all authentication in one (AMF)
         ngksi_t ngksi = 0;
         if (nc->security_ctx &&
-            nc->ngKsi != NAS_KEY_SET_IDENTIFIER_NOT_AVAILABLE) {
-          // ngksi = (nc->ngKsi + 1) % (NGKSI_MAX_VALUE + 1);
+            nc->ngksi != NAS_KEY_SET_IDENTIFIER_NOT_AVAILABLE) {
+          // ngksi = (nc->ngksi + 1) % (NGKSI_MAX_VALUE + 1);
           ngksi = (nc->amf_ue_ngap_id + 1);  // % (NGKSI_MAX_VALUE + 1);
         }
-        nc->ngKsi = ngksi;
+        nc->ngksi = ngksi;
       } else {
         Logger::amf_n1().error("Request Authentication Vectors failure");
         send_registration_reject_msg(
@@ -1702,13 +1702,13 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context>& nc) {
           "Authentication Vector in nas_context is available");
       ngksi_t ngksi = 0;
       if (nc->security_ctx &&
-          nc->ngKsi != NAS_KEY_SET_IDENTIFIER_NOT_AVAILABLE) {
-        // ngksi = (nc->ngKsi + 1) % (NGKSI_MAX_VALUE + 1);
+          nc->ngksi != NAS_KEY_SET_IDENTIFIER_NOT_AVAILABLE) {
+        // ngksi = (nc->ngksi + 1) % (NGKSI_MAX_VALUE + 1);
         ngksi = (nc->amf_ue_ngap_id + 1);  // % (NGKSI_MAX_VALUE + 1);
         Logger::amf_n1().debug("New ngKSI (%d)", ngksi);
         // TODO: How to handle?
       }
-      nc->ngKsi = ngksi;
+      nc->ngksi = ngksi;
     }
 
     handle_auth_vector_successful_result(nc);
@@ -2126,13 +2126,13 @@ void amf_n1::handle_auth_vector_successful_result(
   if (!nc->security_ctx) {
     nc->security_ctx          = new nas_secu_ctx();
     nc->security_ctx->sc_type = SECURITY_CTX_TYPE_NOT_AVAILABLE;
-    if (nc->security_ctx && nc->ngKsi != NAS_KEY_SET_IDENTIFIER_NOT_AVAILABLE)
+    if (nc->security_ctx && nc->ngksi != NAS_KEY_SET_IDENTIFIER_NOT_AVAILABLE)
       ngksi = (nc->amf_ue_ngap_id + 1) % (NGKSI_MAX_VALUE + 1);
     // ensure which vector is available?
-    nc->ngKsi = ngksi;
+    nc->ngksi = ngksi;
   }
   int vindex = nc->security_ctx->vector_pointer;
-  if (!start_authentication_procedure(nc, vindex, nc->ngKsi)) {
+  if (!start_authentication_procedure(nc, vindex, nc->ngksi)) {
     Logger::amf_n1().error("Start Authentication Procedure Failure, reject...");
     Logger::amf_n1().error(
         "Ran_ue_ngap_id " GNB_UE_NGAP_ID_FMT, nc->ran_ue_ngap_id);
@@ -2365,10 +2365,10 @@ void amf_n1::authentication_failure_handle(
           "Authentication procedure!");
       // select new ngKSI and resend Authentication Request
       ngksi_t ngksi =
-          (nc->ngKsi + 1) % (NGKSI_MAX_VALUE + 1);  // To be verified
-      nc->ngKsi  = ngksi;
+          (nc->ngksi + 1) % (NGKSI_MAX_VALUE + 1);  // To be verified
+      nc->ngksi  = ngksi;
       int vindex = nc->security_ctx->vector_pointer;
-      if (!start_authentication_procedure(nc, vindex, nc->ngKsi)) {
+      if (!start_authentication_procedure(nc, vindex, nc->ngksi)) {
         Logger::amf_n1().error(
             "Start Authentication procedure failure, reject...");
         Logger::amf_n1().error(
@@ -2419,7 +2419,7 @@ bool amf_n1::start_security_mode_control_procedure(
         secu_ctx->dl_count.overflow;  // emm_ctx->_security.dl_count.overflow;
     data->saved_seq_num         = secu_ctx->dl_count.seq_num;
     data->saved_sc_type         = secu_ctx->sc_type;
-    secu_ctx->ngksi             = nc->ngKsi;
+    secu_ctx->ngksi             = nc->ngksi;
     secu_ctx->dl_count.overflow = 0;
     secu_ctx->dl_count.seq_num  = 0;
     secu_ctx->ul_count.overflow = 0;
@@ -2443,8 +2443,8 @@ bool amf_n1::start_security_mode_control_procedure(
       std::make_unique<SecurityModeCommand>();
   smc->SetHeader(PLAIN_5GS_MSG);
   smc->SetNasSecurityAlgorithms(amf_nea, amf_nia);
-  Logger::amf_n1().debug("Encoded ngKSI 0x%x", nc->ngKsi);
-  smc->SetNgKsi(NAS_KEY_SET_IDENTIFIER_NATIVE, nc->ngKsi & 0x07);
+  Logger::amf_n1().debug("Encoded ngKSI 0x%x", nc->ngksi);
+  smc->SetNgKsi(NAS_KEY_SET_IDENTIFIER_NATIVE, nc->ngksi & 0x07);
   if (nc->ueSecurityCaplen >= 4) {
     smc->SetUeSecurityCapability(
         nc->ueSecurityCapEnc, nc->ueSecurityCapInt, nc->ueSecurityCapEEA,
@@ -4763,6 +4763,7 @@ bool amf_n1::get_slice_selection_subscription_data_from_conf_file(
         nc->ran_ue_ngap_id);
     return false;
   }
+
   // Get gNB Context
   std::shared_ptr<gnb_context> gc = {};
   if (!amf_n2_inst->assoc_id_2_gnb_context(unc->gnb_assoc_id, gc)) {
