@@ -57,6 +57,7 @@ class ue_context {
  public:
   uint32_t ran_ue_ngap_id;   // 32bits
   long amf_ue_ngap_id : 40;  // 40bits
+  uint32_t gnb_id;
 
   e_Ngap_RRCEstablishmentCause rrc_estb_cause;
   bool isUeContextRequest;
