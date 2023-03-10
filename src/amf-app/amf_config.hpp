@@ -332,7 +332,7 @@ typedef struct {
 typedef struct {
   int id;
   std::string ipv4;
-  std::string port;
+  uint32_t port;
   uint32_t http2_port;
   std::string version;
   bool selected;
@@ -351,10 +351,9 @@ typedef struct {
   }
 
   void from_json(nlohmann::json& json_data) {
-    this->id   = json_data["id"].get<int>();
-    this->ipv4 = json_data["ipv4"].get<std::string>();
-    this->port = json_data["port"]
-                     .get<std::string>();  // TODO: use int instead of string
+    this->id         = json_data["id"].get<int>();
+    this->ipv4       = json_data["ipv4"].get<std::string>();
+    this->port       = json_data["port"].get<int>();
     this->http2_port = json_data["http2_port"].get<int>();
     this->version    = json_data["version"].get<std::string>();
     this->selected   = json_data["selected"].get<bool>();
@@ -468,13 +467,13 @@ class amf_config {
   /*
    * Get the URI of SMF Services
    * @param [const std::string&] smf_addr: SMF's Addr in String representation
-   * @param [const std::string&] smf_port: SMF's port in String representation
+   * @param [const uint32_t&] smf_port: SMF's port in String representation
    * @param [const std::string&] smf_api_version: SMF's API version in String
    * representation
    * @return URI in string format
    */
   std::string get_smf_pdu_session_base_uri(
-      const std::string& smf_addr, const std::string& smf_port,
+      const std::string& smf_addr, const uint32_t& smf_port,
       const std::string& smf_api_version);
 
   /*
