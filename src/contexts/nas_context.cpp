@@ -44,7 +44,6 @@ nas_context::nas_context()
   is_common_procedure_for_identification_running        = false;
   is_common_procedure_for_security_mode_control_running = false;
   is_common_procedure_for_nas_transport_running         = false;
-  _security                                             = {};
   security_ctx                                          = nullptr;
   is_current_security_available                         = false;
   registration_attempt_counter                          = 0;
