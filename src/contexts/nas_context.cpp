@@ -22,7 +22,8 @@
 #include "nas_context.hpp"
 
 //------------------------------------------------------------------------------
-nas_context::nas_context() : _vector(), _5g_he_av(), _5g_av(), kamf() {
+nas_context::nas_context()
+    : _vector(), _5g_he_av(), _5g_av(), kamf(), _5gmm_capability() {
   security_ctx              = nullptr;
   is_imsi_present           = false;
   is_stacs_available        = false;
@@ -35,11 +36,7 @@ nas_context::nas_context() : _vector(), _5g_he_av(), _5g_av(), kamf() {
   registration_type         = 0;
   follow_on_req_pending_ind = false;
   ngksi                     = 0;
-  mmCapability              = 0;
-  ueSecurityCapEnc          = 0;
-  ueSecurityCapInt          = 0;
-  ueSecurityCapEEA          = 0;
-  ueSecurityCapEIA          = 0;
+  ue_security_capability    = {};
   //  requestedNssai                                        = {};
   is_specific_procedure_for_registration_running        = false;
   is_specific_procedure_for_deregistration_running      = false;
@@ -56,8 +53,8 @@ nas_context::nas_context() : _vector(), _5g_he_av(), _5g_av(), kamf() {
   is_5g_guti_present                                    = false;
   is_auth_vectors_present                               = false;
   to_be_register_by_new_suci                            = false;
-  ueSecurityCaplen                                      = 0;
   registration_request_is_set                           = false;
+  registration_request                                  = nullptr;
   nas_status                                            = CM_IDLE;
   is_mobile_reachable_timer_timeout                     = false;
   mobile_reachable_timer                                = ITTI_INVALID_TIMER_ID;

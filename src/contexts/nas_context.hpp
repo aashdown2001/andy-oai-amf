@@ -31,6 +31,7 @@
 #include "nas_security_context.hpp"
 #include "security_def.hpp"
 #include "struct.hpp"
+#include "UESecurityCapability.hpp"
 
 typedef enum {
   _5GMM_STATE_MIN     = 0,
@@ -84,13 +85,8 @@ class nas_context {
   uint8_t ngksi;  // 4 bits
 
   std::string imsi;
-  uint8_t mmCapability;  // TODO: multiple octets
-  uint8_t ueSecurityCaplen;
-  uint8_t ueSecurityCapEnc;
-  uint8_t ueSecurityCapInt;
-
-  uint8_t ueSecurityCapEEA;
-  uint8_t ueSecurityCapEIA;
+  std::uint8_t _5gmm_capability[13];
+  nas::UESecurityCapability ue_security_capability;
 
   std::vector<nas::SNSSAI_t>
       requestedNssai;  // TODO: update with naming convention

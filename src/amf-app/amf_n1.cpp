@@ -1333,28 +1333,14 @@ void amf_n1::registration_request_handle(
   if (!registration_request->Get5gmmCapability(_5g_mm_cap)) {
     Logger::amf_n1().warn("No Optional IE 5GMMCapability available");
   }
-  nc->mmCapability = _5g_mm_cap;
+  nc->_5gmm_capability[0] = _5g_mm_cap;
 
   // Get UE Security Capability IE (optional), not included for periodic
   // registration updating procedure
-  uint8_t encrypt_alg      = {0};
-  uint8_t integrity_alg    = {0};
-  uint8_t security_cap_eea = {0};
-  uint8_t security_cap_eia = {0};
-
-  if (!registration_request->GetUeSecurityCapability(
-          encrypt_alg, integrity_alg, security_cap_eea, security_cap_eia)) {
-    Logger::amf_n1().warn("No Optional IE UESecurityCapability available");
-  } else {
-    nc->ueSecurityCaplen =
-        registration_request->ie_ue_security_capability->GetLengthIndicator();
+  auto ue_security_capability = registration_request->GetUeSecurityCapability();
+  if (ue_security_capability.has_value()) {
+    nc->ue_security_capability = ue_security_capability.value();
   }
-
-  nc->ueSecurityCapEnc = encrypt_alg;
-  nc->ueSecurityCapInt = integrity_alg;
-
-  nc->ueSecurityCapEEA = security_cap_eea;
-  nc->ueSecurityCapEIA = security_cap_eia;
 
   // Get Requested NSSAI (Optional IE), if provided
   if (!registration_request->GetRequestedNssai(nc->requestedNssai)) {
@@ -2425,7 +2411,8 @@ bool amf_n1::start_security_mode_control_procedure(
     secu_ctx->ul_count.overflow = 0;
     secu_ctx->ul_count.seq_num  = 0;
     security_select_algorithms(
-        nc->ueSecurityCapEnc, nc->ueSecurityCapInt, amf_nea, amf_nia);
+        nc->ue_security_capability.GetEa(), nc->ue_security_capability.GetIa(),
+        amf_nea, amf_nia);
     secu_ctx->nas_algs.integrity  = amf_nia;
     secu_ctx->nas_algs.encryption = amf_nea;
     secu_ctx->sc_type             = SECURITY_CTX_TYPE_FULL_NATIVE;
@@ -2445,17 +2432,7 @@ bool amf_n1::start_security_mode_control_procedure(
   smc->SetNasSecurityAlgorithms(amf_nea, amf_nia);
   Logger::amf_n1().debug("Encoded ngKSI 0x%x", nc->ngksi);
   smc->SetNgKsi(NAS_KEY_SET_IDENTIFIER_NATIVE, nc->ngksi & 0x07);
-  if (nc->ueSecurityCaplen >= 4) {
-    smc->SetUeSecurityCapability(
-        nc->ueSecurityCapEnc, nc->ueSecurityCapInt, nc->ueSecurityCapEEA,
-        nc->ueSecurityCapEIA);
-  } else {
-    smc->SetUeSecurityCapability(nc->ueSecurityCapEnc, nc->ueSecurityCapInt);
-  }
-
-  // TODO: remove
-  // smc->ie_ue_security_capability->SetLengthIndicator(nc->ueSecurityCaplen);
-
+  smc->SetUeSecurityCapability(nc->ue_security_capability);
   smc->SetImeisvRequest(0xe1);  // TODO: remove hardcoded value
   smc->SetAdditional5gSecurityInformation(true, false);
   uint8_t buffer[BUFFER_SIZE_1024];
