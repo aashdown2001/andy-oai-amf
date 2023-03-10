@@ -297,7 +297,7 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
         return;
       }
 
-      if (uc->isUeContextRequest) {
+      if (uc->is_ue_context_request) {
         // PDU SESSION RESOURCE SETUP_REQUEST
         std::shared_ptr<itti_pdu_session_resource_setup_request> psrsr =
             std::make_shared<itti_pdu_session_resource_setup_request>(
@@ -2662,7 +2662,7 @@ void amf_n1::security_mode_complete_handle(
       secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
       buffer, encoded_size, protected_nas);
 
-  if (!uc->isUeContextRequest) {
+  if (!uc->is_ue_context_request) {
     Logger::amf_n1().debug(
         "UE Context is not requested, UE with "
         "ran_ue_ngap_id " GNB_UE_NGAP_ID_FMT
