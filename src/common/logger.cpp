@@ -35,22 +35,15 @@ void Logger::_init(
     const char* app, const bool log_stdout, const bool log_rot_file) {
   int num_sinks = 0;
   spdlog::set_async_mode(2048);
-#if TRACE_IS_ON
-  spdlog::level::level_enum llevel = spdlog::level::trace;
-#elif DEBUG_IS_ON
-  spdlog::level::level_enum llevel = spdlog::level::debug;
-#elif INFO_IS_ON
-  spdlog::level::level_enum llevel = spdlog::level::info;
-#else
-  spdlog::level::level_enum llevel = spdlog::level::off;
-#endif
-  // TODO: Log leve: "start", "warn ", "error"
+  // Now out of the box, the level will be debug.
+  // And it is the default value in the config file.
+  m_level = spdlog::level::debug;
 
   if (log_stdout) {
     std::string filename = fmt::format("./{}.log", app);
     m_sinks.push_back(
         std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>());
-    m_sinks[num_sinks++].get()->set_level(llevel);
+    m_sinks[num_sinks++].get()->set_level(m_level);
   }
   if (log_rot_file) {
     std::string filename = fmt::format("./{}.log", app);
@@ -76,51 +69,76 @@ void Logger::_init(
 }
 
 //------------------------------------------------------------------------------
+void Logger::_set_level(const bool log_stdout, const char* level) {
+  if (strcmp(level, "debug") == 0) {
+    m_level = spdlog::level::debug;
+  } else if (strcmp(level, "info") == 0) {
+    m_level = spdlog::level::info;
+  } else if (strcmp(level, "trace") == 0) {
+    m_level = spdlog::level::trace;
+  } else if (strcmp(level, "off") == 0) {
+    m_level = spdlog::level::off;
+  } else if (strcmp(level, "warning") == 0) {
+    m_level = spdlog::level::warn;
+  } else if (strcmp(level, "error") == 0) {
+    m_level = spdlog::level::err;
+  } else {
+    m_level = spdlog::level::debug;
+  }
+  if (log_stdout) {
+    m_sinks[0].get()->set_level(m_level);
+  }
+  m_async_cmd->set_level(m_level);
+  m_amf_app->set_level(m_level);
+  m_config->set_level(m_level);
+  m_system->set_level(m_level);
+  m_sctp->set_level(m_level);
+  m_nas_mm->set_level(m_level);
+  m_ngap->set_level(m_level);
+  m_itti->set_level(m_level);
+  m_amf_n2->set_level(m_level);
+  m_amf_n1->set_level(m_level);
+  m_amf_sbi->set_level(m_level);
+  m_amf_server->set_level(m_level);
+}
+
+//------------------------------------------------------------------------------
 _Logger::_Logger(
     const char* category, std::vector<spdlog::sink_ptr>& sinks,
     const char* pattern)
     : m_log(category, sinks.begin(), sinks.end()) {
   m_log.set_pattern(pattern);
-#if TRACE_IS_ON
-  m_log.set_level(spdlog::level::trace);
-#elif DEBUG_IS_ON
+  // Out of the box the level is debug
   m_log.set_level(spdlog::level::debug);
-#elif INFO_IS_ON
-  m_log.set_level(spdlog::level::info);
-#else
-  m_log.set_level(spdlog::level::off);
-#endif
-  // TODO: Log leve: "start", "warn ", "error"
+}
+
+//------------------------------------------------------------------------------
+void _Logger::set_level(const spdlog::level::level_enum level) {
+  m_log.set_level(level);
 }
 
 //------------------------------------------------------------------------------
 void _Logger::trace(const char* format, ...) {
-#if TRACE_IS_ON
   va_list args;
   va_start(args, format);
   log(_ltTrace, format, args);
   va_end(args);
-#endif
 }
 
 //------------------------------------------------------------------------------
 void _Logger::debug(const char* format, ...) {
-#if DEBUG_IS_ON
   va_list args;
   va_start(args, format);
   log(_ltDebug, format, args);
   va_end(args);
-#endif
 }
 
 //------------------------------------------------------------------------------
 void _Logger::info(const char* format, ...) {
-#if INFO_IS_ON
   va_list args;
   va_start(args, format);
   log(_ltInfo, format, args);
   va_end(args);
-#endif
 }
 
 //------------------------------------------------------------------------------

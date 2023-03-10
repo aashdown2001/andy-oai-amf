@@ -56,6 +56,7 @@ class _Logger {
   void warn(const std::string& format, ...);
   void error(const char* format, ...);
   void error(const std::string& format, ...);
+  void set_level(const spdlog::level::level_enum level);
 
  private:
   _Logger();
@@ -74,6 +75,12 @@ class Logger {
   static void init(
       const std::string& app, const bool log_stdout, const bool log_rot_file) {
     init(app.c_str(), log_stdout, log_rot_file);
+  }
+  static void set_level(const bool log_stdout, const char* level) {
+    singleton()._set_level(log_stdout, level);
+  }
+  static bool should_log(spdlog::level::level_enum level) {
+    return (level >= singleton().m_level);
   }
 
   static _Logger& async_cmd() { return *singleton().m_async_cmd; }
@@ -100,10 +107,12 @@ class Logger {
   ~Logger() {}
 
   void _init(const char* app, const bool log_stdout, const bool log_rot_file);
+  void _set_level(const bool log_stdout, const char* level);
 
   std::vector<spdlog::sink_ptr> m_sinks;
 
   std::string m_pattern;
+  spdlog::level::level_enum m_level;
 
   _Logger* m_async_cmd;
   _Logger* m_amf_app;
