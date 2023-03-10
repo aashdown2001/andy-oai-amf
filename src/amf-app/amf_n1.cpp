@@ -1343,11 +1343,11 @@ void amf_n1::registration_request_handle(
   }
 
   // Get Requested NSSAI (Optional IE), if provided
-  if (!registration_request->GetRequestedNssai(nc->requestedNssai)) {
+  if (!registration_request->GetRequestedNssai(nc->requested_nssai)) {
     Logger::amf_n1().debug("No Optional IE RequestedNssai available");
   }
 
-  for (auto r : nc->requestedNssai) {
+  for (auto r : nc->requested_nssai) {
     Logger::nas_mm().debug("Requested NSSAI: %s", r.ToString().c_str());
   }
 
@@ -1370,11 +1370,11 @@ void amf_n1::registration_request_handle(
         (uint8_t*) bdata(nas_msg), blength(nas_msg));
 
     if (!registration_request_msg_container->GetRequestedNssai(
-            nc->requestedNssai)) {
+            nc->requested_nssai)) {
       Logger::amf_n1().debug(
           "No Optional IE RequestedNssai available in NAS Container");
     } else {
-      for (auto s : nc->requestedNssai) {
+      for (auto s : nc->requested_nssai) {
         Logger::amf_n1().debug(
             "Requested NSSAI inside the NAS container: %s",
             s.ToString().c_str());
@@ -1819,8 +1819,8 @@ bool amf_n1::get_authentication_vectors_from_ausf(
     iter = ueauthenticationctx.getLinks().find("5G_AKA");
 
     if (iter != ueauthenticationctx.getLinks().end()) {
-      nc->Href = iter->second.getHref();
-      Logger::amf_n1().info("Links is: %s", nc->Href.c_str());
+      nc->href = iter->second.getHref();
+      Logger::amf_n1().info("Links is: %s", nc->href.c_str());
     } else {
       Logger::amf_n1().error("Not found 5G_AKA");
     }
@@ -1838,7 +1838,7 @@ bool amf_n1::_5g_aka_confirmation_from_ausf(
     std::shared_ptr<nas_context>& nc, bstring resStar) {
   Logger::amf_n1().debug("5G AKA Confirmation from AUSF");
   // TODO: remove naked ptr
-  std::string remoteUri = nc->Href;
+  std::string remoteUri = nc->href;
 
   std::string msgBody        = {};
   nlohmann::json response    = {};
@@ -2378,16 +2378,10 @@ bool amf_n1::start_security_mode_control_procedure(
   bool security_context_is_new                              = false;
   uint8_t amf_nea                                           = EA0_5G;
   uint8_t amf_nia                                           = IA0_5G;
-  // decide which ea/ia alg used by UE, which is supported by network
-  security_data_t* data = (security_data_t*) calloc(1, sizeof(security_data_t));
+  // Decide which ea/ia alg used by UE, which is supported by network
   nas_secu_ctx* secu_ctx = nc->security_ctx;
-  if (!data) {
-    Logger::amf_n1().error("Cannot allocate memory for security_data_t");
-    return false;
-  }
   if (!secu_ctx) {
     Logger::amf_n1().error("No Security Context found");
-    free_wrapper((void**) &data);
     return false;
   }
 
@@ -2396,15 +2390,6 @@ bool amf_n1::start_security_mode_control_procedure(
     Logger::amf_n1().debug(
         "Using INTEGRITY_PROTECTED_WITH_NEW_SECU_CTX for SecurityModeControl "
         "message");
-    data->saved_selected_nea =
-        secu_ctx->nas_algs
-            .encryption;  // emm_ctx->_security.selected_algorithms.encryption;
-    data->saved_selected_nia = secu_ctx->nas_algs.integrity;
-    data->saved_ngksi        = secu_ctx->ngksi;
-    data->saved_overflow =
-        secu_ctx->dl_count.overflow;  // emm_ctx->_security.dl_count.overflow;
-    data->saved_seq_num         = secu_ctx->dl_count.seq_num;
-    data->saved_sc_type         = secu_ctx->sc_type;
     secu_ctx->ngksi             = nc->ngksi;
     secu_ctx->dl_count.overflow = 0;
     secu_ctx->dl_count.seq_num  = 0;
@@ -2452,8 +2437,6 @@ bool amf_n1::start_security_mode_control_procedure(
       (uint8_t*) bdata(protected_nas), blength(protected_nas));
   itti_send_dl_nas_buffer_to_task_n2(
       protected_nas, nc->ran_ue_ngap_id, nc->amf_ue_ngap_id);
-  // secu_ctx->dl_count.seq_num ++;
-  free_wrapper((void**) &data);
   return true;
 }
 
@@ -2527,8 +2510,8 @@ void amf_n1::security_mode_complete_handle(
       // bdestroy_wrapper(&nas_msg_container);  // free buffer
 
       // Get Requested NSSAI (Optional IE), if provided
-      if (registration_request->GetRequestedNssai(nc->requestedNssai)) {
-        for (auto s : nc->requestedNssai) {
+      if (registration_request->GetRequestedNssai(nc->requested_nssai)) {
+        for (auto s : nc->requested_nssai) {
           Logger::amf_n1().debug("Requested NSSAI: %s", s.ToString().c_str());
         }
       } else {
@@ -4114,8 +4097,8 @@ void amf_n1::initialize_registration_accept(
   std::vector<struct SNSSAI_s> requested_nssai;
 
   // If no requested NSSAI available, use subscribed S-NSSAIs instead
-  if (nc->requestedNssai.size() > 0) {
-    requested_nssai = nc->requestedNssai;
+  if (nc->requested_nssai.size() > 0) {
+    requested_nssai = nc->requested_nssai;
   } else {
     for (const auto& ss : nc->subscribed_snssai)
       requested_nssai.push_back(ss.second);
@@ -4407,7 +4390,7 @@ bool amf_n1::reroute_registration_request(
 
   // Requested NSSAIs
   std::vector<oai::amf::model::Snssai> requested_nssais;
-  for (auto s : nc->requestedNssai) {
+  for (auto s : nc->requested_nssai) {
     oai::amf::model::Snssai nssai = {};
     nssai.setSst(s.sst);
     nssai.setSd(std::to_string(s.sd));
@@ -4462,7 +4445,7 @@ bool amf_n1::check_requested_nssai(const std::shared_ptr<nas_context>& nc) {
   }
 
   // If there no requested NSSAIs
-  if (nc->requestedNssai.size() == 0) {
+  if (nc->requested_nssai.size() == 0) {
     return false;
   }
 
@@ -4476,7 +4459,7 @@ bool amf_n1::check_requested_nssai(const std::shared_ptr<nas_context>& nc) {
 
     result = true;
     // check if AMF can serve all the requested NSSAIs
-    for (auto n : nc->requestedNssai) {
+    for (auto n : nc->requested_nssai) {
       bool found_nssai = false;
       for (auto s : p.slice_list) {
         std::string sd = std::to_string(s.sd);
@@ -4532,7 +4515,7 @@ bool amf_n1::check_subscribed_nssai(
         "Find the common NSSAIs between Requested NSSAIs and Subscribed "
         "NSSAIs");
     std::vector<oai::amf::model::Snssai> common_snssais;
-    for (auto s : nc->requestedNssai) {
+    for (auto s : nc->requested_nssai) {
       // std::string sd = std::to_string(s.sd);
       // Check with default subscribed NSSAIs
       for (auto n : nssai.getDefaultSingleNssais()) {
@@ -4565,7 +4548,7 @@ bool amf_n1::check_subscribed_nssai(
 
     // If there no requested NSSAIs or no common NSSAIs between requested NSSAIs
     // and Subscribed NSSAIs
-    if ((nc->requestedNssai.size() == 0) or (common_snssais.size() == 0)) {
+    if ((nc->requested_nssai.size() == 0) or (common_snssais.size() == 0)) {
       // Each S-NSSAI in the Default Single NSSAIs must be in the AMF's Slice
       // List
       for (auto n : nssai.getDefaultSingleNssais()) {

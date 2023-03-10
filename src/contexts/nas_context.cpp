@@ -24,20 +24,19 @@
 //------------------------------------------------------------------------------
 nas_context::nas_context()
     : _vector(), _5g_he_av(), _5g_av(), kamf(), _5gmm_capability() {
-  security_ctx              = nullptr;
-  is_imsi_present           = false;
-  is_stacs_available        = false;
-  is_auth_vectors_present   = false;
-  auts                      = nullptr;
-  ctx_avaliability_ind      = false;
-  amf_ue_ngap_id            = 0;
-  ran_ue_ngap_id            = 0;
-  _5gmm_state               = {};
-  registration_type         = 0;
-  follow_on_req_pending_ind = false;
-  ngksi                     = 0;
-  ue_security_capability    = {};
-  //  requestedNssai                                        = {};
+  security_ctx                                          = nullptr;
+  is_imsi_present                                       = false;
+  is_stacs_available                                    = false;
+  is_auth_vectors_present                               = false;
+  auts                                                  = nullptr;
+  ctx_avaliability_ind                                  = false;
+  amf_ue_ngap_id                                        = 0;
+  ran_ue_ngap_id                                        = 0;
+  _5gmm_state                                           = {};
+  registration_type                                     = 0;
+  follow_on_req_pending_ind                             = false;
+  ngksi                                                 = 0;
+  ue_security_capability                                = {};
   is_specific_procedure_for_registration_running        = false;
   is_specific_procedure_for_deregistration_running      = false;
   is_specific_procedure_for_eCell_inactivity_running    = false;
@@ -59,6 +58,7 @@ nas_context::nas_context()
   is_mobile_reachable_timer_timeout                     = false;
   mobile_reachable_timer                                = ITTI_INVALID_TIMER_ID;
   implicit_deregistration_timer                         = ITTI_INVALID_TIMER_ID;
+  href                                                  = {};
 }
 
 //------------------------------------------------------------------------------
