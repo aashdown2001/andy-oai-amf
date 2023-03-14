@@ -218,17 +218,18 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
         amf_ue_ngap_id);
     return;
   }
-  nas_secu_ctx* secu = nc->security_ctx;
-  if (!secu) {
-    Logger::amf_n1().error("No Security Context found");
-    return;
+
+  if (!nc->security_ctx.has_value()) {
+    Logger::amf_n2().error("No Security Context found");
+    return false;
   }
+  nas_secu_ctx security_ctx = nc->security_ctx.value();
 
   bstring protected_nas = nullptr;
   encode_nas_message_protected(
-      secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-      (uint8_t*) bdata(itti_msg.dl_nas), blength(itti_msg.dl_nas),
-      protected_nas);
+      security_ctx, false, INTEGRITY_PROTECTED_AND_CIPHERED,
+      NAS_MESSAGE_DOWNLINK, (uint8_t*) bdata(itti_msg.dl_nas),
+      blength(itti_msg.dl_nas), protected_nas);
 
   if (itti_msg.is_n2sm_set) {
     // PDU Session Resource Release Command
@@ -316,10 +317,10 @@ void amf_n1::handle_itti_message(itti_downlink_nas_transfer& itti_msg) {
         }
       } else {
         // send using InitialContextSetupRequest
-        uint8_t* kamf = nc->kamf[secu->vector_pointer];
+        uint8_t* kamf = nc->kamf[security_ctx.->vector_pointer];
         uint8_t kgnb[32];
-        uint32_t ulcount =
-            secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
+        uint32_t ulcount = security_ctx.ul_count.seq_num |
+                           (security_ctx.ul_count.overflow << 8);
         Authentication_5gaka::derive_kgnb(0, 0x01, kamf, kgnb);
         output_wrapper::print_buffer("amf_n1", "Kamf", kamf, 32);
 
@@ -460,14 +461,16 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
             "Abnormal condition: NAS context does not exist ...");
         return;
       }
-      if (!nc->security_ctx) {
+      if (!nc->security_ctx.has_value()) {
         Logger::amf_n1().error("No Security Context found");
         return;
       }
 
+      nas_secu_ctx security_ctx = nc->security_ctx.value();
+
       uint32_t mac32 = 0;
       if (!nas_message_integrity_protected(
-              nc->security_ctx, NAS_MESSAGE_UPLINK,
+              security_ctx, NAS_MESSAGE_UPLINK,
               (uint8_t*) bdata(received_nas_msg) + 6,
               blength(received_nas_msg) - 6, mac32)) {
         Logger::amf_n1().debug("IA0_5G");
@@ -481,7 +484,7 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
         if (mac32 == mac32_recv) {
           isMatched = true;
           Logger::amf_n1().debug("Integrity matched");
-          // nc->security_ctx->ul_count.seq_num ++;
+          // nc->security_ctx.value().ul_count.seq_num ++;
         }
         if (!isMatched) {
           Logger::amf_n1().error("Received message not integrity matched");
@@ -493,8 +496,7 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
           (uint8_t*) bdata(received_nas_msg) + 7,
           blength(received_nas_msg) - 7);
       if (!nas_message_cipher_protected(
-              nc->security_ctx, NAS_MESSAGE_UPLINK, ciphered,
-              decoded_plain_msg)) {
+              security_ctx, NAS_MESSAGE_UPLINK, ciphered, decoded_plain_msg)) {
         Logger::amf_n1().error("Decrypt NAS message failure");
         bdestroy_wrapper(&ciphered);
         return;
@@ -586,12 +588,13 @@ void amf_n1::nas_signalling_establishment_request_handle(
         Logger::amf_n1().error("No NAS Context found");
         return;
       }
-      /*  if (!nc->security_ctx) {
+      /*  if (!nc->security_ctx.has_value()) {
           Logger::amf_n1().error("No Security Context found");
           return;
         }
          */
-      if (nc && nc->security_ctx) nc->security_ctx->ul_count.seq_num = ulCount;
+      if (nc && nc->security_ctx.has_value())
+        nc->security_ctx->ul_count.seq_num = ulCount;
 
       service_request_handle(nc, ran_ue_ngap_id, amf_ue_ngap_id, plain_msg);
     } break;
@@ -836,13 +839,15 @@ void amf_n1::service_request_handle(
           "GUTI %s, 5G-TMSI %s", guti.c_str(), tmsi.c_str());
       std::shared_ptr<nas_context> old_nc = {};
       if (guti_2_nas_context(guti, old_nc)) {
-        // nc->security_ctx = old_nc->security_ctx;
+        // nc->security_ctx =
+        // std::make_optional<nas_secu_ctx>(old_nc->security_ctx.value);
       }
     }
   }
 
   // If there's no appropriate context, send Service Reject
-  if (!nc or !uc or !nc->security_ctx or (decoded_size == KEncodeDecodeError)) {
+  if (!nc or !uc or !nc->security_ctx.has_value() or
+      (decoded_size == KEncodeDecodeError)) {
     // TODO: Try to get
     Logger::amf_n1().debug(
         "Cannot find NAS/UE context, send Service Reject to UE");
@@ -878,11 +883,12 @@ void amf_n1::service_request_handle(
 
   // Otherwise, continue to process Service Request message
   set_amf_ue_ngap_id_2_nas_context(amf_ue_ngap_id, nc);
-  nas_secu_ctx* secu = nc->security_ctx;  // TODO: remove naked ptr
-  if (!secu) {
-    Logger::amf_n1().error("No Security Context found");
+
+  if (!nc->security_ctx.has_value()) {
+    Logger::amf_n2().error("No Security Context found");
     return;
   }
+  nas_secu_ctx security_ctx = nc->security_ctx.value();
 
   std::unique_ptr<ServiceAccept> service_accept =
       std::make_unique<ServiceAccept>();
@@ -984,12 +990,13 @@ void amf_n1::service_request_handle(
     int encoded_size      = service_accept->Encode(buffer, BUFFER_SIZE_256);
     bstring protected_nas = nullptr;
     encode_nas_message_protected(
-        secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-        buffer, encoded_size, protected_nas);
-    uint8_t* kamf = nc->kamf[secu->vector_pointer];
+        security_ctx, false, INTEGRITY_PROTECTED_AND_CIPHERED,
+        NAS_MESSAGE_DOWNLINK, buffer, encoded_size, protected_nas);
+    uint8_t* kamf = nc->kamf[security_ctx.vector_pointer];
     uint8_t kgnb[32];
-    uint32_t ulcount = secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
-    Logger::amf_n1().debug("uplink count(%d)", secu->ul_count.seq_num);
+    uint32_t ulcount =
+        security_ctx.ul_count.seq_num | (security_ctx.ul_count.overflow << 8);
+    Logger::amf_n1().debug("uplink count(%d)", security_ctx.ul_count.seq_num);
     output_wrapper::print_buffer("amf_n1", "Kamf", kamf, 32);
     Authentication_5gaka::derive_kgnb(ulcount, 0x01, kamf, kgnb);
 
@@ -1033,12 +1040,13 @@ void amf_n1::service_request_handle(
     int encoded_size      = service_accept->Encode(buffer, BUFFER_SIZE_256);
     bstring protected_nas = nullptr;
     encode_nas_message_protected(
-        secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-        buffer, encoded_size, protected_nas);
-    uint8_t* kamf = nc->kamf[secu->vector_pointer];
+        security_ctx, false, INTEGRITY_PROTECTED_AND_CIPHERED,
+        NAS_MESSAGE_DOWNLINK, buffer, encoded_size, protected_nas);
+    uint8_t* kamf = nc->kamf[security_ctx.vector_pointer];
     uint8_t kgnb[32];
-    uint32_t ulcount = secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
-    Logger::amf_n1().debug("uplink count(%d)", secu->ul_count.seq_num);
+    uint32_t ulcount =
+        security_ctx.ul_count.seq_num | (security_ctx.ul_count.overflow << 8);
+    Logger::amf_n1().debug("uplink count(%d)", security_ctx.ul_count.seq_num);
     output_wrapper::print_buffer("amf_n1", "Kamf", kamf, 32);
     Authentication_5gaka::derive_kgnb(ulcount, 0x01, kamf, kgnb);
 
@@ -1192,8 +1200,8 @@ void amf_n1::registration_request_handle(
         set_supi_2_ran_id(supi, ran_ue_ngap_id);
         nc->is_auth_vectors_present       = false;
         nc->is_current_security_available = false;
-        if (nc->security_ctx)
-          nc->security_ctx->sc_type = SECURITY_CTX_TYPE_NOT_AVAILABLE;
+        if (nc->security_ctx.has_value())
+          nc->security_ctx.value()->sc_type = SECURITY_CTX_TYPE_NOT_AVAILABLE;
       } else {
         Logger::amf_n1().debug(
             "No existing nas_context with amf_ue_ngap_id (" AMF_UE_NGAP_ID_FMT
@@ -1259,8 +1267,8 @@ void amf_n1::registration_request_handle(
 
       nc->is_auth_vectors_present       = false;
       nc->is_current_security_available = false;
-      if (nc->security_ctx)
-        nc->security_ctx->sc_type = SECURITY_CTX_TYPE_NOT_AVAILABLE;
+      if (nc->security_ctx.has_value())
+        nc->security_ctx.value().sc_type = SECURITY_CTX_TYPE_NOT_AVAILABLE;
     } else {
       Logger::amf_n1().error("No nas_context with GUTI (%s)", guti.c_str());
       send_registration_reject_msg(
@@ -1291,8 +1299,8 @@ void amf_n1::registration_request_handle(
   nc->amf_ue_ngap_id  = amf_ue_ngap_id;
   nc->serving_network = snn;
 
-  if (nc->security_ctx)
-    nc->security_ctx->sc_type = SECURITY_CTX_TYPE_NOT_AVAILABLE;
+  if (nc->security_ctx.has_value())
+    nc->security_ctx.value().sc_type = SECURITY_CTX_TYPE_NOT_AVAILABLE;
 
   // Update UE context
   if (uc != nullptr) {
@@ -1670,7 +1678,7 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context>& nc) {
           "Authentication vector in nas_context is not available");
       if (auth_vectors_generator(nc)) {  // all authentication in one (AMF)
         ngksi_t ngksi = 0;
-        if (nc->security_ctx &&
+        if (nc->security_ctx.has_value() &&
             nc->ngksi != NAS_KEY_SET_IDENTIFIER_NOT_AVAILABLE) {
           // ngksi = (nc->ngksi + 1) % (NGKSI_MAX_VALUE + 1);
           ngksi = (nc->amf_ue_ngap_id + 1);  // % (NGKSI_MAX_VALUE + 1);
@@ -1687,7 +1695,7 @@ void amf_n1::run_registration_procedure(std::shared_ptr<nas_context>& nc) {
       Logger::amf_n1().debug(
           "Authentication Vector in nas_context is available");
       ngksi_t ngksi = 0;
-      if (nc->security_ctx &&
+      if (nc->security_ctx.has_value() &&
           nc->ngksi != NAS_KEY_SET_IDENTIFIER_NOT_AVAILABLE) {
         // ngksi = (nc->ngksi + 1) % (NGKSI_MAX_VALUE + 1);
         ngksi = (nc->amf_ue_ngap_id + 1);  // % (NGKSI_MAX_VALUE + 1);
@@ -2109,15 +2117,16 @@ void amf_n1::handle_auth_vector_successful_result(
       "Received Security Vectors, try to setup security with the UE");
   nc->is_auth_vectors_present = true;
   ngksi_t ngksi               = 0;
-  if (!nc->security_ctx) {
-    nc->security_ctx          = new nas_secu_ctx();
-    nc->security_ctx->sc_type = SECURITY_CTX_TYPE_NOT_AVAILABLE;
-    if (nc->security_ctx && nc->ngksi != NAS_KEY_SET_IDENTIFIER_NOT_AVAILABLE)
+  if (!nc->security_ctx.has_value()) {
+    nc->security_ctx                 = std::make_optional<nas_secu_ctx>();
+    nc->security_ctx.value().sc_type = SECURITY_CTX_TYPE_NOT_AVAILABLE;
+    if (nc->security_ctx.has_value() &&
+        nc->ngksi != NAS_KEY_SET_IDENTIFIER_NOT_AVAILABLE)
       ngksi = (nc->amf_ue_ngap_id + 1) % (NGKSI_MAX_VALUE + 1);
     // ensure which vector is available?
     nc->ngksi = ngksi;
   }
-  int vindex = nc->security_ctx->vector_pointer;
+  int vindex = nc->security_ctx.value().vector_pointer;
   if (!start_authentication_procedure(nc, vindex, nc->ngksi)) {
     Logger::amf_n1().error("Start Authentication Procedure Failure, reject...");
     Logger::amf_n1().error(
@@ -2238,7 +2247,8 @@ void amf_n1::authentication_response_handle(
     } else {
       // Get stored XRES*
       int secu_index = 0;
-      if (nc->security_ctx) secu_index = nc->security_ctx->vector_pointer;
+      if (nc->security_ctx.has_value())
+        secu_index = nc->security_ctx.value().vector_pointer;
 
       uint8_t* hxresStar = nc->_5g_av[secu_index].hxresStar;
       // Calculate HRES* from received RES*, then compare with XRES stored in
@@ -2352,8 +2362,14 @@ void amf_n1::authentication_failure_handle(
       // select new ngKSI and resend Authentication Request
       ngksi_t ngksi =
           (nc->ngksi + 1) % (NGKSI_MAX_VALUE + 1);  // To be verified
-      nc->ngksi  = ngksi;
-      int vindex = nc->security_ctx->vector_pointer;
+      nc->ngksi = ngksi;
+
+      if (!nc->security_ctx.has_value()) {
+        Logger::amf_n2().error("No Security Context found");
+        // TODO:
+        return;
+      }
+      int vindex = nc->security_ctx.value().vector_pointer;
       if (!start_authentication_procedure(nc, vindex, nc->ngksi)) {
         Logger::amf_n1().error(
             "Start Authentication procedure failure, reject...");
@@ -2379,34 +2395,37 @@ bool amf_n1::start_security_mode_control_procedure(
   uint8_t amf_nea                                           = EA0_5G;
   uint8_t amf_nia                                           = IA0_5G;
   // Decide which ea/ia alg used by UE, which is supported by network
-  nas_secu_ctx* secu_ctx = nc->security_ctx;
-  if (!secu_ctx) {
+
+  if (!nc->security_ctx.has_value()) {
     Logger::amf_n1().error("No Security Context found");
     return false;
   }
+  nas_secu_ctx security_ctx = nc->security_ctx.value();
 
-  if (secu_ctx->sc_type == SECURITY_CTX_TYPE_NOT_AVAILABLE &&
+  if (security_ctx.value().sc_type == SECURITY_CTX_TYPE_NOT_AVAILABLE &&
       nc->is_common_procedure_for_security_mode_control_running) {
     Logger::amf_n1().debug(
         "Using INTEGRITY_PROTECTED_WITH_NEW_SECU_CTX for SecurityModeControl "
         "message");
-    secu_ctx->ngksi             = nc->ngksi;
-    secu_ctx->dl_count.overflow = 0;
-    secu_ctx->dl_count.seq_num  = 0;
-    secu_ctx->ul_count.overflow = 0;
-    secu_ctx->ul_count.seq_num  = 0;
+    security_ctx.value().ngksi             = nc->ngksi;
+    security_ctx.value().dl_count.overflow = 0;
+    security_ctx.value().dl_count.seq_num  = 0;
+    security_ctx.value().ul_count.overflow = 0;
+    security_ctx.value().ul_count.seq_num  = 0;
     security_select_algorithms(
         nc->ue_security_capability.GetEa(), nc->ue_security_capability.GetIa(),
         amf_nea, amf_nia);
-    secu_ctx->nas_algs.integrity  = amf_nia;
-    secu_ctx->nas_algs.encryption = amf_nea;
-    secu_ctx->sc_type             = SECURITY_CTX_TYPE_FULL_NATIVE;
+    security_ctx.value().nas_algs.integrity  = amf_nia;
+    security_ctx.value().nas_algs.encryption = amf_nea;
+    security_ctx.value().sc_type             = SECURITY_CTX_TYPE_FULL_NATIVE;
     Authentication_5gaka::derive_knas(
-        NAS_INT_ALG, secu_ctx->nas_algs.integrity,
-        nc->kamf[secu_ctx->vector_pointer], secu_ctx->knas_int);
+        NAS_INT_ALG, security_ctx.value().nas_algs.integrity,
+        nc->kamf[security_ctx.value().vector_pointer],
+        security_ctx.value().knas_int);
     Authentication_5gaka::derive_knas(
-        NAS_ENC_ALG, secu_ctx->nas_algs.encryption,
-        nc->kamf[secu_ctx->vector_pointer], secu_ctx->knas_enc);
+        NAS_ENC_ALG, security_ctx.value().nas_algs.encryption,
+        nc->kamf[security_ctx.value().vector_pointer],
+        security_ctx.value().knas_enc);
     security_context_is_new           = true;
     nc->is_current_security_available = true;
   }
@@ -2651,16 +2670,17 @@ void amf_n1::security_mode_complete_handle(
 
   set_guti_2_nas_context(guti, nc);
   nc->is_common_procedure_for_security_mode_control_running = false;
-  nas_secu_ctx* secu                                        = nc->security_ctx;
-  if (!secu) {
+
+  if (!nc->security_ctx.has_value()) {
     Logger::amf_n1().error("No Security Context found");
     return;
   }
+  nas_secu_ctx security_ctx = nc->security_ctx.value();
 
   bstring protected_nas = nullptr;
   encode_nas_message_protected(
-      secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-      buffer, encoded_size, protected_nas);
+      security_ctx.value(), false, INTEGRITY_PROTECTED_AND_CIPHERED,
+      NAS_MESSAGE_DOWNLINK, buffer, encoded_size, protected_nas);
 
   if (!uc->is_ue_context_request) {
     Logger::amf_n1().debug(
@@ -2691,9 +2711,10 @@ void amf_n1::security_mode_complete_handle(
     // use InitialContextSetupRequest (NGAP message) to convey Registration
     // Accept
 
-    uint8_t* kamf = nc->kamf[secu->vector_pointer];
+    uint8_t* kamf = nc->kamf[security_ctx.vector_pointer];
     uint8_t kgnb[32];
-    uint32_t ulcount = secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
+    uint32_t ulcount =
+        security_ctx.ul_count.seq_num | (security_ctx.ul_count.overflow << 8);
     Authentication_5gaka::derive_kgnb(0, 0x01, kamf, kgnb);
     output_wrapper::print_buffer("amf_n1", "Kamf", kamf, 32);
     // Authentication_5gaka::derive_kgnb(ulcount, 0x01, kamf, kgnb);
@@ -2745,11 +2766,11 @@ void amf_n1::registration_complete_handle(
     return;
   }
 
-  nas_secu_ctx* secu = nc->security_ctx;
-  if (!secu) {
+  if (!nc->security_ctx.has_value()) {
     Logger::amf_n1().error("No Security Context found");
     return;
   }
+  nas_secu_ctx security_ctx = nc->security_ctx.value();
 
   // Decode Registration Complete message
   auto registration_complete = std::make_unique<RegistrationComplete>();
@@ -2791,8 +2812,8 @@ void amf_n1::registration_complete_handle(
   // Protect NAS message
   bstring protected_nas = nullptr;
   encode_nas_message_protected(
-      secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-      buffer, encoded_size, protected_nas);
+      security_ctx.value(), false, INTEGRITY_PROTECTED_AND_CIPHERED,
+  NAS_MESSAGE_DOWNLINK, buffer, encoded_size, protected_nas);
 
   std::shared_ptr<itti_dl_nas_transport> dnt =
       std::make_shared<itti_dl_nas_transport>(TASK_AMF_N1, TASK_AMF_N2);
@@ -2811,7 +2832,7 @@ void amf_n1::registration_complete_handle(
 
 //------------------------------------------------------------------------------
 void amf_n1::encode_nas_message_protected(
-    nas_secu_ctx* nsc, bool is_secu_ctx_new, uint8_t security_header_type,
+    nas_secu_ctx& nsc, bool is_secu_ctx_new, uint8_t security_header_type,
     uint8_t direction, uint8_t* input_nas_buf, int input_nas_len,
     bstring& protected_nas) {
   Logger::amf_n1().debug("Encoding nas_message_protected...");
@@ -2829,7 +2850,7 @@ void amf_n1::encode_nas_message_protected(
       nas_message_cipher_protected(nsc, NAS_MESSAGE_DOWNLINK, input, ciphered);
       protected_nas_buf[0] = EPD_5GS_MM_MSG;
       protected_nas_buf[1] = INTEGRITY_PROTECTED_AND_CIPHERED;
-      protected_nas_buf[6] = (uint8_t) nsc->dl_count.seq_num;
+      protected_nas_buf[6] = (uint8_t) nsc.dl_count.seq_num;
 
       uint8_t* buf_tmp = (uint8_t*) bdata(ciphered);
       if (buf_tmp != nullptr)
@@ -2857,7 +2878,7 @@ void amf_n1::encode_nas_message_protected(
       }
       protected_nas_buf[0] = EPD_5GS_MM_MSG;
       protected_nas_buf[1] = INTEGRITY_PROTECTED_WITH_NEW_SECU_CTX;
-      protected_nas_buf[6] = (uint8_t) nsc->dl_count.seq_num;
+      protected_nas_buf[6] = (uint8_t) nsc.dl_count.seq_num;
       memcpy(&protected_nas_buf[7], input_nas_buf, input_nas_len);
       uint32_t mac32 = {};
       if (!(nas_message_integrity_protected(
@@ -2876,7 +2897,7 @@ void amf_n1::encode_nas_message_protected(
     } break;
   }
   protected_nas = blk2bstr(protected_nas_buf, encoded_size);
-  nsc->dl_count.seq_num++;
+  nsc.dl_count.seq_num++;
 }
 
 //------------------------------------------------------------------------------
@@ -2886,24 +2907,24 @@ bool amf_n1::nas_message_integrity_protected(
   if (nsc == nullptr) return false;
   uint32_t count = 0x00000000;
   if (direction) {
-    count = 0x00000000 | ((nsc->dl_count.overflow & 0x0000ffff) << 8) |
-            ((nsc->dl_count.seq_num & 0x000000ff));
+    count = 0x00000000 | ((nsc.dl_count.overflow & 0x0000ffff) << 8) |
+            ((nsc.dl_count.seq_num & 0x000000ff));
   } else {
-    count = 0x00000000 | ((nsc->ul_count.overflow & 0x0000ffff) << 8) |
-            ((nsc->ul_count.seq_num & 0x000000ff));
+    count = 0x00000000 | ((nsc.ul_count.overflow & 0x0000ffff) << 8) |
+            ((nsc.ul_count.seq_num & 0x000000ff));
   }
   nas_stream_cipher_t stream_cipher = {0};
   uint8_t mac[4];
-  stream_cipher.key = nsc->knas_int;
+  stream_cipher.key = nsc.knas_int;
   output_wrapper::print_buffer(
-      "amf_n1", "Parameters for NIA: Knas_int", nsc->knas_int,
+      "amf_n1", "Parameters for NIA: Knas_int", nsc.knas_int,
       AUTH_KNAS_INT_SIZE);
   stream_cipher.key_length = AUTH_KNAS_INT_SIZE;
   stream_cipher.count      = *(input_nas);
   // stream_cipher.count = count;
   if (!direction) {
-    nsc->ul_count.seq_num = stream_cipher.count;
-    Logger::amf_n1().debug("Uplink count in uplink: %d", nsc->ul_count.seq_num);
+    nsc.ul_count.seq_num = stream_cipher.count;
+    Logger::amf_n1().debug("Uplink count in uplink: %d", nsc.ul_count.seq_num);
   }
   Logger::amf_n1().debug("Parameters for NIA, count: 0x%x", count);
   stream_cipher.bearer = 0x01;  // 33.501 section 8.1.1
@@ -2916,7 +2937,7 @@ bool amf_n1::nas_message_integrity_protected(
       "amf_n1", "Parameters for NIA, message: ", input_nas, input_nas_len);
   stream_cipher.blength = input_nas_len * 8;
 
-  switch (nsc->nas_algs.integrity & 0x0f) {
+  switch (nsc.nas_algs.integrity & 0x0f) {
     case IA0_5G: {
       Logger::amf_n1().debug("Integrity with algorithms: 5G-IA0");
       return false;  // plain msg
@@ -2945,22 +2966,22 @@ bool amf_n1::nas_message_integrity_protected(
 
 //------------------------------------------------------------------------------
 bool amf_n1::nas_message_cipher_protected(
-    nas_secu_ctx* nsc, uint8_t direction, bstring input_nas,
+    nas_secu_ctx& nsc, uint8_t direction, bstring input_nas,
     bstring& output_nas) {
   uint8_t* buf   = (uint8_t*) bdata(input_nas);
   int buf_len    = blength(input_nas);
   uint32_t count = 0x00000000;
   if (direction) {
-    count = 0x00000000 | ((nsc->dl_count.overflow & 0x0000ffff) << 8) |
-            ((nsc->dl_count.seq_num & 0x000000ff));
+    count = 0x00000000 | ((nsc.dl_count.overflow & 0x0000ffff) << 8) |
+            ((nsc.dl_count.seq_num & 0x000000ff));
   } else {
-    Logger::amf_n1().debug("nsc->ul_count.overflow %x", nsc->ul_count.overflow);
-    count = 0x00000000 | ((nsc->ul_count.overflow & 0x0000ffff) << 8) |
-            ((nsc->ul_count.seq_num & 0x000000ff));
+    Logger::amf_n1().debug("nsc.ul_count.overflow %x", nsc.ul_count.overflow);
+    count = 0x00000000 | ((nsc.ul_count.overflow & 0x0000ffff) << 8) |
+            ((nsc.ul_count.seq_num & 0x000000ff));
   }
   nas_stream_cipher_t stream_cipher = {0};
   uint8_t mac[4];
-  stream_cipher.key        = nsc->knas_enc;
+  stream_cipher.key        = nsc.knas_enc;
   stream_cipher.key_length = AUTH_KNAS_ENC_SIZE;
   stream_cipher.count      = count;
   stream_cipher.bearer     = 0x01;       // 33.501 section 8.1.1
@@ -2968,7 +2989,7 @@ bool amf_n1::nas_message_cipher_protected(
   stream_cipher.message    = (uint8_t*) bdata(input_nas);
   stream_cipher.blength    = blength(input_nas) << 3;
 
-  switch (nsc->nas_algs.encryption & 0x0f) {
+  switch (nsc.nas_algs.encryption & 0x0f) {
     case EA0_5G: {
       Logger::amf_n1().debug("Cipher protected with EA0_5G");
       output_nas = blk2bstr(buf, buf_len);
@@ -3383,13 +3404,13 @@ void amf_n1::run_mobility_registration_update_procedure(
     return;
   }
 
-  nas_secu_ctx* secu = nc->security_ctx;
-  if (!secu) {
+  if (!nc->security_ctx.has_value()) {
     Logger::amf_n1().warn("No Security Context found");
     // Run Registration procedure
     // run_registration_procedure(nc);
     return;
   }
+  nas_secu_ctx security_ctx = nc->security_ctx.value();
 
   std::shared_ptr<pdu_session_context> psc = {};
 
@@ -3413,8 +3434,8 @@ void amf_n1::run_mobility_registration_update_procedure(
   // protect nas message
   bstring protected_nas = nullptr;
   encode_nas_message_protected(
-      secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-      buffer, encoded_size, protected_nas);
+      security_ctx, false, INTEGRITY_PROTECTED_AND_CIPHERED,
+      NAS_MESSAGE_DOWNLINK, buffer, encoded_size, protected_nas);
 
   // get PDU session status
   std::vector<uint8_t> pdu_session_to_be_activated = {};
@@ -3427,14 +3448,15 @@ void amf_n1::run_mobility_registration_update_procedure(
     uc->find_pdu_session_context(pdu_session_to_be_activated[0], psc);
   }
 
-  uint8_t* kamf = nc->kamf[secu->vector_pointer];
+  uint8_t* kamf = nc->kamf[security_ctx.vector_pointer];
   if (!kamf) {
     Logger::amf_n1().error("No Kamf found");
     return;
   }
 
   uint8_t kgnb[32];
-  uint32_t ulcount = secu->ul_count.seq_num | (secu->ul_count.overflow << 8);
+  uint32_t ulcount =
+      security_ctx.ul_count.seq_num | (security_ctx.ul_count.overflow << 8);
   Authentication_5gaka::derive_kgnb(ulcount, 0x01, kamf, kgnb);
   output_wrapper::print_buffer("amf_n1", "Kamf", kamf, 32);
 
@@ -3496,16 +3518,16 @@ void amf_n1::run_periodic_registration_update_procedure(
     return;
   }
 
-  nas_secu_ctx* secu = nc->security_ctx;
-  if (!secu) {
+  if (!nc->security_ctx.has_value()) {
     Logger::amf_n1().error("No Security Context found");
     return;
   }
+  nas_secu_ctx security_ctx = nc->security_ctx.value();
 
   bstring protected_nas = nullptr;
   encode_nas_message_protected(
-      secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-      buffer, encoded_size, protected_nas);
+      security_ctx, false, INTEGRITY_PROTECTED_AND_CIPHERED,
+      NAS_MESSAGE_DOWNLINK, buffer, encoded_size, protected_nas);
 
   std::shared_ptr<itti_dl_nas_transport> itti_msg =
       std::make_shared<itti_dl_nas_transport>(TASK_AMF_N1, TASK_AMF_N2);
@@ -3565,16 +3587,16 @@ void amf_n1::run_periodic_registration_update_procedure(
     return;
   }
 
-  nas_secu_ctx* secu = nc->security_ctx;
-  if (!secu) {
+  if (!nc->security_ctx.has_value()) {
     Logger::amf_n1().error("No Security Context found");
     return;
   }
+  nas_secu_ctx security_ctx = nc->security_ctx.value();
 
   bstring protected_nas = nullptr;
   encode_nas_message_protected(
-      secu, false, INTEGRITY_PROTECTED_AND_CIPHERED, NAS_MESSAGE_DOWNLINK,
-      buffer, encoded_size, protected_nas);
+      security_ctx, false, INTEGRITY_PROTECTED_AND_CIPHERED,
+      NAS_MESSAGE_DOWNLINK, buffer, encoded_size, protected_nas);
 
   std::shared_ptr<itti_dl_nas_transport> itti_msg =
       std::make_shared<itti_dl_nas_transport>(TASK_AMF_N1, TASK_AMF_N2);

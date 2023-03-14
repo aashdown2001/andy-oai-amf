@@ -24,7 +24,6 @@
 //------------------------------------------------------------------------------
 nas_context::nas_context()
     : _vector(), _5g_he_av(), _5g_av(), kamf(), _5gmm_capability() {
-  security_ctx                                          = nullptr;
   is_imsi_present                                       = false;
   is_stacs_available                                    = false;
   is_auth_vectors_present                               = false;
@@ -44,7 +43,7 @@ nas_context::nas_context()
   is_common_procedure_for_identification_running        = false;
   is_common_procedure_for_security_mode_control_running = false;
   is_common_procedure_for_nas_transport_running         = false;
-  security_ctx                                          = nullptr;
+  security_ctx                                          = std::nullopt;
   is_current_security_available                         = false;
   registration_attempt_counter                          = 0;
   is_imsi_present                                       = false;
