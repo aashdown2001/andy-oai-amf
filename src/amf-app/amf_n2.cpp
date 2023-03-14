@@ -1715,8 +1715,8 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
   // Request to Target RAN
   handover_request->setPduSessionResourceSetupList(list);
 
-  uint8_t buffer[BUFFER_SIZE_4096];
-  int encoded_size = handover_request->Encode(buffer, BUFFER_SIZE_4096);
+  uint8_t buffer[BUFFER_SIZE_8192];
+  int encoded_size = handover_request->Encode(buffer, BUFFER_SIZE_8192);
   bstring b        = blk2bstr(buffer, encoded_size);
   std::shared_ptr<gnb_context> gc_target = {};
   if (!gnb_id_2_gnb_context(gnb_id_value, gc_target)) {
