@@ -41,7 +41,8 @@ NgapMessage::NgapMessage() {
 
 //------------------------------------------------------------------------------
 NgapMessage::~NgapMessage() {
-  ASN_STRUCT_FREE(asn_DEF_Ngap_NGAP_PDU, ngapPdu);
+  if(ngapPdu)
+    ASN_STRUCT_FREE(asn_DEF_Ngap_NGAP_PDU, ngapPdu);
   Logger::ngap().debug("Free NGAP Message PDU");
 }
 
