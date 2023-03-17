@@ -750,7 +750,7 @@ void amf_sbi::handle_itti_message(itti_sbi_nf_instance_discovery& itti_msg) {
 //------------------------------------------------------------------------------
 bool amf_sbi::smf_selection_from_configuration(
     std::string& smf_addr, uint32_t& smf_port, std::string& smf_api_version) {
-  smf_addr        = inet_ntoa(amf_cfg.smf_addr->ipv4_addr);
+  smf_addr        = inet_ntoa(amf_cfg.smf_addr.ipv4_addr);
   smf_port        = amf_cfg.smf_addr.port;
   smf_api_version = amf_cfg.smf_addr.api_version;
   return true;

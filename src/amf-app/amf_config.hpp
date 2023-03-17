@@ -54,6 +54,7 @@
 #define AMF_CONFIG_STRING_PPID "PPID"
 
 #define AMF_CONFIG_STRING_INTERFACE_SBI "SBI"
+#define AMF_CONFIG_STRING_SMF "SMF"
 #define AMF_CONFIG_STRING_NRF "NRF"
 #define AMF_CONFIG_STRING_AUSF "AUSF"
 #define AMF_CONFIG_STRING_UDM "UDM"
@@ -201,8 +202,8 @@ typedef struct guami_s {
   std::string mcc;
   std::string mnc;
   std::string region_id;
-  std::string AmfSetID;
-  std::string AmfPointer;
+  std::string amf_set_id;
+  std::string amf_pointer;
 
   nlohmann::json to_json() const {
     nlohmann::json json_data = {};
@@ -322,39 +323,6 @@ typedef struct {
       }
     }*/
 } nas_conf_t;
-
-typedef struct {
-  int id;
-  std::string ipv4;
-  uint32_t port;
-  uint32_t http2_port;
-  std::string version;
-  bool selected;
-  std::string fqdn;
-
-  nlohmann::json to_json() const {
-    nlohmann::json json_data = {};
-    json_data["id"]          = this->id;
-    json_data["ipv4"]        = this->ipv4;
-    json_data["port"]        = this->port;
-    json_data["http2_port"]  = this->http2_port;
-    json_data["version"]     = this->version;
-    json_data["selected"]    = this->selected;
-    json_data["fqdn"]        = this->fqdn;
-    return json_data;
-  }
-
-  void from_json(nlohmann::json& json_data) {
-    this->id         = json_data["id"].get<int>();
-    this->ipv4       = json_data["ipv4"].get<std::string>();
-    this->port       = json_data["port"].get<int>();
-    this->http2_port = json_data["http2_port"].get<int>();
-    this->version    = json_data["version"].get<std::string>();
-    this->selected   = json_data["selected"].get<bool>();
-    this->fqdn       = json_data["fqdn"].get<std::string>();
-  }
-
-} smf_inst_t;
 
 typedef struct nf_addr_s {
   struct in_addr ipv4_addr;

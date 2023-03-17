@@ -368,14 +368,14 @@ int amf_config::load(const std::string& config_file) {
         // Store FQDN
         smf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, smf_addr.fqdn);
 
-        smf_cfg.lookupValue(AMF_CONFIG_STRING_SMF_IPV4_ADDRESS, address);
+        smf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
         IPV4_STR_ADDR_TO_INADDR(
             util::trim(address).c_str(), smf_ipv4_addr,
             "BAD IPv4 ADDRESS FORMAT FOR SMF !");
         smf_addr.ipv4_addr = smf_ipv4_addr;
-        if (!(smf_cfg.lookupValue(AMF_CONFIG_STRING_SMF_PORT, smf_port))) {
-          Logger::amf_app().error(AMF_CONFIG_STRING_SMF_PORT "failed");
-          throw(AMF_CONFIG_STRING_SMF_PORT "failed");
+        if (!(smf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, smf_port))) {
+          Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+          throw(AMF_CONFIG_STRING_PORT "failed");
         }
         smf_addr.port = smf_port;
         if (!(smf_cfg.lookupValue(
@@ -398,9 +398,9 @@ int amf_config::load(const std::string& config_file) {
           // smf_addr.port        = smf_port;
 
           // We hardcode smf port from config for the moment
-          if (!(smf_cfg.lookupValue(AMF_CONFIG_STRING_SMF_PORT, smf_port))) {
-            Logger::amf_app().error(AMF_CONFIG_STRING_SMF_PORT "failed");
-            throw(AMF_CONFIG_STRING_SMF_PORT "failed");
+          if (!(smf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, smf_port))) {
+            Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+            throw(AMF_CONFIG_STRING_PORT "failed");
           }
           smf_addr.port = smf_port;
           //
