@@ -290,7 +290,8 @@ bool InitialContextSetupRequestMsg::getCoreNetworkAssistanceInfo(
 //------------------------------------------------------------------------------
 void InitialContextSetupRequestMsg::setGuami(const Guami_t& value) {
   guami.setGUAMI(
-      value.mcc, value.mnc, value.regionID, value.AmfSetID, value.AmfPointer);
+      value.mcc, value.mnc, value.region_id, value.amf_set_id,
+      value.amf_pointer);
 
   Ngap_InitialContextSetupRequestIEs_t* ie =
       (Ngap_InitialContextSetupRequestIEs_t*) calloc(
@@ -313,7 +314,8 @@ void InitialContextSetupRequestMsg::setGuami(const Guami_t& value) {
 //------------------------------------------------------------------------------
 bool InitialContextSetupRequestMsg::getGuami(Guami_t& value) {
   guami.getGUAMI(
-      value.mcc, value.mnc, value.regionID, value.AmfSetID, value.AmfPointer);
+      value.mcc, value.mnc, value.region_id, value.amf_set_id,
+      value.amf_pointer);
   return true;
 }
 
