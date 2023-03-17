@@ -164,21 +164,8 @@ int amf_config::load(const std::string& config_file) {
   try {
     std::string string_level;
     amf_cfg.lookupValue(AMF_CONFIG_STRING_LOG_LEVEL, string_level);
-    if (string_level == "debug") {
-      log_level = spdlog::level::debug;
-    } else if (string_level == "info") {
-      log_level = spdlog::level::info;
-    } else if (string_level == "trace") {
-      log_level = spdlog::level::trace;
-    } else if (string_level == "off") {
-      log_level = spdlog::level::off;
-    } else if (string_level == "warning") {
-      log_level = spdlog::level::warn;
-    } else if (string_level == "error") {
-      log_level = spdlog::level::err;
-    } else {
-      log_level = spdlog::level::debug;
-    }
+    log_level =
+        oai::logger::logger_registry::level_string_to_enum(string_level);
   } catch (const SettingNotFoundException& nfex) {
     Logger::amf_app().error(
         "%s : %s, using defaults", nfex.what(), nfex.getPath());
@@ -873,26 +860,9 @@ void amf_config::display() {
   Logger::config().info(
       "    Use HTTP2..............: %s",
       support_features.use_http2 ? "Yes" : "No");
-  switch (log_level) {
-    case spdlog::level::debug:
-      Logger::config().info("- Log Level will be .......: debug");
-      break;
-    case spdlog::level::info:
-      Logger::config().info("- Log Level will be .......: info");
-      break;
-    case spdlog::level::trace:
-      Logger::config().info("- Log Level will be .......: trace");
-      break;
-    case spdlog::level::warn:
-      Logger::config().info("- Log Level will be .......: warning");
-      break;
-    case spdlog::level::err:
-      Logger::config().info("- Log Level will be .......: error");
-      break;
-    case spdlog::level::off:
-      Logger::config().info("- Log Level will be .......: off");
-      break;
-  }
+  Logger::config().info(
+      "- Log Level will be .......: %s",
+      oai::logger::logger_registry::level_enum_to_string(log_level));
 }
 
 //------------------------------------------------------------------------------
