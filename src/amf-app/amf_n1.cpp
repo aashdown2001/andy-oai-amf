@@ -395,7 +395,7 @@ void amf_n1::handle_itti_message(itti_uplink_nas_data_ind& nas_data_ind) {
       std::string supi = conv::imsi_to_supi(nc->imsi);
       set_supi_2_amf_id(supi, amf_ue_ngap_id);
       set_supi_2_ran_id(supi, ran_ue_ngap_id);
-      set_supi_2_nas_context(supi, nc);  // TODO: To be verified IMSI or SUPI
+      set_supi_2_nas_context(supi, nc);
     } else {
       Logger::amf_n1().error(
           "No existing nas_context with GUTI %s", nas_data_ind.guti.c_str());
