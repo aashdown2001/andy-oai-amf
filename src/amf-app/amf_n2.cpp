@@ -1585,14 +1585,14 @@ bool amf_n2::handle_itti_message(itti_handover_required& itti_msg) {
     Logger::amf_n2().error("No Security Context found");
     return false;
   }
-  nas_secu_ctx security_ctx = nc->security_ctx.value();
 
-  uint8_t* kamf = nc->kamf[security_ctx.vector_pointer];
+  uint8_t* kamf = nc->kamf[nc->security_ctx.value().vector_pointer];
   uint8_t kgnb[32];
-  uint32_t ulcount =
-      security_ctx.ul_count.seq_num | (security_ctx.ul_count.overflow << 8);
+  uint32_t ulcount = nc->security_ctx.value().ul_count.seq_num |
+                     (nc->security_ctx.value().ul_count.overflow << 8);
   Logger::amf_n2().debug(
-      "Handover Required, Uplink count (%d)", security_ctx.ul_count.seq_num);
+      "Handover Required, Uplink count (%d)",
+      nc->security_ctx.value().ul_count.seq_num);
   uint8_t knh[32];
   Authentication_5gaka::handover_ncc_derive_knh(
       ulcount, 0x01, kamf, kgnb, knh, unc->ncc);
