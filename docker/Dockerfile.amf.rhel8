@@ -123,6 +123,8 @@ COPY --from=oai-amf-builder \
     /openair-amf/build/amf/build/oai_amf \
     /openair-amf/scripts/entrypoint.py \
     /openair-amf/scripts/healthcheck.sh \
+    /usr/local/lib64/libspdlog.so \
+    /usr/local/lib64/libfmt.so \
     ./
 
 COPY --from=oai-amf-builder \
