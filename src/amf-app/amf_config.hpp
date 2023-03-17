@@ -50,24 +50,16 @@
 #define AMF_CONFIG_STRING_INTERFACE_NAME "INTERFACE_NAME"
 #define AMF_CONFIG_STRING_IPV4_ADDRESS "IPV4_ADDRESS"
 #define AMF_CONFIG_STRING_PORT "PORT"
-#define AMF_CONFIG_STRING_PPID "PPID"
 #define AMF_CONFIG_STRING_SBI_HTTP2_PORT "HTTP2_PORT"
+#define AMF_CONFIG_STRING_PPID "PPID"
 
 #define AMF_CONFIG_STRING_INTERFACE_SBI "SBI"
-#define AMF_CONFIG_STRING_SMF_INSTANCES_POOL "SMF_INSTANCES_POOL"
-#define AMF_CONFIG_STRING_SMF_INSTANCE_ID "SMF_INSTANCE_ID"
-#define AMF_CONFIG_STRING_SMF_INSTANCE_PORT "PORT"
-#define AMF_CONFIG_STRING_SMF_INSTANCE_VERSION "VERSION"
-#define AMF_CONFIG_STRING_SMF_INSTANCE_SELECTED "SELECTED"
-
 #define AMF_CONFIG_STRING_NRF "NRF"
-#define AMF_CONFIG_STRING_NRF_IPV4_ADDRESS "IPV4_ADDRESS"
-#define AMF_CONFIG_STRING_NRF_PORT "PORT"
-#define AMF_CONFIG_STRING_API_VERSION "API_VERSION"
-
 #define AMF_CONFIG_STRING_AUSF "AUSF"
 #define AMF_CONFIG_STRING_UDM "UDM"
 #define AMF_CONFIG_STRING_NSSF "NSSF"
+#define AMF_CONFIG_STRING_API_VERSION "API_VERSION"
+#define AMF_CONFIG_STRING_FQDN_DNS "FQDN"
 
 #define AMF_CONFIG_STRING_SCHED_PARAMS "SCHED_PARAMS"
 #define AMF_CONFIG_STRING_THREAD_RD_CPU_ID "CPU_ID"
@@ -80,27 +72,31 @@
 #define AMF_CONFIG_STRING_TAC "TAC"
 #define AMF_CONFIG_STRING_MCC "MCC"
 #define AMF_CONFIG_STRING_MNC "MNC"
-#define AMF_CONFIG_STRING_RegionID "RegionID"
-#define AMF_CONFIG_STRING_AMFSetID "AMFSetID"
-#define AMF_CONFIG_STRING_AMFPointer "AMFPointer"
+#define AMF_CONFIG_STRING_REGION_ID "RegionID"
+#define AMF_CONFIG_STRING_AMF_SET_ID "AMFSetID"
+#define AMF_CONFIG_STRING_AMF_POINTER "AMFPointer"
 #define AMF_CONFIG_STRING_RELATIVE_AMF_CAPACITY "RELATIVE_CAPACITY"
 #define AMF_CONFIG_STRING_PLMN_SUPPORT_LIST "PLMN_SUPPORT_LIST"
 #define AMF_CONFIG_STRING_SLICE_SUPPORT_LIST "SLICE_SUPPORT_LIST"
 #define AMF_CONFIG_STRING_SST "SST"
 #define AMF_CONFIG_STRING_SD "SD"
+
 #define AMF_CONFIG_STRING_CORE_CONFIGURATION "CORE_CONFIGURATION"
 #define AMF_CONFIG_STRING_EMERGENCY_SUPPORT "EMERGENCY_SUPPORT"
 #define AMF_CONFIG_STRING_AUTHENTICATION "AUTHENTICATION"
+
 #define AMF_CONFIG_STRING_AUTH_MYSQL_SERVER "MYSQL_server"
 #define AMF_CONFIG_STRING_AUTH_MYSQL_USER "MYSQL_user"
 #define AMF_CONFIG_STRING_AUTH_MYSQL_PASS "MYSQL_pass"
 #define AMF_CONFIG_STRING_AUTH_MYSQL_DB "MYSQL_db"
 #define AMF_CONFIG_STRING_AUTH_RANDOM "RANDOM"
+
 #define AMF_CONFIG_STRING_NAS "NAS"
 #define AMF_CONFIG_STRING_NAS_SUPPORTED_INTEGRITY_ALGORITHM_LIST               \
   "ORDERED_SUPPORTED_INTEGRITY_ALGORITHM_LIST"
 #define AMF_CONFIG_STRING_NAS_SUPPORTED_CIPHERING_ALGORITHM_LIST               \
   "ORDERED_SUPPORTED_CIPHERING_ALGORITHM_LIST"
+
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES "SUPPORT_FEATURES"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_NF_REGISTRATION "NF_REGISTRATION"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_NRF_SELECTION "NRF_SELECTION"
@@ -111,8 +107,6 @@
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_EXTERNAL_NSSF "EXTERNAL_NSSF"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_USE_FQDN_DNS "USE_FQDN_DNS"
 #define AMF_CONFIG_STRING_SUPPORT_FEATURES_USE_HTTP2 "USE_HTTP2"
-
-#define AMF_CONFIG_STRING_FQDN_DNS "FQDN"
 
 using namespace libconfig;
 
@@ -206,7 +200,7 @@ typedef struct itti_cfg_s {
 typedef struct guami_s {
   std::string mcc;
   std::string mnc;
-  std::string regionID;
+  std::string region_id;
   std::string AmfSetID;
   std::string AmfPointer;
 
@@ -214,18 +208,18 @@ typedef struct guami_s {
     nlohmann::json json_data = {};
     json_data["mcc"]         = this->mcc;
     json_data["mnc"]         = this->mnc;
-    json_data["regionID"]    = this->regionID;
-    json_data["AmfSetID"]    = this->AmfSetID;
-    json_data["AmfPointer"]  = this->AmfPointer;
+    json_data["region_id"]   = this->region_id;
+    json_data["amf_set_id"]  = this->amf_set_id;
+    json_data["amf_pointer"] = this->amf_pointer;
     return json_data;
   }
 
   void from_json(nlohmann::json& json_data) {
-    this->mcc        = json_data["mcc"].get<std::string>();
-    this->mnc        = json_data["mnc"].get<std::string>();
-    this->regionID   = json_data["regionID"].get<std::string>();
-    this->AmfSetID   = json_data["AmfSetID"].get<std::string>();
-    this->AmfPointer = json_data["AmfPointer"].get<std::string>();
+    this->mcc         = json_data["mcc"].get<std::string>();
+    this->mnc         = json_data["mnc"].get<std::string>();
+    this->region_id   = json_data["region_id"].get<std::string>();
+    this->amf_set_id  = json_data["amf_set_id"].get<std::string>();
+    this->amf_pointer = json_data["amf_pointer"].get<std::string>();
   }
 } guami_t;
 
@@ -514,7 +508,6 @@ class amf_config {
   std::string is_emergency_support;
   auth_conf_t auth_para;
   nas_conf_t nas_cfg;
-  std::vector<smf_inst_t> smf_pool;
 
   struct {
     bool enable_nf_registration;
@@ -558,6 +551,7 @@ class amf_config {
 
   } support_features;
 
+  nf_addr_t smf_addr;
   nf_addr_t nrf_addr;
   nf_addr_t ausf_addr;
   nf_addr_t udm_addr;

@@ -419,7 +419,7 @@ void amf_app::handle_itti_message(
   bool is_guti_valid = false;
   if (itti_msg.is_5g_s_tmsi_present) {
     guti = conv::tmsi_to_guti(
-        itti_msg.tai.mcc, itti_msg.tai.mnc, amf_cfg.guami.regionID,
+        itti_msg.tai.mcc, itti_msg.tai.mnc, amf_cfg.guami.region_id,
         itti_msg._5g_s_tmsi);
     is_guti_valid = true;
     Logger::amf_app().debug("Receiving GUTI %s", guti.c_str());
@@ -1063,12 +1063,12 @@ void amf_app::generate_amf_profile() {
   // TODO: custom info
   // AMF info
   amf_info_t info    = {};
-  info.amf_region_id = amf_cfg.guami.regionID;
-  info.amf_set_id    = amf_cfg.guami.AmfSetID;
+  info.amf_region_id = amf_cfg.guami.region_id;
+  info.amf_set_id    = amf_cfg.guami.amf_set_id;
   for (auto g : amf_cfg.guami_list) {
     guami_5g_t guami = {};
-    guami.amf_id =
-        g.regionID + ":" + g.AmfSetID + ":" + g.AmfPointer;  // TODO verify??
+    guami.amf_id     = g.region_id + ":" + g.amf_set_id + ":" +
+                   g.amf_pointer;  // TODO verify??
     guami.plmn.mcc = g.mcc;
     guami.plmn.mnc = g.mnc;
     info.guami_list.push_back(guami);

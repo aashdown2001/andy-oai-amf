@@ -53,6 +53,9 @@ namespace config {
 
 //------------------------------------------------------------------------------
 amf_config::amf_config() {
+  smf_addr.ipv4_addr.s_addr               = INADDR_ANY;
+  smf_addr.port                           = DEFAULT_HTTP1_PORT;
+  smf_addr.api_version                    = DEFAULT_SBI_API_VERSION;
   nrf_addr.ipv4_addr.s_addr               = INADDR_ANY;
   nrf_addr.port                           = DEFAULT_HTTP1_PORT;
   nrf_addr.api_version                    = DEFAULT_SBI_API_VERSION;
@@ -77,7 +80,6 @@ amf_config::amf_config() {
   plmn_list                               = {};
   auth_para                               = {};
   nas_cfg                                 = {};
-  smf_pool                                = {};
   support_features.enable_nf_registration = false;
   support_features.enable_nrf_selection   = false;
   support_features.enable_external_nrf    = false;
@@ -164,9 +166,9 @@ int amf_config::load(const std::string& config_file) {
     const Setting& guami_cfg = amf_cfg[AMF_CONFIG_STRING_GUAMI];
     guami_cfg.lookupValue(AMF_CONFIG_STRING_MCC, guami.mcc);
     guami_cfg.lookupValue(AMF_CONFIG_STRING_MNC, guami.mnc);
-    guami_cfg.lookupValue(AMF_CONFIG_STRING_RegionID, guami.regionID);
-    guami_cfg.lookupValue(AMF_CONFIG_STRING_AMFSetID, guami.AmfSetID);
-    guami_cfg.lookupValue(AMF_CONFIG_STRING_AMFPointer, guami.AmfPointer);
+    guami_cfg.lookupValue(AMF_CONFIG_STRING_REGION_ID, guami.region_id);
+    guami_cfg.lookupValue(AMF_CONFIG_STRING_AMF_SET_ID, guami.amf_set_id);
+    guami_cfg.lookupValue(AMF_CONFIG_STRING_AMF_POINTER, guami.amf_pointer);
   } catch (const SettingNotFoundException& nfex) {
     Logger::amf_app().error(
         "%s : %s, using defaults", nfex.what(), nfex.getPath());
@@ -182,9 +184,9 @@ int amf_config::load(const std::string& config_file) {
       const Setting& guami_item = guami_list_cfg[i];
       guami_item.lookupValue(AMF_CONFIG_STRING_MCC, guami.mcc);
       guami_item.lookupValue(AMF_CONFIG_STRING_MNC, guami.mnc);
-      guami_item.lookupValue(AMF_CONFIG_STRING_RegionID, guami.regionID);
-      guami_item.lookupValue(AMF_CONFIG_STRING_AMFSetID, guami.AmfSetID);
-      guami_item.lookupValue(AMF_CONFIG_STRING_AMFPointer, guami.AmfPointer);
+      guami_item.lookupValue(AMF_CONFIG_STRING_REGION_ID, guami.region_id);
+      guami_item.lookupValue(AMF_CONFIG_STRING_AMF_SET_ID, guami.amf_set_id);
+      guami_item.lookupValue(AMF_CONFIG_STRING_AMF_POINTER, guami.amf_pointer);
       guami_list.push_back(guami);
     }
   } catch (const SettingNotFoundException& nfex) {
@@ -327,8 +329,7 @@ int amf_config::load(const std::string& config_file) {
     return RETURNerror;
   }
 
-  // Network interfaces
-  // TODO: should move SMF/NRF/AUSF out of this section
+  // Network interfaces/NFs
   try {
     const Setting& new_if_cfg = amf_cfg[AMF_CONFIG_STRING_INTERFACES];
 
@@ -357,59 +358,55 @@ int amf_config::load(const std::string& config_file) {
 
     if (!support_features.enable_smf_selection) {
       // SMF
-      const Setting& smf_addr_pool =
-          sbi_cfg[AMF_CONFIG_STRING_SMF_INSTANCES_POOL];
-      int count = smf_addr_pool.getLength();
-      for (int i = 0; i < count; i++) {
-        const Setting& smf_addr_item = smf_addr_pool[i];
-        smf_inst_t smf_inst          = {};
-        struct in_addr smf_ipv4_addr = {};
-        unsigned int smf_port        = {};
-        uint32_t smf_http2_port      = {};
-        std::string smf_api_version  = {};
-        std::string selected         = {};
+      const Setting& smf_cfg       = new_if_cfg[AMF_CONFIG_STRING_SMF];
+      struct in_addr smf_ipv4_addr = {};
+      unsigned int smf_port        = 0;
+      std::string smf_api_version  = {};
+      string address               = {};
 
+      if (!support_features.use_fqdn_dns) {
         // Store FQDN
-        smf_addr_item.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, smf_inst.fqdn);
+        smf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, smf_addr.fqdn);
 
-        smf_addr_item.lookupValue(
-            AMF_CONFIG_STRING_SMF_INSTANCE_ID, smf_inst.id);
-        if (!support_features.use_fqdn_dns) {
-          smf_addr_item.lookupValue(
-              AMF_CONFIG_STRING_IPV4_ADDRESS, smf_inst.ipv4);
-          IPV4_STR_ADDR_TO_INADDR(
-              util::trim(smf_inst.ipv4).c_str(), smf_ipv4_addr,
-              "BAD IPv4 ADDRESS FORMAT FOR SMF !");
-          if (!(smf_addr_item.lookupValue(
-                  AMF_CONFIG_STRING_SMF_INSTANCE_PORT, smf_inst.port))) {
-            Logger::amf_app().error(AMF_CONFIG_STRING_SMF_INSTANCE_PORT
-                                    "failed");
-            throw(AMF_CONFIG_STRING_SMF_INSTANCE_PORT "failed");
-          }
-          if (!(smf_addr_item.lookupValue(
-                  AMF_CONFIG_STRING_SBI_HTTP2_PORT, smf_inst.http2_port))) {
-            Logger::amf_app().error(AMF_CONFIG_STRING_SBI_HTTP2_PORT "failed");
-            throw(AMF_CONFIG_STRING_SBI_HTTP2_PORT "failed");
-          }
-          smf_addr_item.lookupValue(
-              AMF_CONFIG_STRING_SMF_INSTANCE_VERSION, smf_inst.version);
-          if (!(smf_addr_item.lookupValue(
-                  AMF_CONFIG_STRING_SMF_INSTANCE_VERSION, smf_inst.version))) {
-            Logger::amf_app().error(AMF_CONFIG_STRING_SMF_INSTANCE_VERSION
-                                    "failed");
-            throw(AMF_CONFIG_STRING_SMF_INSTANCE_VERSION "failed");
-          }
-        } else {
-          smf_addr_item.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, smf_inst.fqdn);
+        smf_cfg.lookupValue(AMF_CONFIG_STRING_SMF_IPV4_ADDRESS, address);
+        IPV4_STR_ADDR_TO_INADDR(
+            util::trim(address).c_str(), smf_ipv4_addr,
+            "BAD IPv4 ADDRESS FORMAT FOR SMF !");
+        smf_addr.ipv4_addr = smf_ipv4_addr;
+        if (!(smf_cfg.lookupValue(AMF_CONFIG_STRING_SMF_PORT, smf_port))) {
+          Logger::amf_app().error(AMF_CONFIG_STRING_SMF_PORT "failed");
+          throw(AMF_CONFIG_STRING_SMF_PORT "failed");
         }
+        smf_addr.port = smf_port;
+        if (!(smf_cfg.lookupValue(
+                AMF_CONFIG_STRING_API_VERSION, smf_api_version))) {
+          Logger::amf_app().error(AMF_CONFIG_STRING_API_VERSION "failed");
+          throw(AMF_CONFIG_STRING_API_VERSION "failed");
+        }
+        smf_addr.api_version = smf_api_version;
+      } else {
+        smf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, smf_addr.fqdn);
+        uint8_t addr_type = {};
+        fqdn::resolve(smf_addr.fqdn, address, smf_port, addr_type);
+        if (addr_type != 0) {  // IPv6: TODO
+          throw("DO NOT SUPPORT IPV6 ADDR FOR SMF!");
+        } else {  // IPv4
+          IPV4_STR_ADDR_TO_INADDR(
+              util::trim(address).c_str(), smf_ipv4_addr,
+              "BAD IPv4 ADDRESS FORMAT FOR SMF !");
+          smf_addr.ipv4_addr = smf_ipv4_addr;
+          // smf_addr.port        = smf_port;
 
-        smf_addr_item.lookupValue(
-            AMF_CONFIG_STRING_SMF_INSTANCE_SELECTED, selected);
-        if (boost::iequals(selected, "true"))
-          smf_inst.selected = true;
-        else
-          smf_inst.selected = false;
-        smf_pool.push_back(smf_inst);
+          // We hardcode smf port from config for the moment
+          if (!(smf_cfg.lookupValue(AMF_CONFIG_STRING_SMF_PORT, smf_port))) {
+            Logger::amf_app().error(AMF_CONFIG_STRING_SMF_PORT "failed");
+            throw(AMF_CONFIG_STRING_SMF_PORT "failed");
+          }
+          smf_addr.port = smf_port;
+          //
+          smf_addr.api_version =
+              DEFAULT_SBI_API_VERSION;  // TODO: get API version
+        }
       }
     }
 
@@ -424,14 +421,14 @@ int amf_config::load(const std::string& config_file) {
       // Store FQDN
       nrf_cfg.lookupValue(AMF_CONFIG_STRING_FQDN_DNS, nrf_addr.fqdn);
 
-      nrf_cfg.lookupValue(AMF_CONFIG_STRING_NRF_IPV4_ADDRESS, address);
+      nrf_cfg.lookupValue(AMF_CONFIG_STRING_IPV4_ADDRESS, address);
       IPV4_STR_ADDR_TO_INADDR(
           util::trim(address).c_str(), nrf_ipv4_addr,
           "BAD IPv4 ADDRESS FORMAT FOR NRF !");
       nrf_addr.ipv4_addr = nrf_ipv4_addr;
-      if (!(nrf_cfg.lookupValue(AMF_CONFIG_STRING_NRF_PORT, nrf_port))) {
-        Logger::amf_app().error(AMF_CONFIG_STRING_NRF_PORT "failed");
-        throw(AMF_CONFIG_STRING_NRF_PORT "failed");
+      if (!(nrf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nrf_port))) {
+        Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+        throw(AMF_CONFIG_STRING_PORT "failed");
       }
       nrf_addr.port = nrf_port;
       if (!(nrf_cfg.lookupValue(
@@ -454,9 +451,9 @@ int amf_config::load(const std::string& config_file) {
         // nrf_addr.port        = nrf_port;
 
         // We hardcode nrf port from config for the moment
-        if (!(nrf_cfg.lookupValue(AMF_CONFIG_STRING_NRF_PORT, nrf_port))) {
-          Logger::amf_app().error(AMF_CONFIG_STRING_NRF_PORT "failed");
-          throw(AMF_CONFIG_STRING_NRF_PORT "failed");
+        if (!(nrf_cfg.lookupValue(AMF_CONFIG_STRING_PORT, nrf_port))) {
+          Logger::amf_app().error(AMF_CONFIG_STRING_PORT "failed");
+          throw(AMF_CONFIG_STRING_PORT "failed");
         }
         nrf_addr.port = nrf_port;
         //
@@ -701,13 +698,14 @@ void amf_config::display() {
       "- GUAMI (MCC, MNC, Region ID, AMF Set ID, AMF pointer): ");
   Logger::config().info(
       "    (%s, %s, %s, %s, %s)", guami.mcc.c_str(), guami.mnc.c_str(),
-      guami.regionID.c_str(), guami.AmfSetID.c_str(), guami.AmfPointer.c_str());
+      guami.region_id.c_str(), guami.amf_set_id.c_str(),
+      guami.amf_pointer.c_str());
   Logger::config().info("- Served Guami List:");
   for (int i = 0; i < guami_list.size(); i++) {
     Logger::config().info(
         "    (%s, %s, %s , %s, %s)", guami_list[i].mcc.c_str(),
-        guami_list[i].mnc.c_str(), guami_list[i].regionID.c_str(),
-        guami_list[i].AmfSetID.c_str(), guami_list[i].AmfPointer.c_str());
+        guami_list[i].mnc.c_str(), guami_list[i].region_id.c_str(),
+        guami_list[i].amf_set_id.c_str(), guami_list[i].amf_pointer.c_str());
   }
   Logger::config().info(
       "- Relative Capacity .......: %d", relative_amf_capacity);
@@ -770,6 +768,15 @@ void amf_config::display() {
   Logger::config().info(
       "    API version............: %s", sbi_api_version.c_str());
 
+  if (!support_features.enable_smf_selection) {
+    Logger::config().info("- SMF:");
+    Logger::config().info(
+        "    IP Addr ...............: %s", inet_ntoa(smf_addr.ipv4_addr));
+    Logger::config().info("    Port ..................: %d", smf_addr.port);
+    Logger::config().info(
+        "    API version ...........: %s", smf_addr.api_version.c_str());
+  }
+
   if (support_features.enable_external_nrf) {
     Logger::config().info("- NRF:");
     Logger::config().info(
@@ -804,20 +811,6 @@ void amf_config::display() {
     Logger::config().info("    Port ..................: %d", udm_addr.port);
     Logger::config().info(
         "    API version ...........: %s", udm_addr.api_version.c_str());
-  }
-
-  if (!support_features.enable_smf_selection) {
-    Logger::config().info("- SMF Pool: ");
-    for (int i = 0; i < smf_pool.size(); i++) {
-      std::string selected = smf_pool[i].selected ? "true" : "false";
-      std::string smf_info = support_features.use_fqdn_dns ?
-                                 smf_pool[i].fqdn :
-                                 smf_pool[i].ipv4.c_str();
-      Logger::config().info(
-          "    SMF_INSTANCE_ID %d (%s:%d, version %s) is selected: %s",
-          smf_pool[i].id, smf_info.c_str(), smf_pool[i].port,
-          smf_pool[i].version.c_str(), selected.c_str());
-    }
   }
 
   Logger::config().info("- Supported Features:");
@@ -1041,6 +1034,8 @@ void amf_config::to_json(nlohmann::json& json_data) const {
 
   json_data["support_features"] = support_features.to_json();
 
+  json_data["smf"] = smf_addr.to_json();
+
   if (support_features.enable_external_nrf) {
     json_data["nrf"] = nrf_addr.to_json();
   }
@@ -1055,11 +1050,6 @@ void amf_config::to_json(nlohmann::json& json_data) const {
 
   if (support_features.enable_external_udm) {
     json_data["udm"] = udm_addr.to_json();
-  }
-
-  json_data["smf_pool"] = nlohmann::json::array();
-  for (auto s : smf_pool) {
-    json_data["smf_pool"].push_back(s.to_json());
   }
 }
 
@@ -1126,6 +1116,14 @@ bool amf_config::from_json(nlohmann::json& json_data) {
       support_features.from_json(json_data["support_features"]);
     }
 
+    if (json_data.find("smf") != json_data.end()) {
+      smf_addr.from_json(json_data["smf"]);
+      // if use FQDN -> update IP addr accordingly
+      if (support_features.use_fqdn_dns) {
+        resolve_fqdn(smf_addr.fqdn, smf_addr.ipv4_addr);
+      }
+    }
+
     if (support_features.enable_external_nrf) {
       if (json_data.find("nrf") != json_data.end()) {
         nrf_addr.from_json(json_data["nrf"]);
@@ -1163,21 +1161,6 @@ bool amf_config::from_json(nlohmann::json& json_data) {
         if (support_features.use_fqdn_dns) {
           resolve_fqdn(udm_addr.fqdn, udm_addr.ipv4_addr);
         }
-      }
-    }
-
-    if (json_data.find("smf_pool") != json_data.end()) {
-      smf_pool.clear();
-      for (auto s : json_data["smf_pool"]) {
-        smf_inst_t smf_item      = {};
-        struct in_addr ipv4_addr = {};
-        smf_item.from_json(s);
-        // if use FQDN -> update IP addr accordingly
-        if (support_features.use_fqdn_dns) {
-          resolve_fqdn(smf_item.fqdn, ipv4_addr);
-          smf_item.ipv4 = inet_ntoa(ipv4_addr);
-        }
-        smf_pool.push_back(smf_item);
       }
     }
 

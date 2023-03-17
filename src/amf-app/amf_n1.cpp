@@ -829,7 +829,7 @@ void amf_n1::service_request_handle(
     string tmsi         = {};
     if (service_request->Get5gSTmsi(amf_set_id, amf_pointer, tmsi)) {
       std::string guti = conv::tmsi_to_guti(
-          uc->tai.mcc, uc->tai.mnc, amf_cfg.guami.regionID,
+          uc->tai.mcc, uc->tai.mnc, amf_cfg.guami.region_id,
           std::to_string(amf_set_id), std::to_string(amf_pointer), tmsi);
 
       Logger::amf_app().debug(
@@ -2549,12 +2549,12 @@ void amf_n1::security_mode_complete_handle(
     return;
   }
   registration_accept->Set5gGuti(
-      mcc, mnc, amf_cfg.guami.regionID, amf_cfg.guami.AmfSetID,
-      amf_cfg.guami.AmfPointer, tmsi);
+      mcc, mnc, amf_cfg.guami.region_id, amf_cfg.guami.amf_set_id,
+      amf_cfg.guami.amf_pointer, tmsi);
 
   std::string guti = conv::tmsi_to_guti(
-      mcc, mnc, amf_cfg.guami.regionID, amf_cfg.guami.AmfSetID,
-      amf_cfg.guami.AmfPointer, conv::tmsi_to_string(tmsi));
+      mcc, mnc, amf_cfg.guami.region_id, amf_cfg.guami.amf_set_id,
+      amf_cfg.guami.amf_pointer, conv::tmsi_to_string(tmsi));
   Logger::amf_n1().debug(
       "Allocated GUTI %s (TMSI %s)", guti.c_str(),
       conv::tmsi_to_string(tmsi).c_str());
@@ -3398,8 +3398,8 @@ void amf_n1::run_mobility_registration_update_procedure(
   initialize_registration_accept(reg_accept, nc);
 
   reg_accept->Set5gGuti(
-      amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
-      amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
+      amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.region_id,
+      amf_cfg.guami.amf_set_id, amf_cfg.guami.amf_pointer, uc->tmsi);
 
   uint8_t buffer[BUFFER_SIZE_1024] = {0};
   int encoded_size = reg_accept->Encode(buffer, BUFFER_SIZE_1024);
@@ -3476,8 +3476,8 @@ void amf_n1::run_periodic_registration_update_procedure(
   }
 
   reg_accept->Set5gGuti(
-      amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
-      amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
+      amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.region_id,
+      amf_cfg.guami.amf_set_id, amf_cfg.guami.amf_pointer, uc->tmsi);
 
   if (pdu_session_status == 0x0000) {
     reg_accept->SetPduSessionStatus(0x0000);
@@ -3543,8 +3543,8 @@ void amf_n1::run_periodic_registration_update_procedure(
   }
 
   reg_accept->Set5gGuti(
-      amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.regionID,
-      amf_cfg.guami.AmfSetID, amf_cfg.guami.AmfPointer, uc->tmsi);
+      amf_cfg.guami.mcc, amf_cfg.guami.mnc, amf_cfg.guami.region_id,
+      amf_cfg.guami.amf_set_id, amf_cfg.guami.amf_pointer, uc->tmsi);
 
   uint16_t pdu_session_status = 0xffff;
   pdu_session_status          = registration_request->GetPduSessionStatus();
