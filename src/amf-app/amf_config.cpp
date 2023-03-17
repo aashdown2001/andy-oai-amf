@@ -731,15 +731,17 @@ void amf_config::display() {
   Logger::config().info(
       "- Emergency Support .......: %s", is_emergency_support.c_str());
 
-  Logger::config().info("- Database: ");
-  Logger::config().info(
-      "    MySQL Server Addr .....: %s", auth_para.mysql_server.c_str());
-  Logger::config().info(
-      "    MySQL user ............: %s", auth_para.mysql_user.c_str());
-  Logger::config().info(
-      "    MySQL pass ............: %s", auth_para.mysql_pass.c_str());
-  Logger::config().info(
-      "    MySQL DB ..............: %s", auth_para.mysql_db.c_str());
+  if (!support_features.enable_external_ausf) {
+    Logger::config().info("- Database: ");
+    Logger::config().info(
+        "    MySQL Server Addr .....: %s", auth_para.mysql_server.c_str());
+    Logger::config().info(
+        "    MySQL user ............: %s", auth_para.mysql_user.c_str());
+    Logger::config().info(
+        "    MySQL pass ............: %s", auth_para.mysql_pass.c_str());
+    Logger::config().info(
+        "    MySQL DB ..............: %s", auth_para.mysql_db.c_str());
+  }
 
   // TODO:
   /*
