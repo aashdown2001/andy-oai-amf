@@ -41,7 +41,7 @@ static itti_timer null_timer(
 void itti_mw::timer_manager_task(
     const util::thread_sched_params& sched_params) {
   Logger::itti().info("Starting timer_manager_task");
-  sched_params.apply(TASK_ITTI_TIMER, ITTI);
+  sched_params.apply(TASK_ITTI_TIMER, Logger::itti());
   while (true) {
     if (itti_inst->terminate) return;
     {

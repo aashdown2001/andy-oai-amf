@@ -164,8 +164,7 @@ int amf_config::load(const std::string& config_file) {
   try {
     std::string string_level;
     amf_cfg.lookupValue(AMF_CONFIG_STRING_LOG_LEVEL, string_level);
-    log_level =
-        oai::logger::logger_registry::level_string_to_enum(string_level);
+    log_level = spdlog::level::from_str(string_level);
   } catch (const SettingNotFoundException& nfex) {
     Logger::amf_app().error(
         "%s : %s, using defaults", nfex.what(), nfex.getPath());
@@ -862,7 +861,7 @@ void amf_config::display() {
       support_features.use_http2 ? "Yes" : "No");
   Logger::config().info(
       "- Log Level will be .......: %s",
-      oai::logger::logger_registry::level_enum_to_string(log_level));
+      spdlog::level::to_string_view(log_level));
 }
 
 //------------------------------------------------------------------------------

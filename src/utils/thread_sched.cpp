@@ -30,14 +30,13 @@ using namespace oai::logger;
 
 //------------------------------------------------------------------------------
 void util::thread_sched_params::apply(
-    const int task_id, const std::string logger_name) const {
+    const int task_id, const oai::logger::printf_logger& logger) const {
   if (cpu_id >= 0) {
     cpu_set_t cpuset;
     CPU_SET(cpu_id, &cpuset);
     if (int rc = pthread_setaffinity_np(
             pthread_self(), sizeof(cpu_set_t), &cpuset)) {
-      logger_registry::get_logger(logger_name)
-          .warn("Could not set affinity to ITTI task %d, err=%d", task_id, rc);
+      logger.warn("Could not set affinity to ITTI task %d, err=%d", task_id, rc);
     }
   }
 
@@ -45,7 +44,6 @@ void util::thread_sched_params::apply(
   memset(&sparam, 0, sizeof(sparam));
   sparam.sched_priority = sched_priority;
   if (int rc = pthread_setschedparam(pthread_self(), sched_policy, &sparam)) {
-    logger_registry::get_logger(logger_name)
-        .warn("Could not set schedparam to ITTI task %d, err=%d", task_id, rc);
+    logger.warn("Could not set schedparam to ITTI task %d, err=%d", task_id, rc);
   }
 }
