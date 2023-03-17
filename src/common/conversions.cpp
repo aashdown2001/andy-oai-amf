@@ -519,7 +519,9 @@ std::string conv::tmsi_to_guti(
 }
 //------------------------------------------------------------------------------
 std::string conv::imsi_to_supi(const std::string& imsi) {
-  return {"imsi-" + imsi};
+  std::string supi_type = DEFAULT_SUPI_TYPE;
+  if (!supi_type.empty()) return {supi_type + "-" + imsi};
+  return imsi;
 }
 
 //------------------------------------------------------------------------------
