@@ -814,6 +814,7 @@ int handover_notification(
 int handover_request(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
+  // TODO: To be verified
   Logger::ngap().debug(
       "Sending ITTI Handover Resource Allocation (HandoverRequest) to "
       "TASK_AMF_N2");
@@ -846,7 +847,7 @@ int handover_request_ack(
     const sctp_assoc_id_t assoc_id, const sctp_stream_id_t stream,
     struct Ngap_NGAP_PDU* message_p) {
   Logger::ngap().debug("Handling Handover Request Ack (AMF->AN)");
-  
+
   output_wrapper::print_asn_msg(&asn_DEF_Ngap_NGAP_PDU, message_p);
   HandoverRequestAck* handover_request_ack = new HandoverRequestAck();
   if (!handover_request_ack->decodeFromPdu(message_p)) {
