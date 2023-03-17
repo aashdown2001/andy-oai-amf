@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
   amf_cfg.display();
   modules.load(Options::getlibconfigConfig());
   modules.display();
-  Logger::set_level(Options::getlogStdout(), amf_cfg.log_level.c_str());
+  Logger::set_level(amf_cfg.log_level);
 
   itti_inst = new itti_mw();
   itti_inst->start(amf_cfg.itti.itti_timer_sched_params);

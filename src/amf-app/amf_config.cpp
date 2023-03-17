@@ -66,7 +66,7 @@ amf_config::amf_config() {
   nssf_addr.port                          = DEFAULT_HTTP1_PORT;
   nssf_addr.api_version                   = DEFAULT_SBI_API_VERSION;
   instance                                = 0;
-  log_level                               = DEFAULT_LOG_LEVEL;
+  log_level                               = spdlog::level::debug;
   n2                                      = {};
   sbi                                     = {};
   sbi_api_version                         = DEFAULT_SBI_API_VERSION;
@@ -162,7 +162,23 @@ int amf_config::load(const std::string& config_file) {
 
   // Log Level
   try {
-    amf_cfg.lookupValue(AMF_CONFIG_STRING_LOG_LEVEL, log_level);
+    std::string string_level;
+    amf_cfg.lookupValue(AMF_CONFIG_STRING_LOG_LEVEL, string_level);
+    if (string_level == "debug") {
+      log_level = spdlog::level::debug;
+    } else if (string_level == "info") {
+      log_level = spdlog::level::info;
+    } else if (string_level == "trace") {
+      log_level = spdlog::level::trace;
+    } else if (string_level == "off") {
+      log_level = spdlog::level::off;
+    } else if (string_level == "warning") {
+      log_level = spdlog::level::warn;
+    } else if (string_level == "error") {
+      log_level = spdlog::level::err;
+    } else {
+      log_level = spdlog::level::debug;
+    }
   } catch (const SettingNotFoundException& nfex) {
     Logger::amf_app().error(
         "%s : %s, using defaults", nfex.what(), nfex.getPath());
@@ -857,7 +873,26 @@ void amf_config::display() {
   Logger::config().info(
       "    Use HTTP2..............: %s",
       support_features.use_http2 ? "Yes" : "No");
-  Logger::config().info("- Log Level will be .......: %s", log_level.c_str());
+  switch (log_level) {
+    case spdlog::level::debug:
+      Logger::config().info("- Log Level will be .......: debug");
+      break;
+    case spdlog::level::info:
+      Logger::config().info("- Log Level will be .......: info");
+      break;
+    case spdlog::level::trace:
+      Logger::config().info("- Log Level will be .......: trace");
+      break;
+    case spdlog::level::warn:
+      Logger::config().info("- Log Level will be .......: warning");
+      break;
+    case spdlog::level::err:
+      Logger::config().info("- Log Level will be .......: error");
+      break;
+    case spdlog::level::off:
+      Logger::config().info("- Log Level will be .......: off");
+      break;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1088,7 +1123,7 @@ bool amf_config::from_json(nlohmann::json& json_data) {
       amf_name = json_data["amf_name"].get<std::string>();
     }
     if (json_data.find("log_level") != json_data.end()) {
-      pid_dir = json_data["log_level"].get<std::string>();
+      log_level = json_data["log_level"].get<spdlog::level::level_enum>();
     }
     if (json_data.find("guami") != json_data.end()) {
       guami.from_json(json_data["guami"]);

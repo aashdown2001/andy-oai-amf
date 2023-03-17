@@ -500,7 +500,7 @@ class amf_config {
 
   unsigned int instance;
   std::string pid_dir;
-  std::string log_level;
+  spdlog::level::level_enum log_level;
   interface_cfg_t n2;
   interface_cfg_t sbi;
   itti_cfg_t itti;
